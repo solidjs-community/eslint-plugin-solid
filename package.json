@@ -1,0 +1,45 @@
+{
+  "name": "eslint-plugin-solid",
+  "version": "0.0.1",
+  "description": "Solid-specific linting rules for ESLint.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/joshwilsonvu/eslint-plugin-solid",
+  "author": "Josh Wilson <joshwilsonvu@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "scripts": {
+    "prepare": "husky install",
+    "build": "tsc",
+    "test": "mocha -r ts-node/register test/**/*.test.ts"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.1",
+    "@types/eslint": "^7.2.13",
+    "@types/estree-jsx": "^0.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.2",
+    "@typescript-eslint/parser": "^4.28.2",
+    "eslint": "^7.30.0",
+    "eslint-plugin-eslint-plugin": "^3.3.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-testing-library": "^4.7.0",
+    "husky": "^7.0.0",
+    "lint-staged": "^11.0.0",
+    "mocha": "^9.0.2",
+    "prettier": "^2.3.2",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.5"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}
