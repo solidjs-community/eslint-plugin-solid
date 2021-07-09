@@ -1,5 +1,5 @@
 import { ruleTester } from "../ruleTester";
-import rule from "../../src/rules/no-classname";
+import rule, { message } from "../../src/rules/prefer-class-prop";
 
 ruleTester.run("no-classname", rule, {
   valid: [
@@ -12,15 +12,18 @@ ruleTester.run("no-classname", rule, {
   invalid: [
     {
       code: `const el = <div className="greeting">Hello world!</div>`,
-      errors: [{ message: "foo" }],
+      errors: [message],
+      output: `const el = <div class="greeting">Hello world!</div>`,
     },
     {
       code: `const el = <div className={"greeting"}>Hello world!</div>`,
-      errors: [{ message: "foo" }],
+      errors: [message],
+      output: `const el = <div class={"greeting"}>Hello world!</div>`,
     },
     {
       code: `const el = <div many other attributes className="greeting">Hello world!</div>`,
-      errors: [{ message: "foo" }],
+      errors: [message],
+      output: `const el = <div many other attributes class="greeting">Hello world!</div>`,
     },
   ],
 });

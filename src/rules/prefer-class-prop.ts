@@ -4,12 +4,14 @@ function isDOMElementName(name: string) {
   return name === name.toLowerCase();
 }
 
+export const message = "Prefer the `class` prop over `className`.";
+
 const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
     docs: {
       description:
-        "Prevents usage of React's `className` prop on DOM elements, fixing to use `class` instead.",
+        "Prevents usage of React's `className` prop on DOM elements, fixing to use `class` instead (although `className` is technically supported).",
     },
     fixable: "code",
   },
@@ -26,14 +28,20 @@ const rule: Rule.RuleModule = {
               attr.name.type === "JSXIdentifier" &&
               attr.name.name === "className"
           );
+          // only auto-fix if there is no class prop defined
+          const fix = !node.attributes.some(
+            (attr) =>
+              attr.type === "JSXAttribute" &&
+              attr.name.type === "JSXIdentifier" &&
+              attr.name.name === "class"
+          )
+            ? (fixer) => fixer.replaceText(classNameAttribute.name, "class")
+            : undefined;
           if (classNameAttribute) {
             context.report({
-              node,
-              message:
-                "Unexpected usage of `className` for element '{{ el }}', did you mean `class`?",
-              data: {
-                el: node.name,
-              },
+              node: classNameAttribute,
+              message,
+              fix,
             });
           }
         }
