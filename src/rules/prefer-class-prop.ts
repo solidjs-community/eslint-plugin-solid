@@ -1,10 +1,5 @@
 import type { Rule } from "eslint";
-
-function isDOMElementName(name: string) {
-  return name === name.toLowerCase();
-}
-
-export const message = "Prefer the `class` prop over `className`.";
+import { elementType, getProp, hasProp } from "jsx-ast-utils";
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -13,34 +8,24 @@ const rule: Rule.RuleModule = {
       description:
         "Prevents usage of React's `className` prop on DOM elements, fixing to use `class` instead (although `className` is technically supported).",
     },
+    messages: {
+      preferClass: "Prefer the `class` prop over `className`.",
+    },
     fixable: "code",
   },
   create(context): Rule.RuleListener {
     return {
       JSXOpeningElement(node) {
-        if (
-          node.name.type === "JSXIdentifier" &&
-          isDOMElementName(node.name.name)
-        ) {
-          const classNameAttribute = node.attributes.find(
-            (attr) =>
-              attr.type === "JSXAttribute" &&
-              attr.name.type === "JSXIdentifier" &&
-              attr.name.name === "className"
-          );
+        if (isDOMElementName(elementType(node))) {
+          const classNameAttribute = getProp(node.attributes, "className");
           // only auto-fix if there is no class prop defined
-          const fix = !node.attributes.some(
-            (attr) =>
-              attr.type === "JSXAttribute" &&
-              attr.name.type === "JSXIdentifier" &&
-              attr.name.name === "class"
-          )
+          const fix = !hasProp(node.attributes, "class", { ignoreCase: false })
             ? (fixer) => fixer.replaceText(classNameAttribute.name, "class")
             : undefined;
           if (classNameAttribute) {
             context.report({
               node: classNameAttribute,
-              message,
+              messageId: "preferClass",
               fix,
             });
           }
@@ -49,5 +34,9 @@ const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isDOMElementName(name: string) {
+  return name === name.toLowerCase();
+}
 
 export default rule;

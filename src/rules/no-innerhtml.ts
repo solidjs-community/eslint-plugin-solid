@@ -1,4 +1,5 @@
 import type { Rule } from "eslint";
+import { propName } from "jsx-ast-utils";
 import { getStringIfConstant } from "eslint-utils";
 import isHtml from "is-html";
 
@@ -30,45 +31,39 @@ const rule: Rule.RuleModule = {
         "the string passed to innerHTML does not appear to be valid HTML",
       useInnerText: "for text content, using innerText is clearer and safer",
     },
+    fixable: "code",
   },
   create(context): Rule.RuleListener {
     return {
       JSXAttribute(node) {
-        if (
-          node.name.type === "JSXIdentifier" &&
-          node.name.name === "innerHTML"
-        ) {
-          if (context.options[0]?.allowStatic) {
-            const innerHtmlNode =
-              node.value.type === "JSXExpressionContainer"
-                ? node.value.expression
-                : node.value;
-            const innerHtml = getStringIfConstant(innerHtmlNode);
-            if (typeof innerHtml === "string") {
-              if (isHtml(innerHtml)) {
-                // go up to enclosing JSXElement and check if it has children
-                if (node.parent.parent.children?.length) {
-                  context.report({
-                    node: node.parent.parent, // report error on JSXElement instead of JSXAttribute
-                    messageId: "conflict",
-                  });
-                }
-              } else {
+        if (propName(node) !== "innerHTML") {
+          return;
+        }
+        if (context.options[0]?.allowStatic) {
+          const innerHtmlNode =
+            node.value.type === "JSXExpressionContainer"
+              ? node.value.expression
+              : node.value;
+          const innerHtml = getStringIfConstant(innerHtmlNode);
+          if (typeof innerHtml === "string") {
+            if (isHtml(innerHtml)) {
+              // go up to enclosing JSXElement and check if it has children
+              if (node.parent.parent.children?.length) {
                 context.report({
-                  node,
-                  messageId: "notHtml",
-                  suggest: [
-                    {
-                      fix: (fixer) => fixer.replaceText(node.name, "innerText"),
-                      messageId: "useInnerText",
-                    },
-                  ],
+                  node: node.parent.parent, // report error on JSXElement instead of JSXAttribute
+                  messageId: "conflict",
                 });
               }
             } else {
               context.report({
                 node,
-                messageId: "dangerous",
+                messageId: "notHtml",
+                suggest: [
+                  {
+                    fix: (fixer) => fixer.replaceText(node.name, "innerText"),
+                    messageId: "useInnerText",
+                  },
+                ],
               });
             }
           } else {
@@ -77,6 +72,11 @@ const rule: Rule.RuleModule = {
               messageId: "dangerous",
             });
           }
+        } else {
+          context.report({
+            node,
+            messageId: "dangerous",
+          });
         }
       },
     };
