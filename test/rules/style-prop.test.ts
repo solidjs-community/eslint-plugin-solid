@@ -90,5 +90,18 @@ ruleTester.run("style-prop", rule, {
       code: `const el = <div style={\`font-size: 10px;\`}>Hello, world!</div>`,
       errors: [{ messageId: "stringStyle" }],
     },
+    {
+      code: `const el = <div style={{ 'font-size': 10 }}>Hello, world!</div>`,
+      errors: [{ messageId: "numericStyleValue" }],
+    },
+    {
+      code: `const el = <div style={{ 'margin-top': -10 }}>Hello, world!</div>`,
+      errors: [{ messageId: "numericStyleValue" }],
+    },
+    {
+      code: `const el = <div style={{ padding: 0 }}>Hello, world!</div>`,
+      errors: [{ messageId: "zeroStyleValue" }],
+      output: `const el = <div style={{ padding: "0" }}>Hello, world!</div>`,
+    },
   ],
 });
