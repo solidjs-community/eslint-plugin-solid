@@ -1,9 +1,28 @@
 import type { Rule } from "eslint";
 import { elementType, getProp, hasProp } from "jsx-ast-utils";
+import { isDOMElementName } from "../utils";
+
+const reactSpecificProps = [
+  { from: "className", to: "class" },
+  { from: "htmlFor", to: "for" },
+  { from: "tabIndex", to: "tabindex" },
+];
 
 const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
+    schema: [
+      {
+        type: "object",
+        properties: {
+          // don't just check DOM elements, check components (starting with uppercase letter) too
+          checkComponents: {
+            type: "boolean",
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     docs: {
       description:
         "Prevents usage of React's `className` prop on DOM elements, fixing to use `class` instead (although `className` is technically supported).",
@@ -14,9 +33,10 @@ const rule: Rule.RuleModule = {
     fixable: "code",
   },
   create(context): Rule.RuleListener {
+    const checkComponents = context.options[0]?.checkComponents ?? false;
     return {
       JSXOpeningElement(node) {
-        if (isDOMElementName(elementType(node))) {
+        if (!checkComponents || isDOMElementName(elementType(node))) {
           const classNameAttribute = getProp(node.attributes, "className");
           // only auto-fix if there is no class prop defined
           const fix = !hasProp(node.attributes, "class", { ignoreCase: false })
@@ -34,9 +54,5 @@ const rule: Rule.RuleModule = {
     };
   },
 };
-
-function isDOMElementName(name: string) {
-  return name === name.toLowerCase();
-}
 
 export default rule;

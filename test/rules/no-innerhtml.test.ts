@@ -1,7 +1,7 @@
-import { ruleTester } from "../ruleTester";
+import { run } from "../ruleTester";
 import rule from "../../src/rules/no-innerhtml";
 
-ruleTester.run("no-innerhtml", rule, {
+run("no-innerhtml", rule, {
   valid: [
     `const el = <div prop1 prop2={2}>Hello world!</div>`,
     `const el = <Box prop1 prop2={2}>Hello world!</Box>`,

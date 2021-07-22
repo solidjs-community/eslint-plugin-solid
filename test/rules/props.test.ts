@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { ruleTester } from "../ruleTester";
+import { run } from "../ruleTester";
 // import rule from "../../src/rules/props";
 
 // ruleTester.run("props", rule, {

@@ -1,7 +1,7 @@
-import { ruleTester } from "../ruleTester";
+import { run } from "../ruleTester";
 import rule from "../../src/rules/style-prop";
 
-ruleTester.run("style-prop", rule, {
+run("style-prop", rule, {
   valid: [
     `const el = <div style={{ color: 'red' }}>Hello, world!</div>`,
     `const el = <div style={{ color: 'red', 'background-color': 'green' }}>Hello, world!</div>`,

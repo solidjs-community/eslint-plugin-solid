@@ -9,5 +9,5 @@
     "isolatedModules": true,
     "outDir": "dist",
   },
-  "include": ["src/**/*.ts", "test/rules/prefer-class-prop.test.ts"]
+  "include": ["src/**/*.ts", "test/rules/no-react-specific-props.ts"]
 }

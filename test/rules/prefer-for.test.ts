@@ -1,7 +1,7 @@
-import { ruleTester } from "../ruleTester";
+import { run } from "../ruleTester";
 import rule from "../../src/rules/prefer-for";
 
-ruleTester.run("prefer-for", rule, {
+run("prefer-for", rule, {
   valid: [
     `const Component = (props) => <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;`,
     `const abc = x.map(y => y + z);`,

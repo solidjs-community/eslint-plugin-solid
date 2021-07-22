@@ -2,7 +2,7 @@ name: CI
 on: [push]
 jobs:
   build:
-    name: Test
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,4 +23,4 @@ jobs:
 
       - run: yarn
       - run: yarn run eslint
-      - run: yarn test
+      - run: yarn test:all

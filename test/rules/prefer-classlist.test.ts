@@ -1,7 +1,7 @@
-import { ruleTester } from "../ruleTester";
+import { run } from "../ruleTester";
 import rule from "../../src/rules/prefer-classlist";
 
-ruleTester.run("prefer-classlist", rule, {
+run("prefer-classlist", rule, {
   valid: [
     `const el = <div classlist={{ red: true }}>Hello, world!</div>`,
     `const el = <div class="red">Hello, world!</div>`,
