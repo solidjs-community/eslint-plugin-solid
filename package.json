@@ -55,7 +55,7 @@
     "*.{js,ts}": [
       "eslint --fix",
       "prettier --write",
-      "yarn test:all"
+      "yarn test"
     ]
   }
 }
