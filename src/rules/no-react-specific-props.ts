@@ -1,6 +1,5 @@
 import type { Rule } from "eslint";
-import { elementType, getProp, hasProp } from "jsx-ast-utils";
-import { isDOMElementName } from "../utils";
+import { getProp, hasProp } from "jsx-ast-utils";
 
 const reactSpecificProps = [
   { from: "className", to: "class" },
