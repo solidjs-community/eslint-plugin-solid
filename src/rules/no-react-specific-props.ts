@@ -9,18 +9,6 @@ const reactSpecificProps = [
 const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
-    schema: [
-      {
-        type: "object",
-        properties: {
-          // don't just check DOM elements, check components (starting with uppercase letter) too
-          checkComponents: {
-            type: "boolean",
-          },
-        },
-        additionalProperties: false,
-      },
-    ],
     docs: {
       description:
         "Prevents usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility).",
