@@ -5,7 +5,6 @@ import { isDOMElementName } from "../utils";
 const reactSpecificProps = [
   { from: "className", to: "class" },
   { from: "htmlFor", to: "for" },
-  { from: "tabIndex", to: "tabindex" },
 ];
 
 const rule: Rule.RuleModule = {
@@ -25,27 +24,27 @@ const rule: Rule.RuleModule = {
     ],
     docs: {
       description:
-        "Prevents usage of React's `className` prop on DOM elements, fixing to use `class` instead (although `className` is technically supported).",
+        "Prevents usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility).",
     },
     messages: {
-      preferClass: "Prefer the `class` prop over `className`.",
+      prefer: "Prefer the `{{ to }}` prop over `{{ from }}`.",
     },
     fixable: "code",
   },
   create(context): Rule.RuleListener {
-    const checkComponents = context.options[0]?.checkComponents ?? false;
     return {
       JSXOpeningElement(node) {
-        if (!checkComponents || isDOMElementName(elementType(node))) {
-          const classNameAttribute = getProp(node.attributes, "className");
+        for (const { from, to } of reactSpecificProps) {
+          const classNameAttribute = getProp(node.attributes, from);
           // only auto-fix if there is no class prop defined
           const fix = !hasProp(node.attributes, "class", { ignoreCase: false })
-            ? (fixer) => fixer.replaceText(classNameAttribute.name, "class")
+            ? (fixer) => fixer.replaceText(classNameAttribute.name, to)
             : undefined;
           if (classNameAttribute) {
             context.report({
               node: classNameAttribute,
-              messageId: "preferClass",
+              messageId: "prefer",
+              data: { from, to },
               fix,
             });
           }
