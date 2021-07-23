@@ -3,37 +3,37 @@ import rule from "../../src/rules/no-innerhtml";
 
 run("no-innerhtml", rule, {
   valid: [
-    `const el = <div prop1 prop2={2}>Hello world!</div>`,
-    `const el = <Box prop1 prop2={2}>Hello world!</Box>`,
+    `let el = <div prop1 prop2={2}>Hello world!</div>`,
+    `let el = <Box prop1 prop2={2}>Hello world!</Box>`,
     {
-      code: `const el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>" />`,
+      code: `let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>" />`,
       options: [{ allowStatic: true }],
     },
     {
-      code: `const el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />`,
+      code: `let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />`,
       options: [{ allowStatic: true }],
     },
     {
-      code: `const el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>"></div>`,
+      code: `let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>"></div>`,
       options: [{ allowStatic: true }],
     },
   ],
   invalid: [
     {
-      code: `const el = <div prop1 prop2={2} innerHTML="<p>Hello</><p>world!</p>" />`,
+      code: `let el = <div prop1 prop2={2} innerHTML="<p>Hello</><p>world!</p>" />`,
       errors: [{ messageId: "dangerous" }],
     },
     {
-      code: `const el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />`,
+      code: `let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />`,
       errors: [{ messageId: "dangerous" }],
     },
     {
-      code: `const el = <div prop1 prop2={2} innerHTML={Math.random()} />`,
+      code: `let el = <div prop1 prop2={2} innerHTML={Math.random()} />`,
       options: [{ allowStatic: true }],
       errors: [{ messageId: "dangerous" }],
     },
     {
-      code: `const el = <div prop1 prop2={2} innerHTML="Hello world!" />`,
+      code: `let el = <div prop1 prop2={2} innerHTML="Hello world!" />`,
       options: [{ allowStatic: true }],
       errors: [
         {
@@ -41,7 +41,7 @@ run("no-innerhtml", rule, {
           suggestions: [
             {
               messageId: "useInnerText",
-              output: `const el = <div prop1 prop2={2} innerText="Hello world!" />`,
+              output: `let el = <div prop1 prop2={2} innerText="Hello world!" />`,
             },
           ],
         },
@@ -49,7 +49,7 @@ run("no-innerhtml", rule, {
     },
     {
       code: `
-        const el = (
+        let el = (
           <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
             <p>Child element content</p>
           </div>
@@ -60,7 +60,7 @@ run("no-innerhtml", rule, {
     },
     {
       code: `
-        const el = (
+        let el = (
           <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
             <p>Child element content 1</p>
             <p>Child element context 2</p>
@@ -72,7 +72,7 @@ run("no-innerhtml", rule, {
     },
     {
       code: `
-        const el = (
+        let el = (
           <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
             {"Child text content"}
           </div>
@@ -83,7 +83,7 @@ run("no-innerhtml", rule, {
     },
     {
       code: `
-        const el = (
+        let el = (
           <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
             {identifier}
           </div>

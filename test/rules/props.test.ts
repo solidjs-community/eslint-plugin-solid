@@ -5,19 +5,19 @@ import { run } from "../ruleTester";
 // ruleTester.run("props", rule, {
 //   valid: [
 //     // Examples straight from the Solid docs
-//     `const BasicComponent = props => {
+//     `let BasicComponent = props => {
 //       return <div>{props.value || "default"}</div>;
 //     };`,
-//     `const BasicComponent = props => {
+//     `let BasicComponent = props => {
 //       const value = () => props.value || "default";
 
 //       return <div>{value()}</div>;
 //     };`,
-//     `const BasicComponent = props => {
+//     `let BasicComponent = props => {
 //       const value = createMemo(() => props.value || "default");
 //       return <div>{value()}</div>;
 //     };`,
-//     `const BasicComponent = props => {
+//     `let BasicComponent = props => {
 //       props = mergeProps({ value: "default" }, props);
 //       return <div>{props.value}</div>;
 //     };`,

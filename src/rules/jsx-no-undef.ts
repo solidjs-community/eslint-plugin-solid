@@ -26,6 +26,8 @@ const rule: Rule.RuleModule = {
     },
     messages: {
       undefined: "'{{identifier}}' is not defined.",
+      customDirectiveUndefined:
+        "Custom directive '{{identifier}}' is not defined.",
     },
   },
   create(context) {
@@ -36,7 +38,10 @@ const rule: Rule.RuleModule = {
      * @param {ASTNode} node - Identifier or JSXIdentifier node
      * @returns {void}
      */
-    function checkIdentifierInJSX(node) {
+    function checkIdentifierInJSX(
+      node,
+      { isCustomDirective }: { isCustomDirective?: boolean } = {}
+    ) {
       let scope = context.getScope();
       const sourceCode = context.getSourceCode();
       const sourceType = sourceCode.ast.sourceType;
@@ -70,7 +75,7 @@ const rule: Rule.RuleModule = {
 
       context.report({
         node,
-        messageId: "undefined",
+        messageId: isCustomDirective ? "customDirectiveUndefined" : "undefined",
         data: {
           identifier: node.name,
         },
@@ -81,7 +86,7 @@ const rule: Rule.RuleModule = {
       JSXOpeningElement(node) {
         switch (node.name.type) {
           case "JSXIdentifier":
-            if (isDOMElementName(node)) {
+            if (isDOMElementName(node.name.name)) {
               return;
             }
             checkIdentifierInJSX(node.name);
@@ -91,7 +96,7 @@ const rule: Rule.RuleModule = {
             do {
               node = node.object;
             } while (node && node.type !== "JSXIdentifier");
-            checkIdentifierInJSX(node.name);
+            checkIdentifierInJSX(node);
             break;
           case "JSXNamespacedName":
             return;
@@ -106,7 +111,7 @@ const rule: Rule.RuleModule = {
           node.namespace.name === "use" &&
           node.name?.type === "JSXIdentifier"
         ) {
-          checkIdentifierInJSX(node.name.name);
+          checkIdentifierInJSX(node.name, { isCustomDirective: true });
         }
       },
     };

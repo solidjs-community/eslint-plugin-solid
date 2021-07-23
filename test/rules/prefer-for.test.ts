@@ -3,20 +3,20 @@ import rule from "../../src/rules/prefer-for";
 
 run("prefer-for", rule, {
   valid: [
-    `const Component = (props) => <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;`,
-    `const abc = x.map(y => y + z);`,
-    `const Component = (props) => {
-      const abc = x.map(y => y + z);
+    `let Component = (props) => <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;`,
+    `let abc = x.map(y => y + z);`,
+    `let Component = (props) => {
+      let abc = x.map(y => y + z);
       return <div>Hello, world!</div>;
     }`,
   ],
   invalid: [
     {
-      code: `const Component = (props) => <ol>{props.data.map(d => <li>{d.text}</li>)}</ol>;`,
+      code: `let Component = (props) => <ol>{props.data.map(d => <li>{d.text}</li>)}</ol>;`,
       errors: [{ messageId: "preferFor" }],
     },
     {
-      code: `const Component = (props) => <ol>{props.data.map(d => <li key={d.id}>{d.text}</li>)}</ol>;`,
+      code: `let Component = (props) => <ol>{props.data.map(d => <li key={d.id}>{d.text}</li>)}</ol>;`,
       errors: [{ messageId: "preferFor" }],
     },
     {
