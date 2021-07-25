@@ -23,11 +23,12 @@ const rule: Rule.RuleModule = {
       JSXOpeningElement(node) {
         for (const { from, to } of reactSpecificProps) {
           const classNameAttribute = getProp(node.attributes, from);
-          // only auto-fix if there is no class prop defined
-          const fix = !hasProp(node.attributes, "class", { ignoreCase: false })
-            ? (fixer) => fixer.replaceText(classNameAttribute.name, to)
-            : undefined;
           if (classNameAttribute) {
+            // only auto-fix if there is no class prop defined
+            const fix = !hasProp(node.attributes, to, { ignoreCase: false })
+              ? (fixer) => fixer.replaceText(classNameAttribute.name, to)
+              : undefined;
+
             context.report({
               node: classNameAttribute,
               messageId: "prefer",
