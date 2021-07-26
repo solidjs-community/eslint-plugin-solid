@@ -4,9 +4,17 @@
  * are done in tracked scopes (that's component bodies, JSX attributes, effects, memos, transitions). This needs to account
  * for exceptions (on, untrack) and make sure getters are called, not passed by value alone, except where they are object
  * getters and the calling is done implicitly.
+ * This doesn't forbid destructuring props, the most common mistake with Solid's reactivity, but it does forbid using
+ * the destructured props. TODO: another rule could catch this sooner.
  * By definition this will involve some scope analysis, which ESLint provides. That means analysis must be done on exiting
- * nodes/code paths rather than entering. There are two ways to go about this: find reactive expressions and iterate through their
- * usages, or find all expressions and check if they are reactive.
+ * nodes/code paths rather than entering. We can't find all expressions in tracked scopes and check if they are reactive,
+ * because not all of those expressions need to be reactive. Instead, we find reactive expressions and iterate through their
+ * usages to ensure they are used in tracked scopes.
+ *
+ * > Tracking scopes are functions that are passed to computations like createEffect or JSX expressions.
+ * > All callback/render function children of control flow are non-tracking. This allows for nesting state creation, and better isolates reactions.
+ * > Solid's compiler uses a simple heuristic for reactive wrapping and lazy evaluation of JSX expressions.
+ * >   Does it contain a function call, a property access, or JSX?
  */
 
 /* eslint-disable */

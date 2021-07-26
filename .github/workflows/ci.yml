@@ -22,5 +22,6 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - run: yarn
+      - run: yarn build
       - run: yarn run eslint
       - run: yarn test:all
