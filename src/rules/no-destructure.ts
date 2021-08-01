@@ -1,14 +1,14 @@
+/* eslint-disable */
 import type { Rule } from "eslint";
 
 const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
     docs: {
-      description:
-        "Prevents usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility).",
+      description: "",
     },
     messages: {
-      prefer: "Prefer the `{{ to }}` prop over `{{ from }}`.",
+      prefer: "",
     },
     fixable: "code",
   },
@@ -16,3 +16,5 @@ const rule: Rule.RuleModule = {
     return {};
   },
 };
+
+export default rule;

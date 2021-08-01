@@ -6,6 +6,10 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:eslint-plugin/recommended",
-    "plugin:import/recommended"
-  ]
+    "plugin:import/recommended",
+    "plugin:import/typescript"
+  ],
+  "rules": {
+    "import/no-unresolved": 0
+  }
 }
