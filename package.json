@@ -12,14 +12,12 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node scripts/docs.js",
     "test": "mocha -r ts-node/register --extension=ts test/**/*.test.ts",
     "test:ts": "PARSER=ts yarn test",
     "test:babel": "PARSER=babel yarn test",
     "test:v6": "PARSER=v6 yarn test",
-    "test:all": "PARSER=all yarn test",
-    "rules": "md-magic --path README.md",
-    "rules:check": "yarn rules && git diff --exit-code README.md"
+    "test:all": "PARSER=all yarn test"
   },
   "files": [
     "src",

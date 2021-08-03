@@ -64,4 +64,14 @@ would like to use.
 ## Rules
 
 <!-- AUTO-GENERATED-CONTENT:START (RULES) -->
+| ✔ | 🔧 | Rule | Description |
+| :---: | :---: | :--- | :--- |
+|  | 🔧 | [solid/jsx-no-undef](docs/rules/jsx-no-undef.md) | Prevents references to undefined variables in JSX. |
+|  |  | [solid/jsx-uses-vars](docs/rules/jsx-uses-vars.md) | Prevent variables used in JSX to be marked as unused |
+|  | 🔧 | [solid/no-innerhtml](docs/rules/no-innerhtml.md) | Prevents usage of the innerHTML attribute, which can often lead to security vulnerabilities |
+|  | 🔧 | [solid/no-react-specific-props](docs/rules/no-react-specific-props.md) | Prevents usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility). |
+|  |  | [solid/no-unknown-namespaces](docs/rules/no-unknown-namespaces.md) | Ensures that only Solid-specific namespaced attribute names (i.e. 'on:' in <div on:click={...} />) are used. |
+|  | 🔧 | [solid/prefer-classlist](docs/rules/prefer-classlist.md) | Recommends using the classlist prop over importing a classnames helper. The classlist prop accepts an object { [class: string]: boolean } just like classnames. |
+|  | 🔧 | [solid/prefer-for](docs/rules/prefer-for.md) | Recommends using Solid's <For /> component for mapping an array to JSX elements. |
+|  | 🔧 | [solid/style-prop](docs/rules/style-prop.md) | Ensures CSS properties in the `style` prop are valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values are strings, not numbers with implicit 'px' units. |
 <!-- AUTO-GENERATED-CONTENT:END -->

@@ -1,8 +1,14 @@
 "use strict";
 
 /* eslint-disable */
+function importDefault(mod) {
+  return mod && mod.__esModule ? mod : { default: mod };
+}
 
-const { rules, configs } = require("./index");
+const path = require("path");
+const markdownMagic = require("markdown-magic");
+console.log(importDefault(require("../dist/index")));
+const { rules, configs } = importDefault(require("../dist/index")).default;
 
 const recommendedRules = Object.keys(configs.recommended.rules);
 const ruleTableRows = Object.keys(rules)
@@ -26,8 +32,8 @@ const buildRulesTable = (rows) => {
 
 const RULES = () => buildRulesTable(ruleTableRows);
 
-module.exports = {
+markdownMagic(path.join(__dirname, "..", "README.md"), {
   transforms: {
     RULES,
   },
-};
+});
