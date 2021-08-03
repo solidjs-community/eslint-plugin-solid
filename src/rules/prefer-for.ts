@@ -9,7 +9,7 @@ const rule: Rule.RuleModule = {
         "Recommends using Solid's <For /> component for mapping an array to JSX elements.",
     },
     messages: {
-      preferFor: "Use Solid's `<For />` component for rendering lists.",
+      preferFor: "Use Solid's `<For />` component for efficiently rendering lists.",
       preferForOrIndex:
         "Use Solid's `<For />` component or `<Index />` component for rendering lists.",
     },
@@ -33,6 +33,7 @@ const rule: Rule.RuleModule = {
             mapFnNode.range[1],
             jsxExpressionContainerNode.range[1],
           ];
+          // We can insert the <For /> component
           return [
             fixer.replaceTextRange(beforeArray, "<For each={"),
             fixer.replaceTextRange(betweenArrayAndMapFn, "}>{"),

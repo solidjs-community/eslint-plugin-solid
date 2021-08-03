@@ -17,11 +17,14 @@
     "test:ts": "PARSER=ts yarn test",
     "test:babel": "PARSER=babel yarn test",
     "test:v6": "PARSER=v6 yarn test",
-    "test:all": "PARSER=all yarn test"
+    "test:all": "PARSER=all yarn test",
+    "rules": "md-magic --path README.md",
+    "rules:check": "yarn rules && git diff --exit-code README.md"
   },
   "files": [
     "src",
-    "dist"
+    "dist",
+    "README.md"
   ],
   "dependencies": {
     "eslint-utils": "^3.0.0",
@@ -47,6 +50,7 @@
     "eslint-v6": "npm:eslint@^6.0.0",
     "husky": "^7.0.0",
     "lint-staged": "^11.0.0",
+    "markdown-magic": "^2.5.2",
     "mocha": "^9.0.2",
     "prettier": "^2.3.2",
     "ts-node": "^10.0.0",
@@ -58,8 +62,7 @@
   "lint-staged": {
     "*.{js,ts}": [
       "eslint --fix",
-      "prettier --write",
-      "yarn test"
+      "prettier --write"
     ]
   },
   "prettier": {
