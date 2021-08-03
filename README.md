@@ -29,6 +29,7 @@ Use our preset configuration to get reasonable defaults.
 
 ```json
 {
+  "plugins": ["solid"],
   "extends": ["eslint/recommended", "plugin:solid/recommended"]
 }
 ```
