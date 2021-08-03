@@ -7,7 +7,6 @@ function importDefault(mod) {
 
 const path = require("path");
 const markdownMagic = require("markdown-magic");
-console.log(importDefault(require("../dist/index")));
 const { rules, configs } = importDefault(require("../dist/index")).default;
 
 const recommendedRules = Object.keys(configs.recommended.rules);
