@@ -23,7 +23,7 @@ const rule: Rule.RuleModule = {
     ],
     docs: {
       description:
-        "Recommends using the classlist prop over importing a classnames helper. The classlist prop accepts an object { [class: string]: boolean } just like classnames.",
+        "Recommends using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames.",
     },
     messages: {
       preferClasslist:
@@ -32,11 +32,7 @@ const rule: Rule.RuleModule = {
     fixable: "code",
   },
   create(context): Rule.RuleListener {
-    const classnames = context.options[0]?.classnames ?? [
-      "cn",
-      "clsx",
-      "classnames",
-    ];
+    const classnames = context.options[0]?.classnames ?? ["cn", "clsx", "classnames"];
     return {
       JSXAttribute(node) {
         if (
@@ -64,10 +60,7 @@ const rule: Rule.RuleModule = {
                 const attrRange = node.range;
                 const objectRange = expr.arguments[0].range;
                 return [
-                  fixer.replaceTextRange(
-                    [attrRange[0], objectRange[0]],
-                    "classlist={"
-                  ),
+                  fixer.replaceTextRange([attrRange[0], objectRange[0]], "classlist={"),
                   fixer.replaceTextRange([objectRange[1], attrRange[1]], "}"),
                 ];
               },

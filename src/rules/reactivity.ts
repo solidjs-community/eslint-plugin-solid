@@ -38,17 +38,14 @@ const find = (
   }
   return null;
 };
-const findParent = (
-  node: Rule.Node,
-  predicate: (node: Rule.Node) => boolean | Rule.Node
-) => find(node.parent, predicate);
+const findParent = (node: Rule.Node, predicate: (node: Rule.Node) => boolean | Rule.Node) =>
+  find(node.parent, predicate);
 
 const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
     docs: {
-      description:
-        "Ensures that component props are evaluated lazily, not destructured, ",
+      description: "Ensures that component props are evaluated lazily, not destructured, ",
     },
     messages: {},
     fixable: "code",

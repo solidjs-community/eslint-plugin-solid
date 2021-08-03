@@ -27,8 +27,7 @@ const rule: Rule.RuleModule = {
         "innerHTML is dangerous; passing unsanitized input can lead to security vulnerabilities",
       conflict:
         "innerHTML should not be used on an element with child elements, as they will be overwritten",
-      notHtml:
-        "the string passed to innerHTML does not appear to be valid HTML",
+      notHtml: "the string passed to innerHTML does not appear to be valid HTML",
       useInnerText: "for text content, using innerText is clearer and safer",
     },
     fixable: "code",
@@ -41,9 +40,7 @@ const rule: Rule.RuleModule = {
         }
         if (context.options[0]?.allowStatic) {
           const innerHtmlNode =
-            node.value.type === "JSXExpressionContainer"
-              ? node.value.expression
-              : node.value;
+            node.value.type === "JSXExpressionContainer" ? node.value.expression : node.value;
           const innerHtml = getStringIfConstant(innerHtmlNode);
           if (typeof innerHtml === "string") {
             if (isHtml(innerHtml)) {

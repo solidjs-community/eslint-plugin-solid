@@ -6,7 +6,7 @@ const rule: Rule.RuleModule = {
     type: "problem",
     docs: {
       description:
-        "Recommends using Solid's <For /> component for mapping an array to JSX elements.",
+        "Recommends using Solid's `<For />` component for mapping an array to JSX elements.",
     },
     messages: {
       preferFor: "Use Solid's `<For />` component for efficiently rendering lists.",

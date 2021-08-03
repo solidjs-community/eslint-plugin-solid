@@ -8,7 +8,7 @@ const rule: Rule.RuleModule = {
     type: "problem",
     docs: {
       description:
-        "Ensures that only Solid-specific namespaced attribute names (i.e. 'on:' in <div on:click={...} />) are used.",
+        "Ensures that only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`) are used.",
     },
     messages: {
       unknown: `'{{namespace}}:' is not one of Solid's special prefixes for JSX attributes (${knownNamespaces

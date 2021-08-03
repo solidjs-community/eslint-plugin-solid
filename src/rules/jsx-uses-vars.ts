@@ -9,7 +9,7 @@ import type { Rule } from "eslint";
 const rule: Rule.RuleModule = {
   meta: {
     docs: {
-      description: "Prevent variables used in JSX to be marked as unused",
+      description: "Prevent variables used in JSX from being marked as unused.",
     },
     schema: [],
   },

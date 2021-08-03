@@ -25,7 +25,7 @@ yarn add --dev eslint eslint-plugin-solid
 
 ## Configuration
 
-Use our preset to get reasonable defaults.
+Use our preset configuration to get reasonable defaults.
 
 ```json
 {
@@ -33,7 +33,7 @@ Use our preset to get reasonable defaults.
 }
 ```
 
-> Pre-1.0.0, the `recommended` config will be stable across patch (`0.0.x`) versions,
+> Pre-1.0.0, the `recommended` configuation will be stable across patch (`0.0.x`) versions,
 > but may change across minor (`0.x`) versions. If you want to pin a minor version,
 > use a tilde in your `package.json`.
 
@@ -63,15 +63,18 @@ would like to use.
 
 ## Rules
 
+✔: Enabled in the `recommended` configuration.
+🔧: Fixable with [`eslint --fix`](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).
+
 <!-- AUTO-GENERATED-CONTENT:START (RULES) -->
 | ✔ | 🔧 | Rule | Description |
 | :---: | :---: | :--- | :--- |
-|  | 🔧 | [solid/jsx-no-undef](docs/rules/jsx-no-undef.md) | Prevents references to undefined variables in JSX. |
-|  |  | [solid/jsx-uses-vars](docs/rules/jsx-uses-vars.md) | Prevent variables used in JSX to be marked as unused |
-|  | 🔧 | [solid/no-innerhtml](docs/rules/no-innerhtml.md) | Prevents usage of the innerHTML attribute, which can often lead to security vulnerabilities |
-|  | 🔧 | [solid/no-react-specific-props](docs/rules/no-react-specific-props.md) | Prevents usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility). |
-|  |  | [solid/no-unknown-namespaces](docs/rules/no-unknown-namespaces.md) | Ensures that only Solid-specific namespaced attribute names (i.e. 'on:' in <div on:click={...} />) are used. |
-|  | 🔧 | [solid/prefer-classlist](docs/rules/prefer-classlist.md) | Recommends using the classlist prop over importing a classnames helper. The classlist prop accepts an object { [class: string]: boolean } just like classnames. |
-|  | 🔧 | [solid/prefer-for](docs/rules/prefer-for.md) | Recommends using Solid's <For /> component for mapping an array to JSX elements. |
-|  | 🔧 | [solid/style-prop](docs/rules/style-prop.md) | Ensures CSS properties in the `style` prop are valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values are strings, not numbers with implicit 'px' units. |
+| ✔ | 🔧 | [solid/jsx-no-undef](docs/rules/jsx-no-undef.md) | Prevents references to undefined variables in JSX. |
+| ✔ |  | [solid/jsx-uses-vars](docs/rules/jsx-uses-vars.md) | Prevent variables used in JSX from being marked as unused. |
+| ✔ | 🔧 | [solid/no-innerhtml](docs/rules/no-innerhtml.md) | Prevents usage of the innerHTML attribute, which can often lead to security vulnerabilities |
+| ✔ | 🔧 | [solid/no-react-specific-props](docs/rules/no-react-specific-props.md) | Prevents usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility). |
+| ✔ |  | [solid/no-unknown-namespaces](docs/rules/no-unknown-namespaces.md) | Ensures that only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`) are used. |
+| ✔ | 🔧 | [solid/prefer-classlist](docs/rules/prefer-classlist.md) | Recommends using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames. |
+| ✔ | 🔧 | [solid/prefer-for](docs/rules/prefer-for.md) | Recommends using Solid's `<For />` component for mapping an array to JSX elements. |
+| ✔ | 🔧 | [solid/style-prop](docs/rules/style-prop.md) | Ensures CSS properties in the `style` prop are valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values are strings, not numbers with implicit 'px' units. |
 <!-- AUTO-GENERATED-CONTENT:END -->

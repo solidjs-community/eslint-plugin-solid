@@ -18,8 +18,7 @@ const rule: Rule.RuleModule = {
       invalidStyleProp: "{{ name }} is not a valid CSS property",
       numericStyleValue:
         'CSS property values should be strings only, but {{ value }} is a number; convert to string and add a unit like "px" if appropriate',
-      zeroStyleValue:
-        'A CSS property value of 0 should be passed as the string "0"',
+      zeroStyleValue: 'A CSS property value of 0 should be passed as the string "0"',
       stringStyle: "Use an object for the style prop instead of a string",
     },
     schema: [
@@ -56,15 +55,9 @@ const rule: Rule.RuleModule = {
           return;
         }
         const style =
-          node.value.type === "JSXExpressionContainer"
-            ? node.value.expression
-            : node.value;
+          node.value.type === "JSXExpressionContainer" ? node.value.expression : node.value;
 
-        if (
-          style.type === "Literal" &&
-          typeof style.value === "string" &&
-          !allowString
-        ) {
+        if (style.type === "Literal" && typeof style.value === "string" && !allowString) {
           // Convert style="font-size: 10px" to style={{ "font-size": "10px" }}
           let objectStyles: Record<string, string> | null = null;
           try {
@@ -77,11 +70,7 @@ const rule: Rule.RuleModule = {
             // replace full prop value, wrap in JSXExpressionContainer, more fixes may be applied below
             fix:
               objectStyles != null &&
-              ((fixer) =>
-                fixer.replaceText(
-                  node.value,
-                  `{${JSON.stringify(objectStyles)}}`
-                )),
+              ((fixer) => fixer.replaceText(node.value, `{${JSON.stringify(objectStyles)}}`)),
           });
         } else if (style.type === "TemplateLiteral" && !allowString) {
           context.report({

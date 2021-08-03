@@ -16,7 +16,7 @@ const ruleTableRows = Object.keys(rules)
   .map((id) => {
     const { fixable, docs } = rules[id].meta;
     return [
-      recommendedRules.includes(id) ? "✔" : "",
+      recommendedRules.includes(`solid/${id}`) ? "✔" : "",
       fixable ? "🔧" : "",
       `[solid/${id}](docs/rules/${id}.md)`,
       docs.description,
