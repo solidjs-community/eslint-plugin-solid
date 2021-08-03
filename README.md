@@ -64,6 +64,7 @@ would like to use.
 ## Rules
 
 ✔: Enabled in the `recommended` configuration.
+
 🔧: Fixable with [`eslint --fix`](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).
 
 <!-- AUTO-GENERATED-CONTENT:START (RULES) -->
