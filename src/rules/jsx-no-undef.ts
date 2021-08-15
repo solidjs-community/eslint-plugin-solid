@@ -38,14 +38,6 @@ const rule: Rule.RuleModule = {
 
     const missingComponentsSet = new Set<string>();
 
-    // const insertImport = (
-    //   programNode: Program,
-    //   ids: string | Array<string>,
-    //   source: string
-    // ): void => {
-    //
-    // };
-
     /**
      * Compare an identifier with the variables declared in the scope
      * @param {ASTNode} node - Identifier or JSXIdentifier node
@@ -172,8 +164,7 @@ const rule: Rule.RuleModule = {
                 );
                 if (otherSpecifier) {
                   // import A from 'source' => import A, { B, C, D } from 'source'
-                  // import * as A from 'source' => import * as A, { B, C, D } from 'source'
-                  return fixer.insertTextAfter(otherSpecifier, `, { ${identifiersString} } `);
+                  return fixer.insertTextAfter(otherSpecifier, `, { ${identifiersString} }`);
                 }
                 if (importNode.specifiers.length === 0) {
                   // import 'source' => import { B, C, D } from 'source'

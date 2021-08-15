@@ -122,6 +122,28 @@ let el = <For each={items}>{item => item.name}</For>`,
     },
     {
       code: `
+import X from "x";
+import Solid from "solid-js";
+let el = <For each={items}>{item => item.name}</For>`,
+      errors: [{ messageId: "autoImport", data: { imports: "'For'", source: "solid-js" } }],
+      output: `
+import X from "x";
+import Solid, { For } from "solid-js";
+let el = <For each={items}>{item => item.name}</For>`,
+    },
+    {
+      code: `
+import X from "x";
+import "solid-js";
+let el = <For each={items}>{item => item.name}</For>`,
+      errors: [{ messageId: "autoImport", data: { imports: "'For'", source: "solid-js" } }],
+      output: `
+import X from "x";
+import { For } from "solid-js";
+let el = <For each={items}>{item => item.name}</For>`,
+    },
+    {
+      code: `
 // attached comment
 import X from "x";
 let el = <For each={items}>{item => item.name}</For>`,
