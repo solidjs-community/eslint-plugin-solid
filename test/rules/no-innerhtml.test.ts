@@ -92,5 +92,18 @@ run("no-innerhtml", rule, {
       options: [{ allowStatic: true }],
       errors: [{ messageId: "conflict", type: "JSXElement" }],
     },
+    {
+      code: `let el = <div dangerouslySetInnerHTML={{ __html: "<p>Hello</p><p>world!</p>" }} />`,
+      errors: [{ messageId: "dangerouslySetInnerHTML" }],
+      output: `let el = <div innerHTML={"<p>Hello</p><p>world!</p>"} />`,
+    },
+    {
+      code: `let el = <div dangerouslySetInnerHTML={foo} />`,
+      errors: [{ messageId: "dangerouslySetInnerHTML" }],
+    },
+    {
+      code: `let el = <div dangerouslySetInnerHTML={{}} />`,
+      errors: [{ messageId: "dangerouslySetInnerHTML" }],
+    },
   ],
 });

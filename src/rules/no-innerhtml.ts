@@ -29,16 +29,49 @@ const rule: Rule.RuleModule = {
         "innerHTML should not be used on an element with child elements, as they will be overwritten",
       notHtml: "the string passed to innerHTML does not appear to be valid HTML",
       useInnerText: "for text content, using innerText is clearer and safer",
+      dangerouslySetInnerHTML: "dangerouslySetInnerHTML is not supported; use innerHTML instead",
     },
     fixable: "code",
   },
   create(context): Rule.RuleListener {
+    const allowStatic = Boolean(context.options[0]?.allowStatic);
     return {
       JSXAttribute(node) {
-        if (propName(node) !== "innerHTML") {
+        if (propName(node) === "dangerouslySetInnerHTML") {
+          if (
+            node.value.type === "JSXExpressionContainer" &&
+            node.value.expression.type === "ObjectExpression" &&
+            node.value.expression.properties.length === 1 &&
+            ((p) =>
+              p.type === "Property" && p.key.type === "Identifier" && p.key.name === "__html")(
+              node.value.expression.properties[0]
+            )
+          ) {
+            context.report({
+              node,
+              messageId: "dangerouslySetInnerHTML",
+              fix: (fixer) => {
+                const htmlProp = node.value.expression.properties[0];
+                const propRange = node.range;
+                const valueRange = htmlProp.value.range;
+                return [
+                  fixer.replaceTextRange([propRange[0], valueRange[0]], "innerHTML={"),
+                  fixer.replaceTextRange([valueRange[1], propRange[1]], "}"),
+                ];
+              },
+            });
+          } else {
+            context.report({
+              node,
+              messageId: "dangerouslySetInnerHTML",
+            });
+          }
+          return;
+        } else if (propName(node) !== "innerHTML") {
           return;
         }
-        if (context.options[0]?.allowStatic) {
+
+        if (allowStatic) {
           const innerHtmlNode =
             node.value.type === "JSXExpressionContainer" ? node.value.expression : node.value;
           const innerHtml = getStringIfConstant(innerHtmlNode);
