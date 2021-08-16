@@ -12,19 +12,29 @@ const SOURCE_MODULE = "solid-js";
 const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
+    docs: {
+      description: "Prevents references to undefined variables in JSX. Handles custom directives.",
+    },
     schema: [
       {
         type: "object",
         properties: {
-          allowGlobals: { type: "boolean" },
-          autoImport: { type: "boolean" },
+          allowGlobals: {
+            type: "boolean",
+            description:
+              "When true, the rule will consider the global scope when checking for defined components.",
+            default: false,
+          },
+          autoImport: {
+            type: "boolean",
+            description:
+              'Automatically import certain components from `"solid-js"` if they are undefined.',
+            default: true,
+          },
         },
         additionalProperties: false,
       },
     ],
-    docs: {
-      description: "Prevents references to undefined variables in JSX.",
-    },
     messages: {
       undefined: "'{{identifier}}' is not defined.",
       customDirectiveUndefined: "Custom directive '{{identifier}}' is not defined.",

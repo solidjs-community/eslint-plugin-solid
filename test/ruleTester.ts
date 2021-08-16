@@ -52,26 +52,26 @@ const v6Tester = new RuleTester_v6({
 export const run: typeof RuleTester.prototype.run = (name, rule, tests) => {
   switch (process.env.PARSER) {
     case "ts":
-      describe("@typescript-eslint/parser", () =>
-        tsTester.run(name, rule, tests));
+      describe("@typescript-eslint/parser", () => tsTester.run(name, rule, tests));
       break;
     case "babel":
-      describe("@babel/eslint-parser", () =>
-        babelTester.run(name, rule, tests));
+      describe("@babel/eslint-parser", () => babelTester.run(name, rule, tests));
       break;
     case "v6":
       describe("eslint v6", () => v6Tester.run(name, rule, tests));
       break;
     case "all":
       describe("esprima", () => jsxTester.run(name, rule, tests));
-      describe("@typescript-eslint/parser", () =>
-        tsTester.run(name, rule, tests));
-      describe("@babel/eslint-parser", () =>
-        babelTester.run(name, rule, tests));
+      describe("@typescript-eslint/parser", () => tsTester.run(name, rule, tests));
+      describe("@babel/eslint-parser", () => babelTester.run(name, rule, tests));
       describe("eslint v6", () => v6Tester.run(name, rule, tests));
+      break;
+    case "none":
       break;
     default:
       describe("esprima", () => jsxTester.run(name, rule, tests));
       break;
   }
 };
+
+export type Cases = Parameters<typeof RuleTester.prototype.run>[2];

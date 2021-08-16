@@ -1,7 +1,7 @@
-import { run } from "../ruleTester";
+import { run, Cases } from "../ruleTester";
 import rule from "../../src/rules/no-react-specific-props";
 
-run("no-react-specific-props", rule, {
+export const cases: Cases = {
   valid: [
     `let el = <div>Hello world!</div>;`,
     `let el = <div class="greeting">Hello world!</div>;`,
@@ -16,37 +16,27 @@ run("no-react-specific-props", rule, {
   invalid: [
     {
       code: `let el = <div className="greeting">Hello world!</div>`,
-      errors: [
-        { messageId: "prefer", data: { from: "className", to: "class" } },
-      ],
+      errors: [{ messageId: "prefer", data: { from: "className", to: "class" } }],
       output: `let el = <div class="greeting">Hello world!</div>`,
     },
     {
       code: `let el = <div className={"greeting"}>Hello world!</div>`,
-      errors: [
-        { messageId: "prefer", data: { from: "className", to: "class" } },
-      ],
+      errors: [{ messageId: "prefer", data: { from: "className", to: "class" } }],
       output: `let el = <div class={"greeting"}>Hello world!</div>`,
     },
     {
       code: `let el = <div className="greeting" />`,
-      errors: [
-        { messageId: "prefer", data: { from: "className", to: "class" } },
-      ],
+      errors: [{ messageId: "prefer", data: { from: "className", to: "class" } }],
       output: `let el = <div class="greeting" />`,
     },
     {
       code: `let el = <div many other attributes className="greeting">Hello world!</div>`,
-      errors: [
-        { messageId: "prefer", data: { from: "className", to: "class" } },
-      ],
+      errors: [{ messageId: "prefer", data: { from: "className", to: "class" } }],
       output: `let el = <div many other attributes class="greeting">Hello world!</div>`,
     },
     {
       code: `let el = <PascalComponent className="greeting">Hello world!</PascalComponent>`,
-      errors: [
-        { messageId: "prefer", data: { from: "className", to: "class" } },
-      ],
+      errors: [{ messageId: "prefer", data: { from: "className", to: "class" } }],
       output: `let el = <PascalComponent class="greeting">Hello world!</PascalComponent>`,
     },
     {
@@ -70,4 +60,6 @@ run("no-react-specific-props", rule, {
       output: `let el = <PascalComponent for="id">Hello world!</PascalComponent>`,
     },
   ],
-});
+};
+
+run("no-react-specific-props", rule, cases);

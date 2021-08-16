@@ -1,9 +1,7 @@
-import { run } from "../ruleTester";
+import { run, Cases } from "../ruleTester";
 import rule from "../../src/rules/jsx-no-undef";
 
-// The bulk of the testing of this rule is done in eslint-plugin-react,
-// so we just test the custom directives part of it here.
-run("jsx-no-undef", rule, {
+const cases: Cases = {
   valid: [
     `let X; let el = <div use:X={{}} />;`,
     `(X => <div use:X={{}} />)()`,
@@ -165,4 +163,8 @@ import X from "x"; // attached comment
 let el = <For each={items}>{item => item.name}</For>`,
     },
   ],
-});
+};
+
+// The bulk of the testing of this rule is done in eslint-plugin-react,
+// so we just test the custom directives part of it here.
+run("jsx-no-undef", rule, cases);

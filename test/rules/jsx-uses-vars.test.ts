@@ -1,8 +1,6 @@
-import eslint from "eslint";
 import noUnused from "eslint/lib/rules/no-unused-vars";
 import rule from "../../src/rules/jsx-uses-vars";
-
-import { RuleTester } from "eslint";
+import eslint, { RuleTester } from "eslint";
 
 // Since we have to activate the no-unused-vars rule, create a new ruleTester with the default parser
 const ruleTester = new RuleTester({

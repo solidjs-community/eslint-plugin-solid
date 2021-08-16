@@ -1,7 +1,7 @@
-import { run } from "../ruleTester";
+import { Cases, run } from "../ruleTester";
 import rule from "../../src/rules/prefer-classlist";
 
-run("prefer-classlist", rule, {
+export const cases: Cases = {
   valid: [
     `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
     `let el = <div class="red">Hello, world!</div>`,
@@ -31,9 +31,7 @@ run("prefer-classlist", rule, {
     },
     {
       code: `let el = <div class={classnames({ red: true })}>Hello, world!</div>`,
-      errors: [
-        { messageId: "preferClasslist", data: { classnames: "classnames" } },
-      ],
+      errors: [{ messageId: "preferClasslist", data: { classnames: "classnames" } }],
       output: `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
     },
     {
@@ -53,4 +51,6 @@ run("prefer-classlist", rule, {
       output: `let el = <div classlist={{ red: true, "mx-4": props.size > 2 }}>Hello, world!</div>`,
     },
   ],
-});
+};
+
+run("prefer-classlist", rule, cases);

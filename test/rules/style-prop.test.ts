@@ -1,7 +1,7 @@
-import { run } from "../ruleTester";
+import { Cases, run } from "../ruleTester";
 import rule from "../../src/rules/style-prop";
 
-run("style-prop", rule, {
+export const cases: Cases = {
   valid: [
     `let el = <div style={{ color: 'red' }}>Hello, world!</div>`,
     `let el = <div style={{ color: 'red', 'background-color': 'green' }}>Hello, world!</div>`,
@@ -35,9 +35,7 @@ run("style-prop", rule, {
     },
     {
       code: `let el = <div style={{ backgroundColor: '10px' }}>Hello, world!</div>`,
-      errors: [
-        { messageId: "invalidStyleProp", data: { name: "backgroundColor" } },
-      ],
+      errors: [{ messageId: "invalidStyleProp", data: { name: "backgroundColor" } }],
       output: `let el = <div style={{ "background-color": '10px' }}>Hello, world!</div>`,
     },
     {
@@ -51,9 +49,7 @@ run("style-prop", rule, {
     },
     {
       code: `let el = <div style={{ unknownStyleProp: '10px' }}>Hello, world!</div>`,
-      errors: [
-        { messageId: "invalidStyleProp", data: { name: "unknownStyleProp" } },
-      ],
+      errors: [{ messageId: "invalidStyleProp", data: { name: "unknownStyleProp" } }],
     },
     {
       code: `let el = <div css={{ fontSize: '10px' }}>Hello, world!</div>`,
@@ -104,4 +100,6 @@ run("style-prop", rule, {
       output: `let el = <div style={{ padding: "0" }}>Hello, world!</div>`,
     },
   ],
-});
+};
+
+run("style-prop", rule, cases);

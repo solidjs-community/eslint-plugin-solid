@@ -1,7 +1,7 @@
-import { run } from "../ruleTester";
+import { run, Cases } from "../ruleTester";
 import rule from "../../src/rules/no-innerhtml";
 
-run("no-innerhtml", rule, {
+export const cases: Cases = {
   valid: [
     `let el = <div prop1 prop2={2}>Hello world!</div>`,
     `let el = <Box prop1 prop2={2}>Hello world!</Box>`,
@@ -106,4 +106,6 @@ run("no-innerhtml", rule, {
       errors: [{ messageId: "dangerouslySetInnerHTML" }],
     },
   ],
-});
+};
+
+run("no-innerhtml", rule, cases);

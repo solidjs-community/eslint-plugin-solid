@@ -71,7 +71,7 @@ would like to use.
 <!-- AUTO-GENERATED-CONTENT:START (RULES) -->
 | ✔ | 🔧 | Rule | Description |
 | :---: | :---: | :--- | :--- |
-| ✔ | 🔧 | [solid/jsx-no-undef](docs/rules/jsx-no-undef.md) | Prevents references to undefined variables in JSX. |
+| ✔ | 🔧 | [solid/jsx-no-undef](docs/rules/jsx-no-undef.md) | Prevents references to undefined variables in JSX. Handles custom directives. |
 | ✔ |  | [solid/jsx-uses-vars](docs/rules/jsx-uses-vars.md) | Prevent variables used in JSX from being marked as unused. |
 | ✔ | 🔧 | [solid/no-innerhtml](docs/rules/no-innerhtml.md) | Prevents usage of the innerHTML attribute, which can often lead to security vulnerabilities |
 | ✔ | 🔧 | [solid/no-react-specific-props](docs/rules/no-react-specific-props.md) | Prevents usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility). |
