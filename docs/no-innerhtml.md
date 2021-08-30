@@ -20,34 +20,6 @@ allowStatic | `boolean` |
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
-### Valid Examples
-
-These snippets don't cause lint errors.
-
-```js
-let el = (
-  <div prop1 prop2={2}>
-    Hello world!
-  </div>
-);
-
-let el = (
-  <Box prop1 prop2={2}>
-    Hello world!
-  </Box>
-);
-
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
-let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>" />;
-
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
-let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />;
-
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
-let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>"></div>;
-
-```
-
 ### Invalid Examples
 
 These snippets cause lint errors, and some can be auto-fixed.
@@ -103,4 +75,32 @@ let el = <div dangerouslySetInnerHTML={foo} />;
 let el = <div dangerouslySetInnerHTML={{}} />;
  
 ```
+### Valid Examples
+
+These snippets don't cause lint errors.
+
+```js
+let el = (
+  <div prop1 prop2={2}>
+    Hello world!
+  </div>
+);
+
+let el = (
+  <Box prop1 prop2={2}>
+    Hello world!
+  </Box>
+);
+
+/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
+let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>" />;
+
+/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
+let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />;
+
+/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
+let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>"></div>;
+
+```
+
 <!-- AUTO-GENERATED-CONTENT:END -->

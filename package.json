@@ -12,7 +12,8 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "build": "tsc -p tsconfig.build.json && PARSER=none ts-node --transpile-only scripts/docs.ts",
+    "docs": "PARSER=none ts-node --transpile-only scripts/docs.ts",
+    "build": "tsc -p tsconfig.build.json && yarn run docs",
     "test": "mocha -r ts-node/register --extension=ts test/**/*.test.ts",
     "test:ts": "PARSER=ts yarn test",
     "test:babel": "PARSER=babel yarn test",

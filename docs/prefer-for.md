@@ -12,26 +12,6 @@ This rule is **an error** by default.
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
-### Valid Examples
-
-These snippets don't cause lint errors.
-
-```js
-let Component = (props) => (
-  <ol>
-    <For each={props.data}>{(d) => <li>{d.text}</li>}</For>
-  </ol>
-);
-
-let abc = x.map((y) => y + z);
-
-let Component = (props) => {
-  let abc = x.map((y) => y + z);
-  return <div>Hello, world!</div>;
-};
-
-```
-
 ### Invalid Examples
 
 These snippets cause lint errors, and some can be auto-fixed.
@@ -100,4 +80,24 @@ let Component = (props) => (
 );
  
 ```
+### Valid Examples
+
+These snippets don't cause lint errors.
+
+```js
+let Component = (props) => (
+  <ol>
+    <For each={props.data}>{(d) => <li>{d.text}</li>}</For>
+  </ol>
+);
+
+let abc = x.map((y) => y + z);
+
+let Component = (props) => {
+  let abc = x.map((y) => y + z);
+  return <div>Hello, world!</div>;
+};
+
+```
+
 <!-- AUTO-GENERATED-CONTENT:END -->

@@ -12,39 +12,6 @@ This rule is **a warning** by default.
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
-### Valid Examples
-
-These snippets don't cause lint errors.
-
-```js
-let el = <div>Hello world!</div>;
-
-let el = <div class="greeting">Hello world!</div>;
-
-let el = <div class={"greeting"}>Hello world!</div>;
-
-let el = (
-  <div many other attributes class="greeting">
-    Hello world!
-  </div>
-);
-
-let el = <label for="id">Hello world!</label>;
-
-let el = <label for="id">Hello world!</label>;
-
-let el = <label for={"id"}>Hello world!</label>;
-
-let el = (
-  <label many other attributes for="id">
-    Hello world!
-  </label>
-);
-
-let el = <PascalComponent class="greeting" for="id" />;
-
-```
-
 ### Invalid Examples
 
 These snippets cause lint errors, and some can be auto-fixed.
@@ -103,4 +70,37 @@ let el = <PascalComponent htmlFor="id">Hello world!</PascalComponent>;
 let el = <PascalComponent for="id">Hello world!</PascalComponent>;
  
 ```
+### Valid Examples
+
+These snippets don't cause lint errors.
+
+```js
+let el = <div>Hello world!</div>;
+
+let el = <div class="greeting">Hello world!</div>;
+
+let el = <div class={"greeting"}>Hello world!</div>;
+
+let el = (
+  <div many other attributes class="greeting">
+    Hello world!
+  </div>
+);
+
+let el = <label for="id">Hello world!</label>;
+
+let el = <label for="id">Hello world!</label>;
+
+let el = <label for={"id"}>Hello world!</label>;
+
+let el = (
+  <label many other attributes for="id">
+    Hello world!
+  </label>
+);
+
+let el = <PascalComponent class="greeting" for="id" />;
+
+```
+
 <!-- AUTO-GENERATED-CONTENT:END -->

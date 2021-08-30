@@ -21,43 +21,6 @@ allowString | `boolean` |
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
-### Valid Examples
-
-These snippets don't cause lint errors.
-
-```js
-let el = <div style={{ color: "red" }}>Hello, world!</div>;
-
-let el = (
-  <div style={{ color: "red", "background-color": "green" }}>Hello, world!</div>
-);
-
-let el = (
-  <div style={{ color: "red", "background-color": "green" }}>Hello, world!</div>
-);
-
-let el = <div style={{ "-webkit-align-content": "center" }}>Hello, world!</div>;
-
-let el = <div style={{ "font-size": "10px" }}>Hello, world!</div>;
-
-let el = <div style={{ "font-size": "0" }}>Hello, world!</div>;
-
-let el = <div STYLE={{ fontSize: 10 }}>Hello, world!</div>;
-
-/* eslint solid/style-prop: ["error", { "allowString": true }] */
-let el = <div style="color: red;" />;
-
-/* eslint solid/style-prop: ["error", { "allowString": true }] */
-let el = <div style={`color: ${themeColor};`} />;
-
-/* eslint solid/style-prop: ["error", { "styleProps": ["style", "css"] }] */
-let el = <div css={{ color: "red" }}>Hello, world</div>;
-
-/* eslint solid/style-prop: ["error", { "styleProps": ["css"] }] */
-let el = <div style={{ fontSize: 10 }}>Hello, world!</div>;
-
-```
-
 ### Invalid Examples
 
 These snippets cause lint errors, and some can be auto-fixed.
@@ -114,4 +77,41 @@ let el = <div style={{ padding: 0 }}>Hello, world!</div>;
 let el = <div style={{ padding: "0" }}>Hello, world!</div>;
  
 ```
+### Valid Examples
+
+These snippets don't cause lint errors.
+
+```js
+let el = <div style={{ color: "red" }}>Hello, world!</div>;
+
+let el = (
+  <div style={{ color: "red", "background-color": "green" }}>Hello, world!</div>
+);
+
+let el = (
+  <div style={{ color: "red", "background-color": "green" }}>Hello, world!</div>
+);
+
+let el = <div style={{ "-webkit-align-content": "center" }}>Hello, world!</div>;
+
+let el = <div style={{ "font-size": "10px" }}>Hello, world!</div>;
+
+let el = <div style={{ "font-size": "0" }}>Hello, world!</div>;
+
+let el = <div STYLE={{ fontSize: 10 }}>Hello, world!</div>;
+
+/* eslint solid/style-prop: ["error", { "allowString": true }] */
+let el = <div style="color: red;" />;
+
+/* eslint solid/style-prop: ["error", { "allowString": true }] */
+let el = <div style={`color: ${themeColor};`} />;
+
+/* eslint solid/style-prop: ["error", { "styleProps": ["style", "css"] }] */
+let el = <div css={{ color: "red" }}>Hello, world</div>;
+
+/* eslint solid/style-prop: ["error", { "styleProps": ["css"] }] */
+let el = <div style={{ fontSize: 10 }}>Hello, world!</div>;
+
+```
+
 <!-- AUTO-GENERATED-CONTENT:END -->

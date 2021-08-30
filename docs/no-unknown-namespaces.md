@@ -12,6 +12,24 @@ This rule is **an error** by default.
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+### Invalid Examples
+
+These snippets cause lint errors.
+
+```js
+let el = <div foo:boo={null} />;
+ 
+let el = <div bar:car={null} />;
+ 
+let el = <div style:width="100%" />;
+ 
+let el = <div style:width={0} />;
+ 
+let el = <div class:mt-10={true} />;
+ 
+let el = <div class:mt-10 />;
+ 
+```
 ### Valid Examples
 
 These snippets don't cause lint errors.
@@ -37,22 +55,4 @@ let el = <div attr:title="title" />;
 
 ```
 
-### Invalid Examples
-
-These snippets cause lint errors, and some can be auto-fixed.
-
-```js
-let el = <div foo:boo={null} />;
- 
-let el = <div bar:car={null} />;
- 
-let el = <div style:width="100%" />;
- 
-let el = <div style:width={0} />;
- 
-let el = <div class:mt-10={true} />;
- 
-let el = <div class:mt-10 />;
- 
-```
 <!-- AUTO-GENERATED-CONTENT:END -->

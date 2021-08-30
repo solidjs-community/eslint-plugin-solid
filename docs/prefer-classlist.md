@@ -20,6 +20,41 @@ classnames | `Array<string>` |
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+### Invalid Examples
+
+These snippets cause lint errors, and some can be auto-fixed.
+
+```js
+let el = <div class={cn({ red: true })}>Hello, world!</div>;
+// after eslint --fix:
+let el = <div classlist={{ red: true }}>Hello, world!</div>;
+ 
+let el = <div class={clsx({ red: true })}>Hello, world!</div>;
+// after eslint --fix:
+let el = <div classlist={{ red: true }}>Hello, world!</div>;
+ 
+let el = <div class={classnames({ red: true })}>Hello, world!</div>;
+// after eslint --fix:
+let el = <div classlist={{ red: true }}>Hello, world!</div>;
+ 
+/* eslint solid/prefer-classlist: ["error", { "classnames": ["x", "y", "z"] }] */
+let el = <div class={x({ red: true })}>Hello, world!</div>;
+// after eslint --fix:
+let el = <div classlist={{ red: true }}>Hello, world!</div>;
+ 
+let el = <div className={cn({ red: true })}>Hello, world!</div>;
+// after eslint --fix:
+let el = <div classlist={{ red: true }}>Hello, world!</div>;
+ 
+let el = (
+  <div class={cn({ red: true, "mx-4": props.size > 2 })}>Hello, world!</div>
+);
+// after eslint --fix:
+let el = (
+  <div classlist={{ red: true, "mx-4": props.size > 2 }}>Hello, world!</div>
+);
+ 
+```
 ### Valid Examples
 
 These snippets don't cause lint errors.
@@ -56,39 +91,4 @@ let el = <div class={clsx({ red: true })}>Hello, world!</div>;
 
 ```
 
-### Invalid Examples
-
-These snippets cause lint errors, and some can be auto-fixed.
-
-```js
-let el = <div class={cn({ red: true })}>Hello, world!</div>;
-// after eslint --fix:
-let el = <div classlist={{ red: true }}>Hello, world!</div>;
- 
-let el = <div class={clsx({ red: true })}>Hello, world!</div>;
-// after eslint --fix:
-let el = <div classlist={{ red: true }}>Hello, world!</div>;
- 
-let el = <div class={classnames({ red: true })}>Hello, world!</div>;
-// after eslint --fix:
-let el = <div classlist={{ red: true }}>Hello, world!</div>;
- 
-/* eslint solid/prefer-classlist: ["error", { "classnames": ["x", "y", "z"] }] */
-let el = <div class={x({ red: true })}>Hello, world!</div>;
-// after eslint --fix:
-let el = <div classlist={{ red: true }}>Hello, world!</div>;
- 
-let el = <div className={cn({ red: true })}>Hello, world!</div>;
-// after eslint --fix:
-let el = <div classlist={{ red: true }}>Hello, world!</div>;
- 
-let el = (
-  <div class={cn({ red: true, "mx-4": props.size > 2 })}>Hello, world!</div>
-);
-// after eslint --fix:
-let el = (
-  <div classlist={{ red: true, "mx-4": props.size > 2 }}>Hello, world!</div>
-);
- 
-```
 <!-- AUTO-GENERATED-CONTENT:END -->

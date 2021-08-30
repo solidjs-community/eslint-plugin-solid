@@ -15,7 +15,7 @@ const ruleTableRows = Object.keys(rules)
     return [
       recommendedRules.includes(`solid/${id}`) ? "✔" : "",
       fixable ? "🔧" : "",
-      `[solid/${id}](docs/rules/${id}.md)`,
+      `[solid/${id}](docs/${id}.md)`,
       docs.description,
     ].join(" | ");
   });
@@ -105,22 +105,24 @@ const buildCases = (content, filename) => {
   const invalid = cases.invalid ?? [];
 
   const markdown = [
-    "### Valid Examples\n",
-    "These snippets don't cause lint errors.\n",
-    "```js",
-    valid.map((c) => [
-      c.options && `/* eslint solid/${ruleName}: ["error", ${options(c.options)}] */`,
-      pretty(c.code) + "\n",
-    ]),
-    "```\n",
     "### Invalid Examples\n",
-    "These snippets cause lint errors, and some can be auto-fixed.\n",
+    `These snippets cause lint errors${
+      invalid.some((c) => c.output) ? ", and some can be auto-fixed" : ""
+    }.\n`,
     "```js",
     invalid.map((c) => [
       c.options && `/* eslint solid/${ruleName}: ["error", ${options(c.options)}] */`,
       pretty(c.code),
       c.output && "// after eslint --fix:\n" + pretty(c.output),
       " ",
+    ]),
+    "```\n",
+    "### Valid Examples\n",
+    "These snippets don't cause lint errors.\n",
+    "```js",
+    valid.map((c) => [
+      c.options && `/* eslint solid/${ruleName}: ["error", ${options(c.options)}] */`,
+      pretty(c.code) + "\n",
     ]),
     "```",
   ]
