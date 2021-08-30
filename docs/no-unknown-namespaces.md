@@ -30,6 +30,7 @@ let el = <div class:mt-10={true} />;
 let el = <div class:mt-10 />;
  
 ```
+
 ### Valid Examples
 
 These snippets don't cause lint errors.
@@ -54,5 +55,4 @@ let el = <div prop:scrollTop="0px" />;
 let el = <div attr:title="title" />;
 
 ```
-
 <!-- AUTO-GENERATED-CONTENT:END -->

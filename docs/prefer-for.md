@@ -80,6 +80,7 @@ let Component = (props) => (
 );
  
 ```
+
 ### Valid Examples
 
 These snippets don't cause lint errors.
@@ -99,5 +100,4 @@ let Component = (props) => {
 };
 
 ```
-
 <!-- AUTO-GENERATED-CONTENT:END -->

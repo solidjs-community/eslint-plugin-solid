@@ -55,6 +55,7 @@ let el = (
 );
  
 ```
+
 ### Valid Examples
 
 These snippets don't cause lint errors.
@@ -90,5 +91,4 @@ let el = (
 let el = <div class={clsx({ red: true })}>Hello, world!</div>;
 
 ```
-
 <!-- AUTO-GENERATED-CONTENT:END -->

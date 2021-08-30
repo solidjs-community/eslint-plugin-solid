@@ -77,6 +77,7 @@ let el = <div style={{ padding: 0 }}>Hello, world!</div>;
 let el = <div style={{ padding: "0" }}>Hello, world!</div>;
  
 ```
+
 ### Valid Examples
 
 These snippets don't cause lint errors.
@@ -113,5 +114,4 @@ let el = <div css={{ color: "red" }}>Hello, world</div>;
 let el = <div style={{ fontSize: 10 }}>Hello, world!</div>;
 
 ```
-
 <!-- AUTO-GENERATED-CONTENT:END -->

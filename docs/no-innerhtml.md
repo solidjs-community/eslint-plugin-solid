@@ -75,6 +75,7 @@ let el = <div dangerouslySetInnerHTML={foo} />;
 let el = <div dangerouslySetInnerHTML={{}} />;
  
 ```
+
 ### Valid Examples
 
 These snippets don't cause lint errors.
@@ -102,5 +103,4 @@ let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />;
 let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>"></div>;
 
 ```
-
 <!-- AUTO-GENERATED-CONTENT:END -->

@@ -70,6 +70,7 @@ let el = <PascalComponent htmlFor="id">Hello world!</PascalComponent>;
 let el = <PascalComponent for="id">Hello world!</PascalComponent>;
  
 ```
+
 ### Valid Examples
 
 These snippets don't cause lint errors.
@@ -102,5 +103,4 @@ let el = (
 let el = <PascalComponent class="greeting" for="id" />;
 
 ```
-
 <!-- AUTO-GENERATED-CONTENT:END -->
