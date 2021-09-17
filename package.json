@@ -14,7 +14,7 @@
     "prepare": "husky install",
     "docs": "PARSER=none ts-node --transpile-only scripts/docs.ts",
     "build": "tsc -p tsconfig.build.json && yarn run docs",
-    "test": "mocha -r ts-node/register --extension=ts test/**/*.test.ts",
+    "test": "mocha -r ts-node/register --extension=ts 'test/**/*.test.ts'",
     "test:ts": "PARSER=ts yarn test",
     "test:babel": "PARSER=babel yarn test",
     "test:v6": "PARSER=v6 yarn test",
@@ -39,7 +39,7 @@
     "@types/eslint": "^7.2.13",
     "@types/estree": "^0.0.50",
     "@types/estree-jsx": "^0.0.1",
-    "@types/mocha": "^8.2.3",
+    "@types/mocha": "^9.0.0",
     "@types/node": "^16.4.0",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
@@ -59,7 +59,7 @@
     "eslint": "6.x-7.x"
   },
   "lint-staged": {
-    "*.{js,ts}": [
+    "*.ts": [
       "eslint --fix",
       "prettier --write"
     ]

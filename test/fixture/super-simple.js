@@ -1,0 +1,1 @@
+let el = <Component />;

@@ -24,14 +24,21 @@ const allRules = {
   "style-prop": styleProp,
 };
 
-export default {
+// Must be module.exports for eslint to load everything
+module.exports = {
   rules: allRules,
   configs: {
     recommended: {
-      plugins: "solid",
+      plugins: ["solid"],
+      env: {
+        browser: true,
+        es6: true,
+      },
       parserOptions: {
+        ecmaVersion: 6,
         ecmaFeatures: {
           jsx: true,
+          impliedStrict: true,
         },
       },
       rules: {
