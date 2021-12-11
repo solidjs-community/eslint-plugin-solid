@@ -13,8 +13,9 @@ const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
     docs: {
-      description: "Prevents references to undefined variables in JSX. Handles custom directives.",
+      description: "Disallow references to undefined variables in JSX. Handles custom directives.",
     },
+    fixable: "code",
     schema: [
       {
         type: "object",
@@ -40,7 +41,6 @@ const rule: Rule.RuleModule = {
       customDirectiveUndefined: "Custom directive '{{identifier}}' is not defined.",
       autoImport: "{{imports}} should be imported from '{{source}}'.",
     },
-    fixable: "code",
   },
   create(context) {
     const allowGlobals = context.options[0]?.allowGlobals ?? false;
@@ -71,7 +71,7 @@ const rule: Rule.RuleModule = {
         return;
       }
 
-      while (scope.type !== scopeUpperBound && scope.type !== "global") {
+      while (scope.type !== scopeUpperBound && scope.type !== "global" && scope.upper) {
         scope = scope.upper;
         variables = scope.variables.concat(variables);
       }
@@ -179,8 +179,11 @@ const rule: Rule.RuleModule = {
                 if (importNode.specifiers.length === 0) {
                   // import 'source' => import { B, C, D } from 'source'
                   const importToken = context.getSourceCode().getFirstToken(importNode);
-                  return fixer.insertTextAfter(importToken, ` { ${identifiersString} } from`);
+                  return importToken
+                    ? fixer.insertTextAfter(importToken, ` { ${identifiersString} } from`)
+                    : null;
                 }
+                return null;
               },
             });
           } else {
@@ -196,7 +199,8 @@ const rule: Rule.RuleModule = {
                 const firstImport = programNode.body.find((n) => n.type === "ImportDeclaration");
                 if (firstImport) {
                   return fixer.insertTextBeforeRange(
-                    (getCommentBefore(firstImport, context.getSourceCode()) ?? firstImport).range,
+                    (getCommentBefore(firstImport, context.getSourceCode()) ?? firstImport)
+                      .range as any,
                     `import { ${identifiersString} } from "${SOURCE_MODULE}";\n`
                   );
                 }

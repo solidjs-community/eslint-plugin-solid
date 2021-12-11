@@ -11,16 +11,10 @@ const rule: Rule.RuleModule = {
     type: "problem",
     docs: {
       description:
-        "Ensures CSS properties in the `style` prop are valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, " +
+        "Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, " +
         "and that property values are strings, not numbers with implicit 'px' units.",
     },
-    messages: {
-      invalidStyleProp: "{{ name }} is not a valid CSS property",
-      numericStyleValue:
-        'CSS property values should be strings only, but {{ value }} is a number; convert to string and add a unit like "px" if appropriate',
-      zeroStyleValue: 'A CSS property value of 0 should be passed as the string "0"',
-      stringStyle: "Use an object for the style prop instead of a string",
-    },
+    fixable: "code",
     schema: [
       {
         type: "object",
@@ -42,7 +36,13 @@ const rule: Rule.RuleModule = {
         additionalProperties: false,
       },
     ],
-    fixable: "code",
+    messages: {
+      invalidStyleProp: "{{ name }} is not a valid CSS property.",
+      numericStyleValue:
+        'CSS property values should be strings only, but {{ value }} is a number; convert to string and add a unit like "px" if appropriate.',
+      zeroStyleValue: 'A CSS property value of 0 should be passed as the string "0".',
+      stringStyle: "Use an object for the style prop instead of a string.",
+    },
   },
   create(context): Rule.RuleListener {
     const allCssPropertiesSet: Set<string> = new Set(allCssProperties);
@@ -69,8 +69,9 @@ const rule: Rule.RuleModule = {
             messageId: "stringStyle",
             // replace full prop value, wrap in JSXExpressionContainer, more fixes may be applied below
             fix:
-              objectStyles != null &&
-              ((fixer) => fixer.replaceText(node.value, `{${JSON.stringify(objectStyles)}}`)),
+              objectStyles != null
+                ? (fixer) => fixer.replaceText(node.value, `{${JSON.stringify(objectStyles)}}`)
+                : undefined,
           });
         } else if (style.type === "TemplateLiteral" && !allowString) {
           context.report({
@@ -82,17 +83,17 @@ const rule: Rule.RuleModule = {
             (prop) => prop.type === "Property"
           );
           properties.forEach((prop) => {
-            const name: string = getPropertyName(prop, context.getScope());
-            if (!name.startsWith("--") && !allCssPropertiesSet.has(name)) {
+            const name: string | null = getPropertyName(prop, context.getScope());
+            if (name && !name.startsWith("--") && !allCssPropertiesSet.has(name)) {
               const kebabName: string = kebabCase(name);
               context.report({
                 node: prop.key,
                 messageId: "invalidStyleProp",
                 data: { name },
                 // if it's not valid simply because it's camelCased instead of kebab-cased, provide a fix
-                fix:
-                  allCssPropertiesSet.has(kebabName) &&
-                  ((fixer) => fixer.replaceText(prop.key, `"${kebabName}"`)), // wrap kebab name in quotes to be a valid object key
+                fix: allCssPropertiesSet.has(kebabName)
+                  ? (fixer) => fixer.replaceText(prop.key, `"${kebabName}"`) // wrap kebab name in quotes to be a valid object key
+                  : undefined,
               });
             }
             // catches numeric values (ex. { "font-size": 12 }) and suggests quoting or appending 'px'

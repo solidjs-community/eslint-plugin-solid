@@ -6,6 +6,12 @@ import isHtml from "is-html";
 const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
+    docs: {
+      description:
+        "Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities.",
+    },
+    fixable: "code",
+    hasSuggestions: true,
     schema: [
       {
         type: "object",
@@ -18,20 +24,16 @@ const rule: Rule.RuleModule = {
         additionalProperties: false,
       },
     ],
-    docs: {
-      description:
-        "Prevents usage of the innerHTML attribute, which can often lead to security vulnerabilities",
-    },
     messages: {
       dangerous:
-        "innerHTML is dangerous; passing unsanitized input can lead to security vulnerabilities",
+        "The innerHTML attribute is dangerous; passing unsanitized input can lead to security vulnerabilities.",
       conflict:
-        "innerHTML should not be used on an element with child elements, as they will be overwritten",
-      notHtml: "the string passed to innerHTML does not appear to be valid HTML",
-      useInnerText: "for text content, using innerText is clearer and safer",
-      dangerouslySetInnerHTML: "dangerouslySetInnerHTML is not supported; use innerHTML instead",
+        "The innerHTML attribute should not be used on an element with child elements; they will be overwritten.",
+      notHtml: "The string passed to innerHTML does not appear to be valid HTML.",
+      useInnerText: "For text content, using innerText is clearer and safer.",
+      dangerouslySetInnerHTML:
+        "The dangerouslySetInnerHTML prop is not supported; use innerHTML instead.",
     },
-    fixable: "code",
   },
   create(context): Rule.RuleListener {
     const allowStatic = Boolean(context.options[0]?.allowStatic);

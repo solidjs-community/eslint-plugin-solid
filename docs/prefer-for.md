@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/prefer-for
-Recommends using Solid's `<For />` component for mapping an array to JSX elements.
+Enforce using Solid's `<For />` component for mapping an array to JSX elements.
 This rule is **an error** by default.
 
 [View source](../src/rules/prefer-for.ts) · [View tests](../test/rules/prefer-for.test.ts)

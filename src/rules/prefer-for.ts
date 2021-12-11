@@ -6,14 +6,15 @@ const rule: Rule.RuleModule = {
     type: "problem",
     docs: {
       description:
-        "Recommends using Solid's `<For />` component for mapping an array to JSX elements.",
+        "Enforce using Solid's `<For />` component for mapping an array to JSX elements.",
     },
+    fixable: "code",
+    schema: [],
     messages: {
       preferFor: "Use Solid's `<For />` component for efficiently rendering lists.",
       preferForOrIndex:
         "Use Solid's `<For />` component or `<Index />` component for rendering lists.",
     },
-    fixable: "code",
   },
   create(context): Rule.RuleListener {
     const reportPreferFor = (node) => {

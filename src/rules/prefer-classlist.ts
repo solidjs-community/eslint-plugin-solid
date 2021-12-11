@@ -4,6 +4,11 @@ import { hasProp, propName } from "jsx-ast-utils";
 const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
+    docs: {
+      description:
+        "Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames.",
+    },
+    fixable: "code",
     schema: [
       {
         type: "object",
@@ -21,15 +26,10 @@ const rule: Rule.RuleModule = {
         additionalProperties: false,
       },
     ],
-    docs: {
-      description:
-        "Recommends using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames.",
-    },
     messages: {
       preferClasslist:
         "The classlist prop should be used instead of {{ classnames }} to efficiently set classes based on an object.",
     },
-    fixable: "code",
   },
   create(context): Rule.RuleListener {
     const classnames = context.options[0]?.classnames ?? ["cn", "clsx", "classnames"];

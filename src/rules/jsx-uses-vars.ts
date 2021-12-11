@@ -8,7 +8,9 @@ import type { Rule } from "eslint";
 
 const rule: Rule.RuleModule = {
   meta: {
+    type: "problem",
     docs: {
+      // eslint-disable-next-line eslint-plugin/require-meta-docs-description
       description: "Prevent variables used in JSX from being marked as unused.",
     },
     schema: [],

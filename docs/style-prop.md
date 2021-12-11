@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/style-prop
-Ensures CSS properties in the `style` prop are valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values are strings, not numbers with implicit 'px' units.
+Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values are strings, not numbers with implicit 'px' units.
 This rule is **an error** by default.
 
 [View source](../src/rules/style-prop.ts) · [View tests](../test/rules/style-prop.test.ts)

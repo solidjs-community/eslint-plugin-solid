@@ -11,12 +11,13 @@ const rule: Rule.RuleModule = {
     type: "problem",
     docs: {
       description:
-        "Prevents usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility).",
+        "Disallow usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility).",
     },
+    fixable: "code",
+    schema: [],
     messages: {
       prefer: "Prefer the `{{ to }}` prop over `{{ from }}`.",
     },
-    fixable: "code",
   },
   create(context): Rule.RuleListener {
     return {

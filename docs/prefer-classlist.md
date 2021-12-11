@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/prefer-classlist
-Recommends using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames.
+Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames.
 This rule is **a warning** by default.
 
 [View source](../src/rules/prefer-classlist.ts) · [View tests](../test/rules/prefer-classlist.test.ts)

@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/jsx-no-undef
-Prevents references to undefined variables in JSX. Handles custom directives.
+Disallow references to undefined variables in JSX. Handles custom directives.
 This rule is **an error** by default.
 
 [View source](../src/rules/jsx-no-undef.ts) · [View tests](../test/rules/jsx-no-undef.test.ts)

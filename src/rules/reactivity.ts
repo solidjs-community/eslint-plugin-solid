@@ -15,31 +15,22 @@
  * > All callback/render function children of control flow are non-tracking. This allows for nesting state creation, and better isolates reactions.
  * > Solid's compiler uses a simple heuristic for reactive wrapping and lazy evaluation of JSX expressions.
  * >   Does it contain a function call, a property access, or JSX?
+ *
+ * ********************************************************************************************************
+ *
+ * Okay, here's the architecture. Similar to how eslint-plugin-react iterates through all the components in a file, we'll
+ * first find all the props (first & only argument in function containing JSX), signals, stores, memos, resources, results
+ * of mergeProps/splitProps, and isPending. All of these nodes will be added to a big list. Then, we'll forEach all of the
+ * usages (calls, property accesses, destructuring) of each of these values with ESLint's scope analysis, add any inline
+ * functions containing one of these to the list, and grab their scopes with eslint-utils.getInnermostScope(). Using a
+ * WeakMap for caching, we'll calculate if the scope is a tracking scope, and warn if a reactive value is used in a
+ * non-tracked scope.
  */
 
 /* eslint-disable */
 
 import type { Rule } from "eslint";
 import esquery from "esquery";
-
-const find = (
-  node: Rule.Node,
-  predicate: (node: Rule.Node) => boolean | Rule.Node
-): Rule.Node | null => {
-  let n = node;
-  while (n) {
-    const result = predicate(n);
-    if (result === true) {
-      return n;
-    } else if (result && typeof result.type === "string") {
-      return result; // could be n's sibling, child, parent, etc., depends on predicate
-    }
-    n = n.parent;
-  }
-  return null;
-};
-const findParent = (node: Rule.Node, predicate: (node: Rule.Node) => boolean | Rule.Node) =>
-  find(node.parent, predicate);
 
 const rule: Rule.RuleModule = {
   meta: {

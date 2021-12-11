@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/no-innerhtml
-Prevents usage of the innerHTML attribute, which can often lead to security vulnerabilities
+Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities.
 This rule is **an error** by default.
 
 [View source](../src/rules/no-innerhtml.ts) · [View tests](../test/rules/no-innerhtml.test.ts)

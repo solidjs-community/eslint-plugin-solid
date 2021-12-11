@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/no-unknown-namespaces
-Ensures that only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`) are used.
+Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`).
 This rule is **an error** by default.
 
 [View source](../src/rules/no-unknown-namespaces.ts) · [View tests](../test/rules/no-unknown-namespaces.test.ts)
