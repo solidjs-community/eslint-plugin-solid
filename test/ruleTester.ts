@@ -2,6 +2,7 @@
 
 import { RuleTester } from "eslint";
 import { RuleTester as RuleTester_v6 } from "eslint-v6";
+import { RuleTester as RuleTester_v7 } from "eslint-v7";
 
 // The default parser
 const jsxTester = new RuleTester({
@@ -39,6 +40,16 @@ const babelTester = new RuleTester({
   },
 });
 
+const v7Tester = new RuleTester_v7({
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: "module",
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
+});
+
 const v6Tester = new RuleTester_v6({
   parserOptions: {
     ecmaVersion: 2018,
@@ -57,6 +68,9 @@ export const run: typeof RuleTester.prototype.run = (name, rule, tests) => {
     case "babel":
       describe("@babel/eslint-parser", () => babelTester.run(name, rule, tests));
       break;
+    case "v7":
+      describe("eslint v7", () => v7Tester.run(name, rule, tests));
+      break;
     case "v6":
       describe("eslint v6", () => v6Tester.run(name, rule, tests));
       break;
@@ -64,6 +78,7 @@ export const run: typeof RuleTester.prototype.run = (name, rule, tests) => {
       describe("esprima", () => jsxTester.run(name, rule, tests));
       describe("@typescript-eslint/parser", () => tsTester.run(name, rule, tests));
       describe("@babel/eslint-parser", () => babelTester.run(name, rule, tests));
+      describe("eslint v7", () => v7Tester.run(name, rule, tests));
       describe("eslint v6", () => v6Tester.run(name, rule, tests));
       break;
     case "none":

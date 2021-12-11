@@ -7,6 +7,7 @@ import type {
   Literal,
   Identifier,
   Expression,
+  RestElement,
 } from "estree-jsx";
 import { getStringIfConstant } from "eslint-utils";
 import { findParent } from "../utils";
@@ -51,10 +52,11 @@ const rule: Rule.RuleModule = {
   meta: {
     type: "problem",
     docs: {
-      description: "",
+      description: "Prevent destructuring props.",
     },
     messages: {
-      noDestructure: "Destructuring component props breaks Solid's reactivity; access ",
+      noDestructure:
+        "Destructuring component props breaks Solid's reactivity; use property access instead.",
     },
     fixable: "code",
   },
@@ -71,7 +73,7 @@ const rule: Rule.RuleModule = {
       const properties = props.properties;
 
       const propertyInfo: Array<PropertyInfo> = [];
-      let rest = null;
+      let rest: RestElement | null = null;
 
       for (const property of properties) {
         if (property.type === "RestElement") {
@@ -85,49 +87,69 @@ const rule: Rule.RuleModule = {
         }
       }
 
-      const sourceCode = context.getSourceCode();
       const fixes: Array<Rule.Fix> = [];
       // Replace destructured props with a `props` identifier
       fixes.push(fixer.replaceText(props, "props"));
       // Create an object containing all the defaults
-      const defaultsObject =
-        "{ " +
+      // const defaultsObject =
+      //   "{ " +
+      //   propertyInfo
+      //     .filter((info) => info.init)
+      //     .map(
+      //       (info) =>
+      //         `${info.computed ? "[" : ""}${sourceCode.getText(info.real)}${
+      //           info.computed ? "]" : ""
+      //         }: ${sourceCode.getText(info.init)}`
+      //     )
+      //     .join(", ") +
+      //   " }";
+
+      const sourceCode = context.getSourceCode();
+      const scope = sourceCode.scopeManager.acquire(func);
+      if (scope) {
         propertyInfo
-          .filter((info) => info.init)
-          .map(
-            (info) =>
-              `${info.computed ? "[" : ""}${sourceCode.getText(info.real)}${
-                info.computed ? "]" : ""
-              }: ${sourceCode.getText(info.init)}`
-          )
-          .join(", ") +
-        " }";
+          .map((info) => [info.real, scope.set.get(info.var)] as const) // iterate through destructured variables, associated with real node
+          .filter(([, variable]) => Boolean(variable))
+          .forEach(([real, variable]) => {
+            // replace all usages of the variable with props accesses
+            variable!.references.forEach((reference) => {
+              if (reference.isReadOnly()) {
+                const access =
+                  real.type === "Identifier" ? `.${real.name}` : `[${sourceCode.getText(real)}]`;
+                fixes.push(fixer.replaceText(reference.identifier, `props${access}`));
+              }
+            });
+          });
+      }
+
+      return fixes;
+    };
+    const matchDestructuredParams = (node) => {
+      if (node.params[0].type !== "RestElement" && isReturningJSX(node)) {
+        const props = node.params[0];
+        switch (props.type) {
+          case "ObjectPattern":
+            // Props are destructured in the function params, not the body.
+            context.report({
+              node: props,
+              messageId: "noDestructure",
+              fix: (fixer) =>
+                fixDestructure({
+                  func: node,
+                  props,
+                  fixer,
+                }),
+            });
+            break;
+          default:
+            break;
+        }
+      }
     };
     return {
-      "FunctionDeclaration|FunctionExpression|ArrowFunctionExpression"(node) {
-        if (
-          node.params.length === 1 &&
-          node.params[0].type !== "RestElement" &&
-          isReturningJSX(node)
-        ) {
-          const props = node.params[0];
-          switch (props.type) {
-            case "ObjectPattern":
-              // Props are destructured in the function params, not the body.
-              context.report({
-                node: props,
-                messageId: "noDestructure",
-                fix: (fixer) =>
-                  fixDestructure({
-                    func: node,
-                    props,
-                    fixer,
-                  }),
-              });
-              break;
-          }
-        }
-      },
+      "FunctionDeclaration[params.length=1]": matchDestructuredParams,
+      "FunctionExpression[params.length=1]": matchDestructuredParams,
+      "ArrowFunctionExpression[params.length=1]": matchDestructuredParams,
     };
   },
 };

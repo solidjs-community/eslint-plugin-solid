@@ -1,6 +1,11 @@
 import estraverse from "estraverse";
-import type { Node } from "estree-jsx";
+import { Node } from "estree-jsx";
 
+/**
+ *
+ * @fileoverview
+ * @param visitor
+ */
 /**
  * Wrapper for estraverse.traverse
  */
@@ -58,7 +63,6 @@ function findReturnStatement(node) {
  * returned expression in the case of an arrow function) of a function
  *
  * @param {ASTNode} ASTNode The AST node being checked
- * @param {Context} context The context of `ASTNode`.
  * @param {function} enterFunc Function to execute for each returnStatement found
  * @returns {undefined}
  */
@@ -109,24 +113,15 @@ function isJSX(node) {
 /**
  * Check if the node is returning JSX or null
  *
- * @param {Function} isCreateElement Function to determine if a CallExpresion is
- *   a createElement one
  * @param {ASTNode} ASTnode The AST node being checked
- * @param {Context} context The context of `ASTNode`.
- * @param {Boolean} [strict] If true, in a ternary condition the node must return JSX in both cases
- * @param {Boolean} [ignoreNull] If true, null return values will be ignored
  * @returns {Boolean} True if the node is returning JSX or null, false if not
  */
-function isReturningJSX(isCreateElement, ASTnode, context, strict, ignoreNull) {
+export function isReturningJSX(ASTnode: Node) {
   let found = false;
-  astUtil.traverseReturns(ASTnode, context, (node) => {
+  traverseReturns(ASTnode, (node: Node) => {
     // Traverse return statement
-    astUtil.traverse(node, {
+    traverse(node, {
       enter(childNode) {
-        const setFound = () => {
-          found = true;
-          this.skip();
-        };
         switch (childNode.type) {
           case "FunctionExpression":
           case "FunctionDeclaration":
@@ -134,33 +129,26 @@ function isReturningJSX(isCreateElement, ASTnode, context, strict, ignoreNull) {
             // Do not traverse into inner function definitions
             return this.skip();
           case "ConditionalExpression":
-            if (!strict) break;
-            if (isJSX(childNode.consequent) && isJSX(childNode.alternate)) {
-              setFound();
+            if (isJSX(childNode.consequent) || isJSX(childNode.alternate)) {
+              found = true;
+              this.break();
             }
             this.skip();
             break;
           case "LogicalExpression":
-            if (!strict) break;
-            if (isJSX(childNode.left) && isJSX(childNode.right)) {
-              setFound();
+            if (
+              (childNode.operator === "&&" && isJSX(childNode.right)) ||
+              (childNode.operator === "||" && (isJSX(childNode.left) || isJSX(childNode.right)))
+            ) {
+              found = true;
+              this.break();
             }
             this.skip();
             break;
           case "JSXElement":
           case "JSXFragment":
-            setFound();
-            break;
-          case "CallExpression":
-            if (isCreateElement(childNode)) {
-              setFound();
-            }
-            this.skip();
-            break;
-          case "Literal":
-            if (!ignoreNull && childNode.value === null) {
-              setFound();
-            }
+            found = true;
+            this.break;
             break;
           default:
         }
