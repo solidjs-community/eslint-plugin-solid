@@ -28,6 +28,7 @@ const formatLevel = (options) => {
       "0": "off",
       "1": "a warning",
       "2": "an error",
+      off: "off",
       warn: "a warning",
       error: "an error",
     }[options];
@@ -101,7 +102,7 @@ const buildCases = (content, filename) => {
   if (!cases) {
     return content;
   }
-  const valid = cases.valid.map((c) => (typeof c === "string" ? { code: c } : c)) ?? [];
+  const valid = cases.valid?.map((c) => (typeof c === "string" ? { code: c } : c)) ?? [];
   const invalid = cases.invalid ?? [];
 
   const markdown = [
