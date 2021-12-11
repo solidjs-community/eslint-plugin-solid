@@ -10,6 +10,12 @@
     "plugin:import/typescript"
   ],
   "rules": {
-    "import/no-unresolved": 0
+    "import/no-unresolved": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "eslint-plugin/meta-property-ordering": "error",
+    "eslint-plugin/report-message-format": ["error", "^[A-Z\\{'].*\\.$"],
+    "eslint-plugin/test-case-property-ordering": "error",
+    "eslint-plugin/require-meta-docs-description": ["error", { "pattern": "^(Enforce|Require|Disallow)" }]
   }
 }
