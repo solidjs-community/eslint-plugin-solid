@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/eslint-plugin-solid)](https://npmjs.com/packages/eslint-plugin-solid)
 [![GitHub package version](https://img.shields.io/github/package-json/v/joshwilsonvu/eslint-plugin-solid)](https://github.com/joshwilsonvu/eslint-plugin-solid)
 [![CI](https://github.com/joshwilsonvu/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg)](https://github.com/joshwilsonvu/eslint-plugin-solid/actions/workflows/ci.yml)
-![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--7.x-blue)
+![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--8.x-blue)
 
 This package contains [Solid](https://www.solidjs.com/)-specific linting rules for ESLint.
 
