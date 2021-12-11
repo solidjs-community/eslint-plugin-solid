@@ -18,12 +18,9 @@ describe("fixture", function () {
     // We're trying to require the package we're currently in; we can work around
     // this by putting a skeleton file inside `node_modules` that requires the top
     // level directory.
-    await Promise.all([
-      fs.writeFile(nodeModulesFileForTesting, 'module.exports = require("..");\n'),
-      execa("yarn", ["bin", "eslint"]).then((result) => {
-        eslintPath = result.stdout;
-      }),
-    ]);
+
+    await fs.writeFile(nodeModulesFileForTesting, 'module.exports = require("..");\n');
+    eslintPath = (await execa("yarn", ["bin", "eslint"])).stdout;
   });
 
   afterAll(async () => {

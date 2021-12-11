@@ -2,6 +2,8 @@
 import { run } from "../ruleTester";
 // import rule from "../../src/rules/props";
 
+test.todo("test reactivity rule");
+
 // ruleTester.run("props", rule, {
 //   valid: [
 //     // Examples straight from the Solid docs
