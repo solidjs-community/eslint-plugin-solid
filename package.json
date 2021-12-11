@@ -53,6 +53,7 @@
     "eslint-plugin-import": "^2.25.3",
     "eslint-v6": "npm:eslint@^6.0.0",
     "eslint-v7": "npm:eslint@^7.0.0",
+    "fs-extra": "^10.0.0",
     "husky": "^7.0.0",
     "jest": "^27.4.4",
     "jest-node-exports-resolver": "^1.1.2",

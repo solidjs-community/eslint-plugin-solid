@@ -1,6 +1,6 @@
 import execa from "execa";
 import path from "path";
-import fs from "fs/promises";
+import fs from "fs-extra";
 
 const nodeModulesFileForTesting = path.resolve(
   __dirname,

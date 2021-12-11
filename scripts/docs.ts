@@ -1,5 +1,5 @@
 import path from "path";
-import fs from "fs/promises";
+import fs from "fs-extra";
 import markdownMagic from "markdown-magic";
 import prettier from "prettier";
 import plugin from "../src/index";
