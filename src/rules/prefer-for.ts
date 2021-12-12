@@ -56,7 +56,6 @@ const rule: Rule.RuleModule = {
           const mapFnNode = node.arguments[0];
           if (mapFnNode.params.length === 1 && mapFnNode.params[0].type !== "RestElement") {
             // The map fn doesn't take an index param, so it can't possibly be an index-keyed list. Use <For />.
-            // Checks will be reported at program exit, so we can import the For component if necessary.
             // The returned JSX, if it's coming from React, will have an unnecessary `key` prop to be removed in
             // the useless-keys rule.
             reportPreferFor(node);

@@ -6,6 +6,7 @@ export const cases: Cases = {
     `let Component = props => <div />`,
     `let Component = (props) => <div />`,
     `let Component = (props) => { return <div />; }`,
+    `let Component = (props) => (<div />)`,
     `let Component = props => null`,
     `let Component = (props) => <div a={props.a} />`,
     `let Component = (props) => { 
@@ -46,6 +47,11 @@ export const cases: Cases = {
       output: `let Component = (props) => <div a={props.a} />`,
     },
     {
+      code: `let Component = ({ a }) => (<div a={a} />)`,
+      errors: [{ messageId: "noDestructure" }],
+      output: `let Component = (props) => (<div a={props.a} />)`,
+    },
+    {
       code: `let Component = ({ a: A }) => <div a={A} />`,
       errors: [{ messageId: "noDestructure" }],
       output: `let Component = (props) => <div a={props.a} />`,
@@ -68,6 +74,14 @@ export const cases: Cases = {
     },
     {
       code: `let Component = ({ a = 5 }) => <div a={a} />`,
+      errors: [{ messageId: "noDestructure" }],
+      output: `let Component = (props) => {
+  props = mergeProps({ a: 5 }, props);
+  return (<div a={props.a} />);
+}`,
+    },
+    {
+      code: `let Component = ({ a = 5 }) => (<div a={a} />)`,
       errors: [{ messageId: "noDestructure" }],
       output: `let Component = (props) => {
   props = mergeProps({ a: 5 }, props);
@@ -149,6 +163,14 @@ various();
 }`,
     },
     {
+      code: `let Component = ({ a, ...rest }) => (<div a={a} />)`,
+      errors: [{ messageId: "noDestructure" }],
+      output: `let Component = (_props) => {
+  const [props, rest] = splitProps(_props, ["a"]);
+  return (<div a={props.a} />);
+}`,
+    },
+    {
       code: `let Component = ({ a, ...other }) => <div a={a} />`,
       errors: [{ messageId: "noDestructure" }],
       output: `let Component = (_props) => {
@@ -207,6 +229,15 @@ various();
 
 return <div a={props.a} b={rest.b} />; 
       }`,
+    },
+    {
+      code: `let Component = ({ a = 5, ...rest }) => (<div a={a} b={rest.b} />)`,
+      errors: [{ messageId: "noDestructure" }],
+      output: `let Component = (_props) => {
+  _props = mergeProps({ a: 5 }, _props);
+  const [props, rest] = splitProps(_props, ["a"]);
+  return (<div a={props.a} b={rest.b} />);
+}`,
     },
     {
       code: `let Component = ({ ['a' + '']: A = 5, ...rest }) => <div a={A} b={rest.b} />`,

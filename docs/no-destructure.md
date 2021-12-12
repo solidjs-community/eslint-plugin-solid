@@ -25,6 +25,10 @@ let Component = ({ a }) => <div a={a} />;
 // after eslint --fix:
 let Component = (props) => <div a={props.a} />;
  
+let Component = ({ a }) => <div a={a} />;
+// after eslint --fix:
+let Component = (props) => <div a={props.a} />;
+ 
 let Component = ({ a: A }) => <div a={A} />;
 // after eslint --fix:
 let Component = (props) => <div a={props.a} />;
@@ -40,6 +44,13 @@ let Component = (props) => <div a={props["a" + ""]} />;
 let Component = ({ ["a" + ""]: a, b }) => <div a={a} b={b} />;
 // after eslint --fix:
 let Component = (props) => <div a={props["a" + ""]} b={props.b} />;
+ 
+let Component = ({ a = 5 }) => <div a={a} />;
+// after eslint --fix:
+let Component = (props) => {
+  props = mergeProps({ a: 5 }, props);
+  return <div a={props.a} />;
+};
  
 let Component = ({ a = 5 }) => <div a={a} />;
 // after eslint --fix:
@@ -114,6 +125,13 @@ let Component = (_props) => {
   return <div a={props.a} />;
 };
  
+let Component = ({ a, ...rest }) => <div a={a} />;
+// after eslint --fix:
+let Component = (_props) => {
+  const [props, rest] = splitProps(_props, ["a"]);
+  return <div a={props.a} />;
+};
+ 
 let Component = ({ a, ...other }) => <div a={a} />;
 // after eslint --fix:
 let Component = (_props) => {
@@ -167,6 +185,14 @@ let Component = (_props) => {
   return <div a={props.a} b={rest.b} />;
 };
  
+let Component = ({ a = 5, ...rest }) => <div a={a} b={rest.b} />;
+// after eslint --fix:
+let Component = (_props) => {
+  _props = mergeProps({ a: 5 }, _props);
+  const [props, rest] = splitProps(_props, ["a"]);
+  return <div a={props.a} b={rest.b} />;
+};
+ 
 let Component = ({ ["a" + ""]: A = 5, ...rest }) => <div a={A} b={rest.b} />;
 // after eslint --fix:
 let Component = (_props) => {
@@ -189,6 +215,8 @@ let Component = (props) => <div />;
 let Component = (props) => {
   return <div />;
 };
+
+let Component = (props) => <div />;
 
 let Component = (props) => null;
 
