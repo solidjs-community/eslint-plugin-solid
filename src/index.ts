@@ -1,6 +1,6 @@
 import jsxNoUndef from "./rules/jsx-no-undef";
 import jsxUsesVars from "./rules/jsx-uses-vars";
-// import noDestructure from './rules/no-destructure';
+import noDestructure from "./rules/no-destructure";
 import noInnerHTML from "./rules/no-innerhtml";
 import noReactSpecificProps from "./rules/no-react-specific-props";
 import noUnknownNamespaces from "./rules/no-unknown-namespaces";
@@ -13,7 +13,7 @@ import styleProp from "./rules/style-prop";
 const allRules = {
   "jsx-no-undef": jsxNoUndef,
   "jsx-uses-vars": jsxUsesVars,
-  // 'no-destructure': noDestructure,
+  "no-destructure": noDestructure,
   "no-innerhtml": noInnerHTML,
   "no-react-specific-props": noReactSpecificProps,
   "no-unknown-namespaces": noUnknownNamespaces,
@@ -50,6 +50,8 @@ module.exports = {
         "solid/no-innerhtml": [2, { allowStatic: true }],
         "solid/prefer-for": 2,
         "solid/style-prop": 2,
+        // reactivity
+        "solid/no-destructure": 2,
         // these rules are mostly style suggestions
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,
