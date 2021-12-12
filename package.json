@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-solid",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Solid-specific linting rules for ESLint.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "prepublishOnly": "yarn build && yarn lint --fix && prettier --write src && yarn test:all",
+    "prepublishOnly": "yarn build && yarn lint && prettier --check src && yarn test:all",
     "build": "tsc -p tsconfig.build.json && yarn run docs",
     "docs": "PARSER=none ts-node --transpile-only scripts/docs.ts",
     "lint": "eslint src",
