@@ -13,6 +13,7 @@ const rule: Rule.RuleModule = {
       description:
         "Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, " +
         "and that property values are strings, not numbers with implicit 'px' units.",
+      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/style-prop.md",
     },
     fixable: "code",
     schema: [

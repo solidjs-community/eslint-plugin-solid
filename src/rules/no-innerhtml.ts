@@ -9,6 +9,7 @@ const rule: Rule.RuleModule = {
     docs: {
       description:
         "Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities.",
+      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/no-innerhtml.md",
     },
     fixable: "code",
     hasSuggestions: true,

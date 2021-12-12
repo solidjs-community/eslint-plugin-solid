@@ -7,6 +7,7 @@ const rule: Rule.RuleModule = {
     docs: {
       description:
         "Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames.",
+      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/prefer-classlist.md",
     },
     fixable: "code",
     schema: [

@@ -12,6 +12,7 @@ const rule: Rule.RuleModule = {
     docs: {
       description:
         "Disallow usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility).",
+      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/no-react-specific-props.md",
     },
     fixable: "code",
     schema: [],

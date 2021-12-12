@@ -14,6 +14,7 @@ const rule: Rule.RuleModule = {
     type: "problem",
     docs: {
       description: "Disallow references to undefined variables in JSX. Handles custom directives.",
+      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/jsx-no-undef.md",
     },
     fixable: "code",
     schema: [

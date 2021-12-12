@@ -12,8 +12,9 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "docs": "PARSER=none ts-node --transpile-only scripts/docs.ts",
+    "prepublishOnly": "yarn build && yarn lint --fix && prettier --write src && yarn test:all",
     "build": "tsc -p tsconfig.build.json && yarn run docs",
+    "docs": "PARSER=none ts-node --transpile-only scripts/docs.ts",
     "lint": "eslint src",
     "test": "jest --runInBand",
     "test:ts": "PARSER=ts yarn test",

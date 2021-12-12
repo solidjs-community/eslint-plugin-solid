@@ -9,6 +9,7 @@ const rule: Rule.RuleModule = {
     docs: {
       description:
         "Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`).",
+      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/no-unknown-namespaces.md",
     },
     schema: [],
     messages: {
