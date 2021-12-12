@@ -2,6 +2,7 @@ import path from "path";
 import fs from "fs-extra";
 import markdownMagic from "markdown-magic";
 import prettier from "prettier";
+// @ts-ignore
 import plugin from "../src/index";
 import type { Cases } from "../test/ruleTester";
 
