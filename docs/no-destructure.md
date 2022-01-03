@@ -47,43 +47,43 @@ let Component = (props) => <div a={props["a" + ""]} b={props.b} />;
  
 let Component = ({ a = 5 }) => <div a={a} />;
 // after eslint --fix:
-let Component = (props) => {
-  props = mergeProps({ a: 5 }, props);
+let Component = (_props) => {
+  const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
 };
  
 let Component = ({ a = 5 }) => <div a={a} />;
 // after eslint --fix:
-let Component = (props) => {
-  props = mergeProps({ a: 5 }, props);
+let Component = (_props) => {
+  const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
 };
  
 let Component = ({ a: A = 5 }) => <div a={A} />;
 // after eslint --fix:
-let Component = (props) => {
-  props = mergeProps({ a: 5 }, props);
+let Component = (_props) => {
+  const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
 };
  
 let Component = ({ a: A = 5 }) => <div a={A} />;
 // after eslint --fix:
-let Component = (props) => {
-  props = mergeProps({ a: 5 }, props);
+let Component = (_props) => {
+  const props = mergeProps({ a: 5 }, _props);
   return <div a={props["a"]} />;
 };
  
 let Component = ({ ["a" + ""]: a = 5 }) => <div a={a} />;
 // after eslint --fix:
-let Component = (props) => {
-  props = mergeProps({ ["a" + ""]: 5 }, props);
+let Component = (_props) => {
+  const props = mergeProps({ ["a" + ""]: 5 }, _props);
   return <div a={props["a" + ""]} />;
 };
  
 let Component = ({ ["a" + ""]: a = 5, b = 10, c }) => <div a={a} b={b} c={c} />;
 // after eslint --fix:
-let Component = (props) => {
-  props = mergeProps({ ["a" + ""]: 5, b: 10 }, props);
+let Component = (_props) => {
+  const props = mergeProps({ ["a" + ""]: 5, b: 10 }, _props);
   return <div a={props["a" + ""]} b={props.b} c={props.c} />;
 };
  
@@ -91,9 +91,8 @@ let Component = ({ a = 5 }) => {
   return <div a={a} />;
 };
 // after eslint --fix:
-let Component = (props) => {
-  props = mergeProps({ a: 5 }, props);
-
+let Component = (_props) => {
+  const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
 };
  
@@ -103,9 +102,8 @@ let Component = ({ a = 5 }) => {
   return <div a={a} />;
 };
 // after eslint --fix:
-let Component = (props) => {
-  props = mergeProps({ a: 5 }, props);
-
+let Component = (_props) => {
+  const props = mergeProps({ a: 5 }, _props);
   various();
   statements();
   return <div a={props.a} />;
@@ -179,25 +177,23 @@ let Component = ({ a = 5, ...rest }) => {
 };
 // after eslint --fix:
 let Component = (_props) => {
-  _props = mergeProps({ a: 5 }, _props);
-  const [props, rest] = splitProps(_props, ["a"]);
-
+  const [props, rest] = splitProps(mergeProps({ a: 5 }, _props), ["a"]);
   return <div a={props.a} b={rest.b} />;
 };
  
 let Component = ({ a = 5, ...rest }) => <div a={a} b={rest.b} />;
 // after eslint --fix:
 let Component = (_props) => {
-  _props = mergeProps({ a: 5 }, _props);
-  const [props, rest] = splitProps(_props, ["a"]);
+  const [props, rest] = splitProps(mergeProps({ a: 5 }, _props), ["a"]);
   return <div a={props.a} b={rest.b} />;
 };
  
 let Component = ({ ["a" + ""]: A = 5, ...rest }) => <div a={A} b={rest.b} />;
 // after eslint --fix:
 let Component = (_props) => {
-  _props = mergeProps({ ["a" + ""]: 5 }, _props);
-  const [props, rest] = splitProps(_props, ["a" + ""]);
+  const [props, rest] = splitProps(mergeProps({ ["a" + ""]: 5 }, _props), [
+    "a" + "",
+  ]);
   return <div a={props["a" + ""]} b={rest.b} />;
 };
  
@@ -250,6 +246,8 @@ let Component = (props) => {
   let { a } = props;
   return <div a={a} />;
 };
+
+let element = <div />;
 
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->

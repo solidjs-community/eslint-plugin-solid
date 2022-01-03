@@ -7,7 +7,7 @@ import noUnknownNamespaces from "./rules/no-unknown-namespaces";
 // import noUselessKeys from './rules/no-useless-keys';
 import preferClasslist from "./rules/prefer-classlist";
 import preferFor from "./rules/prefer-for";
-// import reactivity from './rules/reactivity';
+import reactivity from "./rules/reactivity";
 import styleProp from "./rules/style-prop";
 
 const allRules = {
@@ -20,7 +20,7 @@ const allRules = {
   // noUselessKeys,
   "prefer-classlist": preferClasslist,
   "prefer-for": preferFor,
-  // reactivity,
+  reactivity,
   "style-prop": styleProp,
 };
 
@@ -52,6 +52,7 @@ module.exports = {
         "solid/style-prop": 2,
         // reactivity
         "solid/no-destructure": 2,
+        // "solid/reactivity": 2,
         // these rules are mostly style suggestions
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,

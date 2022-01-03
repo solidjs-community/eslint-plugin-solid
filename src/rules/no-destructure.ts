@@ -11,7 +11,8 @@ import type {
   ArrowFunctionExpression,
 } from "estree-jsx";
 import { getStringIfConstant } from "eslint-utils";
-import { isReturningJSX } from "../utils/ast";
+import { FunctionNode } from "../utils";
+import { URLSearchParams } from "url";
 
 const getName = (node): string | null => {
   switch (node.type) {
@@ -63,42 +64,36 @@ const rule: Rule.RuleModule = {
     fixable: "code",
   },
   create(context): Rule.RuleListener {
-    const matchDestructuredParams = (node) => {
-      const props = node.params[0];
-      if (props.type === "ObjectPattern" && isReturningJSX(node)) {
-        // Props are destructured in the function params, not the body. We actually don't
-        // need to handle the case where props are destructured in the body, because that
-        // will be a violation of "solid/reactivity".
-        context.report({
-          node: props,
-          messageId: "noDestructure",
-          fix: (fixer) =>
-            fixDestructure({
-              func: node,
-              props,
-              fixer,
-            }),
-        });
+    const functionStack: Array<{
+      /** switched to true by :exit if JSX is detected in the current function */
+      hasJSX: boolean;
+    }> = [];
+    const currentFunction = () => functionStack[functionStack.length - 1];
+    const onFunctionEnter = () => {
+      functionStack.push({ hasJSX: false });
+    };
+    const onFunctionExit = (node: FunctionNode) => {
+      if (node.params.length === 1) {
+        const props = node.params[0];
+        if (props.type === "ObjectPattern" && currentFunction().hasJSX) {
+          // Props are destructured in the function params, not the body. We actually don't
+          // need to handle the case where props are destructured in the body, because that
+          // will be a violation of "solid/reactivity".
+          context.report({
+            node: props,
+            messageId: "noDestructure",
+            fix: (fixer) =>
+              fixDestructure({
+                func: node,
+                props,
+                fixer,
+              }),
+          });
+        }
       }
-      // TODO: this is a weird spot for this block of code, and might be TS's job anyway.
-      // if (props.type === "Identifier") {
-      //   const sourceCode = context.getSourceCode();
-      //   const scope = sourceCode.scopeManager.acquire(node);
-      //   if (scope) {
-      //     const variable = scope.set.get(props.name);
-      //     if (variable) {
-      //       variable.references.forEach((reference) => {
-      //         if (!reference.isReadOnly()) {
-      //           // Props references should be readonly
-      //           context.report({
-      //             node: reference.identifier,
-      //             messageId: "noWriteToProps",
-      //           });
-      //         }
-      //       });
-      //     }
-      //   }
-      // }
+
+      // Pop on exit
+      functionStack.pop();
     };
 
     const fixDestructure = ({
@@ -133,49 +128,53 @@ const rule: Rule.RuleModule = {
 
       const hasDefaults = propertyInfo.some((info) => info.init);
 
-      // Replace destructured props with a `props` identifier (`_props` in case of rest params)
-      const origProps = !rest ? propsName : "_" + propsName;
+      // Replace destructured props with a `props` identifier (`_props` in case of rest params/defaults)
+      const origProps = !(hasDefaults || rest) ? propsName : "_" + propsName;
       fixes.push(fixer.replaceText(props, origProps));
 
       const sourceCode = context.getSourceCode();
 
-      // Insert a line that reassigns props to props merged with defaults
-      const mergePropsLine = hasDefaults
-        ? `  ${origProps} = mergeProps({ ${propertyInfo
-            .filter((info) => info.init)
-            .map(
-              (info) =>
-                `${info.computed ? "[" : ""}${sourceCode.getText(info.real)}${
-                  info.computed ? "]" : ""
-                }: ${sourceCode.getText(info.init)}`
-            )
-            .join(", ")} }, ${origProps});\n`
-        : null;
+      const defaultsObjectString = () =>
+        propertyInfo
+          .filter((info) => info.init)
+          .map(
+            (info) =>
+              `${info.computed ? "[" : ""}${sourceCode.getText(info.real)}${
+                info.computed ? "]" : ""
+              }: ${sourceCode.getText(info.init)}`
+          )
+          .join(", ");
+      const splitPropsArray = () =>
+        `[${propertyInfo
+          .map((info) =>
+            info.real.type === "Identifier"
+              ? JSON.stringify(info.real.name)
+              : sourceCode.getText(info.real)
+          )
+          .join(", ")}]`;
 
-      // Insert a line that keeps named props and extracts the rest into a new reactive rest object
-      const splitPropsLine = rest
-        ? `  const [${propsName}, ${
-            (rest.argument as Identifier)?.name ?? "rest"
-          }] = splitProps(${origProps}, [${propertyInfo
-            .map((info) =>
-              info.real.type === "Identifier"
-                ? JSON.stringify(info.real.name)
-                : sourceCode.getText(info.real)
-            )
-            .join(", ")}]);\n`
-        : null;
+      let lineToInsert = "";
+      if (hasDefaults && rest) {
+        // Insert a line that assigns _props
+        lineToInsert = `  const [${propsName}, ${
+          (rest.argument as Identifier)?.name ?? "rest"
+        }] = splitProps(mergeProps({ ${defaultsObjectString()} }, ${origProps}), ${splitPropsArray()});`;
+      } else if (hasDefaults) {
+        // Insert a line that assigns _props merged with defaults to props
+        lineToInsert = `  const ${propsName} = mergeProps({ ${defaultsObjectString()} }, ${origProps});\n`;
+      } else if (rest) {
+        // Insert a line that keeps named props and extracts the rest into a new reactive rest object
+        lineToInsert = `  const [${propsName}, ${
+          (rest.argument as Identifier)?.name ?? "rest"
+        }] = splitProps(${origProps}, ${splitPropsArray()});\n`;
+      }
 
-      if (mergePropsLine || splitPropsLine) {
+      if (lineToInsert) {
         const body = func.body;
         if (body.type === "BlockStatement") {
           if (body.body.length > 0) {
             // Inject lines handling defaults/rest params before the first statement in the block.
-            fixes.push(
-              fixer.insertTextBefore(
-                body.body[0],
-                `${mergePropsLine ?? ""}${splitPropsLine ?? ""}\n`
-              )
-            );
+            fixes.push(fixer.insertTextBefore(body.body[0], lineToInsert));
           }
           // with an empty block statement body, no need to inject code
         } else {
@@ -191,12 +190,7 @@ const rule: Rule.RuleModule = {
           }
 
           // Inject lines handling defaults/rest params
-          fixes.push(
-            fixer.insertTextBefore(
-              body,
-              `{\n${mergePropsLine ?? ""}${splitPropsLine ?? ""}  return (`
-            )
-          );
+          fixes.push(fixer.insertTextBefore(body, `{\n${lineToInsert}  return (`));
           fixes.push(fixer.insertTextAfter(body, `);\n}`));
         }
       }
@@ -224,9 +218,22 @@ const rule: Rule.RuleModule = {
     };
 
     return {
-      "FunctionDeclaration[params.length=1]": matchDestructuredParams,
-      "FunctionExpression[params.length=1]": matchDestructuredParams,
-      "ArrowFunctionExpression[params.length=1]": matchDestructuredParams,
+      FunctionDeclaration: onFunctionEnter,
+      FunctionExpression: onFunctionEnter,
+      ArrowFunctionExpression: onFunctionEnter,
+      "FunctionDeclaration:exit": onFunctionExit,
+      "FunctionExpression:exit": onFunctionExit,
+      "ArrowFunctionExpression:exit": onFunctionExit,
+      JSXElement() {
+        if (functionStack.length) {
+          currentFunction().hasJSX = true;
+        }
+      },
+      JSXFragment() {
+        if (functionStack.length) {
+          currentFunction().hasJSX = true;
+        }
+      },
     };
   },
 };

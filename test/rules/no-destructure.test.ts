@@ -34,6 +34,7 @@ export const cases: Cases = {
       let { a } = props;
       return <div a={a} />;
     }`,
+    `let element = <div />`, // parse top level JSX
   ],
   invalid: [
     {
@@ -75,48 +76,48 @@ export const cases: Cases = {
     {
       code: `let Component = ({ a = 5 }) => <div a={a} />`,
       errors: [{ messageId: "noDestructure" }],
-      output: `let Component = (props) => {
-  props = mergeProps({ a: 5 }, props);
+      output: `let Component = (_props) => {
+  const props = mergeProps({ a: 5 }, _props);
   return (<div a={props.a} />);
 }`,
     },
     {
       code: `let Component = ({ a = 5 }) => (<div a={a} />)`,
       errors: [{ messageId: "noDestructure" }],
-      output: `let Component = (props) => {
-  props = mergeProps({ a: 5 }, props);
+      output: `let Component = (_props) => {
+  const props = mergeProps({ a: 5 }, _props);
   return (<div a={props.a} />);
 }`,
     },
     {
       code: `let Component = ({ a: A = 5 }) => <div a={A} />`,
       errors: [{ messageId: "noDestructure" }],
-      output: `let Component = (props) => {
-  props = mergeProps({ a: 5 }, props);
+      output: `let Component = (_props) => {
+  const props = mergeProps({ a: 5 }, _props);
   return (<div a={props.a} />);
 }`,
     },
     {
       code: `let Component = ({ 'a': A = 5 }) => <div a={A} />`,
       errors: [{ messageId: "noDestructure" }],
-      output: `let Component = (props) => {
-  props = mergeProps({ 'a': 5 }, props);
+      output: `let Component = (_props) => {
+  const props = mergeProps({ 'a': 5 }, _props);
   return (<div a={props['a']} />);
 }`,
     },
     {
       code: `let Component = ({ ['a' + '']: a = 5 }) => <div a={a} />`,
       errors: [{ messageId: "noDestructure" }],
-      output: `let Component = (props) => {
-  props = mergeProps({ ['a' + '']: 5 }, props);
+      output: `let Component = (_props) => {
+  const props = mergeProps({ ['a' + '']: 5 }, _props);
   return (<div a={props['a' + '']} />);
 }`,
     },
     {
       code: `let Component = ({ ['a' + '']: a = 5, b = 10, c }) => <div a={a} b={b} c={c} />`,
       errors: [{ messageId: "noDestructure" }],
-      output: `let Component = (props) => {
-  props = mergeProps({ ['a' + '']: 5, b: 10 }, props);
+      output: `let Component = (_props) => {
+  const props = mergeProps({ ['a' + '']: 5, b: 10 }, _props);
   return (<div a={props['a' + '']} b={props.b} c={props.c} />);
 }`,
     },
@@ -125,9 +126,8 @@ export const cases: Cases = {
         return <div a={a} />; 
       }`,
       errors: [{ messageId: "noDestructure" }],
-      output: `let Component = (props) => { 
-          props = mergeProps({ a: 5 }, props);
-
+      output: `let Component = (_props) => { 
+          const props = mergeProps({ a: 5 }, _props);
 return <div a={props.a} />; 
       }`,
     },
@@ -138,9 +138,8 @@ return <div a={props.a} />;
         return <div a={a} />; 
       }`,
       errors: [{ messageId: "noDestructure" }],
-      output: `let Component = (props) => { 
-          props = mergeProps({ a: 5 }, props);
-
+      output: `let Component = (_props) => { 
+          const props = mergeProps({ a: 5 }, _props);
 various();
         statements();
         return <div a={props.a} />; 
@@ -224,28 +223,21 @@ various();
       }`,
       errors: [{ messageId: "noDestructure" }],
       output: `let Component = (_props) => { 
-          _props = mergeProps({ a: 5 }, _props);
-  const [props, rest] = splitProps(_props, ["a"]);
-
-return <div a={props.a} b={rest.b} />; 
+          const [props, rest] = splitProps(mergeProps({ a: 5 }, _props), ["a"]);return <div a={props.a} b={rest.b} />; 
       }`,
     },
     {
       code: `let Component = ({ a = 5, ...rest }) => (<div a={a} b={rest.b} />)`,
       errors: [{ messageId: "noDestructure" }],
       output: `let Component = (_props) => {
-  _props = mergeProps({ a: 5 }, _props);
-  const [props, rest] = splitProps(_props, ["a"]);
-  return (<div a={props.a} b={rest.b} />);
+  const [props, rest] = splitProps(mergeProps({ a: 5 }, _props), ["a"]);  return (<div a={props.a} b={rest.b} />);
 }`,
     },
     {
       code: `let Component = ({ ['a' + '']: A = 5, ...rest }) => <div a={A} b={rest.b} />`,
       errors: [{ messageId: "noDestructure" }],
       output: `let Component = (_props) => {
-  _props = mergeProps({ ['a' + '']: 5 }, _props);
-  const [props, rest] = splitProps(_props, ['a' + '']);
-  return (<div a={props['a' + '']} b={rest.b} />);
+  const [props, rest] = splitProps(mergeProps({ ['a' + '']: 5 }, _props), ['a' + '']);  return (<div a={props['a' + '']} b={rest.b} />);
 }`,
     },
   ],

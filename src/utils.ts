@@ -1,10 +1,17 @@
 import type { Rule, SourceCode } from "eslint";
-import type { Comment } from "estree-jsx";
+import type {
+  Comment,
+  FunctionExpression,
+  FunctionDeclaration,
+  ArrowFunctionExpression,
+  Program,
+} from "estree-jsx";
 
-const regex = /^[a-z]/;
-export const isDOMElementName = (name: string): boolean => {
-  return regex.test(name);
-};
+const domElementRegex = /^[a-z]/;
+export const isDOMElementName = (name: string): boolean => domElementRegex.test(name);
+
+const propsRegex = /[pP]rops/;
+export const isPropsByName = (name: string): boolean => propsRegex.test(name);
 
 export const formatList = (strings: Array<string>): string => {
   if (strings.length === 0) {
@@ -38,8 +45,29 @@ export const find = (
   }
   return null;
 };
-export const findParent = (node: Rule.Node, predicate: (node: Rule.Node) => boolean | Rule.Node) =>
-  find(node.parent, predicate);
+export function findParent(node: Rule.Node, predicate: (node: Rule.Node) => boolean | Rule.Node) {
+  return find(node.parent, predicate);
+}
+
+export type FunctionNode = (FunctionExpression | ArrowFunctionExpression | FunctionDeclaration) &
+  Rule.NodeParentExtension;
+const FUNCTION_TYPES = ["FunctionExpression", "ArrowFunctionExpression", "FunctionDeclaration"];
+export const isFunctionNode = (node: Rule.Node | Program): node is FunctionNode =>
+  FUNCTION_TYPES.includes(node.type);
+
+export type ProgramOrFunctionNode = FunctionNode | (Program & Partial<Rule.NodeParentExtension>);
+const PROGRAM_OR_FUNCTION_TYPES = ["Program"].concat(FUNCTION_TYPES);
+export const isProgramOrFunctionNode = (node: Rule.Node | Program): node is ProgramOrFunctionNode =>
+  PROGRAM_OR_FUNCTION_TYPES.includes(node.type);
+
+export function findParentInFunction(
+  node: Rule.Node,
+  predicate: (node: Rule.Node) => boolean | Rule.Node
+) {
+  const enclosingFunction = findParent(node, isProgramOrFunctionNode);
+  const found = findParent(node, (node) => node === enclosingFunction || predicate(node));
+  return found === enclosingFunction ? null : found;
+}
 
 // The next two functions were adapted from "eslint-plugin-import" under the MIT license.
 

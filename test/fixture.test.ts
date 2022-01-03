@@ -40,7 +40,8 @@ describe("fixture", function () {
         cwd: fixtureCwd,
       });
     } catch (error: any) {
-      expect(error.exitCode).toBe(1);
+      expect(error.exitCode).not.toBe(0);
+      expect(error.stderr).toBe("");
       expect(error.stdout).toMatch(/'Component' is not defined/);
       expect(error.stdout).toMatch(/solid\/jsx-no-undef/);
       expect(error.stdout).toMatch(/1 problem \(1 error, 0 warnings\)/);
