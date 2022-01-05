@@ -16,6 +16,7 @@
     "import/no-unresolved": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/non-nullable-type-assertion-style": "warn",
     "eslint-plugin/meta-property-ordering": "error",
     "eslint-plugin/report-message-format": ["error", "^[A-Z\\{'].*\\.$"],
     "eslint-plugin/test-case-property-ordering": "error",

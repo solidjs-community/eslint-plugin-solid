@@ -1,15 +1,20 @@
-import type { Rule } from "eslint";
-import type { Property } from "estree-jsx";
+import { TSESLint, TSESTree as T, ASTUtils } from "@typescript-eslint/experimental-utils";
+// @ts-ignore
 import { propName } from "jsx-ast-utils";
-import kebabCase from "kebab-case";
-import { getPropertyName, getStaticValue } from "eslint-utils";
+import { paramCase as kebabCase } from "param-case";
 import { all as allCssProperties } from "known-css-properties";
 import parse from "style-to-object";
 
-const rule: Rule.RuleModule = {
+const { getPropertyName, getStaticValue } = ASTUtils;
+
+const rule: TSESLint.RuleModule<
+  "invalidStyleProp" | "numericStyleValue" | "zeroStyleValue" | "stringStyle",
+  [{ styleProps?: [string, ...Array<string>]; allowString?: boolean }?]
+> = {
   meta: {
     type: "problem",
     docs: {
+      recommended: "error",
       description:
         "Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, " +
         "and that property values are strings, not numbers with implicit 'px' units.",
@@ -45,7 +50,7 @@ const rule: Rule.RuleModule = {
       stringStyle: "Use an object for the style prop instead of a string.",
     },
   },
-  create(context): Rule.RuleListener {
+  create(context) {
     const allCssPropertiesSet: Set<string> = new Set(allCssProperties);
     const allowString = Boolean(context.options[0]?.allowString);
     const styleProps = context.options[0]?.styleProps || ["style"];
@@ -56,13 +61,15 @@ const rule: Rule.RuleModule = {
           return;
         }
         const style =
-          node.value.type === "JSXExpressionContainer" ? node.value.expression : node.value;
+          node.value?.type === "JSXExpressionContainer" ? node.value.expression : node.value;
 
-        if (style.type === "Literal" && typeof style.value === "string" && !allowString) {
+        if (!style) {
+          return;
+        } else if (style.type === "Literal" && typeof style.value === "string" && !allowString) {
           // Convert style="font-size: 10px" to style={{ "font-size": "10px" }}
-          let objectStyles: Record<string, string> | null = null;
+          let objectStyles: Record<string, string> | undefined;
           try {
-            objectStyles = parse(style.value);
+            objectStyles = parse(style.value) ?? undefined;
           } catch (e) {} // eslint-disable-line no-empty
 
           context.report({
@@ -70,9 +77,8 @@ const rule: Rule.RuleModule = {
             messageId: "stringStyle",
             // replace full prop value, wrap in JSXExpressionContainer, more fixes may be applied below
             fix:
-              objectStyles != null
-                ? (fixer) => fixer.replaceText(node.value, `{${JSON.stringify(objectStyles)}}`)
-                : undefined,
+              objectStyles &&
+              ((fixer) => fixer.replaceText(node.value!, `{${JSON.stringify(objectStyles)}}`)),
           });
         } else if (style.type === "TemplateLiteral" && !allowString) {
           context.report({
@@ -80,9 +86,9 @@ const rule: Rule.RuleModule = {
             messageId: "stringStyle",
           });
         } else if (style.type === "ObjectExpression") {
-          const properties: Array<Property> = style.properties.filter(
+          const properties = style.properties.filter(
             (prop) => prop.type === "Property"
-          );
+          ) as Array<T.Property>;
           properties.forEach((prop) => {
             const name: string | null = getPropertyName(prop, context.getScope());
             if (name && !name.startsWith("--") && !allCssPropertiesSet.has(name)) {

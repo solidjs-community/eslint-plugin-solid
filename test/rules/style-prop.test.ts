@@ -1,7 +1,7 @@
-import { Cases, run } from "../ruleTester";
+import { run } from "../ruleTester";
 import rule from "../../src/rules/style-prop";
 
-export const cases: Cases = {
+export const cases = run("style-prop", rule, {
   valid: [
     `let el = <div style={{ color: 'red' }}>Hello, world!</div>`,
     `let el = <div style={{ color: 'red', 'background-color': 'green' }}>Hello, world!</div>`,
@@ -100,6 +100,4 @@ export const cases: Cases = {
       output: `let el = <div style={{ padding: "0" }}>Hello, world!</div>`,
     },
   ],
-};
-
-run("style-prop", rule, cases);
+});

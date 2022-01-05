@@ -1,4 +1,4 @@
-import type { Rule } from "eslint";
+import type { TSESTree as T, TSESLint } from "@typescript-eslint/experimental-utils";
 
 /*
  * This rule is lifted almost verbatim from eslint-plugin-react's
@@ -6,36 +6,39 @@ import type { Rule } from "eslint";
  * Solid's custom directives are also handled.
  */
 
-const rule: Rule.RuleModule = {
+const rule: TSESLint.RuleModule<never, []> = {
   meta: {
     type: "problem",
     docs: {
-      // eslint-disable-next-line eslint-plugin/require-meta-docs-description
+      recommended: "error",
       description: "Prevent variables used in JSX from being marked as unused.",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/jsx-uses-vars.md",
     },
     schema: [],
+    messages: {},
   },
 
   create(context) {
     return {
       JSXOpeningElement(node) {
-        if (node.name.namespace) {
-          return; // <Foo:Bar>
-        }
-        if (node.name.name) {
-          // <Foo>
-          context.markVariableAsUsed(node.name.name);
-        } else if (node.name.object) {
-          // <Foo...Bar>
-          let parent = node.name.object;
-          while (parent.object) {
-            parent = parent.object;
-          }
-          context.markVariableAsUsed(parent.name);
+        switch (node.name.type) {
+          case "JSXNamespacedName": // <Foo:Bar>
+            return;
+          case "JSXIdentifier": // <Foo>
+            context.markVariableAsUsed(node.name.name);
+            break;
+          case "JSXMemberExpression": // <Foo...Bar>
+            let parent: T.JSXTagNameExpression = node.name.object;
+            while (parent?.type === "JSXMemberExpression") {
+              parent = parent.object;
+            }
+            if (parent.type === "JSXIdentifier") {
+              context.markVariableAsUsed(parent.name);
+            }
+            break;
         }
       },
-      "JSXAttribute > JSXNamespacedName": (node) => {
+      "JSXAttribute > JSXNamespacedName": (node: T.JSXNamespacedName) => {
         // <Element use:X /> applies the `X` custom directive to the element, where `X` must be an identifier in scope.
         if (
           node.namespace?.type === "JSXIdentifier" &&

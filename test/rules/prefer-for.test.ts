@@ -1,7 +1,7 @@
-import { Cases, run } from "../ruleTester";
+import { run } from "../ruleTester";
 import rule from "../../src/rules/prefer-for";
 
-export const cases: Cases = {
+export const cases = run("prefer-for", rule, {
   valid: [
     `let Component = (props) => <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;`,
     `let abc = x.map(y => y + z);`,
@@ -43,6 +43,4 @@ export const cases: Cases = {
       errors: [{ messageId: "preferForOrIndex" }],
     },
   ],
-};
-
-run("prefer-for", rule, cases);
+});

@@ -1,23 +1,12 @@
-/* eslint-disable */
-import type { Rule } from "eslint";
-import type {
-  FunctionExpression,
-  FunctionDeclaration,
-  ObjectPattern,
-  Literal,
-  Identifier,
-  Expression,
-  RestElement,
-  ArrowFunctionExpression,
-} from "estree-jsx";
-import { getStringIfConstant } from "eslint-utils";
-import { FunctionNode } from "../utils";
-import { URLSearchParams } from "url";
+import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/experimental-utils";
+import type { FunctionNode } from "../utils";
 
-const getName = (node): string | null => {
+const { getStringIfConstant } = ASTUtils;
+
+const getName = (node: T.Node): string | null => {
   switch (node.type) {
     case "Literal":
-      return node.value;
+      return typeof node.value === "string" ? node.value : null;
     case "Identifier":
       return node.name;
     case "AssignmentPattern":
@@ -28,14 +17,14 @@ const getName = (node): string | null => {
 };
 
 interface PropertyInfo {
-  real: Literal | Identifier | Expression;
+  real: T.Literal | T.Identifier | T.Expression;
   var: string;
   computed: boolean;
-  init: Expression | undefined;
+  init: T.Expression | undefined;
 }
 
 // Given ({ 'hello-world': helloWorld = 5 }), returns { real: Literal('hello-world'), var: 'helloWorld', computed: false, init: Literal(5) }
-const getPropertyInfo = (prop): PropertyInfo | null => {
+const getPropertyInfo = (prop: T.Property): PropertyInfo | null => {
   const valueName = getName(prop.value);
   if (valueName !== null) {
     return {
@@ -49,10 +38,11 @@ const getPropertyInfo = (prop): PropertyInfo | null => {
   }
 };
 
-const rule: Rule.RuleModule = {
+const rule: TSESLint.RuleModule<"noDestructure", []> = {
   meta: {
     type: "problem",
     docs: {
+      recommended: "error",
       description:
         "Prevent destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list.",
     },
@@ -62,8 +52,9 @@ const rule: Rule.RuleModule = {
       // noWriteToProps: "Component props are readonly, writing to props is not supported.",
     },
     fixable: "code",
+    schema: [],
   },
-  create(context): Rule.RuleListener {
+  create(context) {
     const functionStack: Array<{
       /** switched to true by :exit if JSX is detected in the current function */
       hasJSX: boolean;
@@ -102,15 +93,15 @@ const rule: Rule.RuleModule = {
       fixer,
       propsName = "props",
     }: {
-      func: FunctionExpression | FunctionDeclaration | ArrowFunctionExpression;
-      props: ObjectPattern;
-      fixer: Rule.RuleFixer;
+      func: FunctionNode;
+      props: T.ObjectPattern;
+      fixer: TSESLint.RuleFixer;
       propsName?: string;
-    }): Array<Rule.Fix> => {
+    }): Array<TSESLint.RuleFix> => {
       const properties = props.properties;
 
       const propertyInfo: Array<PropertyInfo> = [];
-      let rest: RestElement | null = null;
+      let rest: T.RestElement | null = null;
 
       for (const property of properties) {
         if (property.type === "RestElement") {
@@ -124,7 +115,7 @@ const rule: Rule.RuleModule = {
         }
       }
 
-      const fixes: Array<Rule.Fix> = [];
+      const fixes: Array<TSESLint.RuleFix> = [];
 
       const hasDefaults = propertyInfo.some((info) => info.init);
 
@@ -157,7 +148,7 @@ const rule: Rule.RuleModule = {
       if (hasDefaults && rest) {
         // Insert a line that assigns _props
         lineToInsert = `  const [${propsName}, ${
-          (rest.argument as Identifier)?.name ?? "rest"
+          (rest.argument as T.Identifier)?.name ?? "rest"
         }] = splitProps(mergeProps({ ${defaultsObjectString()} }, ${origProps}), ${splitPropsArray()});`;
       } else if (hasDefaults) {
         // Insert a line that assigns _props merged with defaults to props
@@ -165,7 +156,7 @@ const rule: Rule.RuleModule = {
       } else if (rest) {
         // Insert a line that keeps named props and extracts the rest into a new reactive rest object
         lineToInsert = `  const [${propsName}, ${
-          (rest.argument as Identifier)?.name ?? "rest"
+          (rest.argument as T.Identifier)?.name ?? "rest"
         }] = splitProps(${origProps}, ${splitPropsArray()});\n`;
       }
 
@@ -195,7 +186,7 @@ const rule: Rule.RuleModule = {
         }
       }
 
-      const scope = sourceCode.scopeManager.acquire(func);
+      const scope = sourceCode.scopeManager?.acquire(func);
       if (scope) {
         propertyInfo
           .map((info) => [info, scope.set.get(info.var)] as const) // iterate through destructured variables, associated with real node

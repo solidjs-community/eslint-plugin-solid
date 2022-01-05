@@ -1,4 +1,4 @@
-import type { Rule } from "eslint";
+import type { TSESTree as T, TSESLint } from "@typescript-eslint/experimental-utils";
 import { isDOMElementName, formatList, getCommentBefore } from "../utils";
 
 // Currently all of the control flow components are from 'solid-js'.
@@ -9,10 +9,19 @@ const SOURCE_MODULE = "solid-js";
  * This rule is adapted from eslint-plugin-react's jsx-no-undef rule under
  * the MIT license. Thank you for your work!
  */
-const rule: Rule.RuleModule = {
+const rule: TSESLint.RuleModule<
+  "undefined" | "customDirectiveUndefined" | "autoImport",
+  [
+    {
+      allowGlobals?: boolean;
+      autoImport?: boolean;
+    }?
+  ]
+> = {
   meta: {
     type: "problem",
     docs: {
+      recommended: "error",
       description: "Disallow references to undefined variables in JSX. Handles custom directives.",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/jsx-no-undef.md",
     },
@@ -55,7 +64,7 @@ const rule: Rule.RuleModule = {
      * @returns {void}
      */
     function checkIdentifierInJSX(
-      node,
+      node: T.Identifier | T.JSXIdentifier,
       {
         isComponent,
         isCustomDirective,
@@ -113,17 +122,18 @@ const rule: Rule.RuleModule = {
       JSXOpeningElement(node) {
         switch (node.name.type) {
           case "JSXIdentifier":
-            if (isDOMElementName(node.name.name)) {
-              return;
+            if (!isDOMElementName(node.name.name)) {
+              checkIdentifierInJSX(node.name, { isComponent: true });
             }
-            checkIdentifierInJSX(node.name, { isComponent: true });
             break;
           case "JSXMemberExpression":
-            node = node.name;
+            let n: T.Node | undefined = node.name;
             do {
-              node = node.object;
-            } while (node && node.type !== "JSXIdentifier");
-            checkIdentifierInJSX(node);
+              n = (n as any).object;
+            } while (n && n.type !== "JSXIdentifier");
+            if (n) {
+              checkIdentifierInJSX(n);
+            }
             break;
           case "JSXNamespacedName":
             return;
@@ -131,7 +141,7 @@ const rule: Rule.RuleModule = {
             break;
         }
       },
-      "JSXAttribute > JSXNamespacedName": (node) => {
+      "JSXAttribute > JSXNamespacedName": (node: T.JSXNamespacedName) => {
         // <Element use:X /> applies the `X` custom directive to the element, where `X` must be an identifier in scope.
         if (
           node.namespace?.type === "JSXIdentifier" &&
@@ -141,7 +151,7 @@ const rule: Rule.RuleModule = {
           checkIdentifierInJSX(node.name, { isCustomDirective: true });
         }
       },
-      "Program:exit": (programNode) => {
+      "Program:exit": (programNode: T.Program) => {
         // add in any auto import components used in the program
         const missingComponents = Array.from(missingComponentsSet.values());
         if (autoImport && missingComponents.length) {
@@ -152,7 +162,7 @@ const rule: Rule.RuleModule = {
               n.importKind !== "type" &&
               n.source.type === "Literal" &&
               n.source.value === SOURCE_MODULE
-          );
+          ) as T.ImportDeclaration | undefined;
           if (importNode) {
             context.report({
               node: importNode,
@@ -200,8 +210,7 @@ const rule: Rule.RuleModule = {
                 const firstImport = programNode.body.find((n) => n.type === "ImportDeclaration");
                 if (firstImport) {
                   return fixer.insertTextBeforeRange(
-                    (getCommentBefore(firstImport, context.getSourceCode()) ?? firstImport)
-                      .range as any,
+                    (getCommentBefore(firstImport, context.getSourceCode()) ?? firstImport).range,
                     `import { ${identifiersString} } from "${SOURCE_MODULE}";\n`
                   );
                 }

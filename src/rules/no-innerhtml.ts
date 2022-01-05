@@ -1,12 +1,18 @@
-import type { Rule } from "eslint";
+import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/experimental-utils";
+// @ts-ignore
 import { propName } from "jsx-ast-utils";
-import { getStringIfConstant } from "eslint-utils";
 import isHtml from "is-html";
 
-const rule: Rule.RuleModule = {
+const { getStringIfConstant } = ASTUtils;
+
+const rule: TSESLint.RuleModule<
+  "dangerous" | "conflict" | "notHtml" | "useInnerText" | "dangerouslySetInnerHTML",
+  [{ allowStatic?: boolean }?]
+> = {
   meta: {
     type: "problem",
     docs: {
+      recommended: "error",
       description:
         "Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities.",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/no-innerhtml.md",
@@ -36,33 +42,40 @@ const rule: Rule.RuleModule = {
         "The dangerouslySetInnerHTML prop is not supported; use innerHTML instead.",
     },
   },
-  create(context): Rule.RuleListener {
+  create(context) {
     const allowStatic = Boolean(context.options[0]?.allowStatic);
     return {
       JSXAttribute(node) {
         if (propName(node) === "dangerouslySetInnerHTML") {
           if (
-            node.value.type === "JSXExpressionContainer" &&
+            node.value?.type === "JSXExpressionContainer" &&
             node.value.expression.type === "ObjectExpression" &&
-            node.value.expression.properties.length === 1 &&
-            ((p) =>
-              p.type === "Property" && p.key.type === "Identifier" && p.key.name === "__html")(
-              node.value.expression.properties[0]
-            )
+            node.value.expression.properties.length === 1
           ) {
-            context.report({
-              node,
-              messageId: "dangerouslySetInnerHTML",
-              fix: (fixer) => {
-                const htmlProp = node.value.expression.properties[0];
-                const propRange = node.range;
-                const valueRange = htmlProp.value.range;
-                return [
-                  fixer.replaceTextRange([propRange[0], valueRange[0]], "innerHTML={"),
-                  fixer.replaceTextRange([valueRange[1], propRange[1]], "}"),
-                ];
-              },
-            });
+            const htmlProp = node.value.expression.properties[0];
+            if (
+              htmlProp.type === "Property" &&
+              htmlProp.key.type === "Identifier" &&
+              htmlProp.key.name === "__html"
+            ) {
+              context.report({
+                node,
+                messageId: "dangerouslySetInnerHTML",
+                fix: (fixer) => {
+                  const propRange = node.range;
+                  const valueRange = htmlProp.value.range;
+                  return [
+                    fixer.replaceTextRange([propRange[0], valueRange[0]], "innerHTML={"),
+                    fixer.replaceTextRange([valueRange[1], propRange[1]], "}"),
+                  ];
+                },
+              });
+            } else {
+              context.report({
+                node,
+                messageId: "dangerouslySetInnerHTML",
+              });
+            }
           } else {
             context.report({
               node,
@@ -76,12 +89,15 @@ const rule: Rule.RuleModule = {
 
         if (allowStatic) {
           const innerHtmlNode =
-            node.value.type === "JSXExpressionContainer" ? node.value.expression : node.value;
-          const innerHtml = getStringIfConstant(innerHtmlNode);
+            node.value?.type === "JSXExpressionContainer" ? node.value.expression : node.value;
+          const innerHtml = innerHtmlNode && getStringIfConstant(innerHtmlNode);
           if (typeof innerHtml === "string") {
             if (isHtml(innerHtml)) {
               // go up to enclosing JSXElement and check if it has children
-              if (node.parent.parent.children?.length) {
+              if (
+                node.parent?.parent?.type === "JSXElement" &&
+                node.parent.parent.children?.length
+              ) {
                 context.report({
                   node: node.parent.parent, // report error on JSXElement instead of JSXAttribute
                   messageId: "conflict",

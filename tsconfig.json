@@ -8,7 +8,6 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "strict": true,
-    "noImplicitAny": false,
     "outDir": "dist",
     "lib": ["ES2019"]
   },

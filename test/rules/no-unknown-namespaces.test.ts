@@ -1,7 +1,7 @@
-import { Cases, run } from "../ruleTester";
+import { run } from "../ruleTester";
 import rule from "../../src/rules/no-unknown-namespaces";
 
-export const cases: Cases = {
+export const cases = run("no-unknown-namespaces", rule, {
   valid: [
     `let el = <div on:click={null} />;`,
     `let el = <div on:focus={null} />;`,
@@ -39,6 +39,4 @@ export const cases: Cases = {
       errors: [{ messageId: "style", data: { namespace: "class" } }],
     },
   ],
-};
-
-run("no-unknown-namespaces", rule, cases);
+});

@@ -1,4 +1,5 @@
-import type { Rule } from "eslint";
+import type { TSESLint } from "@typescript-eslint/experimental-utils";
+// @ts-ignore
 import { getProp, hasProp } from "jsx-ast-utils";
 
 const reactSpecificProps = [
@@ -6,10 +7,11 @@ const reactSpecificProps = [
   { from: "htmlFor", to: "for" },
 ];
 
-const rule: Rule.RuleModule = {
+const rule: TSESLint.RuleModule<"prefer", []> = {
   meta: {
     type: "problem",
     docs: {
+      recommended: "warn",
       description:
         "Disallow usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility).",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/no-react-specific-props.md",
@@ -20,7 +22,7 @@ const rule: Rule.RuleModule = {
       prefer: "Prefer the `{{ to }}` prop over `{{ from }}`.",
     },
   },
-  create(context): Rule.RuleListener {
+  create(context) {
     return {
       JSXOpeningElement(node) {
         for (const { from, to } of reactSpecificProps) {
@@ -28,7 +30,7 @@ const rule: Rule.RuleModule = {
           if (classNameAttribute) {
             // only auto-fix if there is no class prop defined
             const fix = !hasProp(node.attributes, to, { ignoreCase: false })
-              ? (fixer) => fixer.replaceText(classNameAttribute.name, to)
+              ? (fixer: TSESLint.RuleFixer) => fixer.replaceText(classNameAttribute.name, to)
               : undefined;
 
             context.report({

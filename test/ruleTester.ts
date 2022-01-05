@@ -1,11 +1,15 @@
-/* global describe */
-
-import { RuleTester } from "eslint";
+import { TSESLint } from "@typescript-eslint/experimental-utils";
+// @ts-ignore
 import { RuleTester as RuleTester_v6 } from "eslint-v6";
+// @ts-ignore
 import { RuleTester as RuleTester_v7 } from "eslint-v7";
+
+const RuleTester = TSESLint.RuleTester;
 
 // The default parser
 const jsxTester = new RuleTester({
+  // @ts-ignore
+  parser: undefined,
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: "module",
@@ -31,10 +35,11 @@ const babelTester = new RuleTester({
   parser: require.resolve("@babel/eslint-parser"),
   parserOptions: {
     sourceType: "module",
+    // @ts-ignore
     requireConfigFile: false,
     babelOptions: {
       parserOpts: {
-        plugins: ["jsx", "typescript"], //
+        plugins: ["jsx", "typescript"],
       },
     },
   },
@@ -60,7 +65,7 @@ const v6Tester = new RuleTester_v6({
   },
 });
 
-export const run: typeof RuleTester.prototype.run = (name, rule, tests) => {
+export const run: typeof TSESLint.RuleTester.prototype.run = (name, rule, tests) => {
   switch (process.env.PARSER) {
     case "ts":
       describe("@typescript-eslint/parser", () => tsTester.run(name, rule, tests));
@@ -87,6 +92,5 @@ export const run: typeof RuleTester.prototype.run = (name, rule, tests) => {
       describe("esprima", () => jsxTester.run(name, rule, tests));
       break;
   }
+  return tests;
 };
-
-export type Cases = Parameters<typeof RuleTester.prototype.run>[2];

@@ -1,10 +1,13 @@
-import type { Rule } from "eslint";
-import { getPropertyName } from "eslint-utils";
+import { TSESLint, TSESTree as T, ASTUtils } from "@typescript-eslint/experimental-utils";
+import { isFunctionNode } from "../utils";
 
-const rule: Rule.RuleModule = {
+const { getPropertyName } = ASTUtils;
+
+const rule: TSESLint.RuleModule<"preferFor" | "preferForOrIndex", []> = {
   meta: {
     type: "problem",
     docs: {
+      recommended: "error",
       description:
         "Enforce using Solid's `<For />` component for mapping an array to JSX elements.",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/prefer-for.md",
@@ -17,10 +20,10 @@ const rule: Rule.RuleModule = {
         "Use Solid's `<For />` component or `<Index />` component for rendering lists.",
     },
   },
-  create(context): Rule.RuleListener {
-    const reportPreferFor = (node) => {
-      const jsxExpressionContainerNode = node.parent;
-      const arrayNode = node.callee.object;
+  create(context) {
+    const reportPreferFor = (node: T.CallExpression) => {
+      const jsxExpressionContainerNode = node.parent as T.JSXExpressionContainer;
+      const arrayNode = (node.callee as T.MemberExpression).object;
       const mapFnNode = node.arguments[0];
       context.report({
         node,
@@ -46,12 +49,12 @@ const rule: Rule.RuleModule = {
     };
 
     return {
-      "JSXElement > JSXExpressionContainer > CallExpression": (node) => {
+      "JSXElement > JSXExpressionContainer > CallExpression": (node: T.CallExpression) => {
         if (
           node.callee.type === "MemberExpression" &&
           getPropertyName(node.callee) === "map" &&
           node.arguments.length === 1 && // passing thisArg to Array.prototype.map is rare, deopt in that case
-          node.arguments[0].type.includes("FunctionExpression")
+          isFunctionNode(node.arguments[0])
         ) {
           const mapFnNode = node.arguments[0];
           if (mapFnNode.params.length === 1 && mapFnNode.params[0].type !== "RestElement") {

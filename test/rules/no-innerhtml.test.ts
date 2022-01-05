@@ -1,7 +1,8 @@
-import { run, Cases } from "../ruleTester";
+import { AST_NODE_TYPES as T } from "@typescript-eslint/experimental-utils";
+import { run } from "../ruleTester";
 import rule from "../../src/rules/no-innerhtml";
 
-export const cases: Cases = {
+export const cases = run('no-innerhtml', rule, {
   valid: [
     `let el = <div prop1 prop2={2}>Hello world!</div>`,
     `let el = <Box prop1 prop2={2}>Hello world!</Box>`,
@@ -56,7 +57,7 @@ export const cases: Cases = {
         );
       `,
       options: [{ allowStatic: true }],
-      errors: [{ messageId: "conflict", type: "JSXElement" }],
+      errors: [{ messageId: "conflict", type: T.JSXElement }],
     },
     {
       code: `
@@ -68,7 +69,7 @@ export const cases: Cases = {
         );
       `,
       options: [{ allowStatic: true }],
-      errors: [{ messageId: "conflict", type: "JSXElement" }],
+      errors: [{ messageId: "conflict", type: T.JSXElement }],
     },
     {
       code: `
@@ -79,7 +80,7 @@ export const cases: Cases = {
         );
       `,
       options: [{ allowStatic: true }],
-      errors: [{ messageId: "conflict", type: "JSXElement" }],
+      errors: [{ messageId: "conflict", type: T.JSXElement }],
     },
     {
       code: `
@@ -90,7 +91,7 @@ export const cases: Cases = {
         );
       `,
       options: [{ allowStatic: true }],
-      errors: [{ messageId: "conflict", type: "JSXElement" }],
+      errors: [{ messageId: "conflict", type: T.JSXElement }],
     },
     {
       code: `let el = <div dangerouslySetInnerHTML={{ __html: "<p>Hello</p><p>world!</p>" }} />`,
@@ -106,6 +107,4 @@ export const cases: Cases = {
       errors: [{ messageId: "dangerouslySetInnerHTML" }],
     },
   ],
-};
-
-run("no-innerhtml", rule, cases);
+});

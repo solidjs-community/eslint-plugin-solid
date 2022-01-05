@@ -1,11 +1,4 @@
-import type { Rule, SourceCode } from "eslint";
-import type {
-  Comment,
-  FunctionExpression,
-  FunctionDeclaration,
-  ArrowFunctionExpression,
-  Program,
-} from "estree-jsx";
+import type { TSESTree as T, TSESLint } from "@typescript-eslint/experimental-utils";
 
 const domElementRegex = /^[a-z]/;
 export const isDOMElementName = (name: string): boolean => domElementRegex.test(name);
@@ -30,10 +23,10 @@ export const formatList = (strings: Array<string>): string => {
 };
 
 export const find = (
-  node: Rule.Node,
-  predicate: (node: Rule.Node) => boolean | Rule.Node
-): Rule.Node | null => {
-  let n = node;
+  node: T.Node,
+  predicate: (node: T.Node) => boolean | T.Node
+): T.Node | null => {
+  let n: T.Node | undefined = node;
   while (n) {
     const result = predicate(n);
     if (result === true) {
@@ -45,25 +38,21 @@ export const find = (
   }
   return null;
 };
-export function findParent(node: Rule.Node, predicate: (node: Rule.Node) => boolean | Rule.Node) {
-  return find(node.parent, predicate);
+export function findParent(node: T.Node, predicate: (node: T.Node) => boolean | T.Node) {
+  return node.parent ? find(node.parent, predicate) : null;
 }
 
-export type FunctionNode = (FunctionExpression | ArrowFunctionExpression | FunctionDeclaration) &
-  Rule.NodeParentExtension;
+export type FunctionNode = T.FunctionExpression | T.ArrowFunctionExpression | T.FunctionDeclaration;
 const FUNCTION_TYPES = ["FunctionExpression", "ArrowFunctionExpression", "FunctionDeclaration"];
-export const isFunctionNode = (node: Rule.Node | Program): node is FunctionNode =>
+export const isFunctionNode = (node: T.Node | T.Program): node is FunctionNode =>
   FUNCTION_TYPES.includes(node.type);
 
-export type ProgramOrFunctionNode = FunctionNode | (Program & Partial<Rule.NodeParentExtension>);
+export type ProgramOrFunctionNode = FunctionNode | T.Program;
 const PROGRAM_OR_FUNCTION_TYPES = ["Program"].concat(FUNCTION_TYPES);
-export const isProgramOrFunctionNode = (node: Rule.Node | Program): node is ProgramOrFunctionNode =>
+export const isProgramOrFunctionNode = (node: T.Node): node is ProgramOrFunctionNode =>
   PROGRAM_OR_FUNCTION_TYPES.includes(node.type);
 
-export function findParentInFunction(
-  node: Rule.Node,
-  predicate: (node: Rule.Node) => boolean | Rule.Node
-) {
+export function findParentInFunction(node: T.Node, predicate: (node: T.Node) => boolean | T.Node) {
   const enclosingFunction = findParent(node, isProgramOrFunctionNode);
   const found = findParent(node, (node) => node === enclosingFunction || predicate(node));
   return found === enclosingFunction ? null : found;
@@ -73,14 +62,20 @@ export function findParentInFunction(
 
 // Checks whether `node` has a comment (that ends) on the previous line or on
 // the same line as `node` (starts).
-export const getCommentBefore = (node: Rule.Node, sourceCode: SourceCode): Comment | undefined =>
+export const getCommentBefore = (
+  node: T.Node,
+  sourceCode: TSESLint.SourceCode
+): T.Comment | undefined =>
   sourceCode
     .getCommentsBefore(node)
     .find((comment) => comment.loc!.end.line >= node.loc!.start.line - 1);
 
 // Checks whether `node` has a comment (that starts) on the same line as `node`
 // (ends).
-export const getCommentAfter = (node: Rule.Node, sourceCode: SourceCode): Comment | undefined =>
+export const getCommentAfter = (
+  node: T.Node,
+  sourceCode: TSESLint.SourceCode
+): T.Comment | undefined =>
   sourceCode
     .getCommentsAfter(node)
     .find((comment) => comment.loc!.start.line === node.loc!.end.line);

@@ -1,7 +1,7 @@
-import { run, Cases } from "../ruleTester";
+import { run } from "../ruleTester";
 import rule from "../../src/rules/no-react-specific-props";
 
-export const cases: Cases = {
+export const cases = run("no-react-specific-props", rule, {
   valid: [
     `let el = <div>Hello world!</div>;`,
     `let el = <div class="greeting">Hello world!</div>;`,
@@ -60,6 +60,4 @@ export const cases: Cases = {
       output: `let el = <PascalComponent for="id">Hello world!</PascalComponent>`,
     },
   ],
-};
-
-run("no-react-specific-props", rule, cases);
+});
