@@ -2,7 +2,7 @@ import { AST_NODE_TYPES as T } from "@typescript-eslint/experimental-utils";
 import { run } from "../ruleTester";
 import rule from "../../src/rules/no-innerhtml";
 
-export const cases = run('no-innerhtml', rule, {
+export const cases = run("no-innerhtml", rule, {
   valid: [
     `let el = <div prop1 prop2={2}>Hello world!</div>`,
     `let el = <Box prop1 prop2={2}>Hello world!</Box>`,

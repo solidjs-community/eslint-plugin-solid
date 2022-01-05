@@ -1,7 +1,7 @@
 import { run } from "../ruleTester";
 import rule from "../../src/rules/no-destructure";
 
-export const cases = run('no-destructure', rule, {
+export const cases = run("no-destructure", rule, {
   valid: [
     `let Component = props => <div />`,
     `let Component = (props) => <div />`,
@@ -241,4 +241,4 @@ various();
 }`,
     },
   ],
-})
+});

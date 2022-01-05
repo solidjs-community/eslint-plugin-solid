@@ -1,7 +1,7 @@
 import { run } from "../ruleTester";
 import rule from "../../src/rules/prefer-classlist";
 
-export const cases = run('prefer-classlist', rule, {
+export const cases = run("prefer-classlist", rule, {
   valid: [
     `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
     `let el = <div class="red">Hello, world!</div>`,

@@ -166,4 +166,3 @@ let el = <For each={items}>{item => item.name}</For>`,
     },
   ],
 });
-
