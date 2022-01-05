@@ -4,7 +4,6 @@ Enforce that reactive expressions (props, signals, memos, etc.) are only used in
 This rule is **off** by default.
 
 [View source](../src/rules/reactivity.ts) · [View tests](../test/rules/reactivity.test.ts)
-
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
