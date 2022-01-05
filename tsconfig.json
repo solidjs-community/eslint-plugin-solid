@@ -11,5 +11,5 @@
     "outDir": "dist",
     "lib": ["ES2019"]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "scripts/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "scripts/**/*.ts", "deps.d.ts"]
 }

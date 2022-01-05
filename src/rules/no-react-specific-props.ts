@@ -1,5 +1,4 @@
 import type { TSESLint } from "@typescript-eslint/experimental-utils";
-// @ts-ignore
 import { getProp, hasProp } from "jsx-ast-utils";
 
 const reactSpecificProps = [

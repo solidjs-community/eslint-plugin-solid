@@ -1,11 +1,11 @@
 /**
  * @fileoverview This rule is by far the most complex and the most important. What we need to do is ensure that all
  * usages of reactive data (that's props, signals, stores, memos, resources, results of mergeProps/splitProps, isPending)
- * are done in tracked scopes (that's component bodies, JSX attributes, effects, memos, transitions). This needs to account
+ * are done in tracked scopes (that's JSX attributes, effects, memos, transitions). This needs to account
  * for exceptions (on, untrack) and make sure getters are called, not passed by value alone, except where they are object
  * getters and the calling is done implicitly.
- * This doesn't forbid destructuring props, the most common mistake with Solid's reactivity, but it does forbid using
- * the destructured props. TODO: another rule could catch this sooner.
+ * This doesn't forbid destructuring props, the most common mistake with Solid's reactivity, but the no-destructure
+ * rule does.
  * By definition this will involve some scope analysis, which ESLint provides. That means analysis must be done on exiting
  * nodes/code paths rather than entering. We can't find all expressions in tracked scopes and check if they are reactive,
  * because not all of those expressions need to be reactive. Instead, we find reactive expressions and iterate through their
@@ -58,21 +58,13 @@
  * of tracked scopes, but the function becomes reactive. When we step out of a function scope,
  * we can discard all the information within the function as long as it's been processed. This means
  * we can do a nice little stack-based machine.
+ *
+ * Most tracked scopes expect an inline function to be passed, i.e. something that functions like
+ * a signal. A props access won't do unless it's in a JSX expression container. TODO: Differentiate
+ * between the two kinds of tracked scopes.
  */
 
-import { Rule, RuleTester, Scope } from "eslint";
-import { findVariable, getFunctionHeadLocation, getFunctionNameWithKind } from "eslint-utils";
-import {
-  Expression,
-  CallExpression,
-  Identifier,
-  Node,
-  Program,
-  VariableDeclarator,
-  Pattern,
-  AssignmentExpression,
-  MemberExpression,
-} from "estree-jsx";
+import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/experimental-utils";
 import {
   findParent,
   findParentInFunction,
@@ -80,52 +72,50 @@ import {
   FunctionNode,
   isFunctionNode,
   ProgramOrFunctionNode,
-  isProgramOrFunctionNode,
 } from "../utils";
+
+const { findVariable, getFunctionHeadLocation } = ASTUtils;
+
+type Scope = TSESLint.Scope.Scope;
+type Variable = TSESLint.Scope.Variable;
+type Reference = TSESLint.Scope.Reference;
 
 interface ReactiveVariable {
   /** The reactive variable. */
-  variable: Scope.Variable;
+  variable: Variable;
   /**
    * The function node in which the reactive variable was declared, or for a derived signal (function),
-   * the deepest function node that declares a referenced signal. */
+   * the deepest function node that declares a referenced signal.
+   */
   declarationScope: ProgramOrFunctionNode;
 }
-const ReactiveVariable = (variable: Scope.Variable, declarationScope: ProgramOrFunctionNode) => ({
+const ReactiveVariable = (variable: Variable, declarationScope: ProgramOrFunctionNode) => ({
   variable,
   declarationScope,
 });
 
-// interface ReactiveReference {
-//   /** The reference to a reactive variable. */
-//   reference: Scope.Reference;
-//   /**
-//    * The function node in which the reactive variable was declared, or for a derived signal (function),
-//    * the deepest function node that contains . */
-//   declarationScope: ProgramOrFunctionNode;
-// }
-
 interface FunctionStackItem {
   /** the node for the current function, or program if global scope */
   node: ProgramOrFunctionNode;
-  /** nodes whose descendants in the current function are allowed to be reactive */
-  trackedScopes: Array<Node>;
+  /**
+   * nodes whose descendants in the current function are allowed to be reactive. JSXExpressionContainers
+   * can be any expression containing reactivity, while function nodes are typically arguments to solid-js
+   * primitives and  */
+  trackedScopes: Array<(T.JSXExpressionContainer | T.Identifier) | FunctionNode>;
   /** variable references to be treated as signals, memos, derived signals, etc. */
   signals: Array<ReactiveVariable>;
   /** variables references to be treated as props (or stores) */
   props: Array<ReactiveVariable>;
+  /** nameless functions with reactivity, should exactly match a tracked scope */
+  unnamedDerivedSignals?: Set<FunctionNode>;
   /** switched to true by time of :exit if JSX is detected in the current function */
   hasJSX: boolean;
 }
 
-const isDescendantNotInNestedFunction = (child: Rule.Node, parent: Rule.Node | Program) =>
+const isDescendantNotInNestedFunction = (child: T.Node, parent: T.Node | T.Program) =>
   findParent(child, (n) => n === parent || isFunctionNode(n)) === parent;
 
-const getNthDestructuredVar = (
-  id: Rule.Node,
-  n: number,
-  scope: Scope.Scope
-): Scope.Variable | null => {
+const getNthDestructuredVar = (id: T.Node, n: number, scope: Scope): Variable | null => {
   if (id?.type === "ArrayPattern") {
     const el = id.elements[n];
     if (el?.type === "Identifier") {
@@ -134,17 +124,27 @@ const getNthDestructuredVar = (
   }
   return null;
 };
-const getReturnedVar = (id: Rule.Node, scope: Scope.Scope): Scope.Variable | null => {
+const getReturnedVar = (id: T.Node, scope: Scope): Variable | null => {
   if (id.type === "Identifier") {
     return findVariable(scope, id.name);
   }
   return null;
 };
 
-const rule: Rule.RuleModule = {
+type MessageIds =
+  | "noWrite"
+  | "untrackedReactive"
+  | "badSignal"
+  | "badProps"
+  | "badUnnamedDerivedSignal"
+  | "shouldDestructure"
+  | "shouldAssign";
+
+const rule: TSESLint.RuleModule<MessageIds, []> = {
   meta: {
     type: "problem",
     docs: {
+      recommended: false, // TODO switch
       description:
         "Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected.",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md",
@@ -157,22 +157,21 @@ const rule: Rule.RuleModule = {
       badSignal: "This variable should be called as a function when used.",
       badProps:
         "This props or store should only be passed to functions or used for property access.",
+      badUnnamedDerivedSignal: "This function should be passed to a tracked scope.",
       shouldDestructure:
         "Array destructuring should be used to capture the {{nth}}result of this function call.",
       shouldAssign: "A variable should be used to capture the result of this function call.",
-      reactiveFunctionNeedsName:
-        "This function should be given a name so it can be properly analyzed.",
     },
   },
-  create(context): Rule.RuleListener {
-    const warnShouldDestructure = (node: Omit<Rule.Node, "parent">, nth?: string) =>
+  create(context) {
+    const warnShouldDestructure = (node: Omit<T.Node, "parent">, nth?: string) =>
       context.report({
-        node: node as Rule.Node,
+        node: node as T.Node,
         messageId: "shouldDestructure",
         data: nth ? { nth: nth + " " } : undefined,
       });
-    const warnShouldAssign = (node: Omit<Rule.Node, "parent">) =>
-      context.report({ node: node as Rule.Node, messageId: "shouldAssign" });
+    const warnShouldAssign = (node: Omit<T.Node, "parent">) =>
+      context.report({ node: node as T.Node, messageId: "shouldAssign" });
 
     const sourceCode = context.getSourceCode();
 
@@ -206,10 +205,8 @@ const rule: Rule.RuleModule = {
       });
     };
 
-    const checkForReactiveAssignment = (
-      id: (Pattern & Rule.NodeParentExtension) | null,
-      init: Rule.Node
-    ) => {
+    /** Checks VariableDeclarators, AssignmentExpressions, and CallExpressions for reactivity. */
+    const checkForReactiveAssignment = (id: T.Node | null, init: T.Node) => {
       const { node: currentFunctionNode } = currentFunction();
       // Mark return values of certain functions as reactive
       if (init.type === "CallExpression" && init.callee.type === "Identifier") {
@@ -275,57 +272,55 @@ const rule: Rule.RuleModule = {
         }
       }
 
-      // Check all the signals on the functionStack
+      /** Check all the signals on the functionStack, depth-first. */
       function* iterateSignals(): Iterable<ReactiveVariable> {
         for (let i = functionStack.length - 1; i >= 0; i -= 1) {
           yield* functionStack[i].signals;
         }
       }
-
+      /** Check all the props on the functionStack, depth-first. */
       function* iterateProps(): Iterable<ReactiveVariable> {
         for (let i = functionStack.length - 1; i >= 0; i -= 1) {
           yield* functionStack[i].props;
         }
       }
 
+      /** Inspects a specific reference of a reactive variable for correct handling. */
       const handleTrackedScopes = (
-        reference: Scope.Reference,
+        reference: Reference,
         declarationScope: ProgramOrFunctionNode
       ) => {
         // Check if the call falls outside any tracked scopes in the current function
         if (
           !currentFunction().trackedScopes.some((trackedScope) =>
-            findParentInFunction(
-              reference.identifier as Identifier & Rule.NodeParentExtension,
-              (node) => node === trackedScope
-            )
+            findParentInFunction(reference.identifier, (node) => node === trackedScope)
           )
         ) {
           if (declarationScope === currentFunctionNode) {
             // If the reactivity is not contained in a tracked scope, and any of the reactive variables were
             // declared in the current function scope, then we report them. When the reference is to an object
             // in a MemberExpression (props/store) or a function call (signal), report that, otherwise the identifier.
-            const identifier = reference.identifier as Identifier & Rule.NodeParentExtension;
-            let parentMemberExpression: (MemberExpression & Rule.NodeParentExtension) | null = null;
-            if (identifier.parent.type === "MemberExpression") {
+            const identifier = reference.identifier;
+            let parentMemberExpression: T.MemberExpression | null = null;
+            if (identifier.parent?.type === "MemberExpression") {
               parentMemberExpression = identifier.parent;
-              while (parentMemberExpression.parent.type === "MemberExpression") {
-                parentMemberExpression = parentMemberExpression.parent;
+              while (parentMemberExpression!.parent?.type === "MemberExpression") {
+                parentMemberExpression = parentMemberExpression!.parent;
               }
             }
             const parentCallExpression =
-              identifier.parent.type === "CallExpression" ? identifier.parent : null;
+              identifier.parent?.type === "CallExpression" ? identifier.parent : null;
             context.report({
               node: parentMemberExpression ?? parentCallExpression ?? identifier,
               messageId: "untrackedReactive",
               data: { name: identifier.name },
             });
           } else {
-            // If any of the reactive variables were declared *above* the current function scope, then
+            // If all of the reactive variables were declared above the current function scope, then
             // the entire function becomes reactive with the deepest declaration scope of the reactive
             // variables it contains. Let the next onFunctionExit up handle it.
             const parentFunction = functionStack[functionStack.length - 2];
-            if (!parentFunction) {
+            if (!parentFunction || !isFunctionNode(currentFunctionNode)) {
               throw new Error("this shouldn't happen!");
             }
 
@@ -338,43 +333,46 @@ const rule: Rule.RuleModule = {
               );
               if (!signal) {
                 parentFunction.signals.push(reactiveVariable);
-                return reactiveVariable;
+              } else {
+                signal.declarationScope = findDeepestDeclarationScope(
+                  signal.declarationScope,
+                  reactiveVariable.declarationScope
+                );
               }
-              signal.declarationScope = findDeepestDeclarationScope(
-                signal.declarationScope,
-                reactiveVariable.declarationScope
-              );
-              return signal;
             };
-            // get variable representing function, function node only defines one variable
-            let functionVariable: Scope.Variable | undefined =
-              sourceCode.scopeManager.getDeclaredVariables(currentFunctionNode)[0];
-            if (functionVariable) {
-              pushUniqueDerivedSignal(
-                ReactiveVariable(
-                  functionVariable,
-                  declarationScope // use declaration scope of a signal contained in this function
-                )
-              );
+            // If the current function doesn't have an associated variable, that's fine, it's being
+            // used inline (i.e. anonymous arrow function). For this to be okay, the arrow function
+            // has to be the same node as one of the tracked scopes, as we can't easily find references.
+            const pushUnnamedDerivedSignal = () =>
+              (parentFunction.unnamedDerivedSignals ??= new Set()).add(currentFunctionNode);
+
+            if (currentFunctionNode.type === "FunctionDeclaration") {
+              // get variable representing function, function node only defines one variable
+              const functionVariable: Variable | undefined =
+                sourceCode.scopeManager?.getDeclaredVariables(currentFunctionNode)?.[0];
+              if (functionVariable) {
+                pushUniqueDerivedSignal(
+                  ReactiveVariable(
+                    functionVariable,
+                    declarationScope // use declaration scope of a signal contained in this function
+                  )
+                );
+              } else {
+                pushUnnamedDerivedSignal();
+              }
             } else if (currentFunctionNode.parent?.type === "VariableDeclarator") {
-              const declarator = currentFunctionNode.parent as VariableDeclarator;
+              const declarator = currentFunctionNode.parent;
               // for nameless or arrow function expressions, use the declared variable it's assigned to
-              functionVariable = sourceCode.scopeManager.getDeclaredVariables(declarator)[0];
+              const functionVariable =
+                sourceCode.scopeManager?.getDeclaredVariables(declarator)?.[0];
               if (functionVariable) {
                 // use declaration scope of a signal contained in this function
                 pushUniqueDerivedSignal(ReactiveVariable(functionVariable, declarationScope));
               } else {
-                if (isFunctionNode(currentFunctionNode)) {
-                  // Nameless function! Can't analyze, warn.
-                  context.report({
-                    loc: getFunctionHeadLocation(currentFunctionNode, sourceCode),
-                    messageId: "reactiveFunctionNeedsName",
-                  });
-                } else {
-                  // At top level, no way to bubble up any further. SHOULDN'T HAPPEN
-                  throw new Error("this shouldn't happen either");
-                }
+                pushUnnamedDerivedSignal();
               }
+            } else {
+              pushUnnamedDerivedSignal();
             }
           }
         }
@@ -383,8 +381,7 @@ const rule: Rule.RuleModule = {
       // Iterate through all usages of (derived) signals in the current function (this is O(signals * references * depth) but typically not large)
       for (const { variable, declarationScope } of iterateSignals()) {
         for (const reference of variable.references) {
-          // this type cast is safe, see https://github.com/typescript-eslint/typescript-eslint/issues/1417
-          const identifier = reference.identifier as Identifier & Rule.NodeParentExtension;
+          const identifier = reference.identifier;
           if (!reference.init && isDescendantNotInNestedFunction(identifier, currentFunctionNode)) {
             if (reference.isWrite()) {
               // don't allow reassigning signals
@@ -416,14 +413,8 @@ const rule: Rule.RuleModule = {
       for (const { variable, declarationScope } of iterateProps()) {
         for (const reference of variable.references) {
           // this type cast is safe, see https://github.com/typescript-eslint/typescript-eslint/issues/1417
-          const identifier = reference.identifier as Identifier & Rule.NodeParentExtension;
-          if (
-            !reference.init &&
-            isDescendantNotInNestedFunction(
-              identifier as Identifier & Rule.NodeParentExtension,
-              currentFunctionNode
-            )
-          ) {
+          const identifier = reference.identifier;
+          if (!reference.init && isDescendantNotInNestedFunction(identifier, currentFunctionNode)) {
             if (reference.isWrite()) {
               // don't allow reassigning props or stores
               context.report({
@@ -452,8 +443,9 @@ const rule: Rule.RuleModule = {
               }
             } else if (
               (identifier.parent?.type === "CallExpression" &&
+                identifier.type !== "JSXIdentifier" &&
                 identifier.parent.arguments.includes(identifier)) ||
-              (identifier.parent as Node | undefined)?.type === "JSXSpreadAttribute" ||
+              identifier.parent?.type === "JSXSpreadAttribute" ||
               identifier.parent?.type === "AssignmentExpression"
             ) {
               // The props are being passed to a function (mergeProps, splitProps, custom hook) or spread
@@ -472,17 +464,31 @@ const rule: Rule.RuleModule = {
         }
       }
 
+      // If there are any unnamed derived signals, they must match one of the tracked scopes exactly.
+      // Ex. args to createEffect, createMemo, etc.
+      const { unnamedDerivedSignals } = currentFunction();
+      if (unnamedDerivedSignals) {
+        for (const node of unnamedDerivedSignals) {
+          if (!currentFunction().trackedScopes.includes(node)) {
+            context.report({
+              loc: getFunctionHeadLocation(node, sourceCode),
+              messageId: "badUnnamedDerivedSignal",
+            });
+          }
+        }
+      }
+
       // Pop on exit
       functionStack.pop();
     };
 
     return {
       /* Tracking scopes: */
-      JSXExpressionContainer(node: Rule.Node) {
+      JSXExpressionContainer(node: T.JSXExpressionContainer) {
         const { trackedScopes } = currentFunction();
         trackedScopes.push(node);
       },
-      CallExpression(node: CallExpression & Rule.NodeParentExtension) {
+      CallExpression(node: T.CallExpression) {
         const { trackedScopes } = currentFunction();
 
         if (node.callee.type !== "Identifier") {
@@ -492,11 +498,13 @@ const rule: Rule.RuleModule = {
           ["createEffect", "createMemo", "onMount", "createRenderEffect"].includes(node.callee.name)
         ) {
           // createEffect, createMemo fn arg
-          trackedScopes.push(node.arguments[0]);
+          if (isFunctionNode(node.arguments[0])) {
+            trackedScopes.push(node.arguments[0]);
+          }
         } else if (
           node.callee.name === "createResource" &&
           node.arguments.length > 0 &&
-          !isFunctionNode(node.arguments[0] as Expression & Rule.NodeParentExtension)
+          (isFunctionNode(node.arguments[0]) || node.arguments[0].type === "Identifier")
         ) {
           // createResource optional `source` first argument may be a signal
           trackedScopes.push(node.arguments[0]);
@@ -512,20 +520,14 @@ const rule: Rule.RuleModule = {
       },
 
       /* Reactive expressions: */
-      VariableDeclarator(node: VariableDeclarator & Rule.NodeParentExtension) {
+      VariableDeclarator(node: T.VariableDeclarator) {
         if (node.init) {
-          checkForReactiveAssignment(
-            node.id as Pattern & Rule.NodeParentExtension,
-            node.init as Rule.Node
-          );
+          checkForReactiveAssignment(node.id, node.init);
         }
       },
-      AssignmentExpression(node: AssignmentExpression & Rule.NodeParentExtension) {
+      AssignmentExpression(node: T.AssignmentExpression) {
         if (node.left.type !== "MemberExpression" && node.right) {
-          checkForReactiveAssignment(
-            node.left as typeof node.left & Rule.NodeParentExtension,
-            node.right as Expression & Rule.NodeParentExtension
-          );
+          checkForReactiveAssignment(node.left, node.right);
         }
       },
 
@@ -537,6 +539,7 @@ const rule: Rule.RuleModule = {
       "FunctionExpression:exit": onFunctionExit,
       "ArrowFunctionExpression:exit": onFunctionExit,
       "FunctionDeclaration:exit": onFunctionExit,
+      "Program:exit": onFunctionExit,
       JSXElement() {
         if (functionStack.length) {
           currentFunction().hasJSX = true;

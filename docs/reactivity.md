@@ -17,6 +17,23 @@ This rule is **off** by default.
 These snippets cause lint errors.
 
 ```js
+const Component = () => {
+  const [signal] = createSignal(5);
+  console.log(signal());
+  return null;
+};
+ 
+const Component = () => {
+  const [signal] = createSignal(5);
+  console.log(signal());
+  return <div>{signal()}</div>;
+};
+ 
+const Component = (props) => {
+  const value = props.value;
+  return <div>{value()}</div>;
+};
+ 
 const Component = (props) => {
   const { value: valueProp } = props;
   const value = createMemo(() => valueProp || "default");
@@ -79,6 +96,14 @@ const Component = () => {
 };
  
 const Component = () => {
+  const [signal] = createSignal();
+  const memo = createMomo(() => signal());
+};
+ 
+const [signal] = createSignal();
+const memo = createMomo(() => signal());
+ 
+const Component = () => {
   createSignal();
 };
  
@@ -88,6 +113,16 @@ const Component = () => {
  
 const Component = () => {
   createMemo(() => 5);
+};
+ 
+const Component = () => {
+  const [signal] = createSignal();
+  return <div>{signal}</div>;
+};
+ 
+const Component = () => {
+  const memo = createMemo(() => 5);
+  return <div>{memo}</div>;
 };
  
 ```
@@ -127,7 +162,13 @@ let c = () => {
   d(); // <-- this is fine
 };
 
-let element = <div />;
+const [signal] = createSignal();
+createEffect(() => console.log(signal()));
+
+const [signal] = createSignal();
+const memo = createMemo(() => signal());
+
+const el = <div />;
 
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->

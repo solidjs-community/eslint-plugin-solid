@@ -1,5 +1,4 @@
-import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/experimental-utils";
-// @ts-ignore
+import { TSESLint, ASTUtils } from "@typescript-eslint/experimental-utils";
 import { propName } from "jsx-ast-utils";
 import isHtml from "is-html";
 

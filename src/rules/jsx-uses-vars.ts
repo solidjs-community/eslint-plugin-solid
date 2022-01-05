@@ -11,6 +11,7 @@ const rule: TSESLint.RuleModule<never, []> = {
     type: "problem",
     docs: {
       recommended: "error",
+      // eslint-disable-next-line eslint-plugin/require-meta-docs-description
       description: "Prevent variables used in JSX from being marked as unused.",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/jsx-uses-vars.md",
     },
@@ -21,6 +22,7 @@ const rule: TSESLint.RuleModule<never, []> = {
   create(context) {
     return {
       JSXOpeningElement(node) {
+        let parent: T.JSXTagNameExpression;
         switch (node.name.type) {
           case "JSXNamespacedName": // <Foo:Bar>
             return;
@@ -28,7 +30,7 @@ const rule: TSESLint.RuleModule<never, []> = {
             context.markVariableAsUsed(node.name.name);
             break;
           case "JSXMemberExpression": // <Foo...Bar>
-            let parent: T.JSXTagNameExpression = node.name.object;
+            parent = node.name.object;
             while (parent?.type === "JSXMemberExpression") {
               parent = parent.object;
             }

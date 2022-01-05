@@ -120,6 +120,7 @@ const rule: TSESLint.RuleModule<
 
     return {
       JSXOpeningElement(node) {
+        let n: T.Node | undefined;
         switch (node.name.type) {
           case "JSXIdentifier":
             if (!isDOMElementName(node.name.name)) {
@@ -127,7 +128,7 @@ const rule: TSESLint.RuleModule<
             }
             break;
           case "JSXMemberExpression":
-            let n: T.Node | undefined = node.name;
+            n = node.name;
             do {
               n = (n as any).object;
             } while (n && n.type !== "JSXIdentifier");

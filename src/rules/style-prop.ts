@@ -1,9 +1,8 @@
 import { TSESLint, TSESTree as T, ASTUtils } from "@typescript-eslint/experimental-utils";
-// @ts-ignore
-import { propName } from "jsx-ast-utils";
-import { paramCase as kebabCase } from "param-case";
+import kebabCase from "kebab-case";
 import { all as allCssProperties } from "known-css-properties";
 import parse from "style-to-object";
+import { propName } from "jsx-ast-utils";
 
 const { getPropertyName, getStaticValue } = ASTUtils;
 

@@ -2,9 +2,7 @@ import path from "path";
 import fs from "fs-extra";
 import markdownMagic from "markdown-magic";
 import prettier from "prettier";
-// @ts-ignore
-import plugin from "../src/index";
-import type { Cases } from "../test/ruleTester";
+const plugin = require("../src/index");
 
 const { rules, configs } = plugin;
 
@@ -21,7 +19,7 @@ const ruleTableRows = Object.keys(rules)
     ].join(" | ");
   });
 
-const formatLevel = (options) => {
+const formatLevel = (options: 0 | 1 | 2 | "off" | "warn" | "error" | Array<any>): string => {
   if (Array.isArray(options)) {
     return formatLevel(options[0]);
   } else {
@@ -35,19 +33,19 @@ const formatLevel = (options) => {
     }[options];
   }
 };
-const getLevelForRule = (ruleName) =>
+const getLevelForRule = (ruleName: string) =>
   ruleName in configs.recommended.rules ? formatLevel(configs.recommended.rules[ruleName]) : "off";
 
-const buildRulesTable = (rows) => {
+const buildRulesTable = (rows: Array<string>) => {
   const header = "✔ | 🔧 | Rule | Description";
   const separator = ":---: | :---: | :--- | :---";
 
   return [header, separator, ...rows].map((row) => `| ${row} |`).join("\n");
 };
 
-const buildHeader = (filename) => {
+const buildHeader = (filename: string): string => {
   const ruleName = filename.replace(/\.md$/, "");
-  if (!rules[ruleName]) return;
+  if (!rules[ruleName]) return "";
   const description = rules[ruleName].meta.docs.description;
   return [
     `# solid/${ruleName}`,
@@ -57,11 +55,11 @@ const buildHeader = (filename) => {
   ].join("\n");
 };
 
-const buildOptions = (filename) => {
+const buildOptions = (filename: string): string => {
   const ruleName = filename.replace(/\.md$/, "");
-  if (!rules[ruleName]) return;
+  if (!rules[ruleName]) return "";
   const properties = rules[ruleName].meta.schema?.[0]?.properties;
-  if (!properties) return;
+  if (!properties) return "";
   return [
     "## Rule Options\n",
     "```\n" + `  "${ruleName}": ["error", { "<key>": "<value>" }]\n` + "```\n",
@@ -80,8 +78,8 @@ const buildOptions = (filename) => {
   ].join("\n");
 };
 
-const pretty = (code) => prettier.format(code, { parser: "babel" }).trim();
-const options = (options) =>
+const pretty = (code: string) => prettier.format(code, { parser: "babel" }).trim();
+const options = (options: Array<any>) =>
   options
     .map((o) =>
       JSON.stringify(o)
@@ -90,12 +88,11 @@ const options = (options) =>
     )
     .join(", ");
 
-const buildCases = (content, filename) => {
+const buildCases = (content: string, filename: string) => {
   const ruleName = filename.replace(/\.md$/, "");
   const testPath = path.resolve(__dirname, "..", "test", "rules", `${ruleName}.test.ts`);
-  let cases: Cases | undefined;
+  let cases: any;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     cases = require(testPath)?.cases;
   } catch {
     return content;
@@ -103,16 +100,16 @@ const buildCases = (content, filename) => {
   if (!cases) {
     return content;
   }
-  const valid = cases.valid?.map((c) => (typeof c === "string" ? { code: c } : c)) ?? [];
+  const valid = cases.valid?.map((c: any) => (typeof c === "string" ? { code: c } : c)) ?? [];
   const invalid = cases.invalid ?? [];
 
   const markdown = [
     "### Invalid Examples\n",
     `These snippets cause lint errors${
-      invalid.some((c) => c.output) ? ", and some can be auto-fixed" : ""
+      invalid.some((c: any) => c.output) ? ", and some can be auto-fixed" : ""
     }.\n`,
     "```js",
-    invalid.map((c) => [
+    invalid.map((c: any) => [
       c.options && `/* eslint solid/${ruleName}: ["error", ${options(c.options)}] */`,
       pretty(c.code),
       c.output && "// after eslint --fix:\n" + pretty(c.output),
@@ -122,7 +119,7 @@ const buildCases = (content, filename) => {
     "### Valid Examples\n",
     "These snippets don't cause lint errors.\n",
     "```js",
-    valid.map((c) => [
+    valid.map((c: any) => [
       c.options && `/* eslint solid/${ruleName}: ["error", ${options(c.options)}] */`,
       pretty(c.code) + "\n",
     ]),

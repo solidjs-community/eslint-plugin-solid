@@ -44,15 +44,16 @@ const rule: TSESLint.RuleModule<"noDestructure", []> = {
     docs: {
       recommended: "error",
       description:
-        "Prevent destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list.",
+        "Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list.",
+      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/no-destructure.md",
     },
+    fixable: "code",
+    schema: [],
     messages: {
       noDestructure:
         "Destructuring component props breaks Solid's reactivity; use property access instead.",
       // noWriteToProps: "Component props are readonly, writing to props is not supported.",
     },
-    fixable: "code",
-    schema: [],
   },
   create(context) {
     const functionStack: Array<{
