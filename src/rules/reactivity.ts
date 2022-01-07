@@ -467,7 +467,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       }
     };
 
-    const checkForTrackedScopes = (node: T.Node) => {
+    const checkForTrackedScopes = (
+      node: T.JSXExpressionContainer | T.CallExpression | T.VariableDeclarator
+    ) => {
       const { trackedScopes } = currentFunction();
       if (node.type === "JSXExpressionContainer") {
         trackedScopes.push(TrackedScope(node, "expression"));
@@ -510,6 +512,29 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             trackedScopes.push(TrackedScope(node.arguments[1], "function"));
           }
         }
+      } else if (node.type === "VariableDeclarator") {
+        // Solid 1.3 createReactive returns a track function, a tracked scope expecting a reactive function.
+        // All of the track function's references where it's called push a tracked scope.
+        if (
+          node.init?.type === "CallExpression" &&
+          node.init.callee.type === "Identifier" &&
+          node.init.callee.name === "createReactive"
+        ) {
+          const track = getReturnedVar(node.id, context.getScope());
+          if (track) {
+            for (const reference of track.references) {
+              if (
+                !reference.init &&
+                reference.isReadOnly() &&
+                reference.identifier.parent?.type === "CallExpression" &&
+                reference.identifier.parent.callee === reference.identifier
+              ) {
+                const arg0 = reference.identifier.parent.arguments[0];
+                arg0 && trackedScopes.push(TrackedScope(arg0, "function"));
+              }
+            }
+          }
+        }
       }
     };
 
@@ -532,6 +557,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       VariableDeclarator(node: T.VariableDeclarator) {
         if (node.init) {
           checkForReactiveAssignment(node.id, node.init);
+          checkForTrackedScopes(node);
         }
       },
       AssignmentExpression(node: T.AssignmentExpression) {
