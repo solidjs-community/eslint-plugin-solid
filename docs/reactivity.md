@@ -150,6 +150,11 @@ let Component = (_props) => {
   return <div>{props.value}</div>;
 };
 
+function Component(props) {
+  const [value, setValue] = createSignal();
+  return <div class={props.class}>{value()}</div>;
+}
+
 let c = () => {
   const [signal] = createSignal();
   const d = () => {

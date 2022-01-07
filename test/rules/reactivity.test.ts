@@ -20,6 +20,11 @@ export const cases = run("reactivity", rule, {
       const props = mergeProps({ value: "default" }, _props);
       return <div>{props.value}</div>;
     };`,
+    `function Component(props) {
+      const [value, setValue] = createSignal();
+      return <div class={props.class}>{value()}</div>;
+    }`,
+    // Derived signals
     `let c = () => {
       const [signal] = createSignal();
       const d = () => {
@@ -33,7 +38,8 @@ export const cases = run("reactivity", rule, {
     createEffect(() => console.log(signal()));`,
     `const [signal] = createSignal();
     const memo = createMemo(() => signal());`,
-    `const el = <div />`, // parse top level JSX
+    // Parse top level JSX
+    `const el = <div />`,
   ],
   invalid: [
     // Untracked signals

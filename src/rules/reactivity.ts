@@ -1,30 +1,86 @@
 /**
- * @fileoverview This rule is by far the most complex and the most important. What we need to do is ensure that all
- * usages of reactive data (that's props, signals, stores, memos, resources, results of mergeProps/splitProps, isPending)
- * are done in tracked scopes (that's JSX attributes, effects, memos, transitions). This needs to account
- * for exceptions (on, untrack) and make sure getters are called, not passed by value alone, except where they are object
- * getters and the calling is done implicitly.
- * This doesn't forbid destructuring props, the most common mistake with Solid's reactivity, but the no-destructure
- * rule does.
- * By definition this will involve some scope analysis, which ESLint provides. That means analysis must be done on exiting
- * nodes/code paths rather than entering. We can't find all expressions in tracked scopes and check if they are reactive,
- * because not all of those expressions need to be reactive. Instead, we find reactive expressions and iterate through their
- * usages to ensure they are used in tracked scopes.
+ * @fileoverview This rule is the most important rule in the plugin, aiming to
+ * significantly ease Solid's learning curve. Solid's core principle is
+ * fine-grained reactivity, a system of state, memos, and effects that work
+ * together to efficiently update a UI from incoming events. Solid's reactive
+ * primitives, like props, signals, memos, and stores, have to be used in
+ * certain lexical scopes called "tracked scopes" so Solid can understand how to
+ * react to any changes. While this system is more flexible than some other
+ * solutions like React's Rules of Hooks, it can be confusing.
  *
- * > Tracking scopes are functions that are passed to computations like createEffect or JSX expressions.
- * > All callback/render function children of control flow are non-tracking. This allows for nesting state creation, and better isolates reactions.
- * > Solid's compiler uses a simple heuristic for reactive wrapping and lazy evaluation of JSX expressions.
- * >   Does it contain a function call, a property access, or JSX?
+ * In this rule, we ensure that Solid's reactive primitives are always accessed
+ * in tracked scopes, so changes always propagate as intended.
  *
- * ********************************************************************************************************
+ * We do this in a single pass but take advantage of ESLint's ":exit" selector
+ * to take action both on the way down the tree and on the way back up. At any
+ * point in the traversal, the current node is either at the program scope or
+ * nested in one or more functions (omitting class members). We keep track of
+ * information about reactive primitives and tracked scopes in each function in
+ * the functionStack variable, populating arrays on the way down and analyzing
+ * the information on the way back up. We rely heavily on ESLint's scope analysis
+ * utilities, which lets us look at how each reference of a variable is used.
  *
- * Okay, here's the architecture. Similar to how eslint-plugin-react iterates through all the components in a file, we'll
- * first find all the props (first & only argument in function containing JSX), signals, stores, memos, resources, results
- * of mergeProps/splitProps, and isPending. All of these nodes will be added to a big list. Then, we'll forEach all of the
- * usages (calls, property accesses, destructuring) of each of these values with ESLint's scope analysis, add any inline
- * functions containing one of these to the list, and grab their scopes with eslint-utils.getInnermostScope(). Using a
- * WeakMap for caching, we'll calculate if the scope is a tracking scope, and warn if a reactive value is used in a
- * non-tracked scope.
+ * Some examples:
+ * - JSX attributes and children can accept reactive expressions, like
+ *   props accesses and signals.
+ *   ```jsx
+ *   function Component(props) {
+ *     const [value, setValue] = createSignal();
+ *     return <div class={props.class}>{value()}</div>;
+ *   }
+ *   ```
+ *
+ * - Effects and memos can accept functions containing reactive expressions.
+ *   ```jsx
+ *   const [value, setValue] = createSignal();
+ *   createEffect(() => {
+ *     console.log(value());
+ *   });
+ *   const doubledValue = createMemo(() => value() * 2);
+ *   ```
+ *
+ * Complications:
+ * - Destructuring props in the parameter list breaks reactivity, but isn't
+ *   handled here. The solid/reactivity rule handles it separately.
+ * - Signals (and memos, and derived signals, functions containing signals)
+ *   need to be called wherever they're used.
+ *
+ *
+ *
+ * @fileoverview This rule is by far the most complex and the most important.
+ * What we need to do is ensure that all usages of reactive data (that's props,
+ * signals, stores, memos, resources, results of mergeProps/splitProps,
+ * isPending) are done in tracked scopes (that's JSX attributes, effects, memos,
+ * transitions). This needs to account for exceptions (on, untrack) and make
+ * sure getters are called, not passed by value alone, except where they are
+ * object getters and the calling is done implicitly. This doesn't forbid
+ * destructuring props, the most common mistake with Solid's reactivity, but the
+ * no-destructure rule does. By definition this will involve some scope
+ * analysis, which ESLint provides. That means analysis must be done on exiting
+ * nodes/code paths rather than entering. We can't find all expressions in
+ * tracked scopes and check if they are reactive, because not all of those
+ * expressions need to be reactive. Instead, we find reactive expressions and
+ * iterate through their usages to ensure they are used in tracked scopes.
+ *
+ * > Tracking scopes are functions that are passed to computations like
+ * > createEffect or JSX expressions. All callback/render function children of
+ * > control flow are non-tracking. This allows for nesting state creation, and
+ * > better isolates reactions. Solid's compiler uses a simple heuristic for
+ * > reactive wrapping and lazy evaluation of JSX expressions. Does it contain a
+ * > function call, a property access, or JSX?
+ *
+ * ****************************************************************************
+ *
+ * Okay, here's the architecture. Similar to how eslint-plugin-react iterates
+ * through all the components in a file, we'll first find all the props (first &
+ * only argument in function containing JSX), signals, stores, memos, resources,
+ * results of mergeProps/splitProps, and isPending. All of these nodes will be
+ * added to a big list. Then, we'll forEach all of the usages (calls, property
+ * accesses, destructuring) of each of these values with ESLint's scope
+ * analysis, add any inline functions containing one of these to the list, and
+ * grab their scopes with eslint-utils.getInnermostScope(). Using a WeakMap for
+ * caching, we'll calculate if the scope is a tracking scope, and warn if a
+ * reactive value is used in a non-tracked scope.
  *
  * Consider the following code:
  * ```
@@ -50,18 +106,19 @@
  * };
  *
  * ```
- * It's not okay to access signals in the same scope they're declared in, but it's okay to
- * use them one or more nested functions down. However, that makes the nested functions act
- * like signals.
+ * It's not okay to access signals in the same scope they're declared in, but
+ * it's okay to use them one or more nested functions down. However, that makes
+ * the nested functions act like signals.
  *
- * When we go into a nested function scope, it becomes okay to use reactive expressions outside
- * of tracked scopes, but the function becomes reactive. When we step out of a function scope,
- * we can discard all the information within the function as long as it's been processed. This means
- * we can do a nice little stack-based machine.
+ * When we go into a nested function scope, it becomes okay to use reactive
+ * expressions outside of tracked scopes, but the function becomes reactive.
+ * When we step out of a function scope, we can discard all the information
+ * within the function as long as it's been processed. This means we can do a
+ * nice little stack-based machine.
  *
- * Most tracked scopes expect an inline function to be passed, i.e. something that functions like
- * a signal. A props access won't do unless it's in a JSX expression container. TODO: Differentiate
- * between the two kinds of tracked scopes.
+ * Most tracked scopes expect an inline function to be passed, i.e. something
+ * that functions like a signal. A props access won't do unless it's in a JSX
+ * expression container.
  */
 
 import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/experimental-utils";
@@ -94,14 +151,20 @@ const ReactiveVariable = (variable: Variable, declarationScope: ProgramOrFunctio
   declarationScope,
 });
 
+interface TrackedScope {
+  node: T.JSXExpressionContainer | T.Identifier | FunctionNode;
+  type: T.Node["type"];
+}
+
 interface FunctionStackItem {
   /** the node for the current function, or program if global scope */
   node: ProgramOrFunctionNode;
   /**
    * nodes whose descendants in the current function are allowed to be reactive. JSXExpressionContainers
-   * can be any expression containing reactivity, while function nodes are typically arguments to solid-js
-   * primitives and  */
-  trackedScopes: Array<(T.JSXExpressionContainer | T.Identifier) | FunctionNode>;
+   * can be any expression containing reactivity, while function nodes/identifiers are typically arguments
+   * to solid-js primitives and should match a tracked scope exactly.
+   */
+  trackedScopes: Array<T.JSXExpressionContainer | T.Identifier | FunctionNode>;
   /** variable references to be treated as signals, memos, derived signals, etc. */
   signals: Array<ReactiveVariable>;
   /** variables references to be treated as props (or stores) */
@@ -510,11 +573,11 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           trackedScopes.push(node.arguments[0]);
         }
 
+        /* Reactive expressions; ensure calls to reactive primitives use the results. */
         if (
           node.parent?.type !== "AssignmentExpression" &&
           node.parent?.type !== "VariableDeclarator"
         ) {
-          // Ensure calls that produce reactive variables use the results.
           checkForReactiveAssignment(null, node);
         }
       },
