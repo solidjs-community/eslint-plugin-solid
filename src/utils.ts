@@ -52,6 +52,11 @@ const PROGRAM_OR_FUNCTION_TYPES = ["Program"].concat(FUNCTION_TYPES);
 export const isProgramOrFunctionNode = (node: T.Node): node is ProgramOrFunctionNode =>
   PROGRAM_OR_FUNCTION_TYPES.includes(node.type);
 
+export function findInFunction(node: T.Node, predicate: (node: T.Node) => boolean | T.Node) {
+  const enclosingFunction = findParent(node, isProgramOrFunctionNode);
+  const found = find(node, (node) => node === enclosingFunction || predicate(node));
+  return found === enclosingFunction ? null : found;
+}
 export function findParentInFunction(node: T.Node, predicate: (node: T.Node) => boolean | T.Node) {
   const enclosingFunction = findParent(node, isProgramOrFunctionNode);
   const found = findParent(node, (node) => node === enclosingFunction || predicate(node));

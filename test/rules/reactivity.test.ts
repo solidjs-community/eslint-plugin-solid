@@ -20,10 +20,31 @@ export const cases = run("reactivity", rule, {
       const props = mergeProps({ value: "default" }, _props);
       return <div>{props.value}</div>;
     };`,
+    `let Component = _props => {
+      const [foo, bar, baz] = splitProps(_props, ["foo"], ["bar"]);
+      return <div>{foo.foo} {bar.bar} {baz.baz}</div>;
+    }`,
+    `let Component = () => {
+      const [a, setA] = createSignal(1);
+      const [b, setB] = createSignal(1);
+    
+      createEffect(() => {
+        console.log(a(), untrack(b));
+      });
+    }`,
     `function Component(props) {
       const [value, setValue] = createSignal();
       return <div class={props.class}>{value()}</div>;
     }`,
+    `function Component(props) {
+      const [value, setValue] = createSignal();
+      createEffect(() => console.log(value()));
+      return <div class={props.class}>{value()}</div>;
+    }`,
+    `const [value, setValue] = createSignal();
+    on(value, () => console.log('hello'));`,
+    `const [value, setValue] = createSignal();
+    on([value], () => console.log('hello'));`,
     // Derived signals
     `let c = () => {
       const [signal] = createSignal();
