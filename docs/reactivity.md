@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/reactivity
 Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected.
-This rule is **off** by default.
+This rule is **an error** by default.
 
 [View source](../src/rules/reactivity.ts) · [View tests](../test/rules/reactivity.test.ts)
 
@@ -125,6 +125,16 @@ const Component = () => {
   return <div>{memo}</div>;
 };
  
+const owner = getOwner();
+const [signal] = createSignal();
+createEffect(() => runWithOwner(owner, () => console.log(signal())));
+ 
+function Component() {
+  const owner = getOwner();
+  const [signal] = createSignal();
+  createEffect(() => runWithOwner(owner, () => console.log(signal())));
+}
+ 
 ```
 
 ### Valid Examples
@@ -132,6 +142,15 @@ const Component = () => {
 These snippets don't cause lint errors.
 
 ```js
+function MyComponent(props) {
+  return <div>Hello {props.name}</div>;
+}
+let el = <MyComponent name="Solid" />;
+
+const [first, setFirst] = createSignal("JSON");
+const [last, setLast] = createSignal("Bourne");
+createEffect(() => console.log(`${first()} ${last()}`));
+
 let Component = (props) => {
   return <div>{props.value || "default"}</div>;
 };
@@ -203,7 +222,19 @@ createEffect(() => console.log(signal()));
 const [signal] = createSignal();
 const memo = createMemo(() => signal());
 
+const el = (
+  <button onClick={() => toggleShow(!show())}>
+    {show() ? "Hide" : "Show"}
+  </button>
+);
+
 const el = <div />;
+
+const [signal] = createSignal();
+createEffect(() => {
+  const owner = getOwner();
+  runWithOwner(owner, () => console.log(signal()));
+});
 
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->

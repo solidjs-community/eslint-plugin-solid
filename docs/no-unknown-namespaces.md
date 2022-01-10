@@ -8,7 +8,15 @@ This rule is **an error** by default.
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
+## Rule Options
 
+```
+  "no-unknown-namespaces": ["error", { "<key>": "<value>" }]
+```
+
+Key | Type | Description
+:--- | :---: | :---
+allowedNamespaces | `Array<string>` | an array of additional namespace names to allow 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
@@ -53,6 +61,15 @@ let el = <div use:X />;
 let el = <div prop:scrollTop="0px" />;
 
 let el = <div attr:title="title" />;
+
+/* eslint solid/no-unknown-namespaces: ["error", { "allowedNamespaces": ["xmlns"] }] */
+let el = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    version="1.1"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+  />
+);
 
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->

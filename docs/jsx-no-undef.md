@@ -18,6 +18,7 @@ Key | Type | Description
 :--- | :---: | :---
 allowGlobals | `boolean` | When true, the rule will consider the global scope when checking for defined components. 
 autoImport | `boolean` | Automatically import certain components from `"solid-js"` if they are undefined. *Default `true`*.
+typescriptEnabled | `boolean` | Adjusts behavior not to conflict with TypeScript's type checking. 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
@@ -28,6 +29,9 @@ These snippets cause lint errors, and some can be auto-fixed.
 ```js
 let el = <Component />;
  
+let el = <div use:X />;
+ 
+/* eslint solid/jsx-no-undef: ["error", { "typescriptEnabled": true }] */
 let el = <div use:X />;
  
 let el = <div use:X={{}} />;
@@ -154,6 +158,9 @@ let el = <div use:X />;
 
 /* eslint solid/jsx-no-undef: ["error", { "allowGlobals": true }] */
 let el = <div use:X />;
+
+/* eslint solid/jsx-no-undef: ["error", { "typescriptEnabled": true }] */
+let el = <Component />;
 
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->

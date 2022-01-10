@@ -67,7 +67,11 @@ const rule: TSESLint.RuleModule<"noDestructure", []> = {
     const onFunctionExit = (node: FunctionNode) => {
       if (node.params.length === 1) {
         const props = node.params[0];
-        if (props.type === "ObjectPattern" && currentFunction().hasJSX) {
+        if (
+          props.type === "ObjectPattern" &&
+          currentFunction().hasJSX &&
+          node.parent?.type !== "JSXExpressionContainer" // "render props" aren't components
+        ) {
           // Props are destructured in the function params, not the body. We actually don't
           // need to handle the case where props are destructured in the body, because that
           // will be a violation of "solid/reactivity".

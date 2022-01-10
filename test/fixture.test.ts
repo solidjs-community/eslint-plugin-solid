@@ -1,6 +1,7 @@
 import execa from "execa";
 import path from "path";
 import fs from "fs-extra";
+import { ESLint } from "eslint";
 
 const nodeModulesFileForTesting = path.resolve(
   __dirname,
@@ -9,26 +10,35 @@ const nodeModulesFileForTesting = path.resolve(
   "eslint-plugin-solid.js"
 );
 
+const sourceFileRegex = /\.[jt]sx?$/;
 const fixtureCwd = path.resolve(__dirname, "fixture");
+const getTestFiles = (dir: string): Array<string> => {
+  try {
+    return fs
+      .readdirSync(path.join(fixtureCwd, dir))
+      .filter((file) => sourceFileRegex.test(file))
+      .map((file) => path.resolve(fixtureCwd, dir, file));
+  } catch {
+    return [];
+  }
+};
 
 describe("fixture", function () {
   let eslintPath: string;
+  const validFiles = getTestFiles("valid");
+  const invalidFiles = getTestFiles("invalid");
 
   beforeAll(async () => {
     // We're trying to require the package we're currently in; we can work around
     // this by putting a skeleton file inside `node_modules` that requires the top
     // level directory.
 
-    await fs.writeFile(nodeModulesFileForTesting, 'module.exports = require("..");\n');
+    await fs.outputFile(nodeModulesFileForTesting, 'module.exports = require("..");\n');
     eslintPath = (await execa("yarn", ["bin", "eslint"])).stdout;
   });
 
-  afterAll(async () => {
-    await fs.unlink(nodeModulesFileForTesting);
-  });
-
   it("loads the plugin without crashing", async () => {
-    const { exitCode } = await execa.node(eslintPath, ["--print-config", "super-simple.js"], {
+    const { exitCode } = await execa.node(eslintPath, ["--print-config", "invalid/jsx-undef.jsx"], {
       cwd: fixtureCwd,
     });
     expect(exitCode).toBe(0);
@@ -36,7 +46,7 @@ describe("fixture", function () {
 
   it("produces reasonable lint errors", async () => {
     try {
-      await execa.node(eslintPath, ["super-simple.js"], {
+      await execa.node(eslintPath, ["invalid/jsx-undef.jsx"], {
         cwd: fixtureCwd,
       });
     } catch (error: any) {
@@ -46,5 +56,27 @@ describe("fixture", function () {
       expect(error.stdout).toMatch(/solid\/jsx-no-undef/);
       expect(error.stdout).toMatch(/1 problem \(1 error, 0 warnings\)/);
     }
+  });
+
+  describe("valid examples", () => {
+    const eslint = new ESLint({ cwd: fixtureCwd });
+    test.each(validFiles.map((file) => [path.basename(file), file]))("%s", async (_, file) => {
+      const [results] = await eslint.lintFiles(path.resolve(fixtureCwd, file));
+      expect(results.filePath).toBe(file);
+      expect(results.messages).toEqual([]);
+      expect(results.errorCount).toBe(0);
+      expect(results.usedDeprecatedRules).toEqual([]);
+    });
+  });
+
+  describe("invalid examples", () => {
+    const eslint = new ESLint({ cwd: fixtureCwd });
+    test.each(invalidFiles.map((file) => [path.basename(file), file]))("%s", async (_, file) => {
+      const [results] = await eslint.lintFiles(path.resolve(fixtureCwd, file));
+      expect(results.filePath).toBe(file);
+      expect(results.messages).not.toEqual([]);
+      expect(results.warningCount + results.errorCount).toBeGreaterThan(0);
+      expect(results.usedDeprecatedRules).toEqual([]);
+    });
   });
 });

@@ -20,6 +20,10 @@ export const cases = run("jsx-no-undef", rule, {
       options: [{ allowGlobals: true }],
       globals: { X: "readonly" },
     },
+    {
+      code: `let el = <Component />`,
+      options: [{ typescriptEnabled: true }],
+    },
   ],
   invalid: [
     {
@@ -29,6 +33,11 @@ export const cases = run("jsx-no-undef", rule, {
     // custom directives
     {
       code: `let el = <div use:X />;`,
+      errors: [{ messageId: "customDirectiveUndefined", data: { identifier: "X" } }],
+    },
+    {
+      code: `let el = <div use:X />;`,
+      options: [{ typescriptEnabled: true }],
       errors: [{ messageId: "customDirectiveUndefined", data: { identifier: "X" } }],
     },
     {
@@ -42,8 +51,8 @@ export const cases = run("jsx-no-undef", rule, {
     },
     {
       code: `let el = <div use:X />;`,
-      errors: [{ messageId: "customDirectiveUndefined", data: { identifier: "X" } }],
       options: [{ allowGlobals: true }],
+      errors: [{ messageId: "customDirectiveUndefined", data: { identifier: "X" } }],
     },
     // auto imports
     {

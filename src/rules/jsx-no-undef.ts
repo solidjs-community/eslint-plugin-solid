@@ -15,6 +15,7 @@ const rule: TSESLint.RuleModule<
     {
       allowGlobals?: boolean;
       autoImport?: boolean;
+      typescriptEnabled?: boolean;
     }?
   ]
 > = {
@@ -42,6 +43,11 @@ const rule: TSESLint.RuleModule<
               'Automatically import certain components from `"solid-js"` if they are undefined.',
             default: true,
           },
+          typescriptEnabled: {
+            type: "boolean",
+            description: "Adjusts behavior not to conflict with TypeScript's type checking.",
+            default: false,
+          },
         },
         additionalProperties: false,
       },
@@ -55,6 +61,7 @@ const rule: TSESLint.RuleModule<
   create(context) {
     const allowGlobals = context.options[0]?.allowGlobals ?? false;
     const autoImport = context.options[0]?.autoImport !== false;
+    const isTypeScriptEnabled = context.options[0]?.typescriptEnabled ?? false;
 
     const missingComponentsSet = new Set<string>();
 
@@ -74,7 +81,7 @@ const rule: TSESLint.RuleModule<
       const sourceCode = context.getSourceCode();
       const sourceType = sourceCode.ast.sourceType;
       const scopeUpperBound = !allowGlobals && sourceType === "module" ? "module" : "global";
-      let variables = scope.variables;
+      const variables = [...scope.variables];
 
       // Ignore 'this' keyword (also maked as JSXIdentifier when used in JSX)
       if (node.name === "this") {
@@ -83,20 +90,18 @@ const rule: TSESLint.RuleModule<
 
       while (scope.type !== scopeUpperBound && scope.type !== "global" && scope.upper) {
         scope = scope.upper;
-        variables = scope.variables.concat(variables);
+        variables.push(...scope.variables);
       }
       if (scope.childScopes.length) {
-        variables = scope.childScopes[0].variables.concat(variables);
+        variables.push(...scope.childScopes[0].variables);
         // Temporary fix for babel-eslint
         if (scope.childScopes[0].childScopes.length) {
-          variables = scope.childScopes[0].childScopes[0].variables.concat(variables);
+          variables.push(...scope.childScopes[0].childScopes[0].variables);
         }
       }
 
-      for (let i = 0, len = variables.length; i < len; i++) {
-        if (variables[i].name === node.name) {
-          return;
-        }
+      if (variables.find((variable) => variable.name === node.name)) {
+        return;
       }
 
       if (
@@ -107,10 +112,18 @@ const rule: TSESLint.RuleModule<
       ) {
         // track which names are undefined
         missingComponentsSet.add(node.name);
-      } else {
+      } else if (isCustomDirective) {
         context.report({
           node,
-          messageId: isCustomDirective ? "customDirectiveUndefined" : "undefined",
+          messageId: "customDirectiveUndefined",
+          data: {
+            identifier: node.name,
+          },
+        });
+      } else if (!isTypeScriptEnabled) {
+        context.report({
+          node,
+          messageId: "undefined",
           data: {
             identifier: node.name,
           },
@@ -136,8 +149,6 @@ const rule: TSESLint.RuleModule<
               checkIdentifierInJSX(n);
             }
             break;
-          case "JSXNamespacedName":
-            return;
           default:
             break;
         }

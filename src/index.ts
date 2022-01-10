@@ -35,7 +35,7 @@ module.exports = {
         es6: true,
       },
       parserOptions: {
-        ecmaVersion: 6,
+        sourceType: "module",
         ecmaFeatures: {
           jsx: true,
           impliedStrict: true,
@@ -52,10 +52,34 @@ module.exports = {
         "solid/style-prop": 2,
         // reactivity
         "solid/no-destructure": 2,
-        // "solid/reactivity": 2,
+        "solid/reactivity": 2,
         // these rules are mostly style suggestions
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,
+      },
+    },
+    typescript: {
+      plugins: ["solid"],
+      env: {
+        browser: true,
+        es6: true,
+      },
+      rules: {
+        // identifier usage is important
+        "solid/jsx-no-undef": [2, { typescriptEnabled: true }],
+        "solid/jsx-uses-vars": 2,
+        // incorrect usages of innerHTML, <For />, and style are security or logic errors
+        "solid/no-innerhtml": [2, { allowStatic: true }],
+        "solid/prefer-for": 2,
+        "solid/style-prop": 2,
+        // reactivity
+        "solid/no-destructure": 2,
+        "solid/reactivity": 2,
+        // these rules are mostly style suggestions
+        "solid/no-react-specific-props": 1,
+        "solid/prefer-classlist": 1,
+        // namespaces taken care of by TS
+        "solid/no-unknown-namespaces": 0,
       },
     },
   },

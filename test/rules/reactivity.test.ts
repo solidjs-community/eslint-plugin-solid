@@ -4,7 +4,20 @@ import rule from "../../src/rules/reactivity";
 
 export const cases = run("reactivity", rule, {
   valid: [
-    // Examples straight from the Solid docs
+    // From Solid docs
+    // Guides > Learn Solid
+    `function MyComponent(props) {
+      return <div>Hello {props.name}</div>;
+    }
+    let el = <MyComponent name="Solid" />;`,
+
+    `const [first, setFirst] = createSignal("JSON");
+    const [last, setLast] = createSignal("Bourne");
+    createEffect(() => console.log(\`\${first()} \${last()}\`));`,
+    // Examples > Basic > Counter
+
+    // Examples > Basic > Simple Todos
+    // Basic Reactivity > createSignal
     `let Component = props => {
       return <div>{props.value || "default"}</div>;
     };`,
@@ -59,8 +72,17 @@ export const cases = run("reactivity", rule, {
     createEffect(() => console.log(signal()));`,
     `const [signal] = createSignal();
     const memo = createMemo(() => signal());`,
+    `const el = <button onClick={() => toggleShow(!show())}>
+      {show() ? "Hide" : "Show"}
+    </button>`,
     // Parse top level JSX
     `const el = <div />`,
+    // getOwner/runWithOwner
+    `const [signal] = createSignal();
+    createEffect(() => {
+      const owner = getOwner();
+      runWithOwner(owner, () => console.log(signal()));
+    });`,
   ],
   invalid: [
     // Untracked signals
@@ -263,6 +285,23 @@ export const cases = run("reactivity", rule, {
         return <div>{memo}</div>
       }`,
       errors: [{ messageId: "badSignal", type: T.Identifier, line: 4 }],
+    },
+    // getOwner/runWithOwner
+    {
+      code: `
+      const owner = getOwner();
+      const [signal] = createSignal();
+      createEffect(() => runWithOwner(owner, () => console.log(signal())));`,
+      errors: [{ messageId: "badUnnamedDerivedSignal", line: 4 }],
+    },
+    {
+      code: `
+      function Component() {
+        const owner = getOwner();
+        const [signal] = createSignal();
+        createEffect(() => runWithOwner(owner, () => console.log(signal())));
+      }`,
+      errors: [{ messageId: "badUnnamedDerivedSignal", line: 5 }],
     },
   ],
 });
