@@ -236,6 +236,13 @@ createEffect(() => {
   runWithOwner(owner, () => console.log(signal()));
 });
 
+const [signal] = createSignal(5);
+setTimeout(() => console.log(signal()), 500);
+setInterval(() => console.log(signal()), 600);
+setImmediate(() => console.log(signal()));
+requestAnimationFrame(() => console.log(signal()));
+requestIdleCallback(() => console.log(signal()));
+
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 

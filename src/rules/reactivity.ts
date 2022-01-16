@@ -32,7 +32,7 @@ import {
   isProgramOrFunctionNode,
 } from "../utils";
 
-const { findVariable, getFunctionHeadLocation, getFunctionNameWithKind } = ASTUtils;
+const { findVariable, getFunctionHeadLocation } = ASTUtils;
 
 type Scope = TSESLint.Scope.Scope;
 type Variable = TSESLint.Scope.Variable;
@@ -58,13 +58,20 @@ interface ReactiveVariable {
 }
 
 interface TrackedScope {
+  /**
+   * The root node, usually a function or JSX expression container, to allow
+   * reactive variables under.
+   */
   node: T.Node;
-  expect: "function" | "expression";
+  /**
+   * The reactive variable should be one of these types:
+   * - "function": synchronous function or signal variable
+   * - "event-handler": synchronous or asynchronous function like a timer or
+   *   event handler that isn't really a tracked scope but acts like one
+   * - "expression": some value containing reactivity somewhere
+   */
+  expect: "function" | "event-handler" | "expression";
 }
-const TrackedScope = (node: T.Node, expect: "function" | "expression"): TrackedScope => ({
-  node,
-  expect,
-});
 
 class ScopeStackItem {
   /** the node for the current scope, or program if global scope */
@@ -246,10 +253,10 @@ type MessageIds =
   | "noWrite"
   | "untrackedReactive"
   | "badSignal"
-  | "badProps"
   | "badUnnamedDerivedSignal"
   | "shouldDestructure"
-  | "shouldAssign";
+  | "shouldAssign"
+  | "noAsyncTrackedScope";
 
 const rule: TSESLint.RuleModule<MessageIds, []> = {
   meta: {
@@ -263,15 +270,17 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     fixable: "code",
     schema: [],
     messages: {
-      noWrite: "The reactive variable {{ name }} should not be reassigned or altered.",
-      untrackedReactive: "The reactive variable {{ name }} should be used within a tracked scope.",
-      badSignal: "This variable should be called as a function when used in JSX.",
-      badProps:
-        "This props or store should only be passed to functions or used for property access.",
-      badUnnamedDerivedSignal: "This function should be passed to a tracked scope.",
+      noWrite: "The reactive variable '{{name}}' should not be reassigned or altered.",
+      untrackedReactive: "The reactive variable '{{name}}' should be used within a tracked scope.",
+      badSignal:
+        "The reactive variable '{{name}}' should be called as a function when used in JSX.",
+      badUnnamedDerivedSignal:
+        "This function should be passed to a tracked scope because it contains reactivity.",
       shouldDestructure:
         "Array destructuring should be used to capture the {{nth}}result of this function call.",
       shouldAssign: "A variable should be used to capture the result of this function call.",
+      noAsyncTrackedScope:
+        "This tracked scope should not be async. Solid's reactivity only tracks synchronously.",
     },
   },
   create(context) {
@@ -302,6 +311,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     const matchTrackedScope = (trackedScope: TrackedScope, node: T.Node): boolean => {
       switch (trackedScope.expect) {
         case "function":
+        case "event-handler":
           return node === trackedScope.node;
         case "expression":
           return Boolean(
@@ -443,6 +453,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           context.report({
             node: identifier,
             messageId: "badSignal",
+            data: {
+              name: identifier.name,
+            },
           });
         }
         // The signal is being read outside of a CallExpression. Since
@@ -666,7 +679,18 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         | T.VariableDeclarator
         | T.AssignmentExpression
     ) => {
-      const { trackedScopes } = currentScope();
+      const pushTrackedScope = (node: T.Node, expect: TrackedScope["expect"]) => {
+        currentScope().trackedScopes.push({ node, expect });
+        if (expect !== "event-handler" && isFunctionNode(node) && node.async) {
+          // From the docs: "[Solid's] approach only tracks synchronously. If you
+          // have a setTimeout or use an async function in your Effect the code
+          // that executes async after the fact won't be tracked."
+          context.report({
+            node,
+            messageId: "noAsyncTrackedScope",
+          });
+        }
+      };
       if (node.type === "JSXExpressionContainer") {
         // Expect a function if the attribute is like onClick={} or on:click={}.
         // From the docs: Events are never rebound and the bindings are not
@@ -683,7 +707,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           sourceCode.getText(node.parent.name).match(/^on[:A-Z]/)
             ? "function"
             : "expression";
-        trackedScopes.push(TrackedScope(node.expression, expect));
+        pushTrackedScope(node.expression, expect);
       } else if (node.type === "CallExpression" && node.callee.type === "Identifier") {
         const callee = node.callee;
         const arg0 = node.arguments[0];
@@ -694,8 +718,6 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             "createEffect",
             "onMount",
             "createRenderEffect",
-            "untrack",
-            "batch",
             "createDeferred",
             "createComputed",
             "createSelector",
@@ -704,23 +726,36 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         ) {
           // createEffect, createMemo, etc. fn arg, and createResource optional
           // `source` first argument may be a signal
-          trackedScopes.push(TrackedScope(arg0, "function"));
+          pushTrackedScope(arg0, "function");
+        } else if (
+          [
+            "setInterval",
+            "setTimeout",
+            "setImmediate",
+            "requestAnimationFrame",
+            "requestIdleCallback",
+          ].includes(callee.name)
+        ) {
+          // Timers are NOT tracked scopes. However, they don't need to react
+          // to updates to reactive variables; it's okay to poll the current
+          // value of a signal. Consider them tracked scopes for our purposes.
+          pushTrackedScope(arg0, "event-handler");
         } else if (callee.name === "createMutable" && arg0) {
-          trackedScopes.push(TrackedScope(arg0, "expression"));
+          pushTrackedScope(arg0, "expression");
         } else if (callee.name === "on") {
           // on accepts a signal or an array of signals as its first argument,
           // and a tracking function as its second
           if (arg0) {
             if (arg0.type === "ArrayExpression") {
               arg0.elements.forEach((element) => {
-                trackedScopes.push(TrackedScope(element, "function"));
+                pushTrackedScope(element, "function");
               });
             } else {
-              trackedScopes.push(TrackedScope(arg0, "function"));
+              pushTrackedScope(arg0, "function");
             }
           }
           if (node.arguments[1]) {
-            trackedScopes.push(TrackedScope(node.arguments[1], "function"));
+            pushTrackedScope(node.arguments[1], "function");
           }
         } else if (callee.name === "runWithOwner") {
           // runWithOwner(owner, fn) only creates a tracked scope if `owner =
@@ -758,7 +793,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               }
             }
             if (isTrackedScope) {
-              trackedScopes.push(TrackedScope(node.arguments[1], "function"));
+              pushTrackedScope(node.arguments[1], "function");
             }
           }
         }
@@ -778,7 +813,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
                   reference.identifier.parent.callee === reference.identifier
                 ) {
                   const arg0 = reference.identifier.parent.arguments[0];
-                  arg0 && trackedScopes.push(TrackedScope(arg0, "function"));
+                  arg0 && pushTrackedScope(arg0, "function");
                 }
               }
             }
@@ -799,7 +834,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           // where event handlers are manually attached to refs, detect these
           // scenarios and mark the right hand sides as tracked scopes expecting
           // functions.
-          trackedScopes.push(TrackedScope(node.right, "function"));
+          pushTrackedScope(node.right, "event-handler");
         }
       }
     };
