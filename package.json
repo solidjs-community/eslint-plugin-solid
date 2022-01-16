@@ -67,7 +67,7 @@
     "eslint": "^6.0.0 || ^7.0.0 || ^8.0.0"
   },
   "lint-staged": {
-    "*.ts": [
+    "*!(test).{js,ts,tsx}": [
       "eslint --fix",
       "prettier --write"
     ]

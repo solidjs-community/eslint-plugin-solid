@@ -38,29 +38,41 @@ export const find = (
   }
   return null;
 };
-export function findParent(node: T.Node, predicate: (node: T.Node) => boolean | T.Node) {
+export function findParent<Guard extends T.Node>(
+  node: T.Node,
+  predicate: (node: T.Node) => node is Guard
+): Guard | null;
+export function findParent(node: T.Node, predicate: (node: T.Node) => boolean): T.Node | null;
+export function findParent(node: T.Node, predicate: (node: T.Node) => boolean): T.Node | null {
   return node.parent ? find(node.parent, predicate) : null;
 }
 
 export type FunctionNode = T.FunctionExpression | T.ArrowFunctionExpression | T.FunctionDeclaration;
 const FUNCTION_TYPES = ["FunctionExpression", "ArrowFunctionExpression", "FunctionDeclaration"];
-export const isFunctionNode = (node: T.Node | T.Program): node is FunctionNode =>
-  FUNCTION_TYPES.includes(node.type);
+export const isFunctionNode = (node: T.Node | null | undefined): node is FunctionNode =>
+  !!node && FUNCTION_TYPES.includes(node.type);
 
 export type ProgramOrFunctionNode = FunctionNode | T.Program;
 const PROGRAM_OR_FUNCTION_TYPES = ["Program"].concat(FUNCTION_TYPES);
-export const isProgramOrFunctionNode = (node: T.Node): node is ProgramOrFunctionNode =>
-  PROGRAM_OR_FUNCTION_TYPES.includes(node.type);
+export const isProgramOrFunctionNode = (
+  node: T.Node | null | undefined
+): node is ProgramOrFunctionNode => !!node && PROGRAM_OR_FUNCTION_TYPES.includes(node.type);
 
-export function findInFunction(node: T.Node, predicate: (node: T.Node) => boolean | T.Node) {
-  const enclosingFunction = findParent(node, isProgramOrFunctionNode);
-  const found = find(node, (node) => node === enclosingFunction || predicate(node));
-  return found === enclosingFunction ? null : found;
+export function findInScope(
+  node: T.Node,
+  scope: ProgramOrFunctionNode,
+  predicate: (node: T.Node) => boolean | T.Node
+) {
+  const found = find(node, (node) => node === scope || predicate(node));
+  return found === scope ? null : found;
 }
-export function findParentInFunction(node: T.Node, predicate: (node: T.Node) => boolean | T.Node) {
-  const enclosingFunction = findParent(node, isProgramOrFunctionNode);
-  const found = findParent(node, (node) => node === enclosingFunction || predicate(node));
-  return found === enclosingFunction ? null : found;
+export function findParentInFunction(
+  node: T.Node,
+  scope: ProgramOrFunctionNode,
+  predicate: (node: T.Node) => boolean
+) {
+  const found = findParent(node, (node) => node === scope || predicate(node));
+  return found === scope ? null : found;
 }
 
 // The next two functions were adapted from "eslint-plugin-import" under the MIT license.

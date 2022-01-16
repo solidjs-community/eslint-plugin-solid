@@ -3,6 +3,7 @@ import { createEffect, For } from "solid-js";
 import { createStore, SetStoreFunction, Store } from "solid-js/store";
 import { render } from "solid-js/web";
 
+// Checked but not used for demo purposes
 function createLocalStore<T>(initState: T): [Store<T>, SetStoreFunction<T>] {
   const [state, setState] = createStore(initState);
   if (localStorage.todos) setState(JSON.parse(localStorage.todos));
@@ -11,7 +12,7 @@ function createLocalStore<T>(initState: T): [Store<T>, SetStoreFunction<T>] {
 }
 
 const App = () => {
-  const [state, setState] = createLocalStore({
+  const [state, setState] = createStore({
     todos: [],
     newTitle: "",
   });
@@ -56,8 +57,9 @@ const App = () => {
                 onChange={(e) => setState("todos", i(), { title: e.target.value })}
               />
               <button
-              // TODO: we need a way to tell the reactivity rule that a function runs synchronously and
-              // doesn't create a new Solid scope. Everything in this setter function is tracked in one scope up.
+                // This function runs synchronously and doesn't create a new
+                // Solid scope. Everything in this setter function is tracked in
+                // one scope up.
                 onClick={() => setState("todos", (t) => [...t.slice(0, i()), ...t.slice(i() + 1)])}
               >
                 x

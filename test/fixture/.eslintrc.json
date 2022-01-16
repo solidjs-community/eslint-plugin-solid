@@ -3,7 +3,7 @@
   "extends": "plugin:solid/recommended",
   "plugins": ["solid"],
   "overrides": [{
-    "files": ["*.tsx"],
+    "files": ["*.ts", "*.tsx"],
     "parser": "@typescript-eslint/parser"
   }]
 }

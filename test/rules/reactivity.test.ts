@@ -120,7 +120,9 @@ export const cases = run("reactivity", rule, {
         const value = createMemo(() => valueProp || "default");
         return <div>{value()}</div>;
       };`,
-      errors: [{ messageId: "badProps", type: T.Identifier, line: 3, column: 38, endColumn: 43 }],
+      errors: [
+        { messageId: "untrackedReactive", type: T.Identifier, line: 3, column: 38, endColumn: 43 },
+      ],
     },
     {
       code: `
