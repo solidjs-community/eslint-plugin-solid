@@ -1,24 +1,6 @@
 /**
  * File overview here, scroll to bottom.
  * @link https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md
- *
- * TODO: sync array functions (forEach, map, reduce, reduceRight, flatMap),
- * store update fn params (ex. setState("todos", (t) => [...t.slice(0, i()),
- * ...t.slice(i() + 1)])), untrack, batch, onCleanup, and onError fn params, and
- * maybe a few others don't actually create a new scope. That is, any
- * signal/prop accesses in these functions act as if they happen in the
- * enclosing function. Note that this means whether or not the enclosing
- * function is a tracking scope applies to the fn param as well. One way to
- * implement this might be to skip pushing and popping a ScopeStackItem for
- * functions that meet this criteria, or to provide getter functions for
- * signals/props that return the previous function stack items signals/props.
- *
- * Every time a sync callback is detected, we put that function node into a
- * syncCallbacks Set<FunctionNode>. The detections must happen on the entry pass
- * and when the function node has not yet been traversed. In onFunctionEnter, if
- * the function node is in syncCallbacks, we don't push it onto the
- * scopeStack. In onFunctionExit, if the function node is in syncCallbacks,
- * we don't pop scopeStack.
  */
 
 import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/experimental-utils";
@@ -141,7 +123,10 @@ class ScopeStack extends Array<ScopeStackItem> {
   /** Function callbacks that run synchronously and don't create a new scope. */
   syncCallbacks = new Set<FunctionNode>();
 
-  /** Iterate through and remove the signal references in the current scope. */
+  /**
+   * Iterate through and remove the signal references in the current scope.
+   * That way, the next Scope up can safely check for references in its scope.
+   */
   *consumeSignalReferencesInScope() {
     yield* this.consumeReferencesInScope(this.signals);
     this.signals = this.signals.filter((variable) => variable.references.length !== 0);
@@ -157,8 +142,6 @@ class ScopeStack extends Array<ScopeStackItem> {
     variables: Array<ReactiveVariable>
   ): Iterable<{ reference: Reference; declarationScope: ProgramOrFunctionNode }> {
     for (const variable of variables) {
-      // TODO: find the references that aren't initializers and are used in the current scope, according to
-      // this.isReferenceInCurrentScope.
       const { references } = variable;
       const inScope: Array<Reference> = [],
         notInScope: Array<Reference> = [];
@@ -209,28 +192,6 @@ class ScopeStack extends Array<ScopeStackItem> {
   /** variables references to be treated as props (or stores) */
   private props: Array<ReactiveVariable> = [];
 }
-
-// function* iterateUpwardsFromNode(node: T.Node): Iterable<T.Node> {
-//   let parent = node.parent;
-//   while (parent) {
-//     yield parent;
-//     parent = node.parent;
-//   }
-// }
-
-// TODO: this needs to become scope-aware. This could be a hard problem because by
-// the time we reach function:exit, information for contained functions has already been destroyed.
-// We might have to associate references with scopes beforehand. Since references can be
-// in any child scope, we need to have this information tracked before child-function:exit,
-// i.e. by end of function:enter.
-// Because we can't just use the end of a function:enter to determine when a scope is complete/sealed,
-// we need to assign the relevant references to a scope on the way up. All sync callbacks will have run
-// function:exit before their Scope's function:exit is called. SO: when the deepest Scope exits, we
-// find all references in the current scope (handling sync callbacks) and analyze them, making sure to
-// *remove them from the list* of references we want to handle. That way, the next Scope up can safely
-// check for references in the current scope.
-//
-// HOW: Keep a global (per-file) list of signal references and a list of props references.
 
 const getNthDestructuredVar = (id: T.Node, n: number, scope: Scope): Variable | null => {
   if (id?.type === "ArrayPattern") {
@@ -529,16 +490,13 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     };
 
     /*
-     * TODO: sync array functions (forEach, map, reduce, reduceRight, flatMap),
+     * Sync array functions (forEach, map, reduce, reduceRight, flatMap),
      * store update fn params (ex. setState("todos", (t) => [...t.slice(0, i()),
      * ...t.slice(i() + 1)])), untrack, batch, onCleanup, and onError fn params, and
      * maybe a few others don't actually create a new scope. That is, any
      * signal/prop accesses in these functions act as if they happen in the
      * enclosing function. Note that this means whether or not the enclosing
-     * function is a tracking scope applies to the fn param as well. One way to
-     * implement this might be to skip pushing and popping a ScopeStackItem for
-     * functions that meet this criteria, or to provide getter functions for
-     * signals/props that return the previous function stack items signals/props.
+     * function is a tracking scope applies to the fn param as well.
      *
      * Every time a sync callback is detected, we put that function node into a
      * syncCallbacks Set<FunctionNode>. The detections must happen on the entry pass
@@ -577,8 +535,8 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         node.parent?.type === "VariableDeclarator"
       ) {
         // Allow using reactive variables in state setter if the current scope is tracked.
-        // const [state, setState] = createStore({ ... });
-        // setState(() => ({ preferredName: state.firstName, lastName: "Milner" }));
+        // ex.  const [state, setState] = createStore({ ... });
+        //      setState(() => ({ preferredName: state.firstName, lastName: "Milner" }));
         const setter = getNthDestructuredVar(node.parent.id, 1, context.getScope());
         if (setter) {
           for (const reference of setter.references) {
@@ -738,7 +696,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         ) {
           // Timers are NOT tracked scopes. However, they don't need to react
           // to updates to reactive variables; it's okay to poll the current
-          // value of a signal. Consider them tracked scopes for our purposes.
+          // value. Consider them event-handler tracked scopes for our purposes.
           pushTrackedScope(arg0, "event-handler");
         } else if (callee.name === "createMutable" && arg0) {
           pushTrackedScope(arg0, "expression");
@@ -798,9 +756,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           }
         }
       } else if (node.type === "VariableDeclarator") {
-        // Solid 1.3 createReactive returns a track function, a tracked scope
-        // expecting a reactive function. All of the track function's references
-        // where it's called push a tracked scope.
+        // Solid 1.3 createReactive (renamed createReaction?) returns a track
+        // function, a tracked scope expecting a reactive function. All of the
+        // track function's references where it's called push a tracked scope.
         if (node.init?.type === "CallExpression" && node.init.callee.type === "Identifier") {
           if (["createReactive", "createReaction"].includes(node.init.callee.name)) {
             const track = getReturnedVar(node.id, context.getScope());
@@ -906,6 +864,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       "ArrowFunctionExpression:exit": onFunctionExit,
       "FunctionDeclaration:exit": onFunctionExit,
       "Program:exit": onFunctionExit,
+      /* Detect JSX for adding props */
       JSXElement() {
         if (scopeStack.length) {
           currentScope().hasJSX = true;

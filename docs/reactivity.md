@@ -236,6 +236,25 @@ createEffect(() => {
   runWithOwner(owner, () => console.log(signal()));
 });
 
+const [signal] = createSignal();
+createEffect(() => {
+  [1, 2].forEach(() => console.log(signal()));
+});
+
+function Component(props) {
+  createEffect(() => {
+    [1, 2].forEach(() => console.log(props.foo));
+  });
+  return <div />;
+}
+
+function Component(bleargh /* doesn't match props regex */) {
+  createEffect(() => {
+    [1, 2].forEach(() => console.log(bleargh.foo));
+  });
+  return <div />;
+}
+
 const [signal] = createSignal(5);
 setTimeout(() => console.log(signal()), 500);
 setInterval(() => console.log(signal()), 600);
@@ -279,7 +298,7 @@ Notes:
   the only rule that tracks all of these variables.
 - On tracking scopes: "Tracking scopes are functions that are passed to
   computations like createEffect or JSX expressions. All callback/render
-  function children of control flow are non-tracking. This allows for esting
+  function children of control flow are non-tracking. This allows for nesting
   state creation, and better isolates reactions. Solid's compiler uses a
   simple heuristic for reactive wrapping and lazy evaluation of JSX
   expressions. Does it contain a function call, a property access, or JSX?"

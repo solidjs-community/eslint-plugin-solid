@@ -77,6 +77,23 @@ export const cases = run("reactivity", rule, {
       const owner = getOwner();
       runWithOwner(owner, () => console.log(signal()));
     });`,
+    // Sync callbacks
+    `const [signal] = createSignal();
+    createEffect(() => {
+      [1, 2].forEach(() => console.log(signal()));
+    });`,
+    `function Component(props) {
+      createEffect(() => {
+        [1, 2].forEach(() => console.log(props.foo));
+      });
+      return <div />;
+    }`,
+    `function Component(bleargh /* doesn't match props regex */) {
+      createEffect(() => {
+        [1, 2].forEach(() => console.log(bleargh.foo));
+      });
+      return <div />;
+    }`,
     // Timers
     `const [signal] = createSignal(5);
     setTimeout(() => console.log(signal()), 500);
