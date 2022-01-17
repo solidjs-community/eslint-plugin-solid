@@ -228,7 +228,6 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         "Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected.",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md",
     },
-    fixable: "code",
     schema: [],
     messages: {
       noWrite: "The reactive variable '{{name}}' should not be reassigned or altered.",
