@@ -6,12 +6,11 @@
 ![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--8.x-blue)
 
 This package contains [Solid](https://www.solidjs.com/)-specific linting rules for ESLint.
+It can ease Solid's learning curve by finding and fixing problems around Solid's reactivity system,
+and can migrate some React patterns to Solid code.
 
-It is not yet stable, and **some rules may change**, but it's well tested and should
+It's approaching a `1.0.0` release, and it's well tested and should
 be helpful in Solid projects today.
-
-Once finalized, it will help find and fix problems around Solid's reactivity system,
-and migrate React code to Solid code in many cases.
 
 ## Installation
 
@@ -21,11 +20,17 @@ Install `eslint` and `eslint-plugin-solid` locally.
 npm install --save-dev eslint eslint-plugin-solid
 # or
 yarn add --dev eslint eslint-plugin-solid
+
+# optional, to create an ESLint config file
+npx eslint --init
 ```
+
+If you're using VSCode, you'll want to install the [ESLint extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).
+If you're using Vite, you may want to install [vite-plugin-eslint](https://github.com/gxmari007/vite-plugin-eslint).
 
 ## Configuration
 
-Use our preset configuration to get reasonable defaults.
+Use the `"plugin:solid/recommended"` configuration to get reasonable defaults as shown [below](#rules).
 
 ```json
 {
@@ -34,14 +39,19 @@ Use our preset configuration to get reasonable defaults.
 }
 ```
 
-> Pre-1.0.0, the `recommended` configuation will be stable across patch (`0.0.x`) versions,
-> but may change across minor (`0.x`) versions. If you want to pin a minor version,
-> use a tilde in your `package.json`.
+### TypeScript
 
-```diff
-- "eslint-plugin-solid": "^0.1.0"
-+ "eslint-plugin-solid": "~0.1.0"
+If you're using TypeScript, use the `"plugin:solid/typescript"` configuration instead.
+This disables some features that overlap with type checking.
+
+```json
+{
+  "plugins": ["solid"],
+  "extends": ["eslint/recommended", "plugin:solid/typescript"]
+}
 ```
+
+### Manual Configuration
 
 If you don't want to use a preset, you can configure rules individually. Add the `"solid"`
 plugin, enable JSX with the parser options (or use the equivalent options for
@@ -57,7 +67,9 @@ would like to use.
     }
   },
   "rules": {
-    "solid/jsx-no-undef": 2
+    "solid/reactivity": "warn",
+    "solid/no-destructure": "warn",
+    "solid/jsx-no-undef": "error"
   }
 }
 ```
@@ -79,6 +91,17 @@ would like to use.
 | ✔ |  | [solid/no-unknown-namespaces](docs/no-unknown-namespaces.md) | Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`). |
 | ✔ | 🔧 | [solid/prefer-classlist](docs/prefer-classlist.md) | Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames. |
 | ✔ | 🔧 | [solid/prefer-for](docs/prefer-for.md) | Enforce using Solid's `<For />` component for mapping an array to JSX elements. |
-| ✔ | 🔧 | [solid/reactivity](docs/reactivity.md) | Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected. |
+| ✔ |  | [solid/reactivity](docs/reactivity.md) | Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected. |
 | ✔ | 🔧 | [solid/style-prop](docs/style-prop.md) | Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values are strings, not numbers with implicit 'px' units. |
 <!-- AUTO-GENERATED-CONTENT:END -->
+
+## Versioning
+
+Pre-1.0.0, the rules and the `recommended` and `typescript` configuations will be 
+stable across patch (`0.0.x`) versions, but may change across minor (`0.x`) versions.
+If you want to pin a minor version, use a tilde in your `package.json`.
+
+```diff
+- "eslint-plugin-solid": "^0.1.0"
++ "eslint-plugin-solid": "~0.1.0"
+```
