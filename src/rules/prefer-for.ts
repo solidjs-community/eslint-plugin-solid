@@ -1,4 +1,4 @@
-import { TSESLint, TSESTree as T, ASTUtils } from "@typescript-eslint/experimental-utils";
+import { TSESLint, TSESTree as T, ASTUtils } from "@typescript-eslint/utils";
 import { isFunctionNode } from "../utils";
 
 const { getPropertyName } = ASTUtils;

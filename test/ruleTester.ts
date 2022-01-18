@@ -1,4 +1,4 @@
-import { TSESLint } from "@typescript-eslint/experimental-utils";
+import { TSESLint } from "@typescript-eslint/utils";
 // @ts-ignore
 import { RuleTester as RuleTester_v6 } from "eslint-v6";
 // @ts-ignore

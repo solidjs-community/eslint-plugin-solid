@@ -1,4 +1,4 @@
-import type { TSESLint, TSESTree as T } from "@typescript-eslint/experimental-utils";
+import type { TSESLint, TSESTree as T } from "@typescript-eslint/utils";
 import { hasProp, propName } from "jsx-ast-utils";
 
 const rule: TSESLint.RuleModule<"preferClasslist", [{ classnames?: [string, ...Array<string>] }?]> =

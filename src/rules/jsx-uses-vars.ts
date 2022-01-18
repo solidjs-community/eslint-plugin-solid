@@ -1,4 +1,4 @@
-import type { TSESTree as T, TSESLint } from "@typescript-eslint/experimental-utils";
+import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
 
 /*
  * This rule is lifted almost verbatim from eslint-plugin-react's

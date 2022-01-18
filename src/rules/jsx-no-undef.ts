@@ -1,4 +1,4 @@
-import type { TSESTree as T, TSESLint } from "@typescript-eslint/experimental-utils";
+import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
 import { isDOMElementName, formatList, getCommentBefore } from "../utils";
 
 // Currently all of the control flow components are from 'solid-js'.
