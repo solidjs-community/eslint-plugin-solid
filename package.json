@@ -29,6 +29,7 @@
     "README.md"
   ],
   "dependencies": {
+    "@typescript-eslint/experimental-utils": "^5.9.0",
     "is-html": "^2.0.0",
     "jsx-ast-utils": "^3.2.0",
     "kebab-case": "^1.0.1",
@@ -45,7 +46,6 @@
     "@types/markdown-magic": "^1.0.1",
     "@types/node": "^16.4.0",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
-    "@typescript-eslint/experimental-utils": "^5.9.0",
     "@typescript-eslint/parser": "^5.6.0",
     "eslint": "^8.4.1",
     "eslint-plugin-eslint-plugin": "^4.0.3",
