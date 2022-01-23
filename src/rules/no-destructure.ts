@@ -1,4 +1,4 @@
-import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/experimental-utils";
+import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/utils";
 import type { FunctionNode } from "../utils";
 
 const { getStringIfConstant } = ASTUtils;

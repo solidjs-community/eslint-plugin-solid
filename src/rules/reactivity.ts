@@ -3,7 +3,7 @@
  * @link https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md
  */
 
-import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/experimental-utils";
+import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/utils";
 import {
   findParent,
   findInScope,

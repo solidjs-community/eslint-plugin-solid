@@ -1,4 +1,4 @@
-import type { TSESTree as T, TSESLint } from "@typescript-eslint/experimental-utils";
+import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
 
 const domElementRegex = /^[a-z]/;
 export const isDOMElementName = (name: string): boolean => domElementRegex.test(name);

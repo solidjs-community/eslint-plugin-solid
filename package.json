@@ -29,7 +29,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@typescript-eslint/experimental-utils": "^5.9.0",
+    "@typescript-eslint/utils": "^5.10.0",
     "is-html": "^2.0.0",
     "jsx-ast-utils": "^3.2.0",
     "kebab-case": "^1.0.1",

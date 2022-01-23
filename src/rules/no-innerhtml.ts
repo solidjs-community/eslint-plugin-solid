@@ -1,4 +1,4 @@
-import { TSESLint, ASTUtils } from "@typescript-eslint/experimental-utils";
+import { TSESLint, ASTUtils } from "@typescript-eslint/utils";
 import { propName } from "jsx-ast-utils";
 import isHtml from "is-html";
 

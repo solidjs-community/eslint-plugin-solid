@@ -1,4 +1,4 @@
-import { AST_NODE_TYPES as T } from "@typescript-eslint/experimental-utils";
+import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
 import { run } from "../ruleTester";
 import rule from "../../src/rules/no-innerhtml";
 

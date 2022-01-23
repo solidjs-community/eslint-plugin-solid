@@ -1,4 +1,4 @@
-import { TSESLint, TSESTree as T, ASTUtils } from "@typescript-eslint/experimental-utils";
+import { TSESLint, TSESTree as T, ASTUtils } from "@typescript-eslint/utils";
 import kebabCase from "kebab-case";
 import { all as allCssProperties } from "known-css-properties";
 import parse from "style-to-object";

@@ -1,4 +1,4 @@
-import type { TSESLint, TSESTree as T } from "@typescript-eslint/experimental-utils";
+import type { TSESLint, TSESTree as T } from "@typescript-eslint/utils";
 
 const knownNamespaces = ["on", "oncapture", "use", "prop", "attr"];
 const styleNamespaces = ["style", "class"];
