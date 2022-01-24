@@ -101,6 +101,15 @@ export const cases = run("reactivity", rule, {
     setImmediate(() => console.log(signal()));
     requestAnimationFrame(() => console.log(signal()));
     requestIdleCallback(() => console.log(signal()));`,
+    // Async tracking scope exceptions
+    `const [photos, setPhotos] = createSignal([]);
+    onMount(async () => {
+      const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
+      setPhotos(await res.json());
+    });`,
+    `const [a, setA] = createSignal(1);
+    const [b] = createSignal(2);
+    on(b, async () => { await delay(1000); setA(a() + 1) });`,
   ],
   invalid: [
     // Untracked signals
@@ -322,6 +331,16 @@ export const cases = run("reactivity", rule, {
         createEffect(() => runWithOwner(owner, () => console.log(signal())));
       }`,
       errors: [{ messageId: "badUnnamedDerivedSignal", line: 5 }],
+    },
+    // Async tracking scopes
+    {
+      code: `
+      const [photos, setPhotos] = createSignal([]);
+      createEffect(async () => {
+        const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
+        setPhotos(await res.json());
+      });`,
+      errors: [{ messageId: "noAsyncTrackedScope", line: 3 }],
     },
   ],
 });

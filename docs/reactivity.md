@@ -135,6 +135,14 @@ function Component() {
   createEffect(() => runWithOwner(owner, () => console.log(signal())));
 }
  
+const [photos, setPhotos] = createSignal([]);
+createEffect(async () => {
+  const res = await fetch(
+    "https://jsonplaceholder.typicode.com/photos?_limit=20"
+  );
+  setPhotos(await res.json());
+});
+ 
 ```
 
 ### Valid Examples
@@ -261,6 +269,21 @@ setInterval(() => console.log(signal()), 600);
 setImmediate(() => console.log(signal()));
 requestAnimationFrame(() => console.log(signal()));
 requestIdleCallback(() => console.log(signal()));
+
+const [photos, setPhotos] = createSignal([]);
+onMount(async () => {
+  const res = await fetch(
+    "https://jsonplaceholder.typicode.com/photos?_limit=20"
+  );
+  setPhotos(await res.json());
+});
+
+const [a, setA] = createSignal(1);
+const [b] = createSignal(2);
+on(b, async () => {
+  await delay(1000);
+  setA(a() + 1);
+});
 
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
