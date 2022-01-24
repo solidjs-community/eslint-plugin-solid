@@ -46,6 +46,7 @@ This disables some features that overlap with type checking.
 
 ```json
 {
+  "parser": "@typescript-eslint/parser",
   "plugins": ["solid"],
   "extends": ["eslint/recommended", "plugin:solid/typescript"]
 }
@@ -97,7 +98,7 @@ would like to use.
 
 ## Versioning
 
-Pre-1.0.0, the rules and the `recommended` and `typescript` configuations will be 
+Pre-1.0.0, the rules and the `recommended` and `typescript` configuations will be
 stable across patch (`0.0.x`) versions, but may change across minor (`0.x`) versions.
 If you want to pin a minor version, use a tilde in your `package.json`.
 

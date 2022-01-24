@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/reactivity
 Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected.
-This rule is **an error** by default.
+This rule is **a warning** by default.
 
 [View source](../src/rules/reactivity.ts) · [View tests](../test/rules/reactivity.test.ts)
 

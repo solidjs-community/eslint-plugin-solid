@@ -1,6 +1,7 @@
 import execa from "execa";
 import path from "path";
 import fs from "fs-extra";
+import glob from "fast-glob";
 import { ESLint } from "eslint";
 
 const nodeModulesFileForTesting = path.resolve(
@@ -10,17 +11,10 @@ const nodeModulesFileForTesting = path.resolve(
   "eslint-plugin-solid.js"
 );
 
-const sourceFileRegex = /\.[jt]sx?$/;
 const fixtureCwd = path.resolve(__dirname, "fixture");
 const getTestFiles = (dir: string): Array<string> => {
-  try {
-    return fs
-      .readdirSync(path.join(fixtureCwd, dir))
-      .filter((file) => sourceFileRegex.test(file))
-      .map((file) => path.resolve(fixtureCwd, dir, file));
-  } catch {
-    return [];
-  }
+  const root = path.join(fixtureCwd, dir);
+  return glob.sync("**/*.{js,jsx,tsx}", { cwd: root, absolute: true });
 };
 
 describe("fixture", function () {
@@ -60,23 +54,30 @@ describe("fixture", function () {
 
   describe("valid examples", () => {
     const eslint = new ESLint({ cwd: fixtureCwd });
-    test.each(validFiles.map((file) => [path.basename(file), file]))("%s", async (_, file) => {
-      const [results] = await eslint.lintFiles(path.resolve(fixtureCwd, file));
-      expect(results.filePath).toBe(file);
-      expect(results.messages).toEqual([]);
-      expect(results.errorCount).toBe(0);
-      expect(results.usedDeprecatedRules).toEqual([]);
-    });
+    test.each(validFiles.map((file) => [path.relative(fixtureCwd, file), file]))(
+      "%s",
+      async (_, file) => {
+        const [results] = await eslint.lintFiles(path.resolve(fixtureCwd, file));
+        expect(results.filePath).toBe(file);
+        expect(results.messages).toEqual([]);
+        expect(results.errorCount).toBe(0);
+        expect(results.warningCount).toBe(0);
+        expect(results.usedDeprecatedRules).toEqual([]);
+      }
+    );
   });
 
   describe("invalid examples", () => {
     const eslint = new ESLint({ cwd: fixtureCwd });
-    test.each(invalidFiles.map((file) => [path.basename(file), file]))("%s", async (_, file) => {
-      const [results] = await eslint.lintFiles(path.resolve(fixtureCwd, file));
-      expect(results.filePath).toBe(file);
-      expect(results.messages).not.toEqual([]);
-      expect(results.warningCount + results.errorCount).toBeGreaterThan(0);
-      expect(results.usedDeprecatedRules).toEqual([]);
-    });
+    test.each(invalidFiles.map((file) => [path.relative(fixtureCwd, file), file]))(
+      "%s",
+      async (_, file) => {
+        const [results] = await eslint.lintFiles(path.resolve(fixtureCwd, file));
+        expect(results.filePath).toBe(file);
+        expect(results.messages).not.toEqual([]);
+        expect(results.warningCount + results.errorCount).toBeGreaterThan(0);
+        expect(results.usedDeprecatedRules).toEqual([]);
+      }
+    );
   });
 });

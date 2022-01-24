@@ -7,6 +7,7 @@ import noUnknownNamespaces from "./rules/no-unknown-namespaces";
 // import noUselessKeys from './rules/no-useless-keys';
 import preferClasslist from "./rules/prefer-classlist";
 import preferFor from "./rules/prefer-for";
+// import preferShow from './rules/prefer-show';
 import reactivity from "./rules/reactivity";
 import styleProp from "./rules/style-prop";
 
@@ -20,6 +21,7 @@ const allRules = {
   // noUselessKeys,
   "prefer-classlist": preferClasslist,
   "prefer-for": preferFor,
+  // "prefer-show": preferShow,
   reactivity,
   "style-prop": styleProp,
 };
@@ -46,14 +48,14 @@ module.exports = {
         "solid/jsx-no-undef": 2,
         "solid/jsx-uses-vars": 2,
         "solid/no-unknown-namespaces": 2,
-        // incorrect usages of innerHTML, <For />, and style are security or logic errors
+        // incorrect usages of innerHTML and <For /> are security or logic errors
         "solid/no-innerhtml": [2, { allowStatic: true }],
         "solid/prefer-for": 2,
-        "solid/style-prop": 2,
         // reactivity
         "solid/no-destructure": 2,
-        "solid/reactivity": 2,
+        "solid/reactivity": 1,
         // these rules are mostly style suggestions
+        "solid/style-prop": 1,
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,
       },
@@ -68,14 +70,14 @@ module.exports = {
         // identifier usage is important
         "solid/jsx-no-undef": [2, { typescriptEnabled: true }],
         "solid/jsx-uses-vars": 2,
-        // incorrect usages of innerHTML, <For />, and style are security or logic errors
+        // incorrect usages of innerHTML and <For /> are security or logic errors
         "solid/no-innerhtml": [2, { allowStatic: true }],
         "solid/prefer-for": 2,
-        "solid/style-prop": 2,
         // reactivity
         "solid/no-destructure": 2,
-        "solid/reactivity": 2,
+        "solid/reactivity": 1,
         // these rules are mostly style suggestions
+        "solid/style-prop": 1,
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,
         // namespaces taken care of by TS

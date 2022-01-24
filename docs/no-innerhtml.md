@@ -16,7 +16,7 @@ This rule is **an error** by default.
 
 Key | Type | Description
 :--- | :---: | :---
-allowStatic | `boolean` |  
+allowStatic | `boolean` | if the innerHTML value is guaranteed to be a static HTML string (i.e. no user input), allow it 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->

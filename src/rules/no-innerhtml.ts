@@ -22,8 +22,9 @@ const rule: TSESLint.RuleModule<
       {
         type: "object",
         properties: {
-          // if the innerHTML value is guaranteed to be a static string (i.e. no user input), allow it
           allowStatic: {
+            description:
+              "if the innerHTML value is guaranteed to be a static HTML string (i.e. no user input), allow it",
             type: "boolean",
           },
         },

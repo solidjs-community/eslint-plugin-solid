@@ -16,11 +16,11 @@ const ErrorMessage = (props) => <span class="error-message">{props.error}</span>
 
 const App = () => {
   const { validate, formSubmit, errors } = useForm({
-    errorClass: "error-input"
+    errorClass: "error-input",
   });
   const [fields, setFields] = createStore();
   const fn = (form) => {
-    // form.submit()
+    form.submit();
     console.log("Done");
   };
   const userNameExists = async ({ value }) => {
@@ -63,9 +63,7 @@ const App = () => {
           required=""
           use:validate={[matchesPassword]}
         />
-        {errors.confirmpassword && (
-          <ErrorMessage error={errors.confirmpassword} />
-        )}
+        {errors.confirmpassword && <ErrorMessage error={errors.confirmpassword} />}
       </div>
 
       <button type="submit">Submit</button>

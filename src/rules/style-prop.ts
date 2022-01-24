@@ -24,8 +24,9 @@ const rule: TSESLint.RuleModule<
       {
         type: "object",
         properties: {
-          // an array of prop names to treat as a CSS style object, defaults to ["style"]
           styleProps: {
+            description: "an array of prop names to treat as a CSS style object",
+            default: ["style"],
             type: "array",
             items: {
               type: "string",
@@ -33,8 +34,9 @@ const rule: TSESLint.RuleModule<
               uniqueItems: true,
             },
           },
-          // if allowString is set to true, this rule will not convert a style string literal into a style object (not recommended for performance)
           allowString: {
+            description:
+              "if allowString is set to true, this rule will not convert a style string literal into a style object (not recommended for performance)",
             type: "boolean",
           },
         },

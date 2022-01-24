@@ -5,5 +5,9 @@
   "overrides": [{
     "files": ["*.ts", "*.tsx"],
     "parser": "@typescript-eslint/parser"
-  }]
+  }],
+  "rules": {
+    "no-unused-vars": 1
+  },
+  "reportUnusedDisableDirectives": true
 }

@@ -67,12 +67,12 @@ const buildOptions = (filename: string): string => {
     ":--- | :---: | :---",
     ...Object.keys(properties).map((prop) => {
       let type = properties[prop].type;
-      const default_ = properties[prop].default;
+      const _default = properties[prop].default;
       if (type === "array") {
         type = `Array<${properties[prop].items.type}>`;
       }
       return `${prop} | \`${type}\` | ${properties[prop].description ?? ""} ${
-        default_ ? `*Default \`${default_}\`*.` : ""
+        _default ? `*Default \`${JSON.stringify(_default)}\`*.` : ""
       }`;
     }),
   ].join("\n");
