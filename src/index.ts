@@ -7,7 +7,7 @@ import noUnknownNamespaces from "./rules/no-unknown-namespaces";
 // import noUselessKeys from './rules/no-useless-keys';
 import preferClasslist from "./rules/prefer-classlist";
 import preferFor from "./rules/prefer-for";
-// import preferShow from './rules/prefer-show';
+import preferShow from "./rules/prefer-show";
 import reactivity from "./rules/reactivity";
 import styleProp from "./rules/style-prop";
 
@@ -21,7 +21,7 @@ const allRules = {
   // noUselessKeys,
   "prefer-classlist": preferClasslist,
   "prefer-for": preferFor,
-  // "prefer-show": preferShow,
+  "prefer-show": preferShow,
   reactivity,
   "style-prop": styleProp,
 };
@@ -48,16 +48,18 @@ module.exports = {
         "solid/jsx-no-undef": 2,
         "solid/jsx-uses-vars": 2,
         "solid/no-unknown-namespaces": 2,
-        // incorrect usages of innerHTML and <For /> are security or logic errors
+        // incorrect usages of innerHTML are security errors
         "solid/no-innerhtml": [2, { allowStatic: true }],
-        "solid/prefer-for": 2,
         // reactivity
         "solid/no-destructure": 2,
+        "solid/prefer-for": 2,
         "solid/reactivity": 1,
         // these rules are mostly style suggestions
         "solid/style-prop": 1,
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,
+        // handled by Solid compiler, opt-in style suggestion
+        "solid/prefer-show": 0,
       },
     },
     typescript: {
@@ -72,14 +74,16 @@ module.exports = {
         "solid/jsx-uses-vars": 2,
         // incorrect usages of innerHTML and <For /> are security or logic errors
         "solid/no-innerhtml": [2, { allowStatic: true }],
-        "solid/prefer-for": 2,
         // reactivity
         "solid/no-destructure": 2,
+        "solid/prefer-for": 2,
         "solid/reactivity": 1,
         // these rules are mostly style suggestions
-        "solid/style-prop": 1,
+        "solid/prefer-show": 1,
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,
+        // handled by Solid compiler, opt-in style suggestion
+        "solid/style-prop": 0,
         // namespaces taken care of by TS
         "solid/no-unknown-namespaces": 0,
       },

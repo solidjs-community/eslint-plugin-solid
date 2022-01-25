@@ -22,17 +22,12 @@ export const formatList = (strings: Array<string>): string => {
   }
 };
 
-export const find = (
-  node: T.Node,
-  predicate: (node: T.Node) => boolean | T.Node
-): T.Node | null => {
+export const find = (node: T.Node, predicate: (node: T.Node) => boolean): T.Node | null => {
   let n: T.Node | undefined = node;
   while (n) {
     const result = predicate(n);
-    if (result === true) {
+    if (result) {
       return n;
-    } else if (result && typeof result.type === "string") {
-      return result; // could be n's sibling, child, parent, etc., depends on predicate
     }
     n = n.parent;
   }
@@ -61,17 +56,9 @@ export const isProgramOrFunctionNode = (
 export function findInScope(
   node: T.Node,
   scope: ProgramOrFunctionNode,
-  predicate: (node: T.Node) => boolean | T.Node
-) {
-  const found = find(node, (node) => node === scope || predicate(node));
-  return found === scope ? null : found;
-}
-export function findParentInFunction(
-  node: T.Node,
-  scope: ProgramOrFunctionNode,
   predicate: (node: T.Node) => boolean
 ) {
-  const found = findParent(node, (node) => node === scope || predicate(node));
+  const found = find(node, (node) => node === scope || predicate(node));
   return found === scope ? null : found;
 }
 

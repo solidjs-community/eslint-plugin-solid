@@ -223,7 +223,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
   meta: {
     type: "problem",
     docs: {
-      recommended: "error",
+      recommended: "warn",
       description:
         "Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected.",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md",

@@ -13,7 +13,7 @@ const rule: TSESLint.RuleModule<
   meta: {
     type: "problem",
     docs: {
-      recommended: "error",
+      recommended: "warn",
       description:
         "Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, " +
         "and that property values are strings, not numbers with implicit 'px' units.",
