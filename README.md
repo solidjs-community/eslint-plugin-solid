@@ -103,9 +103,9 @@ Pre-1.0.0, the rules and the `recommended` and `typescript` configuations will b
 stable across patch (`0.0.x`) versions, but may change across minor (`0.x`) versions.
 If you want to pin a minor version, use a tilde in your `package.json`.
 
-```diff
 <!-- AUTO-GENERATED-CONTENT:START (TILDE) -->
+```diff
 - "eslint-plugin-solid": "^0.4.4"
 + "eslint-plugin-solid": "~0.4.4"
-<!-- AUTO-GENERATED-CONTENT:END -->
 ```
+<!-- AUTO-GENERATED-CONTENT:END -->

@@ -133,7 +133,11 @@ const buildCases = (content: string, filename: string) => {
 
 const buildTilde = () => {
   const { version } = require("../package.json");
-  return `- "eslint-plugin-solid": "^${version}"\n+ "eslint-plugin-solid": "~${version}"`;
+  return [
+    "```diff",
+    `- "eslint-plugin-solid": "^${version}"\n+ "eslint-plugin-solid": "~${version}"`,
+    "```",
+  ].join("\n");
 };
 
 async function run() {
