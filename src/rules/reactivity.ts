@@ -12,6 +12,7 @@ import {
   isFunctionNode,
   ProgramOrFunctionNode,
   isProgramOrFunctionNode,
+  trackImports,
 } from "../utils";
 
 const { findVariable, getFunctionHeadLocation } = ASTUtils;
@@ -257,6 +258,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     /** Represents the lexical function stack and relevant information for each function */
     const scopeStack = new ScopeStack();
     const { currentScope } = scopeStack;
+
+    /** Tracks imports from 'solid-js', handling aliases. */
+    const { matchImport, handleImportDeclaration } = trackImports();
 
     /** Populates the function stack. */
     const onFunctionEnter = (node: ProgramOrFunctionNode) => {
@@ -512,7 +516,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       ) {
         if (
           node.callee.type === "Identifier" &&
-          ["untrack", "batch", "onCleanup", "onError", "produce"].includes(node.callee.name)
+          matchImport(["untrack", "batch", "onCleanup", "onError", "produce"], node.callee.name)
         ) {
           // These Solid APIs take callbacks that run in the current scope
           scopeStack.syncCallbacks.add(node.arguments[0]);
@@ -530,7 +534,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       }
       if (
         node.callee.type === "Identifier" &&
-        ["createSignal", "createStore"].includes(node.callee.name) &&
+        matchImport(["createSignal", "createStore"], node.callee.name) &&
         node.parent?.type === "VariableDeclarator"
       ) {
         // Allow using reactive variables in state setter if the current scope is tracked.
@@ -564,14 +568,14 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       // Mark return values of certain functions as reactive
       if (init.type === "CallExpression" && init.callee.type === "Identifier") {
         const { callee } = init;
-        if (callee.name === "createSignal" || callee.name === "useTransition") {
+        if (matchImport(["createSignal", "useTransition"], callee.name)) {
           const signal = id && getNthDestructuredVar(id, 0, context.getScope());
           if (signal) {
             scopeStack.pushSignal(signal, currentScope().node);
           } else {
             warnShouldDestructure(id ?? init, "first");
           }
-        } else if (callee.name === "createMemo" || callee.name === "createSelector") {
+        } else if (matchImport(["createMemo", "createSelector"], callee.name)) {
           const memo = id && getReturnedVar(id, context.getScope());
           // memos act like signals
           if (memo) {
@@ -579,7 +583,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           } else {
             warnShouldAssign(id ?? init);
           }
-        } else if (callee.name === "createStore") {
+        } else if (matchImport("createStore", callee.name)) {
           const store = id && getNthDestructuredVar(id, 0, context.getScope());
           // stores act like props
           if (store) {
@@ -587,14 +591,14 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           } else {
             warnShouldDestructure(id ?? init, "first");
           }
-        } else if (callee.name === "mergeProps") {
+        } else if (matchImport("mergeProps", callee.name)) {
           const merged = id && getReturnedVar(id, context.getScope());
           if (merged) {
             scopeStack.pushProps(merged, currentScope().node);
           } else {
             warnShouldAssign(id ?? init);
           }
-        } else if (callee.name === "splitProps") {
+        } else if (matchImport("splitProps", callee.name)) {
           // splitProps can return an unbounded array of props variables, though it's most often two
           if (id?.type === "ArrayPattern") {
             const vars = id.elements
@@ -614,13 +618,13 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               scopeStack.pushProps(vars, currentScope().node);
             }
           }
-        } else if (callee.name === "createResource") {
+        } else if (matchImport("createResource", callee.name)) {
           // createResource return value has reactive .loading and .error
           const resourceReturn = id && getNthDestructuredVar(id, 0, context.getScope());
           if (resourceReturn) {
             scopeStack.pushProps(resourceReturn, currentScope().node);
           }
-        } else if (callee.name === "createMutable") {
+        } else if (matchImport("createMutable", callee.name)) {
           const mutable = id && getReturnedVar(id, context.getScope());
           if (mutable) {
             scopeStack.pushProps(mutable, currentScope().node);
@@ -669,23 +673,26 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         const callee = node.callee;
         const arg0 = node.arguments[0];
         if (
-          [
-            "createMemo",
-            "children",
-            "createEffect",
-            "createRenderEffect",
-            "createDeferred",
-            "createComputed",
-            "createSelector",
-          ].includes(callee.name) ||
-          (callee.name === "createResource" && node.arguments.length >= 2)
+          matchImport(
+            [
+              "createMemo",
+              "children",
+              "createEffect",
+              "createRenderEffect",
+              "createDeferred",
+              "createComputed",
+              "createSelector",
+            ],
+            callee.name
+          ) ||
+          (matchImport("createResource", callee.name) && node.arguments.length >= 2)
         ) {
           // createEffect, createMemo, etc. fn arg, and createResource optional
           // `source` first argument may be a signal
           pushTrackedScope(arg0, "function");
         } else if (
+          matchImport("onMount", callee.name) ||
           [
-            "onMount",
             "setInterval",
             "setTimeout",
             "setImmediate",
@@ -698,9 +705,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           // to updates to reactive variables; it's okay to poll the current
           // value. Consider them event-handler tracked scopes for our purposes.
           pushTrackedScope(arg0, "called-function");
-        } else if (callee.name === "createMutable" && arg0) {
+        } else if (matchImport("createMutable", callee.name) && arg0) {
           pushTrackedScope(arg0, "expression");
-        } else if (callee.name === "on") {
+        } else if (matchImport("on", callee.name)) {
           // on accepts a signal or an array of signals as its first argument,
           // and a tracking function as its second
           if (arg0) {
@@ -716,7 +723,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             // Since dependencies are known, function can be async
             pushTrackedScope(node.arguments[1], "called-function");
           }
-        } else if (callee.name === "runWithOwner") {
+        } else if (matchImport("runWithOwner", callee.name)) {
           // runWithOwner(owner, fn) only creates a tracked scope if `owner =
           // getOwner()` runs in a tracked scope. If owner is a variable,
           // attempt to detect if it's a tracked scope or not, but if this
@@ -733,7 +740,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
                 decl.node.type === "VariableDeclarator" &&
                 decl.node.init?.type === "CallExpression" &&
                 decl.node.init.callee.type === "Identifier" &&
-                decl.node.init.callee.name === "getOwner"
+                matchImport("getOwner", decl.node.init.callee.name)
               ) {
                 // Check if the function in which getOwner() is called is a tracked scope. If the scopeStack
                 // has moved on from that scope already, assume it's tracked, since that's less intrusive.
@@ -770,7 +777,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         // function, a tracked scope expecting a reactive function. All of the
         // track function's references where it's called push a tracked scope.
         if (node.init?.type === "CallExpression" && node.init.callee.type === "Identifier") {
-          if (["createReactive", "createReaction"].includes(node.init.callee.name)) {
+          if (matchImport(["createReactive", "createReaction"], node.init.callee.name)) {
             const track = getReturnedVar(node.id, context.getScope());
             if (track) {
               for (const reference of track.references) {
@@ -808,6 +815,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     };
 
     return {
+      ImportDeclaration: handleImportDeclaration,
       JSXExpressionContainer(node: T.JSXExpressionContainer) {
         checkForTrackedScopes(node);
       },
@@ -843,7 +851,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           if (element.openingElement.name.type === "JSXIdentifier") {
             const tagName = element.openingElement.name.name;
             if (
-              tagName === "For" &&
+              matchImport("For", tagName) &&
               node.params.length === 2 &&
               node.params[1].type === "Identifier"
             ) {
@@ -852,7 +860,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
                 scopeStack.pushSignal(index, currentScope().node);
               }
             } else if (
-              tagName === "Index" &&
+              matchImport("Index", tagName) &&
               node.params.length >= 1 &&
               node.params[0].type === "Identifier"
             ) {

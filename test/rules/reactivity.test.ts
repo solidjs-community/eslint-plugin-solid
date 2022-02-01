@@ -2,6 +2,22 @@ import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
 import { run } from "../ruleTester";
 import rule from "../../src/rules/reactivity";
 
+// Don't bother checking for imports for every test
+jest.mock("../../src/utils", () => {
+  return {
+    ...jest.requireActual("../../src/utils"),
+    trackImports: () => {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      const handleImportDeclaration = () => {};
+      const matchImport = (imports: string | Array<string>, str: string) => {
+        const importArr = Array.isArray(imports) ? imports : [imports];
+        return importArr.includes(str);
+      };
+      return { matchImport, handleImportDeclaration };
+    },
+  };
+});
+
 export const cases = run("reactivity", rule, {
   valid: [
     `function MyComponent(props) {

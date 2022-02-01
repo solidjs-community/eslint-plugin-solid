@@ -83,3 +83,24 @@ export const getCommentAfter = (
   sourceCode
     .getCommentsAfter(node)
     .find((comment) => comment.loc!.start.line === node.loc!.end.line);
+
+export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
+  const importMap = new Map<string, string>();
+  const handleImportDeclaration = (node: T.ImportDeclaration) => {
+    if (fromModule.test(node.source.value)) {
+      for (const specifier of node.specifiers) {
+        if (specifier.type === "ImportSpecifier") {
+          importMap.set(specifier.imported.name, specifier.local.name);
+        }
+      }
+    }
+  };
+  const matchImport = (imports: string | Array<string>, str: string) => {
+    const importArr = Array.isArray(imports) ? imports : [imports];
+    return importArr
+      .map((i) => importMap.get(i))
+      .filter(Boolean)
+      .includes(str);
+  };
+  return { matchImport, handleImportDeclaration };
+};
