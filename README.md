@@ -104,6 +104,8 @@ stable across patch (`0.0.x`) versions, but may change across minor (`0.x`) vers
 If you want to pin a minor version, use a tilde in your `package.json`.
 
 ```diff
-- "eslint-plugin-solid": "^0.1.0"
-+ "eslint-plugin-solid": "~0.1.0"
+<!-- AUTO-GENERATED-CONTENT:START (TILDE) -->
+- "eslint-plugin-solid": "^0.4.4"
++ "eslint-plugin-solid": "~0.4.4"
+<!-- AUTO-GENERATED-CONTENT:END -->
 ```

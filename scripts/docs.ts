@@ -131,10 +131,16 @@ const buildCases = (content: string, filename: string) => {
   return markdown;
 };
 
+const buildTilde = () => {
+  const { version } = require("../package.json");
+  return `- "eslint-plugin-solid": "^${version}"\n+ "eslint-plugin-solid": "~${version}"`;
+};
+
 async function run() {
   markdownMagic(path.join(__dirname, "..", "README.md"), {
     transforms: {
       RULES: () => buildRulesTable(ruleTableRows),
+      TILDE: () => buildTilde(),
     },
   });
 
