@@ -110,6 +110,13 @@ export const cases = run("reactivity", rule, {
     `const [a, setA] = createSignal(1);
     const [b] = createSignal(2);
     on(b, async () => { await delay(1000); setA(a() + 1) });`,
+    `const Component = (props) => {
+      const localRef = () => props.ref;
+      // custom hooks
+      const composedRef1 = useComposedRefs(localRef);
+      const composedRef2 = useComposedRefs(() => props.ref);
+      const composedRef3 = createComposedRefs(localRef);
+    }`,
   ],
   invalid: [
     // Untracked signals
@@ -244,20 +251,6 @@ export const cases = run("reactivity", rule, {
           type: T.CallExpression,
         },
       ],
-    },
-    {
-      code: `
-      const Component = () => {
-        const [signal] = createSignal();
-        const memo = createMomo(() => signal());
-      }`,
-      errors: [{ messageId: "badUnnamedDerivedSignal" }],
-    },
-    {
-      code: `
-      const [signal] = createSignal();
-      const memo = createMomo(() => signal());`,
-      errors: [{ messageId: "badUnnamedDerivedSignal", line: 3, column: 34, endColumn: 36 }],
     },
     // Unused reactives
     {

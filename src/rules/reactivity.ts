@@ -755,6 +755,15 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               pushTrackedScope(node.arguments[1], "function");
             }
           }
+        } else if (/^(?:use|create)[A-Z]/.test(callee.name)) {
+          // Custom hooks parameters may or may not be tracking scopes, no way to know.
+          // Assume all identifier/function arguments are tracked scopes, and use "called-function"
+          // to allow async handlers (permissive)
+          node.arguments
+            .filter((arg) => isFunctionNode(arg) || arg.type === "Identifier")
+            .forEach((arg) => {
+              pushTrackedScope(arg, "called-function");
+            });
         }
       } else if (node.type === "VariableDeclarator") {
         // Solid 1.3 createReactive (renamed createReaction?) returns a track

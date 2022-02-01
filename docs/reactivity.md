@@ -96,14 +96,6 @@ const Component = () => {
 };
  
 const Component = () => {
-  const [signal] = createSignal();
-  const memo = createMomo(() => signal());
-};
- 
-const [signal] = createSignal();
-const memo = createMomo(() => signal());
- 
-const Component = () => {
   createSignal();
 };
  
@@ -284,6 +276,14 @@ on(b, async () => {
   await delay(1000);
   setA(a() + 1);
 });
+
+const Component = (props) => {
+  const localRef = () => props.ref;
+  // custom hooks
+  const composedRef1 = useComposedRefs(localRef);
+  const composedRef2 = useComposedRefs(() => props.ref);
+  const composedRef3 = createComposedRefs(localRef);
+};
 
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
