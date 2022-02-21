@@ -316,7 +316,7 @@ Notes:
 
 - Destructuring props in the parameter list breaks reactivity, but isn't
   handled here. The solid/reactivity rule handles it separately.
-- Signals (and memos, and derived signals, functions containing signals) eed
+- Signals (and memos, and derived signals, functions containing signals) need
   to be called wherever they're used. This rule enforces this because it's
   the only rule that tracks all of these variables.
 - On tracking scopes: "Tracking scopes are functions that are passed to
