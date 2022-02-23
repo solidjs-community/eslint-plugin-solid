@@ -35,7 +35,7 @@ Use the `"plugin:solid/recommended"` configuration to get reasonable defaults as
 ```json
 {
   "plugins": ["solid"],
-  "extends": ["eslint/recommended", "plugin:solid/recommended"]
+  "extends": ["eslint:recommended", "plugin:solid/recommended"]
 }
 ```
 
@@ -48,7 +48,7 @@ This disables some features that overlap with type checking.
 {
   "parser": "@typescript-eslint/parser",
   "plugins": ["solid"],
-  "extends": ["eslint/recommended", "plugin:solid/typescript"]
+  "extends": ["eslint:recommended", "plugin:solid/typescript"]
 }
 ```
 
