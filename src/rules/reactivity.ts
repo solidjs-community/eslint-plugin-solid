@@ -445,7 +445,8 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           identifier.parent?.type === "MemberExpression" &&
           identifier.parent.object === identifier
         ) {
-          if (identifier.parent.parent?.type === "AssignmentExpression") {
+          const { parent } = identifier;
+          if (parent.parent?.type === "AssignmentExpression") {
             // don't allow writing to props or stores directly
             context.report({
               node: identifier,
@@ -454,6 +455,15 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
                 name: identifier.name,
               },
             });
+          } else if (
+            parent.property.type === "Identifier" &&
+            /^initial[A-Z]/.test(parent.property.name)
+          ) {
+            // We're using a prop with a name that starts with `initial`, like
+            // `props.initialCount`. We'll refrain from warning about untracked usages
+            // of these props, because the user has shown that they understand
+            // the consequences of using a reactive variable to initialize
+            // something else. Do nothing.
           } else {
             // The props are the object in a property read access, which
             // should be under a tracked scope.

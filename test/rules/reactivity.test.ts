@@ -152,6 +152,11 @@ export const cases = run("reactivity", rule, {
       const [signal, setSignal] = createSignal(1);
       return <div on:click={() => console.log(signal())} />;
     }`,
+    // Don't warn on using props.initial* for initialization
+    `function Component(props) {
+      const [count, setCount] = useSignal(props.initialCount);
+      return <div>{count()}</div>;
+    }`,
   ],
   invalid: [
     // Untracked signals
