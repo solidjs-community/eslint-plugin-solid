@@ -231,15 +231,17 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     },
     schema: [],
     messages: {
-      noWrite: "The reactive variable '{{name}}' should not be reassigned or altered.",
-      untrackedReactive: "The reactive variable '{{name}}' should be used within a tracked scope.",
+      noWrite: "The reactive variable '{{name}}' should not be reassigned or altered directly.",
+      untrackedReactive:
+        "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or an event handler.",
       badSignal:
         "The reactive variable '{{name}}' should be called as a function when used in JSX.",
       badUnnamedDerivedSignal:
-        "This function should be passed to a tracked scope because it contains reactivity.",
+        "This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity.",
       shouldDestructure:
-        "Array destructuring should be used to capture the {{nth}}result of this function call.",
-      shouldAssign: "A variable should be used to capture the result of this function call.",
+        "For proper analysis, array destructuring should be used to capture the {{nth}}result of this function call.",
+      shouldAssign:
+        "For proper analysis, a variable should be used to capture the result of this function call.",
       noAsyncTrackedScope:
         "This tracked scope should not be async. Solid's reactivity only tracks synchronously.",
     },
@@ -670,8 +672,10 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             : "expression";
         pushTrackedScope(node.expression, expect);
       } else if (node.type === "CallExpression" && node.callee.type === "Identifier") {
-        const callee = node.callee;
-        const arg0 = node.arguments[0];
+        const {
+          callee,
+          arguments: { 0: arg0 },
+        } = node;
         if (
           matchImport(
             [
@@ -771,6 +775,16 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             .forEach((arg) => {
               pushTrackedScope(arg, "called-function");
             });
+        }
+      } else if (node.type === "CallExpression" && node.callee.type === "MemberExpression") {
+        const { property } = node.callee;
+        if (
+          property.type === "Identifier" &&
+          property.name === "addEventListener" &&
+          node.arguments.length >= 2
+        ) {
+          // Like `on*` event handlers, mark all `addEventListener` listeners as called functions.
+          pushTrackedScope(node.arguments[1], "called-function");
         }
       } else if (node.type === "VariableDeclarator") {
         // Solid 1.3 createReactive (renamed createReaction?) returns a track

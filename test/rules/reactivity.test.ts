@@ -133,6 +133,25 @@ export const cases = run("reactivity", rule, {
       const composedRef2 = useComposedRefs(() => props.ref);
       const composedRef3 = createComposedRefs(localRef);
     }`,
+    // Event listeners
+    `const [signal, setSignal] = createSignal(1);
+    const element = document.getElementById("id");
+    element.addEventListener("click", () => {
+      console.log(signal());
+    }, { once: true });`,
+    `const [signal, setSignal] = createSignal(1);
+    const element = document.getElementById("id");
+    element.onclick = () => {
+      console.log(signal());
+    };`,
+    `function Component() {
+      const [signal, setSignal] = createSignal(1);
+      return <div onClick={() => console.log(signal())} />;
+    }`,
+    `function Component() {
+      const [signal, setSignal] = createSignal(1);
+      return <div on:click={() => console.log(signal())} />;
+    }`,
   ],
   invalid: [
     // Untracked signals
