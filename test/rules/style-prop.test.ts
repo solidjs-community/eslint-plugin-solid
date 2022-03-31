@@ -9,7 +9,10 @@ export const cases = run("style-prop", rule, {
     `let el = <div style={{ "-webkit-align-content": "center" }}>Hello, world!</div>`,
     `let el = <div style={{ "font-size": "10px" }}>Hello, world!</div>`,
     `let el = <div style={{ "font-size": "0" }}>Hello, world!</div>`,
+    `let el = <div style={{ "font-size": 0 }}>Hello, world!</div>`,
     `let el = <div STYLE={{ fontSize: 10 }}>Hello, world!</div>`,
+    `let el = <div style={{ "flex-grow": 1 }}>Hello, world!</div>`,
+    `let el = <div style={{ "--custom-width": 1 }}>Hello, world!</div>`,
     {
       code: `let el = <div style="color: red;" />`,
       options: [{ allowString: true }],
@@ -30,17 +33,22 @@ export const cases = run("style-prop", rule, {
   invalid: [
     {
       code: `let el = <div style={{ fontSize: '10px' }}>Hello, world!</div>`,
-      errors: [{ messageId: "invalidStyleProp", data: { name: "fontSize" } }],
+      errors: [{ messageId: "kebabStyleProp", data: { name: "fontSize", kebabName: "font-size" } }],
       output: `let el = <div style={{ "font-size": '10px' }}>Hello, world!</div>`,
     },
     {
-      code: `let el = <div style={{ backgroundColor: '10px' }}>Hello, world!</div>`,
-      errors: [{ messageId: "invalidStyleProp", data: { name: "backgroundColor" } }],
-      output: `let el = <div style={{ "background-color": '10px' }}>Hello, world!</div>`,
+      code: `let el = <div style={{ backgroundColor: 'red' }}>Hello, world!</div>`,
+      errors: [
+        {
+          messageId: "kebabStyleProp",
+          data: { name: "backgroundColor", kebabName: "background-color" },
+        },
+      ],
+      output: `let el = <div style={{ "background-color": 'red' }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div style={{ "-webkitAlignContent": "center" }}>Hello, world!</div>`,
-      errors: [{ messageId: "invalidStyleProp" }],
+      errors: [{ messageId: "kebabStyleProp" }],
       output: `let el = <div style={{ "-webkit-align-content": "center" }}>Hello, world!</div>`,
     },
     {
@@ -54,13 +62,13 @@ export const cases = run("style-prop", rule, {
     {
       code: `let el = <div css={{ fontSize: '10px' }}>Hello, world!</div>`,
       options: [{ styleProps: ["style", "css"] }],
-      errors: [{ messageId: "invalidStyleProp", data: { name: "fontSize" } }],
+      errors: [{ messageId: "kebabStyleProp", data: { name: "fontSize", kebabName: "font-size" } }],
       output: `let el = <div css={{ "font-size": '10px' }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div css={{ fontSize: '10px' }}>Hello, world!</div>`,
       options: [{ styleProps: ["css"] }],
-      errors: [{ messageId: "invalidStyleProp", data: { name: "fontSize" } }],
+      errors: [{ messageId: "kebabStyleProp", data: { name: "fontSize", kebabName: "font-size" } }],
       output: `let el = <div css={{ "font-size": '10px' }}>Hello, world!</div>`,
     },
     {
@@ -93,11 +101,6 @@ export const cases = run("style-prop", rule, {
     {
       code: `let el = <div style={{ 'margin-top': -10 }}>Hello, world!</div>`,
       errors: [{ messageId: "numericStyleValue" }],
-    },
-    {
-      code: `let el = <div style={{ padding: 0 }}>Hello, world!</div>`,
-      errors: [{ messageId: "zeroStyleValue" }],
-      output: `let el = <div style={{ padding: "0" }}>Hello, world!</div>`,
     },
   ],
 });

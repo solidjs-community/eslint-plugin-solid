@@ -6,8 +6,10 @@ import { propName } from "jsx-ast-utils";
 
 const { getPropertyName, getStaticValue } = ASTUtils;
 
+const lengthPercentageRegex = /\b(?:width|height|margin|padding|border-width|font-size)\b/i;
+
 const rule: TSESLint.RuleModule<
-  "invalidStyleProp" | "numericStyleValue" | "zeroStyleValue" | "stringStyle",
+  "kebabStyleProp" | "invalidStyleProp" | "numericStyleValue" | "stringStyle",
   [{ styleProps?: [string, ...Array<string>]; allowString?: boolean }?]
 > = {
   meta: {
@@ -16,7 +18,7 @@ const rule: TSESLint.RuleModule<
       recommended: "warn",
       description:
         "Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, " +
-        "and that property values are strings, not numbers with implicit 'px' units.",
+        "and that property values with dimensions are strings, not numbers with implicit 'px' units.",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/style-prop.md",
     },
     fixable: "code",
@@ -44,10 +46,10 @@ const rule: TSESLint.RuleModule<
       },
     ],
     messages: {
+      kebabStyleProp: "Use {{ kebabName }} instead of {{ name }}.",
       invalidStyleProp: "{{ name }} is not a valid CSS property.",
       numericStyleValue:
-        'CSS property values should be strings only, but {{ value }} is a number; convert to string and add a unit like "px" if appropriate.',
-      zeroStyleValue: 'A CSS property value of 0 should be passed as the string "0".',
+        'This CSS property value should be a string with a unit; Solid does not automatically append a "px" unit.',
       stringStyle: "Use an object for the style prop instead of a string.",
     },
   },
@@ -94,26 +96,26 @@ const rule: TSESLint.RuleModule<
             const name: string | null = getPropertyName(prop, context.getScope());
             if (name && !name.startsWith("--") && !allCssPropertiesSet.has(name)) {
               const kebabName: string = kebabCase(name);
-              context.report({
-                node: prop.key,
-                messageId: "invalidStyleProp",
-                data: { name },
+              if (allCssPropertiesSet.has(kebabName)) {
                 // if it's not valid simply because it's camelCased instead of kebab-cased, provide a fix
-                fix: allCssPropertiesSet.has(kebabName)
-                  ? (fixer) => fixer.replaceText(prop.key, `"${kebabName}"`) // wrap kebab name in quotes to be a valid object key
-                  : undefined,
-              });
-            }
-            // catches numeric values (ex. { "font-size": 12 }) and suggests quoting or appending 'px'
-            const value: unknown = getStaticValue(prop.value)?.value;
-            if (typeof value === "number") {
-              if (value === 0) {
                 context.report({
-                  node: prop.value,
-                  messageId: "zeroStyleValue",
-                  fix: (fixer) => fixer.replaceText(prop.value, '"0"'),
+                  node: prop.key,
+                  messageId: "kebabStyleProp",
+                  data: { name, kebabName },
+                  fix: (fixer) => fixer.replaceText(prop.key, `"${kebabName}"`), // wrap kebab name in quotes to be a valid object key
                 });
               } else {
+                context.report({
+                  node: prop.key,
+                  messageId: "invalidStyleProp",
+                  data: { name },
+                });
+              }
+            } else if (!name || (!name.startsWith("--") && lengthPercentageRegex.test(name))) {
+              // catches numeric values (ex. { "font-size": 12 }) for common <length-percentage> peroperties
+              // and suggests quoting or appending 'px'
+              const value: unknown = getStaticValue(prop.value)?.value;
+              if (typeof value === "number" && value !== 0) {
                 context.report({
                   node: prop.value,
                   messageId: "numericStyleValue",

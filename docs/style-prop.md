@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/style-prop
-Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values are strings, not numbers with implicit 'px' units.
+Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values with dimensions are strings, not numbers with implicit 'px' units.
 This rule is **a warning** by default.
 
 [View source](../src/rules/style-prop.ts) · [View tests](../test/rules/style-prop.test.ts)
@@ -30,9 +30,9 @@ let el = <div style={{ fontSize: "10px" }}>Hello, world!</div>;
 // after eslint --fix:
 let el = <div style={{ "font-size": "10px" }}>Hello, world!</div>;
  
-let el = <div style={{ backgroundColor: "10px" }}>Hello, world!</div>;
+let el = <div style={{ backgroundColor: "red" }}>Hello, world!</div>;
 // after eslint --fix:
-let el = <div style={{ "background-color": "10px" }}>Hello, world!</div>;
+let el = <div style={{ "background-color": "red" }}>Hello, world!</div>;
  
 let el = <div style={{ "-webkitAlignContent": "center" }}>Hello, world!</div>;
 // after eslint --fix:
@@ -72,10 +72,6 @@ let el = <div style={{ "font-size": 10 }}>Hello, world!</div>;
  
 let el = <div style={{ "margin-top": -10 }}>Hello, world!</div>;
  
-let el = <div style={{ padding: 0 }}>Hello, world!</div>;
-// after eslint --fix:
-let el = <div style={{ padding: "0" }}>Hello, world!</div>;
- 
 ```
 
 ### Valid Examples
@@ -99,7 +95,13 @@ let el = <div style={{ "font-size": "10px" }}>Hello, world!</div>;
 
 let el = <div style={{ "font-size": "0" }}>Hello, world!</div>;
 
+let el = <div style={{ "font-size": 0 }}>Hello, world!</div>;
+
 let el = <div STYLE={{ fontSize: 10 }}>Hello, world!</div>;
+
+let el = <div style={{ "flex-grow": 1 }}>Hello, world!</div>;
+
+let el = <div style={{ "--custom-width": 1 }}>Hello, world!</div>;
 
 /* eslint solid/style-prop: ["error", { "allowString": true }] */
 let el = <div style="color: red;" />;
