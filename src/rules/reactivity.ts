@@ -570,6 +570,10 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           }
         }
       }
+      // Handle IIFEs
+      if (isFunctionNode(node.callee)) {
+        scopeStack.syncCallbacks.add(node.callee);
+      }
     };
 
     /** Checks VariableDeclarators, AssignmentExpressions, and CallExpressions for reactivity. */

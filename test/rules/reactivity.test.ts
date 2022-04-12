@@ -85,6 +85,12 @@ export const cases = run("reactivity", rule, {
     `const el = <button onClick={() => toggleShow(!show())}>
       {show() ? "Hide" : "Show"}
     </button>`,
+    `const [count] = createSignal();
+    createEffect(() => {
+      (() => count())()
+    })`,
+    `const [count] = createSignal();
+    const el = <div>{(() => count())()}</div>`,
     // Parse top level JSX
     `const el = <div />`,
     // getOwner/runWithOwner
