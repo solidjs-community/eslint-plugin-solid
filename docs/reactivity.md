@@ -22,30 +22,30 @@ const Component = () => {
   console.log(signal());
   return null;
 };
- 
+
 const Component = () => {
   const [signal] = createSignal(5);
   console.log(signal());
   return <div>{signal()}</div>;
 };
- 
+
 const Component = (props) => {
   const value = props.value;
   return <div>{value()}</div>;
 };
- 
+
 const Component = (props) => {
   const { value: valueProp } = props;
   const value = createMemo(() => valueProp || "default");
   return <div>{value()}</div>;
 };
- 
+
 const Component = (props) => {
   const valueProp = props.value;
   const value = createMemo(() => valueProp || "default");
   return <div>{value()}</div>;
 };
- 
+
 const Component = () => {
   const [signal] = createSignal();
   const d = () => {
@@ -54,7 +54,7 @@ const Component = () => {
   };
   d(); // not ok
 };
- 
+
 const Component = () => {
   const [signal] = createSignal();
   const d = () => {
@@ -67,7 +67,7 @@ const Component = () => {
   };
   d(); // not ok
 };
- 
+
 const Component = () => {
   const [signal1] = createSignal();
   const d = () => {
@@ -81,7 +81,7 @@ const Component = () => {
     e(); // not ok, signal2 is in scope
   };
 };
- 
+
 const Component = () => {
   const [signal] = createSignal();
   const foo = () => {
@@ -94,47 +94,44 @@ const Component = () => {
   };
   bar(); // not ok
 };
- 
+
 const Component = () => {
   createSignal();
 };
- 
+
 const Component = () => {
   const [, setSignal] = createSignal();
 };
- 
+
 const Component = () => {
   createMemo(() => 5);
 };
- 
+
 const Component = () => {
   const [signal] = createSignal();
   return <div>{signal}</div>;
 };
- 
+
 const Component = () => {
   const memo = createMemo(() => 5);
   return <div>{memo}</div>;
 };
- 
+
 const owner = getOwner();
 const [signal] = createSignal();
 createEffect(() => runWithOwner(owner, () => console.log(signal())));
- 
+
 function Component() {
   const owner = getOwner();
   const [signal] = createSignal();
   createEffect(() => runWithOwner(owner, () => console.log(signal())));
 }
- 
+
 const [photos, setPhotos] = createSignal([]);
 createEffect(async () => {
-  const res = await fetch(
-    "https://jsonplaceholder.typicode.com/photos?_limit=20"
-  );
+  const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
   setPhotos(await res.json());
 });
- 
 ```
 
 ### Valid Examples
@@ -222,11 +219,7 @@ createEffect(() => console.log(signal()));
 const [signal] = createSignal();
 const memo = createMemo(() => signal());
 
-const el = (
-  <button onClick={() => toggleShow(!show())}>
-    {show() ? "Hide" : "Show"}
-  </button>
-);
+const el = <button onClick={() => toggleShow(!show())}>{show() ? "Hide" : "Show"}</button>;
 
 const el = <div />;
 
@@ -264,9 +257,7 @@ requestIdleCallback(() => console.log(signal()));
 
 const [photos, setPhotos] = createSignal([]);
 onMount(async () => {
-  const res = await fetch(
-    "https://jsonplaceholder.typicode.com/photos?_limit=20"
-  );
+  const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
   setPhotos(await res.json());
 });
 
@@ -284,25 +275,12 @@ const Component = (props) => {
   const composedRef2 = useComposedRefs(() => props.ref);
   const composedRef3 = createComposedRefs(localRef);
 };
-
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
-### Details and Implementation
+### Implementation
 
-This rule is the most important rule in the plugin, aiming to significantly
-ease Solid's learning curve. Solid's core principle is fine-grained
-reactivity, a system of state, memos, and effects that work together to
-efficiently update a UI from incoming events. Solid's reactive primitives,
-like props, signals, memos, and stores, have to be used in certain lexical
-scopes called "tracked scopes" so Solid can understand how to react to any
-changes. While this system is more flexible than some other solutions like
-React's Rules of Hooks, it can be confusing.
-
-In this rule, we ensure that Solid's reactive primitives are always accessed
-in tracked scopes, so changes always propagate as intended.
-
-We do this in a single pass but take advantage of ESLint's ":exit" selector
+We analyze in a single pass but take advantage of ESLint's ":exit" selector
 to take action both on the way down the tree and on the way back up. At any
 point in the traversal, the current node is either at the program scope or
 nested in one or more functions (omitting class members). We keep track of
@@ -315,16 +293,9 @@ Luckily, all scope analysis is ready before rules traverse the tree.
 Notes:
 
 - Destructuring props in the parameter list breaks reactivity, but isn't
-  handled here. The solid/reactivity rule handles it separately.
+  handled here. The solid/no-destructure rule handles it separately.
 - Signals (and memos, and derived signals, functions containing signals) need
-  to be called wherever they're used. This rule enforces this because it's
-  the only rule that tracks all of these variables.
-- On tracking scopes: "Tracking scopes are functions that are passed to
-  computations like createEffect or JSX expressions. All callback/render
-  function children of control flow are non-tracking. This allows for nesting
-  state creation, and better isolates reactions. Solid's compiler uses a
-  simple heuristic for reactive wrapping and lazy evaluation of JSX
-  expressions. Does it contain a function call, a property access, or JSX?"
+  to be called wherever they're used.
 - It's not okay to access signals in the same scope they're declared in, but
   it's okay to use them one or more nested functions down. However, that
   makes the nested functions derived signals. Deriving signals doesn't

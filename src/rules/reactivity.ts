@@ -233,11 +233,11 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     messages: {
       noWrite: "The reactive variable '{{name}}' should not be reassigned or altered directly.",
       untrackedReactive:
-        "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or an event handler.",
+        "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or an event handler. Details: https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md.",
       badSignal:
         "The reactive variable '{{name}}' should be called as a function when used in JSX.",
       badUnnamedDerivedSignal:
-        "This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity.",
+        "This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity. Details: https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md.",
       shouldDestructure:
         "For proper analysis, array destructuring should be used to capture the {{nth}}result of this function call.",
       shouldAssign:
@@ -457,13 +457,13 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             });
           } else if (
             parent.property.type === "Identifier" &&
-            /^initial[A-Z]/.test(parent.property.name)
+            /^(?:initial|default)[A-Z]/.test(parent.property.name)
           ) {
-            // We're using a prop with a name that starts with `initial`, like
-            // `props.initialCount`. We'll refrain from warning about untracked usages
-            // of these props, because the user has shown that they understand
-            // the consequences of using a reactive variable to initialize
-            // something else. Do nothing.
+            // We're using a prop with a name that starts with `initial` or
+            // `default`, like `props.initialCount`. We'll refrain from warning
+            // about untracked usages of these props, because the user has shown
+            // that they understand the consequences of using a reactive
+            // variable to initialize something else. Do nothing.
           } else {
             // The props are the object in a property read access, which
             // should be under a tracked scope.
