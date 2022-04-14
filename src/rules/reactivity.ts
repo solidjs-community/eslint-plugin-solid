@@ -741,6 +741,16 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             // Since dependencies are known, function can be async
             pushTrackedScope(node.arguments[1], "called-function");
           }
+        } else if (matchImport("createStore", callee.name) && arg0.type === "ObjectExpression") {
+          for (const property of arg0.properties) {
+            if (
+              property.type === "Property" &&
+              property.kind === "get" &&
+              isFunctionNode(property.value)
+            ) {
+              pushTrackedScope(property.value, "function");
+            }
+          }
         } else if (matchImport("runWithOwner", callee.name)) {
           // runWithOwner(owner, fn) only creates a tracked scope if `owner =
           // getOwner()` runs in a tracked scope. If owner is a variable,

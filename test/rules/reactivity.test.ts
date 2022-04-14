@@ -163,6 +163,14 @@ export const cases = run("reactivity", rule, {
       const [count, setCount] = useSignal(props.initialCount);
       return <div>{count()}</div>;
     }`,
+    // Store getters
+    `const [state, setState] = createStore({
+      firstName: 'Will',
+      lastName: 'Smith',
+      get fullName() {
+        return state.firstName + " " + state.lastName;
+      }
+    })`,
   ],
   invalid: [
     // Untracked signals
@@ -372,6 +380,15 @@ export const cases = run("reactivity", rule, {
       errors: [{ messageId: "badUnnamedDerivedSignal", line: 5 }],
     },
     // Async tracking scopes
+    {
+      code: `
+      const [count, setCount] = createSignal(0);
+      createEffect(async () => {
+        await Promise.resolve();
+        console.log(count());
+      });`,
+      errors: [{ messageId: "noAsyncTrackedScope", line: 3 }],
+    },
     {
       code: `
       const [photos, setPhotos] = createSignal([]);
