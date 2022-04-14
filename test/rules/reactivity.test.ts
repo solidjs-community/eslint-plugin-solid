@@ -170,7 +170,7 @@ export const cases = run("reactivity", rule, {
       get fullName() {
         return state.firstName + " " + state.lastName;
       }
-    })`,
+    });`,
   ],
   invalid: [
     // Untracked signals

@@ -688,7 +688,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       } else if (node.type === "CallExpression" && node.callee.type === "Identifier") {
         const {
           callee,
-          arguments: { 0: arg0 },
+          arguments: { 0: arg0, 1: arg1 },
         } = node;
         if (
           matchImport(
@@ -737,11 +737,11 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               pushTrackedScope(arg0, "function");
             }
           }
-          if (node.arguments[1]) {
+          if (arg1) {
             // Since dependencies are known, function can be async
-            pushTrackedScope(node.arguments[1], "called-function");
+            pushTrackedScope(arg1, "called-function");
           }
-        } else if (matchImport("createStore", callee.name) && arg0.type === "ObjectExpression") {
+        } else if (matchImport("createStore", callee.name) && arg0?.type === "ObjectExpression") {
           for (const property of arg0.properties) {
             if (
               property.type === "Property" &&
@@ -756,11 +756,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           // getOwner()` runs in a tracked scope. If owner is a variable,
           // attempt to detect if it's a tracked scope or not, but if this
           // can't be done, assume it's a tracked scope.
-          if (node.arguments[1]) {
+          if (arg1) {
             let isTrackedScope = true;
-            const owner =
-              node.arguments[0].type === "Identifier" &&
-              findVariable(context.getScope(), node.arguments[0]);
+            const owner = arg0.type === "Identifier" && findVariable(context.getScope(), arg0);
             if (owner) {
               const decl = owner.defs[0];
               if (
@@ -787,7 +785,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               }
             }
             if (isTrackedScope) {
-              pushTrackedScope(node.arguments[1], "function");
+              pushTrackedScope(arg1, "function");
             }
           }
         } else if (/^(?:use|create)[A-Z]/.test(callee.name)) {
