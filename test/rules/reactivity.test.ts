@@ -171,6 +171,11 @@ export const cases = run("reactivity", rule, {
         return state.firstName + " " + state.lastName;
       }
     });`,
+    // untrack()
+    `const [signal] = createSignal(5);
+    untrack(() => {
+      console.log(signal());
+    });`,
   ],
   invalid: [
     // Untracked signals
