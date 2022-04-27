@@ -362,6 +362,14 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [{ messageId: "badSignal", type: T.Identifier, line: 4 }],
     },
+    {
+      code: `
+      const Component = () => {
+        const [signal] = createSignal();
+        return <button type={signal}>Button</button>
+      }`,
+      errors: [{ messageId: "badSignal", type: T.Identifier, line: 4 }],
+    },
     // getOwner/runWithOwner
     {
       code: `

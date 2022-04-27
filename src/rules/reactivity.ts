@@ -13,6 +13,7 @@ import {
   ProgramOrFunctionNode,
   isProgramOrFunctionNode,
   trackImports,
+  isDOMElementName,
 } from "../utils";
 
 const { findVariable, getFunctionHeadLocation } = ASTUtils;
@@ -412,17 +413,29 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           handleTrackedScopes(identifier, declarationScope);
         } else if (
           identifier.type === "Identifier" &&
-          identifier.parent?.type === "JSXExpressionContainer" &&
-          identifier.parent.parent?.type === "JSXElement"
+          identifier.parent?.type === "JSXExpressionContainer"
         ) {
-          // The signal is not being called and is being used as a props.children, where calling the signal was the likely intent.
-          context.report({
-            node: identifier,
-            messageId: "badSignal",
-            data: {
-              name: identifier.name,
-            },
-          });
+          const elementOrAttribute = identifier.parent.parent;
+          if (
+            // The signal is not being called and is being used as a
+            // props.children, where calling the signal was the likely intent.
+            elementOrAttribute?.type === "JSXElement" ||
+            // We can't say for sure about user components, but we know for a
+            // fact that a signal should not be passed to a DOM element
+            // attribute without calling it.
+            (elementOrAttribute?.type === "JSXAttribute" &&
+              elementOrAttribute.parent?.type === "JSXOpeningElement" &&
+              elementOrAttribute.parent.name.type === "JSXIdentifier" &&
+              isDOMElementName(elementOrAttribute.parent.name.name))
+          ) {
+            context.report({
+              node: identifier,
+              messageId: "badSignal",
+              data: {
+                name: identifier.name,
+              },
+            });
+          }
         }
         // The signal is being read outside of a CallExpression. Since
         // there's a lot of possibilities here and they're generally fine,
