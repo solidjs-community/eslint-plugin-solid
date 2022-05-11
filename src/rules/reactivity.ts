@@ -875,7 +875,10 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         checkForSyncCallbacks(node);
 
         // ensure calls to reactive primitives use the results.
-        if (!["AssignmentExpression", "VariableDeclarator"].includes(node.parent?.type ?? "")) {
+        if (
+          node.parent?.type !== "AssignmentExpression" &&
+          node.parent?.type !== "VariableDeclarator"
+        ) {
           checkForReactiveAssignment(null, node);
         }
       },
@@ -906,6 +909,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               node.params.length === 2 &&
               node.params[1].type === "Identifier"
             ) {
+              // Mark `index` in `<For>{(item, index) => <div /></For>` as a signal
               const index = findVariable(context.getScope(), node.params[1]);
               if (index) {
                 scopeStack.pushSignal(index, currentScope().node);
@@ -915,6 +919,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               node.params.length >= 1 &&
               node.params[0].type === "Identifier"
             ) {
+              // Mark `item` in `<Index>{(item, index) => <div />}</Index>` as a signal
               const item = findVariable(context.getScope(), node.params[0]);
               if (item) {
                 scopeStack.pushSignal(item, currentScope().node);
