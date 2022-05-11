@@ -37,6 +37,10 @@ let el = <div class:mt-10={true} />;
  
 let el = <div class:mt-10 />;
  
+let el = <Box attr:foo="bar" />;
+ 
+let el = <Box foo:boo={null} />;
+ 
 ```
 
 ### Valid Examples

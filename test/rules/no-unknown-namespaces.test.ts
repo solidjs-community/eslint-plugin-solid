@@ -42,5 +42,13 @@ export const cases = run("no-unknown-namespaces", rule, {
       code: `let el = <div class:mt-10 />`,
       errors: [{ messageId: "style", data: { namespace: "class" } }],
     },
+    {
+      code: `let el = <Box attr:foo="bar" />`,
+      errors: [{ messageId: "component" }],
+    },
+    {
+      code: `let el = <Box foo:boo={null} />`,
+      errors: [{ messageId: "component" }],
+    },
   ],
 });

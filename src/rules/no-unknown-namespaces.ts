@@ -1,10 +1,11 @@
 import type { TSESLint, TSESTree as T } from "@typescript-eslint/utils";
+import { isDOMElementName } from "../utils";
 
 const knownNamespaces = ["on", "oncapture", "use", "prop", "attr"];
 const styleNamespaces = ["style", "class"];
 
 const rule: TSESLint.RuleModule<
-  "unknown" | "style",
+  "unknown" | "style" | "component",
   [{ allowedNamespaces: [string, ...Array<string>] }]
 > = {
   meta: {
@@ -38,12 +39,26 @@ const rule: TSESLint.RuleModule<
         .join(", ")}).`,
       style:
         "Using the '{{namespace}}:' special prefix is potentially confusing, prefer the '{{namespace}}' prop instead.",
+      component: "Namespaced props have no effect on components.",
     },
   },
   create(context) {
     const explicitlyAllowedNamespaces = context.options?.[0]?.allowedNamespaces;
     return {
       "JSXAttribute > JSXNamespacedName": (node: T.JSXNamespacedName) => {
+        const openingElement = node.parent!.parent as T.JSXOpeningElement;
+        if (
+          openingElement.name.type === "JSXIdentifier" &&
+          !isDOMElementName(openingElement.name.name)
+        ) {
+          // no namespaces on Solid component elements
+          context.report({
+            node,
+            messageId: "component",
+          });
+          return;
+        }
+
         const namespace = node.namespace?.name;
         if (
           !(knownNamespaces.includes(namespace) || explicitlyAllowedNamespaces?.includes(namespace))
