@@ -75,7 +75,7 @@ const getCommoneEventHandlerName = (lowercaseEventName: string) => {
 
 const rule: TSESLint.RuleModule<
   "naming" | "capitalization" | "make-handler" | "make-attr" | "detected-attr" | "spread-handler",
-  []
+  [{ ignoreCase?: boolean }?]
 > = {
   meta: {
     type: "problem",
@@ -87,7 +87,19 @@ const rule: TSESLint.RuleModule<
     },
     fixable: "code",
     hasSuggestions: true,
-    schema: [],
+    schema: [
+      {
+        type: "object",
+        properties: {
+          ignoreCase: {
+            description:
+              "if true, don't warn on ambiguously named event handlers like `onclick` or `onchange`",
+            type: "boolean",
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       "detected-attr":
         'The {{name}} prop is named as an event handler (starts with "on"), but Solid knows its value ({{staticValue}}) is a string or number, so it will be treated as an attribute. If this is intentional, name this prop attr:{{name}}.',
@@ -161,7 +173,7 @@ const rule: TSESLint.RuleModule<
               staticValue: node.value !== null ? node.value.value : true,
             },
           });
-        } else if (name[2] === name[2].toLowerCase()) {
+        } else if (name[2] === name[2].toLowerCase() && !context.options[0]?.ignoreCase) {
           const lowercaseEventName = match[1].toLowerCase();
           if (isCommonEventName(lowercaseEventName)) {
             // For common DOM event names, we know the user intended the prop to be an event handler.

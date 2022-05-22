@@ -10,7 +10,15 @@ This rule is **a warning** by default.
 See [this issue](https://github.com/joshwilsonvu/eslint-plugin-solid/issues/23) for rationale.
 
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
+## Rule Options
 
+```
+  "event-handlers": ["error", { "<key>": "<value>" }]
+```
+
+Key | Type | Description
+:--- | :---: | :---
+ignoreCase | `boolean` | if true, don't warn on ambiguously named event handlers like `onclick` or `onchange` 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
@@ -66,6 +74,12 @@ let el = <div onLy={() => {}} />;
 let el = <div on:ly={() => {}} />;
 
 let el = <foo.bar only="true" />;
+
+/* eslint solid/event-handlers: ["error", { "ignoreCase": true }] */
+let el = <div onclick={onclick} />;
+
+/* eslint solid/event-handlers: ["error", { "ignoreCase": true }] */
+let el = <div only={only} />;
 
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->

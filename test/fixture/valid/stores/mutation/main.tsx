@@ -42,7 +42,7 @@ const App = () => {
           console.log(`Creating ${text}`);
           return (
             <div>
-              <input type="checkbox" checked={todo.completed} onchange={[toggleTodo, id]} />
+              <input type="checkbox" checked={todo.completed} onChange={[toggleTodo, id]} />
               <span style={{ "text-decoration": todo.completed ? "line-through" : "none" }}>
                 {text}
               </span>

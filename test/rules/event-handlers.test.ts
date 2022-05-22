@@ -18,6 +18,8 @@ export const cases = run("event-handlers", rule, {
     `let el = <div onLy={() => {}} />;`,
     `let el = <div on:ly={() => {}} />;`,
     `let el = <foo.bar only="true" />;`,
+    { code: `let el = <div onclick={onclick} />`, options: [{ ignoreCase: true }] },
+    { code: `let el = <div only={only} />`, options: [{ ignoreCase: true }] },
   ],
   invalid: [
     {
