@@ -1,3 +1,4 @@
+import eventHandlers from "./rules/event-handlers";
 import jsxNoUndef from "./rules/jsx-no-undef";
 import jsxUsesVars from "./rules/jsx-uses-vars";
 import noDestructure from "./rules/no-destructure";
@@ -54,6 +55,7 @@ module.exports = {
         "solid/no-destructure": 2,
         "solid/prefer-for": 2,
         "solid/reactivity": 1,
+        "solid/event-handlers": 1,
         // these rules are mostly style suggestions
         "solid/style-prop": 1,
         "solid/no-react-specific-props": 1,
@@ -78,6 +80,7 @@ module.exports = {
         "solid/no-destructure": 2,
         "solid/prefer-for": 2,
         "solid/reactivity": 1,
+        "solid/event-handlers": 1,
         // these rules are mostly style suggestions
         "solid/prefer-show": 1,
         "solid/no-react-specific-props": 1,
