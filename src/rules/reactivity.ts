@@ -416,26 +416,36 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           identifier.type === "Identifier" &&
           identifier.parent?.type === "JSXExpressionContainer"
         ) {
-          const elementOrAttribute = identifier.parent.parent;
           if (
-            // The signal is not being called and is being used as a
-            // props.children, where calling the signal was the likely intent.
-            elementOrAttribute?.type === "JSXElement" ||
-            // We can't say for sure about user components, but we know for a
-            // fact that a signal should not be passed to a DOM element
-            // attribute without calling it.
-            (elementOrAttribute?.type === "JSXAttribute" &&
-              elementOrAttribute.parent?.type === "JSXOpeningElement" &&
-              elementOrAttribute.parent.name.type === "JSXIdentifier" &&
-              isDOMElementName(elementOrAttribute.parent.name.name))
+            currentScope().trackedScopes.find(
+              (trackedScope) =>
+                trackedScope.node === identifier &&
+                (trackedScope.expect === "function" || trackedScope.expect === "called-function")
+            )
           ) {
-            context.report({
-              node: identifier,
-              messageId: "badSignal",
-              data: {
-                name: identifier.name,
-              },
-            });
+            // If the signal is in a JSXExpressionContainer that's also marked as a "function" or "called-function" tracked scope,
+            // let it be.
+          } else {
+            const elementOrAttribute = identifier.parent.parent;
+            if (
+              // The signal is not being called and is being used as a props.children, where calling
+              // the signal was the likely intent.
+              elementOrAttribute?.type === "JSXElement" ||
+              // We can't say for sure about user components, but we know for a fact that a signal
+              // should not be passed to a non-event handler DOM element attribute without calling it.
+              (elementOrAttribute?.type === "JSXAttribute" &&
+                elementOrAttribute.parent?.type === "JSXOpeningElement" &&
+                elementOrAttribute.parent.name.type === "JSXIdentifier" &&
+                isDOMElementName(elementOrAttribute.parent.name.name))
+            ) {
+              context.report({
+                node: identifier,
+                messageId: "badSignal",
+                data: {
+                  name: identifier.name,
+                },
+              });
+            }
           }
         }
         // The signal is being read outside of a CallExpression. Since
@@ -505,7 +515,13 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       const { unnamedDerivedSignals } = currentScope();
       if (unnamedDerivedSignals) {
         for (const node of unnamedDerivedSignals) {
-          if (!currentScope().trackedScopes.find((trackedScope) => trackedScope.node === node)) {
+          if (
+            !currentScope().trackedScopes.find(
+              (trackedScope) =>
+                trackedScope.node === node &&
+                (trackedScope.expect === "function" || trackedScope.expect === "called-function")
+            )
+          ) {
             context.report({
               loc: getFunctionHeadLocation(node, sourceCode),
               messageId: "badUnnamedDerivedSignal",
@@ -542,7 +558,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       ) {
         if (
           node.callee.type === "Identifier" &&
-          matchImport(["batch", "onCleanup", "onError", "produce"], node.callee.name)
+          matchImport(["batch", "produce"], node.callee.name)
         ) {
           // These Solid APIs take callbacks that run in the current scope
           scopeStack.syncCallbacks.add(node.arguments[0]);
@@ -695,7 +711,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         // don't affect when the handler will run.
         const expect =
           node.parent?.type === "JSXAttribute" &&
-          sourceCode.getText(node.parent.name).match(/^on[:A-Z]/)
+          /^on[:A-Z]/.test(sourceCode.getText(node.parent.name))
             ? "called-function"
             : "expression";
         pushTrackedScope(node.expression, expect);
@@ -724,7 +740,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           // `source` first argument may be a signal
           pushTrackedScope(arg0, "function");
         } else if (
-          matchImport("onMount", callee.name) ||
+          matchImport(["onMount", "onCleanup", "onError"], callee.name) ||
           [
             "setInterval",
             "setTimeout",
@@ -733,10 +749,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             "requestIdleCallback",
           ].includes(callee.name)
         ) {
-          // onMount can be async.
-          // Timers are NOT tracked scopes. However, they don't need to react
+          // on* and timers are NOT tracked scopes. However, they don't need to react
           // to updates to reactive variables; it's okay to poll the current
-          // value. Consider them event-handler tracked scopes for our purposes.
+          // value. Consider them called-function tracked scopes for our purposes.
           pushTrackedScope(arg0, "called-function");
         } else if (matchImport("createMutable", callee.name) && arg0) {
           pushTrackedScope(arg0, "expression");

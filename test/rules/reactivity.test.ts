@@ -72,7 +72,7 @@ export const cases = run("reactivity", rule, {
     `let c = () => {
       const [signal] = createSignal();
       const d = () => {
-        const e = () => { // <-- e becomes a derived signal
+        function e() { // <-- e becomes a derived signal
           signal();
         }
       } // <-- d never uses it
@@ -153,6 +153,15 @@ export const cases = run("reactivity", rule, {
     `function Component() {
       const [signal, setSignal] = createSignal(1);
       return <div onClick={() => console.log(signal())} />;
+    }`,
+    `function Component() {
+      const [signal, setSignal] = createSignal(1);
+      const handler = () => console.log(signal());
+      return <div onClick={handler} />;
+    }`,
+    `function Component() {
+      const [signal, setSignal] = createSignal(1);
+      return <div onClick={signal} />;
     }`,
     `function Component() {
       const [signal, setSignal] = createSignal(1);
@@ -238,6 +247,23 @@ export const cases = run("reactivity", rule, {
       const Component = () => {
         const [signal] = createSignal();
         const d = () => { // <-- d becomes a derived signal
+          signal();
+        }
+        d(); // not ok
+      }`,
+      errors: [
+        {
+          messageId: "untrackedReactive",
+          data: { name: "d" },
+          type: T.CallExpression,
+        },
+      ],
+    },
+    {
+      code: `
+      const Component = () => {
+        const [signal] = createSignal();
+        function d() { // <-- d becomes a derived signal
           signal();
         }
         d(); // not ok
