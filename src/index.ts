@@ -13,6 +13,7 @@ import reactivity from "./rules/reactivity";
 import styleProp from "./rules/style-prop";
 
 const allRules = {
+  "event-handlers": eventHandlers,
   "jsx-no-undef": jsxNoUndef,
   "jsx-uses-vars": jsxUsesVars,
   "no-destructure": noDestructure,
