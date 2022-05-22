@@ -5,7 +5,7 @@ const knownNamespaces = ["on", "oncapture", "use", "prop", "attr"];
 const styleNamespaces = ["style", "class"];
 
 const rule: TSESLint.RuleModule<
-  "unknown" | "style" | "component",
+  "unknown" | "style" | "component" | "component-suggest",
   [{ allowedNamespaces: [string, ...Array<string>] }]
 > = {
   meta: {
@@ -16,6 +16,7 @@ const rule: TSESLint.RuleModule<
         "Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`).",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/no-unknown-namespaces.md",
     },
+    hasSuggestions: true,
     schema: [
       {
         type: "object",
@@ -40,6 +41,7 @@ const rule: TSESLint.RuleModule<
       style:
         "Using the '{{namespace}}:' special prefix is potentially confusing, prefer the '{{namespace}}' prop instead.",
       component: "Namespaced props have no effect on components.",
+      "component-suggest": "Replace {{namespace}}:{{name}} with {{name}}.",
     },
   },
   create(context) {
@@ -55,6 +57,13 @@ const rule: TSESLint.RuleModule<
           context.report({
             node,
             messageId: "component",
+            suggest: [
+              {
+                messageId: "component-suggest",
+                data: { namespace: node.namespace.name, name: node.name.name },
+                fix: (fixer) => fixer.replaceText(node, node.name.name),
+              },
+            ],
           });
           return;
         }

@@ -44,11 +44,33 @@ export const cases = run("no-unknown-namespaces", rule, {
     },
     {
       code: `let el = <Box attr:foo="bar" />`,
-      errors: [{ messageId: "component" }],
+      errors: [
+        {
+          messageId: "component",
+          suggestions: [
+            {
+              messageId: "component-suggest",
+              data: { namespace: "attr", name: "foo" },
+              output: `let el = <Box foo="bar" />`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `let el = <Box foo:boo={null} />`,
-      errors: [{ messageId: "component" }],
+      errors: [
+        {
+          messageId: "component",
+          suggestions: [
+            {
+              messageId: "component-suggest",
+              data: { namespace: "foo", name: "boo" },
+              output: `let el = <Box boo={null} />`,
+            },
+          ],
+        },
+      ],
     },
   ],
 });
