@@ -17,6 +17,7 @@ export const cases = run("event-handlers", rule, {
     `let el = <div attr:only={() => {}} />;`,
     `let el = <div onLy={() => {}} />;`,
     `let el = <div on:ly={() => {}} />;`,
+    `let el = <foo.bar only="true" />;`,
   ],
   invalid: [
     {
