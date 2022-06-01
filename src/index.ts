@@ -1,3 +1,4 @@
+import componentsReturnOnce from "./rules/components-return-once";
 import eventHandlers from "./rules/event-handlers";
 import jsxNoUndef from "./rules/jsx-no-undef";
 import jsxUsesVars from "./rules/jsx-uses-vars";
@@ -13,6 +14,7 @@ import reactivity from "./rules/reactivity";
 import styleProp from "./rules/style-prop";
 
 const allRules = {
+  "components-return-once": componentsReturnOnce,
   "event-handlers": eventHandlers,
   "jsx-no-undef": jsxNoUndef,
   "jsx-uses-vars": jsxUsesVars,
@@ -53,6 +55,7 @@ module.exports = {
         // incorrect usages of innerHTML are security errors
         "solid/no-innerhtml": [2, { allowStatic: true }],
         // reactivity
+        "solid/components-return-once": 1,
         "solid/no-destructure": 2,
         "solid/prefer-for": 2,
         "solid/reactivity": 1,
@@ -78,6 +81,7 @@ module.exports = {
         // incorrect usages of innerHTML and <For /> are security or logic errors
         "solid/no-innerhtml": [2, { allowStatic: true }],
         // reactivity
+        "solid/components-return-once": 1,
         "solid/no-destructure": 2,
         "solid/prefer-for": 2,
         "solid/reactivity": 1,

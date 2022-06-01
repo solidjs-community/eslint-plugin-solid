@@ -23,11 +23,20 @@ export const cases = run("components-return-once", rule, {
     // Early returns
     {
       code: `function Component() {
-  if (condition) {
-    return <div />;
-  };
-  return <span />;
-}`,
+        if (condition) {
+          return <div />;
+        };
+        return <span />;
+      }`,
+      errors: [{ messageId: "noEarlyReturn" }],
+    },
+    {
+      code: `const Component = () => {
+        if (condition) {
+          return <div />;
+        }
+        return <span />;
+      }`,
       errors: [{ messageId: "noEarlyReturn" }],
     },
     // Balanced ternaries
