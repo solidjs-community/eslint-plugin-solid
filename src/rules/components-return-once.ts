@@ -1,4 +1,4 @@
-import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/utils";
+import { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
 import type { FunctionNode } from "../utils";
 
 const isNothing = (node?: T.Node): boolean => {
