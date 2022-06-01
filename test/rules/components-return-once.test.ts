@@ -2,12 +2,28 @@ import { run } from "../ruleTester";
 import rule from "../../src/rules/components-return-once";
 
 export const cases = run("components-return-once", rule, {
-  valid: [],
+  valid: [
+    `function Component() {
+      return <div />;
+    }`,
+    `function someFunc() {
+      if (condition) {
+        return 5;
+      }
+      return 10;
+    }`,
+    `function notAComponent() {
+      if (condition) {
+        return <div />;
+      }
+      return <div />;
+    }`,
+  ],
   invalid: [
     // Early returns
     {
       code: `function Component() {
-  if (true) {
+  if (condition) {
     return <div />;
   };
   return <span />;
@@ -49,6 +65,25 @@ export const cases = run("components-return-once", rule, {
       Big!
       No, really big!
     </div></Show>;
+}`,
+    },
+    // Switch/Match
+    {
+      code: `function Component(props) {
+  return props.cond1 ? (
+    <div>Condition 1</div>
+  ) : Boolean(props.cond2) ? (
+    <div>Not condition 1, but condition 2</div>
+  ) : (
+    <div>Neither condition 1 or 2</div>
+  );
+}`,
+      errors: [{ messageId: "noConditionalReturn" }],
+      output: `function Component(props) {
+  return <Switch fallback={<div>Neither condition 1 or 2</div>}>
+<Match when={props.cond1}><div>Condition 1</div></Match>
+<Match when={Boolean(props.cond2)}><div>Not condition 1, but condition 2</div></Match>
+</Switch>;
 }`,
     },
   ],

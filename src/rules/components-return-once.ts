@@ -15,7 +15,7 @@ const isNothing = (node?: T.Node): boolean => {
   }
 };
 
-const getLocLength = (loc: T.SourceLocation) => loc.end.line - loc.start.line + 1;
+const getLineLength = (loc: T.SourceLocation) => loc.end.line - loc.start.line + 1;
 
 const rule: TSESLint.RuleModule<"noEarlyReturn" | "noConditionalReturn", []> = {
   meta: {
@@ -48,24 +48,26 @@ const rule: TSESLint.RuleModule<"noEarlyReturn" | "noConditionalReturn", []> = {
     };
     const currentFunction = () => functionStack[functionStack.length - 1];
     const onFunctionEnter = (node: FunctionNode) => {
-      const getLastReturn = () => {
-        if (node.body.type === "BlockStatement") {
-          const { length } = node.body.body;
-          const last = length && node.body.body[length - 1];
-          if (last && last.type === "ReturnStatement") {
-            return last;
-          }
+      let lastReturn: T.ReturnStatement | undefined;
+      if (node.body.type === "BlockStatement") {
+        const { length } = node.body.body;
+        const last = length && node.body.body[length - 1];
+        if (last && last.type === "ReturnStatement") {
+          lastReturn = last;
         }
-      };
-      functionStack.push({ isComponent: false, lastReturn: getLastReturn(), earlyReturns: [] });
+      }
+      functionStack.push({ isComponent: false, lastReturn, earlyReturns: [] });
     };
+
     const onFunctionExit = (node: FunctionNode) => {
       if (
+        (node.type === "FunctionDeclaration" && node.id?.name?.match(/^[a-z]/)) ||
         node.parent?.type === "JSXExpressionContainer" // "render props" aren't components
       ) {
         currentFunction().isComponent = false;
       }
       if (currentFunction().isComponent) {
+        // Warn on each early return
         currentFunction().earlyReturns.forEach((earlyReturn) => {
           context.report({
             node: earlyReturn,
@@ -115,7 +117,7 @@ const rule: TSESLint.RuleModule<"noEarlyReturn" | "noConditionalReturn", []> = {
               }
               if (
                 isNothing(fallback) ||
-                getLocLength(consequent.loc) >= getLocLength(alternate.loc) * 1.5
+                getLineLength(consequent.loc) >= getLineLength(alternate.loc) * 1.5
               ) {
                 // we have a standard ternary, and the alternate is a bit shorter in LOC than the consequent, which
                 // should be enough to tell that it's logically a fallback instead of an equal branch.
