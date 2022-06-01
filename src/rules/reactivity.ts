@@ -379,7 +379,11 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         const paramsNode = currentScopeNode.params[0];
         if (
           paramsNode?.type === "Identifier" &&
-          (currentScope().hasJSX || isPropsByName(paramsNode.name)) &&
+          ((currentScope().hasJSX &&
+            (currentScopeNode.type !== "FunctionDeclaration" ||
+              !currentScopeNode.id?.name?.match(/^[a-z]/))) ||
+            // begins with lowercase === not component
+            isPropsByName(paramsNode.name)) &&
           currentScopeNode.parent?.type !== "JSXExpressionContainer" // "render props" aren't components
         ) {
           // This function is a component, consider its parameter a props

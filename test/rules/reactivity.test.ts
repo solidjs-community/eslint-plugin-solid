@@ -185,6 +185,11 @@ export const cases = run("reactivity", rule, {
     untrack(() => {
       console.log(signal());
     });`,
+    // has JSX, but lowercase function and not named props => don't treat first parameter as props
+    `function notAComponent(something) {
+      console.log(something.a);
+      return <div />;
+    }`,
   ],
   invalid: [
     // Untracked signals
@@ -240,6 +245,15 @@ export const cases = run("reactivity", rule, {
           type: T.MemberExpression,
         },
       ],
+    },
+    // treat first parameter of uppercase function with JSX as a props
+    {
+      code: `
+      function Component(something) {
+        console.log(something.a);
+        return <div />;
+      }`,
+      errors: [{ messageId: "untrackedReactive", type: T.MemberExpression }],
     },
     // Derived signals
     {
