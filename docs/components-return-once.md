@@ -96,6 +96,22 @@ function Component(props) {
   );
 }
  
+function Component(props) {
+  return !!props.cond && <div>Conditional</div>;
+}
+// after eslint --fix:
+function Component(props) {
+  return (
+    <Show when={!!props.cond}>
+      <div>Conditional</div>
+    </Show>
+  );
+}
+ 
+function Component(props) {
+  return props.primary || <div>{props.secondaryText}</div>;
+}
+ 
 ```
 
 ### Valid Examples

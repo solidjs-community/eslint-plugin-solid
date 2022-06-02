@@ -95,5 +95,21 @@ export const cases = run("components-return-once", rule, {
 </Switch>;
 }`,
     },
+    // Logical
+    {
+      code: `function Component(props) {
+  return !!props.cond && <div>Conditional</div>;
+}`,
+      errors: [{ messageId: "noConditionalReturn" }],
+      output: `function Component(props) {
+  return <Show when={!!props.cond}><div>Conditional</div></Show>;
+}`,
+    },
+    {
+      code: `function Component(props) {
+  return props.primary || <div>{props.secondaryText}</div>;
+}`,
+      errors: [{ messageId: "noConditionalReturn" }],
+    },
   ],
 });

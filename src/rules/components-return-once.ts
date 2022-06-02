@@ -137,7 +137,28 @@ const rule: TSESLint.RuleModule<"noEarlyReturn" | "noConditionalReturn", []> = {
               return fixer.replaceText(argument, `<>${putIntoJSX(argument)}</>`);
             },
           });
-        }
+        } else if (argument?.type === "LogicalExpression")
+          if (argument.operator === "&&") {
+            const sourceCode = context.getSourceCode();
+            // we have a `return condition && expression`--put that in a <Show />
+            context.report({
+              node: argument,
+              messageId: "noConditionalReturn",
+              fix: (fixer) => {
+                const { left: test, right: consequent } = argument;
+                return fixer.replaceText(
+                  argument,
+                  `<Show when={${sourceCode.getText(test)}}>${putIntoJSX(consequent)}</Show>`
+                );
+              },
+            });
+          } else {
+            // we have some other kind of conditional, warn
+            context.report({
+              node: argument,
+              messageId: "noConditionalReturn",
+            });
+          }
       }
 
       // Pop on exit
