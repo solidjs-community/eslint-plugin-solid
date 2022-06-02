@@ -66,10 +66,10 @@ const COMMON_EVENTS: Record<string, string | null> = {
 
 const isCommonEventName = (lowercaseEventName: string) =>
   Object.prototype.hasOwnProperty.call(COMMON_EVENTS, lowercaseEventName);
-const getCommoneEventHandlerName = (lowercaseEventName: string) => {
+const getCommonEventHandlerName = (lowercaseEventName: string) => {
   return `on${
     COMMON_EVENTS[lowercaseEventName] ??
-    lowercaseEventName[0].toUpperCase() + lowercaseEventName.slice(1)
+    lowercaseEventName[0].toUpperCase() + lowercaseEventName.slice(1).toLowerCase()
   }`;
 };
 
@@ -132,7 +132,7 @@ const rule: TSESLint.RuleModule<
         // string name of the name node
         const { name } = node.name;
 
-        const match = /^on([a-zA-Z].*)/.exec(name);
+        const match = /^on([a-zA-Z].*)$/.exec(name);
         if (!match) {
           return; // bail if Solid doesn't consider the prop name an event handler
         }
@@ -173,24 +173,26 @@ const rule: TSESLint.RuleModule<
               staticValue: node.value !== null ? node.value.value : true,
             },
           });
-        } else if (name[2] === name[2].toLowerCase() && !context.options[0]?.ignoreCase) {
+        } else if (!context.options[0]?.ignoreCase) {
           const lowercaseEventName = match[1].toLowerCase();
           if (isCommonEventName(lowercaseEventName)) {
-            // For common DOM event names, we know the user intended the prop to be an event handler.
-            // Fix it to have an uppercase third letter and be property camel-cased with an uppercase third letter
-            const fixedName = getCommoneEventHandlerName(lowercaseEventName);
-            context.report({
-              node: node.name,
-              messageId: "capitalization",
-              data: { name, fixedName },
-              fix: (fixer) => fixer.replaceText(node.name, fixedName),
-            });
-          } else {
+            const fixedName = getCommonEventHandlerName(lowercaseEventName);
+            if (fixedName !== name) {
+              // For common DOM event names, we know the user intended the prop to be an event handler.
+              // Fix it to have an uppercase third letter and be properly camel-cased.
+              context.report({
+                node: node.name,
+                messageId: "capitalization",
+                data: { name, fixedName },
+                fix: (fixer) => fixer.replaceText(node.name, fixedName),
+              });
+            }
+          } else if (name[2] === name[2].toLowerCase()) {
             // this includes words like `only` and `ongoing` as well as unknown handlers like `onfoobar`.
             // Enforce using either /^on[A-Z]/ (event handler) or /^attr:on[a-z]/ (forced regular attribute)
             // to make user intent clear and code maximally readable
             const handlerName = `on${match[1][0].toUpperCase()}${match[1].slice(1)}`;
-            const attrName = `attr:${match[0]}`;
+            const attrName = `attr:${name}`;
             context.report({
               node: node.name,
               messageId: "naming",

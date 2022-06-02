@@ -59,6 +59,16 @@ export const cases = run("event-handlers", rule, {
       output: `let el = <div onClick={() => {}} />`,
     },
     {
+      code: `let el = <div onClIcK={() => {}} />`,
+      errors: [{ messageId: "capitalization", type: T.JSXIdentifier }],
+      output: `let el = <div onClick={() => {}} />`,
+    },
+    {
+      code: `let el = <div oncLICK={() => {}} />`,
+      errors: [{ messageId: "capitalization", type: T.JSXIdentifier }],
+      output: `let el = <div onClick={() => {}} />`,
+    },
+    {
       code: `let el = <div onLy />`,
       errors: [
         {

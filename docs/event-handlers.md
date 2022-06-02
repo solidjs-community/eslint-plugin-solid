@@ -35,6 +35,14 @@ let el = <div onclick={() => {}} />;
 // after eslint --fix:
 let el = <div onClick={() => {}} />;
  
+let el = <div onClIcK={() => {}} />;
+// after eslint --fix:
+let el = <div onClick={() => {}} />;
+ 
+let el = <div oncLICK={() => {}} />;
+// after eslint --fix:
+let el = <div onClick={() => {}} />;
+ 
 let el = <div onLy />;
  
 let el = <div onLy="string" />;
