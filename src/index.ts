@@ -1,5 +1,6 @@
 import componentsReturnOnce from "./rules/components-return-once";
 import eventHandlers from "./rules/event-handlers";
+import jsxNoDuplicateProps from "./rules/jsx-no-duplicate-props";
 import jsxNoUndef from "./rules/jsx-no-undef";
 import jsxUsesVars from "./rules/jsx-uses-vars";
 import noDestructure from "./rules/no-destructure";
@@ -16,6 +17,7 @@ import styleProp from "./rules/style-prop";
 const allRules = {
   "components-return-once": componentsReturnOnce,
   "event-handlers": eventHandlers,
+  "jsx-no-duplicate-props": jsxNoDuplicateProps,
   "jsx-no-undef": jsxNoUndef,
   "jsx-uses-vars": jsxUsesVars,
   "no-destructure": noDestructure,
@@ -49,6 +51,7 @@ module.exports = {
       },
       rules: {
         // identifier usage is important
+        "solid/jsx-no-duplicate-props": 2,
         "solid/jsx-no-undef": 2,
         "solid/jsx-uses-vars": 2,
         "solid/no-unknown-namespaces": 2,
@@ -76,6 +79,7 @@ module.exports = {
       },
       rules: {
         // identifier usage is important
+        "solid/jsx-no-duplicate-props": 2,
         "solid/jsx-no-undef": [2, { typescriptEnabled: true }],
         "solid/jsx-uses-vars": 2,
         // incorrect usages of innerHTML and <For /> are security or logic errors

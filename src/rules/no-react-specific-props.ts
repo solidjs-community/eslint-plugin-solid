@@ -12,13 +12,13 @@ const rule: TSESLint.RuleModule<"prefer", []> = {
     docs: {
       recommended: "warn",
       description:
-        "Disallow usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility).",
+        "Disallow usage of React-specific `className`/`htmlFor` props, which were deprecated in v1.4.0.",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/no-react-specific-props.md",
     },
     fixable: "code",
     schema: [],
     messages: {
-      prefer: "Prefer the `{{ to }}` prop over `{{ from }}`.",
+      prefer: "Prefer the `{{ to }}` prop over the deprecated `{{ from }}` prop.",
     },
   },
   create(context) {

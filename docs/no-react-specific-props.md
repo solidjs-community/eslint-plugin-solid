@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/no-react-specific-props
-Disallow usage of React-specific `className`/`htmlFor` props (though they are supported for compatibility).
+Disallow usage of React-specific `className`/`htmlFor` props, which were deprecated in v1.4.0.
 This rule is **a warning** by default.
 
 [View source](../src/rules/no-react-specific-props.ts) · [View tests](../test/rules/no-react-specific-props.test.ts)
