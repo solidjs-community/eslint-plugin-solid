@@ -28,6 +28,8 @@ npx eslint --init
 If you're using VSCode, you'll want to install the [ESLint extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).
 If you're using Vite, you may want to install [vite-plugin-eslint](https://github.com/gxmari007/vite-plugin-eslint).
 
+You may also want to check out [eslint-plugin-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y), which provides useful rules for keeping HTML accessible.
+
 ## Configuration
 
 Use the `"plugin:solid/recommended"` configuration to get reasonable defaults as shown [below](#rules).
