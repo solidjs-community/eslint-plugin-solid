@@ -1,12 +1,13 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import { getProp, hasProp } from "jsx-ast-utils";
+import { isDOMElementName } from "../utils";
 
 const reactSpecificProps = [
   { from: "className", to: "class" },
   { from: "htmlFor", to: "for" },
 ];
 
-const rule: TSESLint.RuleModule<"prefer", []> = {
+const rule: TSESLint.RuleModule<"prefer" | "noUselessKey", []> = {
   meta: {
     type: "problem",
     docs: {
@@ -19,6 +20,7 @@ const rule: TSESLint.RuleModule<"prefer", []> = {
     schema: [],
     messages: {
       prefer: "Prefer the `{{ to }}` prop over the deprecated `{{ from }}` prop.",
+      noUselessKey: "Elements in a <For> or <Index> list do not need a key prop.",
     },
   },
   create(context) {
@@ -37,6 +39,17 @@ const rule: TSESLint.RuleModule<"prefer", []> = {
               messageId: "prefer",
               data: { from, to },
               fix,
+            });
+          }
+        }
+        if (node.name.type === "JSXIdentifier" && isDOMElementName(node.name.name)) {
+          const keyProp = getProp(node.attributes, "key");
+          if (keyProp) {
+            // no DOM element has a 'key' prop, so we can assert that this is a holdover from React.
+            context.report({
+              node: keyProp,
+              messageId: "noUselessKey",
+              fix: (fixer) => fixer.remove(keyProp),
             });
           }
         }

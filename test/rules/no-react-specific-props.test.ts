@@ -12,6 +12,7 @@ export const cases = run("no-react-specific-props", rule, {
     `let el = <label for={"id"}>Hello world!</label>`,
     `let el = <label many other attributes for="id">Hello world!</label>`,
     `let el = <PascalComponent class="greeting" for="id" />`,
+    `let el = <PascalComponent key={item.id} />`,
   ],
   invalid: [
     {
@@ -58,6 +59,11 @@ export const cases = run("no-react-specific-props", rule, {
       code: `let el = <PascalComponent htmlFor="id">Hello world!</PascalComponent>`,
       errors: [{ messageId: "prefer", data: { from: "htmlFor", to: "for" } }],
       output: `let el = <PascalComponent for="id">Hello world!</PascalComponent>`,
+    },
+    {
+      code: `let el = <div key={item.id} />`,
+      errors: [{ messageId: "noUselessKey" }],
+      output: `let el = <div  />`,
     },
   ],
 });
