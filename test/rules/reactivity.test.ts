@@ -1,6 +1,7 @@
 import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
 import { run } from "../ruleTester";
 import rule from "../../src/rules/reactivity";
+import { isPropsByName } from "../../src/utils";
 
 // Don't bother checking for imports for every test
 jest.mock("../../src/utils", () => {
@@ -241,7 +242,7 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "untrackedReactive",
-          data: { name: "props" },
+          data: { name: "props.value" },
           type: T.MemberExpression,
         },
       ],
@@ -414,6 +415,35 @@ export const cases = run("reactivity", rule, {
         return <button type={signal}>Button</button>
       }`,
       errors: [{ messageId: "badSignal", type: T.Identifier, line: 4 }],
+    },
+    // event listeners not rebound
+    {
+      code: `
+      const Component = props => {
+        return <div onClick={props.onClick} />;
+      }`,
+      errors: [
+        {
+          messageId: "expectedFunctionGotExpression",
+          type: T.MemberExpression,
+          line: 3,
+          data: { name: "props.onClick" },
+        },
+      ],
+    },
+    {
+      code: `
+      const Component = props => {
+        createEffect(props.theEffect);
+      }`,
+      errors: [
+        {
+          messageId: "expectedFunctionGotExpression",
+          type: T.MemberExpression,
+          line: 3,
+          data: { name: "props.theEffect" },
+        },
+      ],
     },
     // getOwner/runWithOwner
     {

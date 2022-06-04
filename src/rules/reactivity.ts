@@ -215,6 +215,7 @@ const getReturnedVar = (id: T.Node, scope: Scope): Variable | null => {
 type MessageIds =
   | "noWrite"
   | "untrackedReactive"
+  | "expectedFunctionGotExpression"
   | "badSignal"
   | "badUnnamedDerivedSignal"
   | "shouldDestructure"
@@ -234,7 +235,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     messages: {
       noWrite: "The reactive variable '{{name}}' should not be reassigned or altered directly.",
       untrackedReactive:
-        "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or an event handler. Details: https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md.",
+        "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or inside an event handler function. Details: https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md.",
+      expectedFunctionGotExpression:
+        "The reactive variable '{{name}}' should be wrapped in a function for reactivity. This includes event handler bindings, which are not reactive like other JSX props.",
       badSignal:
         "The reactive variable '{{name}}' should be called as a function when used in JSX.",
       badUnnamedDerivedSignal:
@@ -295,10 +298,13 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       const currentScopeNode = currentScope().node;
       // Check if the call falls outside any tracked scopes in the current scope
       if (
-        !currentScope().trackedScopes.some((trackedScope) =>
+        !currentScope().trackedScopes.find((trackedScope) =>
           matchTrackedScope(trackedScope, identifier)
         )
       ) {
+        const matchedExpression = currentScope().trackedScopes.find((trackedScope) =>
+          matchTrackedScope({ ...trackedScope, expect: "expression" }, identifier)
+        );
         if (declarationScope === currentScopeNode) {
           // If the reactivity is not contained in a tracked scope, and any of
           // the reactive variables were declared in the current scope, then we
@@ -316,8 +322,12 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             identifier.parent?.type === "CallExpression" ? identifier.parent : null;
           context.report({
             node: parentMemberExpression ?? parentCallExpression ?? identifier,
-            messageId: "untrackedReactive",
-            data: { name: identifier.name },
+            messageId: matchedExpression ? "expectedFunctionGotExpression" : "untrackedReactive",
+            data: {
+              name: parentMemberExpression
+                ? sourceCode.getText(parentMemberExpression)
+                : identifier.name,
+            },
           });
         } else {
           // If all of the reactive variables were declared above the current
@@ -474,7 +484,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           identifier.parent.object === identifier
         ) {
           const { parent } = identifier;
-          if (parent.parent?.type === "AssignmentExpression") {
+          if (parent.parent?.type === "AssignmentExpression" && parent.parent.left === parent) {
             // don't allow writing to props or stores directly
             context.report({
               node: identifier,
