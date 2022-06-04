@@ -1,6 +1,7 @@
 import componentsReturnOnce from "./rules/components-return-once";
 import eventHandlers from "./rules/event-handlers";
 import jsxNoDuplicateProps from "./rules/jsx-no-duplicate-props";
+import jsxNoScriptUrl from "./rules/jsx-no-script-url";
 import jsxNoUndef from "./rules/jsx-no-undef";
 import jsxUsesVars from "./rules/jsx-uses-vars";
 import noDestructure from "./rules/no-destructure";
@@ -19,6 +20,7 @@ const allRules = {
   "event-handlers": eventHandlers,
   "jsx-no-duplicate-props": jsxNoDuplicateProps,
   "jsx-no-undef": jsxNoUndef,
+  "jsx-no-script-url": jsxNoScriptUrl,
   "jsx-uses-vars": jsxUsesVars,
   "no-destructure": noDestructure,
   "no-innerhtml": noInnerHTML,
@@ -55,8 +57,9 @@ module.exports = {
         "solid/jsx-no-undef": 2,
         "solid/jsx-uses-vars": 2,
         "solid/no-unknown-namespaces": 2,
-        // incorrect usages of innerHTML are security errors
+        // security problems
         "solid/no-innerhtml": [2, { allowStatic: true }],
+        "solid/jsx-no-script-url": 2,
         // reactivity
         "solid/components-return-once": 1,
         "solid/no-destructure": 2,
@@ -82,8 +85,9 @@ module.exports = {
         "solid/jsx-no-duplicate-props": 2,
         "solid/jsx-no-undef": [2, { typescriptEnabled: true }],
         "solid/jsx-uses-vars": 2,
-        // incorrect usages of innerHTML and <For /> are security or logic errors
+        // security problems
         "solid/no-innerhtml": [2, { allowStatic: true }],
+        "solid/jsx-no-script-url": 2,
         // reactivity
         "solid/components-return-once": 1,
         "solid/no-destructure": 2,
@@ -91,13 +95,13 @@ module.exports = {
         "solid/reactivity": 1,
         "solid/event-handlers": 1,
         // these rules are mostly style suggestions
-        "solid/prefer-show": 1,
+        "solid/style-prop": 1,
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,
-        // handled by Solid compiler, opt-in style suggestion
-        "solid/style-prop": 0,
         // namespaces taken care of by TS
         "solid/no-unknown-namespaces": 0,
+        // handled by Solid compiler, opt-in style suggestion
+        "solid/prefer-show": 0,
       },
     },
   },

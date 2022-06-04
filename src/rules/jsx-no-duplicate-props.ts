@@ -1,5 +1,9 @@
 import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
 
+/*
+ * This rule is adapted from eslint-plugin-react's jsx-no-duplicate-props rule under
+ * the MIT license, with some enhancements. Thank you for your work!
+ */
 const rule: TSESLint.RuleModule<
   "noDuplicateProps" | "noDuplicateClass" | "noDuplicateChildren",
   [{ ignoreCase?: boolean }?]
