@@ -70,6 +70,8 @@ const buildOptions = (filename: string): string => {
       const _default = properties[prop].default;
       if (type === "array") {
         type = `Array<${properties[prop].items.type}>`;
+      } else if (type === "string" && properties[prop].enum) {
+        type = properties[prop].enum.map((s: string) => JSON.stringify(s)).join(" | ");
       }
       return `${prop} | \`${type}\` | ${properties[prop].description ?? ""} ${
         _default ? `*Default \`${JSON.stringify(_default)}\`*.` : ""

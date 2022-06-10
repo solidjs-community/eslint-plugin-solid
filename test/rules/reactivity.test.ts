@@ -1,7 +1,6 @@
 import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
 import { run } from "../ruleTester";
 import rule from "../../src/rules/reactivity";
-import { isPropsByName } from "../../src/utils";
 
 // Don't bother checking for imports for every test
 jest.mock("../../src/utils", () => {
