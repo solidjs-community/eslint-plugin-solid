@@ -13,7 +13,7 @@ const isJavaScriptProtocol =
   /^[\u0000-\u001F ]*j[\r\n\t]*a[\r\n\t]*v[\r\n\t]*a[\r\n\t]*s[\r\n\t]*c[\r\n\t]*r[\r\n\t]*i[\r\n\t]*p[\r\n\t]*t[\r\n\t]*:/i; // eslint-disable-line no-control-regex
 
 /**
- * This rule is adapted from eslint-plugin-reacts' jsx-no-script-url rule under the MIT license.
+ * This rule is adapted from eslint-plugin-react's jsx-no-script-url rule under the MIT license.
  * Thank you for your work!
  */
 const rule: TSESLint.RuleModule<"noJSURL", []> = {

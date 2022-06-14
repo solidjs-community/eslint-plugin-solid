@@ -119,7 +119,7 @@ const rule: TSESLint.RuleModule<
                 // Represents the last character of the JSXOpeningElement, the '>' character
                 const selfCloseEnding = node.range[1];
                 // Replace ' />' or '/>' with '></${tagName}>'
-                const lastTokens = sourceCode.getLastTokens(node, { count: 3 });
+                const lastTokens = sourceCode.getLastTokens(node, { count: 3 }); // JSXIdentifier, '/', '>'
                 const isSpaceBeforeSelfClose = sourceCode.isSpaceBetween?.(
                   lastTokens[0],
                   lastTokens[1]

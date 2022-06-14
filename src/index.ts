@@ -8,7 +8,6 @@ import noDestructure from "./rules/no-destructure";
 import noInnerHTML from "./rules/no-innerhtml";
 import noReactSpecificProps from "./rules/no-react-specific-props";
 import noUnknownNamespaces from "./rules/no-unknown-namespaces";
-// import noUselessKeys from './rules/no-useless-keys';
 import preferClasslist from "./rules/prefer-classlist";
 import preferFor from "./rules/prefer-for";
 import preferShow from "./rules/prefer-show";
