@@ -12,7 +12,9 @@ import preferClasslist from "./rules/prefer-classlist";
 import preferFor from "./rules/prefer-for";
 import preferShow from "./rules/prefer-show";
 import reactivity from "./rules/reactivity";
+import selfClosingComp from "./rules/self-closing-comp";
 import styleProp from "./rules/style-prop";
+// import validateJsxNesting from "./rules/validate-jsx-nesting";
 
 const allRules = {
   "components-return-once": componentsReturnOnce,
@@ -25,12 +27,13 @@ const allRules = {
   "no-innerhtml": noInnerHTML,
   "no-react-specific-props": noReactSpecificProps,
   "no-unknown-namespaces": noUnknownNamespaces,
-  // noUselessKeys,
   "prefer-classlist": preferClasslist,
   "prefer-for": preferFor,
   "prefer-show": preferShow,
   reactivity,
+  "self-closing-comp": selfClosingComp,
   "style-prop": styleProp,
+  // "validate-jsx-nesting": validateJsxNesting
 };
 
 // Must be module.exports for eslint to load everything
@@ -69,6 +72,7 @@ module.exports = {
         "solid/style-prop": 1,
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,
+        "solid/self-closing-comp": 1,
         // handled by Solid compiler, opt-in style suggestion
         "solid/prefer-show": 0,
       },
@@ -97,6 +101,7 @@ module.exports = {
         "solid/style-prop": 1,
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,
+        "solid/self-closing-comp": 1,
         // namespaces taken care of by TS
         "solid/no-unknown-namespaces": 0,
         // handled by Solid compiler, opt-in style suggestion

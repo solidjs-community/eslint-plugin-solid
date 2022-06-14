@@ -100,6 +100,7 @@ would like to use.
 | ✔ | 🔧 | [solid/prefer-for](docs/prefer-for.md) | Enforce using Solid's `<For />` component for mapping an array to JSX elements. |
 | ✔ | 🔧 | [solid/prefer-show](docs/prefer-show.md) | Enforce using Solid's `<Show />` component for conditionally showing content. |
 | ✔ |  | [solid/reactivity](docs/reactivity.md) | Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected. |
+| ✔ | 🔧 | [solid/self-closing-comp](docs/self-closing-comp.md) | Disallow extra closing tags for components without children. |
 | ✔ | 🔧 | [solid/style-prop](docs/style-prop.md) | Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values with dimensions are strings, not numbers with implicit 'px' units. |
 <!-- AUTO-GENERATED-CONTENT:END -->
 

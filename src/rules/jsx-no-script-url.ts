@@ -1,4 +1,4 @@
-import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/utils";
+import { TSESLint, ASTUtils } from "@typescript-eslint/utils";
 const { getStaticValue } = ASTUtils;
 
 // A javascript: URL can contain leading C0 control or \u0020 SPACE,

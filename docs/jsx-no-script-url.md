@@ -10,15 +10,7 @@ This rule is **an error** by default.
 See [this issue](https://github.com/joshwilsonvu/eslint-plugin-solid/issues/24) for rationale.
 
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
-## Rule Options
 
-```
-  "event-handlers": ["error", { "<key>": "<value>" }]
-```
-
-Key | Type | Description
-:--- | :---: | :---
-ignoreCase | `boolean` | if true, don't warn on ambiguously named event handlers like `onclick` or `onchange`
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->

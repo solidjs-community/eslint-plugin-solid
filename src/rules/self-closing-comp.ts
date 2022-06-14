@@ -1,5 +1,4 @@
 import { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
-import { isDoStatement } from "typescript";
 import { isDOMElementName } from "../utils";
 
 function isComponent(node: T.JSXOpeningElement) {
@@ -41,7 +40,7 @@ const rule: TSESLint.RuleModule<
   meta: {
     type: "layout",
     docs: {
-      description: "Disallow extra closing tags for components without children",
+      description: "Disallow extra closing tags for components without children.",
       recommended: "warn",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/self-closing-comp.md",
     },
