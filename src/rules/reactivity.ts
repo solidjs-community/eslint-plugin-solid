@@ -239,7 +239,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       expectedFunctionGotExpression:
         "The reactive variable '{{name}}' should be wrapped in a function for reactivity. This includes event handler bindings, which are not reactive like other JSX props.",
       badSignal:
-        "The reactive variable '{{name}}' should be called as a function when used in JSX.",
+        "The reactive variable '{{name}}' should be called as a function when used in {{where}}.",
       badUnnamedDerivedSignal:
         "This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity. Details: https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md.",
       shouldDestructure:
@@ -416,22 +416,64 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               name: identifier.name,
             },
           });
-        } else if (
-          identifier.type === "Identifier" &&
-          // This allows both calling a signal and calling a function with a signal.
-          (identifier.parent?.type === "CallExpression" ||
+        } else if (identifier.type === "Identifier") {
+          const reportBadSignal = (where: string) =>
+            context.report({
+              node: identifier,
+              messageId: "badSignal",
+              data: { name: identifier.name, where },
+            });
+          if (
+            // This allows both calling a signal and calling a function with a signal.
+            identifier.parent?.type === "CallExpression" ||
             // Also allow the case where we pass an array of signals, such as in a custom hook
             (identifier.parent?.type === "ArrayExpression" &&
-              identifier.parent.parent?.type === "CallExpression"))
-        ) {
-          // This signal is getting called properly, analyze it.
-          handleTrackedScopes(identifier, declarationScope);
-        } else if (
-          identifier.type === "Identifier" &&
-          identifier.parent?.type === "JSXExpressionContainer"
-        ) {
-          if (
-            currentScope().trackedScopes.find(
+              identifier.parent.parent?.type === "CallExpression")
+          ) {
+            // This signal is getting called properly, analyze it.
+            handleTrackedScopes(identifier, declarationScope);
+          } else if (identifier.parent?.type === "TemplateLiteral") {
+            reportBadSignal("template literals");
+          } else if (
+            identifier.parent?.type === "BinaryExpression" &&
+            [
+              "<",
+              "<=",
+              ">",
+              ">=",
+              "<<",
+              ">>",
+              ">>>",
+              "+",
+              "-",
+              "*",
+              "/",
+              "%",
+              "**",
+              "|",
+              "^",
+              "&",
+              "in",
+            ].includes(identifier.parent.operator)
+          ) {
+            // We're in an arithmetic/comparison expression where using an uncalled signal wouldn't make sense
+            reportBadSignal("arithmetic or comparisons");
+          } else if (
+            identifier.parent?.type === "UnaryExpression" &&
+            ["-", "+", "~"].includes(identifier.parent.operator)
+          ) {
+            // We're in a unary expression where using an uncalled signal wouldn't make sense
+            reportBadSignal("unary expressions");
+          } else if (
+            identifier.parent?.type === "MemberExpression" &&
+            identifier.parent.computed &&
+            identifier.parent.property === identifier
+          ) {
+            // We're using an uncalled signal to index an object or array, which doesn't make sense
+            reportBadSignal("property accesses");
+          } else if (
+            identifier.parent?.type === "JSXExpressionContainer" &&
+            !currentScope().trackedScopes.find(
               (trackedScope) =>
                 trackedScope.node === identifier &&
                 (trackedScope.expect === "function" || trackedScope.expect === "called-function")
@@ -439,7 +481,6 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           ) {
             // If the signal is in a JSXExpressionContainer that's also marked as a "function" or "called-function" tracked scope,
             // let it be.
-          } else {
             const elementOrAttribute = identifier.parent.parent;
             if (
               // The signal is not being called and is being used as a props.children, where calling
@@ -452,13 +493,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
                 elementOrAttribute.parent.name.type === "JSXIdentifier" &&
                 isDOMElementName(elementOrAttribute.parent.name.name))
             ) {
-              context.report({
-                node: identifier,
-                messageId: "badSignal",
-                data: {
-                  name: identifier.name,
-                },
-              });
+              reportBadSignal("JSX");
             }
           }
         }

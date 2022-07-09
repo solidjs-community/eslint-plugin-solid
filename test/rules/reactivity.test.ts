@@ -397,7 +397,14 @@ export const cases = run("reactivity", rule, {
         const [signal] = createSignal();
         return <div>{signal}</div>
       }`,
-      errors: [{ messageId: "badSignal", type: T.Identifier, line: 4 }],
+      errors: [
+        {
+          messageId: "badSignal",
+          type: T.Identifier,
+          line: 4,
+          data: { name: "signal", where: "JSX" },
+        },
+      ],
     },
     {
       code: `
@@ -405,7 +412,14 @@ export const cases = run("reactivity", rule, {
         const memo = createMemo(() => 5);
         return <div>{memo}</div>
       }`,
-      errors: [{ messageId: "badSignal", type: T.Identifier, line: 4 }],
+      errors: [
+        {
+          messageId: "badSignal",
+          type: T.Identifier,
+          line: 4,
+          data: { name: "memo", where: "JSX" },
+        },
+      ],
     },
     {
       code: `
@@ -413,7 +427,89 @@ export const cases = run("reactivity", rule, {
         const [signal] = createSignal();
         return <button type={signal}>Button</button>
       }`,
-      errors: [{ messageId: "badSignal", type: T.Identifier, line: 4 }],
+      errors: [
+        {
+          messageId: "badSignal",
+          type: T.Identifier,
+          line: 4,
+          data: { name: "signal", where: "JSX" },
+        },
+      ],
+    },
+    {
+      code: `
+      const Component = () => {
+        const [signal] = createSignal();
+        return <div>{signal}</div>
+      }`,
+      errors: [
+        {
+          messageId: "badSignal",
+          type: T.Identifier,
+          line: 4,
+          data: { name: "signal", where: "JSX" },
+        },
+      ],
+    },
+    {
+      code: `
+      const Component = () => {
+        const [signal] = createSignal("world");
+        const memo = createMemo(() => "hello " + signal)
+      }`,
+      errors: [
+        {
+          messageId: "badSignal",
+          type: T.Identifier,
+          line: 4,
+          data: { name: "signal", where: "arithmetic or comparisons" },
+        },
+      ],
+    },
+    {
+      code: `
+      const Component = () => {
+        const [signal] = createSignal("world");
+        const memo = createMemo(() => \`hello \${signal}\`)
+      }`,
+      errors: [
+        {
+          messageId: "badSignal",
+          type: T.Identifier,
+          line: 4,
+          data: { name: "signal", where: "template literals" },
+        },
+      ],
+    },
+    {
+      code: `
+      const Component = () => {
+        const [signal] = createSignal(5);
+        const memo = createMemo(() => -signal)
+      }`,
+      errors: [
+        {
+          messageId: "badSignal",
+          type: T.Identifier,
+          line: 4,
+          data: { name: "signal", where: "unary expressions" },
+        },
+      ],
+    },
+    {
+      code: `
+      const Component = (props) => {
+        const [signal] = createSignal(5);
+        const memo = createMemo(() => props.array[signal])
+      }`,
+      errors: [
+        {
+          messageId: "badSignal",
+          type: T.Identifier,
+          line: 4,
+          data: { name: "signal", where: "property accesses" },
+        },
+      ],
     },
     // event listeners not rebound
     {
