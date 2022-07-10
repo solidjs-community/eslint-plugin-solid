@@ -74,7 +74,11 @@ const buildOptions = (filename: string): string => {
   if (!properties) return " ";
   return [
     "## Rule Options\n",
-    "Options shown here are the defaults. If you manually configure a rule, your options will **replace** the default set.\n",
+    `Options shown here are the defaults. ${
+      Object.keys(properties).some((prop) => properties[prop].type === "array")
+        ? "Manually configuring an array will *replace* the defaults."
+        : ""
+    }\n`,
     "```js",
     "{",
     `  "solid/${ruleName}": ["${getLevelForRule(`solid/${ruleName}`, configLevel)}", { `,

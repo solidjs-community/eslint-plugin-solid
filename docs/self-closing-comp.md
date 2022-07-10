@@ -10,7 +10,7 @@ This rule is **a warning** by default.
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
 ## Rule Options
 
-Options shown here are the defaults. If you manually configure a rule, your options will **replace** the default set.
+Options shown here are the defaults. 
 
 ```js
 {
