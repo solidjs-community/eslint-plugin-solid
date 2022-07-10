@@ -26,6 +26,7 @@ const rule: TSESLint.RuleModule<
             description:
               "if the innerHTML value is guaranteed to be a static HTML string (i.e. no user input), allow it",
             type: "boolean",
+            default: true,
           },
         },
         additionalProperties: false,
@@ -43,7 +44,7 @@ const rule: TSESLint.RuleModule<
     },
   },
   create(context) {
-    const allowStatic = Boolean(context.options[0]?.allowStatic);
+    const allowStatic = Boolean(context.options[0]?.allowStatic ?? true);
     return {
       JSXAttribute(node) {
         if (propName(node) === "dangerouslySetInnerHTML") {

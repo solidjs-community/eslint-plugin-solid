@@ -29,6 +29,7 @@ const rule: TSESLint.RuleModule<
               minItems: 1,
               uniqueItems: true,
             },
+            default: [],
           },
         },
         additionalProperties: false,

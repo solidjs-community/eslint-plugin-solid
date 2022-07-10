@@ -21,8 +21,8 @@ const rule: TSESLint.RuleModule<
         properties: {
           ignoreCase: {
             type: "boolean",
-            default: false,
             description: "Consider two prop names differing only by case to be the same.",
+            default: false,
           },
         },
       },

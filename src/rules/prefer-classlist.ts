@@ -16,9 +16,10 @@ const rule: TSESLint.RuleModule<"preferClasslist", [{ classnames?: [string, ...A
         {
           type: "object",
           properties: {
-            // an array of names to treat as classnames functions, defaults to ["cn", "clsx", "classnames"]
             classnames: {
               type: "array",
+              description: "An array of names to treat as `classnames` functions",
+              default: ["cn", "clsx", "classnames"],
               items: {
                 type: "string",
                 minItems: 1,

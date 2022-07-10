@@ -40,6 +40,7 @@ const rule: TSESLint.RuleModule<
             description:
               "if allowString is set to true, this rule will not convert a style string literal into a style object (not recommended for performance)",
             type: "boolean",
+            default: false,
           },
         },
         additionalProperties: false,

@@ -60,7 +60,7 @@ module.exports = {
         "solid/jsx-uses-vars": 2,
         "solid/no-unknown-namespaces": 2,
         // security problems
-        "solid/no-innerhtml": [2, { allowStatic: true }],
+        "solid/no-innerhtml": 2,
         "solid/jsx-no-script-url": 2,
         // reactivity
         "solid/components-return-once": 1,

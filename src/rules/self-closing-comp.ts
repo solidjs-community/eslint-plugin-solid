@@ -51,11 +51,13 @@ const rule: TSESLint.RuleModule<
         properties: {
           component: {
             type: "string",
+            description: "which Solid components should be self-closing when possible",
             enum: ["all", "none"],
             default: "all",
           },
           html: {
             type: "string",
+            description: "which native elements should be self-closing when possible",
             enum: ["all", "void", "none"],
             default: "all",
           },

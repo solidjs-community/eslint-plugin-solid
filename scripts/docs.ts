@@ -19,7 +19,10 @@ const ruleTableRows = Object.keys(rules)
     ].join(" | ");
   });
 
-const formatLevel = (options: 0 | 1 | 2 | "off" | "warn" | "error" | Array<any>): string => {
+type Level = 0 | 1 | 2 | "off" | "warn" | "error";
+type Options = Level | [Level, ...unknown[]];
+
+const formatLevel = (options: Options): string => {
   if (Array.isArray(options)) {
     return formatLevel(options[0]);
   } else {
@@ -33,8 +36,17 @@ const formatLevel = (options: 0 | 1 | 2 | "off" | "warn" | "error" | Array<any>)
     }[options];
   }
 };
-const getLevelForRule = (ruleName: string) =>
-  ruleName in configs.recommended.rules ? formatLevel(configs.recommended.rules[ruleName]) : "off";
+const configLevel = (options: Options): Extract<Level, string> => {
+  if (Array.isArray(options)) {
+    return configLevel(options[0]);
+  } else {
+    return typeof options === "number" ? (["off", "warn", "error"] as const)[options] : options;
+  }
+};
+const getLevelForRule = (ruleName: string, formatter: (options: Options) => string) =>
+  ruleName in configs.recommended.rules
+    ? formatter(configs.recommended.rules[ruleName])
+    : formatter(0);
 
 const buildRulesTable = (rows: Array<string>) => {
   const header = "✔ | 🔧 | Rule | Description";
@@ -45,26 +57,27 @@ const buildRulesTable = (rows: Array<string>) => {
 
 const buildHeader = (filename: string): string => {
   const ruleName = filename.replace(/\.md$/, "");
-  if (!rules[ruleName]) return "";
+  if (!rules[ruleName]) return " ";
   const description = rules[ruleName].meta.docs.description;
   return [
     `# solid/${ruleName}`,
     description,
-    `This rule is **${getLevelForRule(`solid/${ruleName}`)}** by default.\n`,
+    `This rule is **${getLevelForRule(`solid/${ruleName}`, formatLevel)}** by default.\n`,
     `[View source](../src/rules/${ruleName}.ts) · [View tests](../test/rules/${ruleName}.test.ts)\n`,
   ].join("\n");
 };
 
 const buildOptions = (filename: string): string => {
   const ruleName = filename.replace(/\.md$/, "");
-  if (!rules[ruleName]) return "";
+  if (!rules[ruleName]) return " ";
   const properties = rules[ruleName].meta.schema?.[0]?.properties;
-  if (!properties) return "";
+  if (!properties) return " ";
   return [
     "## Rule Options\n",
-    "```\n" + `  "${ruleName}": ["error", { "<key>": "<value>" }]\n` + "```\n",
-    "Key | Type | Description",
-    ":--- | :---: | :---",
+    "Options shown here are the defaults. If you manually configure a rule, your options will **replace** the default set.\n",
+    "```js",
+    "{",
+    `  "solid/${ruleName}": ["${getLevelForRule(`solid/${ruleName}`, configLevel)}", { `,
     ...Object.keys(properties).map((prop) => {
       let type = properties[prop].type;
       const _default = properties[prop].default;
@@ -73,10 +86,16 @@ const buildOptions = (filename: string): string => {
       } else if (type === "string" && properties[prop].enum) {
         type = properties[prop].enum.map((s: string) => JSON.stringify(s)).join(" | ");
       }
-      return `${prop} | \`${type}\` | ${properties[prop].description ?? ""} ${
-        _default ? `*Default \`${JSON.stringify(_default)}\`*.` : ""
+      return `    // ${properties[prop].description}\n    ${prop}: ${JSON.stringify(_default)}, ${
+        type !== "boolean" ? "// " + type : ""
       }`;
+      // return `${prop} | \`${type}\` | ${properties[prop].description ?? ""}${
+      //   _default != null ? ` *Default \`${JSON.stringify(_default)}\`*.` : ""
+      // }`;
     }),
+    "  }]",
+    "}",
+    "```\n",
   ].join("\n");
 };
 
@@ -106,6 +125,7 @@ const buildCases = (content: string, filename: string) => {
   const invalid = cases.invalid ?? [];
 
   const markdown = [
+    "## Tests\n",
     "### Invalid Examples\n",
     `These snippets cause lint errors${
       invalid.some((c: any) => c.output) ? ", and some can be auto-fixed" : ""

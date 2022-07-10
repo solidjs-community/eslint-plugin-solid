@@ -92,9 +92,10 @@ const rule: TSESLint.RuleModule<
         type: "object",
         properties: {
           ignoreCase: {
+            type: "boolean",
             description:
               "if true, don't warn on ambiguously named event handlers like `onclick` or `onchange`",
-            type: "boolean",
+            default: false,
           },
         },
         additionalProperties: false,
