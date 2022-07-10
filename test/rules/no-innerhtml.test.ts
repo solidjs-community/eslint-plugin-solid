@@ -6,36 +6,32 @@ export const cases = run("no-innerhtml", rule, {
   valid: [
     `let el = <div prop1 prop2={2}>Hello world!</div>`,
     `let el = <Box prop1 prop2={2}>Hello world!</Box>`,
-    {
-      code: `let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>" />`,
-      options: [{ allowStatic: true }],
-    },
-    {
-      code: `let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />`,
-      options: [{ allowStatic: true }],
-    },
-    {
-      code: `let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>"></div>`,
-      options: [{ allowStatic: true }],
-    },
+    `let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>" />`,
+    `let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />`,
+    `let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>"></div>`,
   ],
   invalid: [
     {
       code: `let el = <div prop1 prop2={2} innerHTML="<p>Hello</><p>world!</p>" />`,
+      options: [{ allowStatic: false }],
+      errors: [{ messageId: "dangerous" }],
+    },
+    {
+      code: `let el = <div innerHTML={"<p>Hello</p><p>world!</p>"} />`,
+      options: [{ allowStatic: false }],
       errors: [{ messageId: "dangerous" }],
     },
     {
       code: `let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />`,
+      options: [{ allowStatic: false }],
       errors: [{ messageId: "dangerous" }],
     },
     {
       code: `let el = <div prop1 prop2={2} innerHTML={Math.random()} />`,
-      options: [{ allowStatic: true }],
       errors: [{ messageId: "dangerous" }],
     },
     {
       code: `let el = <div prop1 prop2={2} innerHTML="Hello world!" />`,
-      options: [{ allowStatic: true }],
       errors: [
         {
           messageId: "notHtml",
@@ -56,7 +52,6 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      options: [{ allowStatic: true }],
       errors: [{ messageId: "conflict", type: T.JSXElement }],
     },
     {
@@ -68,7 +63,6 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      options: [{ allowStatic: true }],
       errors: [{ messageId: "conflict", type: T.JSXElement }],
     },
     {
@@ -79,7 +73,6 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      options: [{ allowStatic: true }],
       errors: [{ messageId: "conflict", type: T.JSXElement }],
     },
     {
@@ -90,7 +83,6 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      options: [{ allowStatic: true }],
       errors: [{ messageId: "conflict", type: T.JSXElement }],
     },
     {

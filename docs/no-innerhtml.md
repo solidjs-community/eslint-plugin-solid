@@ -31,24 +31,25 @@ Options shown here are the defaults.
 These snippets cause lint errors, and some can be auto-fixed.
 
 ```js
+/* eslint solid/no-innerhtml: ["error", { "allowStatic": false }] */
 let el = <div prop1 prop2={2} innerHTML="<p>Hello</><p>world!</p>" />;
  
+/* eslint solid/no-innerhtml: ["error", { "allowStatic": false }] */
+let el = <div innerHTML={"<p>Hello</p><p>world!</p>"} />;
+ 
+/* eslint solid/no-innerhtml: ["error", { "allowStatic": false }] */
 let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />;
  
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
 let el = <div prop1 prop2={2} innerHTML={Math.random()} />;
  
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
 let el = <div prop1 prop2={2} innerHTML="Hello world!" />;
  
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
 let el = (
   <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
     <p>Child element content</p>
   </div>
 );
  
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
 let el = (
   <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
     <p>Child element content 1</p>
@@ -56,14 +57,12 @@ let el = (
   </div>
 );
  
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
 let el = (
   <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
     {"Child text content"}
   </div>
 );
  
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
 let el = (
   <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
     {identifier}
@@ -99,13 +98,10 @@ let el = (
   </Box>
 );
 
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
 let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>" />;
 
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
 let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />;
 
-/* eslint solid/no-innerhtml: ["error", { "allowStatic": true }] */
 let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>"></div>;
 
 ```
