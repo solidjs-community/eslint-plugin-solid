@@ -7,7 +7,8 @@ const rule: TSESLint.RuleModule<"preferShowAnd" | "preferShowTernary", []> = {
     type: "problem",
     docs: {
       recommended: false,
-      description: "Enforce using Solid's `<Show />` component for conditionally showing content.",
+      description:
+        "Enforce using Solid's `<Show />` component for conditionally showing content. Solid's compiler covers this case, so it's a stylistic rule only.",
       url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/prefer-show.md",
     },
     fixable: "code",
@@ -20,6 +21,10 @@ const rule: TSESLint.RuleModule<"preferShowAnd" | "preferShowTernary", []> = {
   },
   create(context) {
     const sourceCode = context.getSourceCode();
+    const putIntoJSX = (node: T.Node): string => {
+      const text = sourceCode.getText(node);
+      return node.type === "JSXElement" || node.type === "JSXFragment" ? text : `{${text}}`;
+    };
 
     return {
       "JSXElement > JSXExpressionContainer > LogicalExpression": (node: T.LogicalExpression) => {
@@ -29,10 +34,11 @@ const rule: TSESLint.RuleModule<"preferShowAnd" | "preferShowTernary", []> = {
             messageId: "preferShowAnd",
             fix: (fixer) =>
               fixer.replaceText(
-                node,
-                `<Show when={${sourceCode.getText(node.left)}}>{${sourceCode.getText(
-                  node.right
-                )}}</Show>`
+                node.parent?.type === "JSXExpressionContainer" &&
+                  node.parent.parent?.type === "JSXElement"
+                  ? node.parent
+                  : node,
+                `<Show when={${sourceCode.getText(node.left)}}>${putIntoJSX(node.right)}</Show>`
               ),
           });
         }
@@ -49,10 +55,13 @@ const rule: TSESLint.RuleModule<"preferShowAnd" | "preferShowTernary", []> = {
             messageId: "preferShowTernary",
             fix: (fixer) =>
               fixer.replaceText(
-                node,
+                node.parent?.type === "JSXExpressionContainer" &&
+                  node.parent.parent?.type === "JSXElement"
+                  ? node.parent
+                  : node,
                 `<Show when={${sourceCode.getText(node.test)}} fallback={${sourceCode.getText(
                   node.alternate
-                )}}>{${sourceCode.getText(node.consequent)}}</Show>`
+                )}}>${putIntoJSX(node.consequent)}</Show>`
               ),
           });
         }

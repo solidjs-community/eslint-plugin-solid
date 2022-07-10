@@ -10,16 +10,22 @@ This rule is **an error** by default.
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
 ## Rule Options
 
-```
-  "no-unknown-namespaces": ["error", { "<key>": "<value>" }]
+Options shown here are the defaults. If you manually configure a rule, your options will **replace** the default set.
+
+```js
+{
+  "solid/no-unknown-namespaces": ["error", { 
+    // an array of additional namespace names to allow
+    allowedNamespaces: [], // Array<string>
+  }]
+}
 ```
 
-Key | Type | Description
-:--- | :---: | :---
-allowedNamespaces | `Array<string>` | an array of additional namespace names to allow 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+## Tests
+
 ### Invalid Examples
 
 These snippets cause lint errors.

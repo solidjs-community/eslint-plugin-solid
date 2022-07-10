@@ -10,16 +10,22 @@ This rule is **a warning** by default.
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
 ## Rule Options
 
-```
-  "prefer-classlist": ["error", { "<key>": "<value>" }]
+Options shown here are the defaults. If you manually configure a rule, your options will **replace** the default set.
+
+```js
+{
+  "solid/prefer-classlist": ["warn", { 
+    // An array of names to treat as `classnames` functions
+    classnames: ["cn","clsx","classnames"], // Array<string>
+  }]
+}
 ```
 
-Key | Type | Description
-:--- | :---: | :---
-classnames | `Array<string>` |  
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+## Tests
+
 ### Invalid Examples
 
 These snippets cause lint errors, and some can be auto-fixed.

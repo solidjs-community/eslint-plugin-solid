@@ -10,16 +10,22 @@ This rule is **an error** by default.
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
 ## Rule Options
 
-```
-  "no-innerhtml": ["error", { "<key>": "<value>" }]
+Options shown here are the defaults. If you manually configure a rule, your options will **replace** the default set.
+
+```js
+{
+  "solid/no-innerhtml": ["error", { 
+    // if the innerHTML value is guaranteed to be a static HTML string (i.e. no user input), allow it
+    allowStatic: true, 
+  }]
+}
 ```
 
-Key | Type | Description
-:--- | :---: | :---
-allowStatic | `boolean` | if the innerHTML value is guaranteed to be a static HTML string (i.e. no user input), allow it 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+## Tests
+
 ### Invalid Examples
 
 These snippets cause lint errors, and some can be auto-fixed.

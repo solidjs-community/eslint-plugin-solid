@@ -12,16 +12,22 @@ See [this issue](https://github.com/joshwilsonvu/eslint-plugin-solid/issues/23) 
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
 ## Rule Options
 
-```
-  "event-handlers": ["error", { "<key>": "<value>" }]
+Options shown here are the defaults. If you manually configure a rule, your options will **replace** the default set.
+
+```js
+{
+  "solid/event-handlers": ["warn", { 
+    // if true, don't warn on ambiguously named event handlers like `onclick` or `onchange`
+    ignoreCase: false, 
+  }]
+}
 ```
 
-Key | Type | Description
-:--- | :---: | :---
-ignoreCase | `boolean` | if true, don't warn on ambiguously named event handlers like `onclick` or `onchange` 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+## Tests
+
 ### Invalid Examples
 
 These snippets cause lint errors, and some can be auto-fixed.

@@ -10,18 +10,26 @@ This rule is **an error** by default.
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
 ## Rule Options
 
-```
-  "jsx-no-undef": ["error", { "<key>": "<value>" }]
+Options shown here are the defaults. If you manually configure a rule, your options will **replace** the default set.
+
+```js
+{
+  "solid/jsx-no-undef": ["error", { 
+    // When true, the rule will consider the global scope when checking for defined components.
+    allowGlobals: false, 
+    // Automatically import certain components from `"solid-js"` if they are undefined.
+    autoImport: true, 
+    // Adjusts behavior not to conflict with TypeScript's type checking.
+    typescriptEnabled: false, 
+  }]
+}
 ```
 
-Key | Type | Description
-:--- | :---: | :---
-allowGlobals | `boolean` | When true, the rule will consider the global scope when checking for defined components. 
-autoImport | `boolean` | Automatically import certain components from `"solid-js"` if they are undefined. *Default `true`*.
-typescriptEnabled | `boolean` | Adjusts behavior not to conflict with TypeScript's type checking. 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+## Tests
+
 ### Invalid Examples
 
 These snippets cause lint errors, and some can be auto-fixed.

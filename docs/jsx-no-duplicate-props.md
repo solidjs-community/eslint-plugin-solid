@@ -10,16 +10,22 @@ This rule is **an error** by default.
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
 ## Rule Options
 
-```
-  "jsx-no-duplicate-props": ["error", { "<key>": "<value>" }]
+Options shown here are the defaults. If you manually configure a rule, your options will **replace** the default set.
+
+```js
+{
+  "solid/jsx-no-duplicate-props": ["error", { 
+    // Consider two prop names differing only by case to be the same.
+    ignoreCase: false, 
+  }]
+}
 ```
 
-Key | Type | Description
-:--- | :---: | :---
-ignoreCase | `boolean` | Consider two prop names differing only by case to be the same. 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+## Tests
+
 ### Invalid Examples
 
 These snippets cause lint errors.

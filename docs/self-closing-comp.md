@@ -10,17 +10,24 @@ This rule is **a warning** by default.
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
 ## Rule Options
 
-```
-  "self-closing-comp": ["error", { "<key>": "<value>" }]
+Options shown here are the defaults. If you manually configure a rule, your options will **replace** the default set.
+
+```js
+{
+  "solid/self-closing-comp": ["warn", { 
+    // which Solid components should be self-closing when possible
+    component: "all", // "all" | "none"
+    // which native elements should be self-closing when possible
+    html: "all", // "all" | "void" | "none"
+  }]
+}
 ```
 
-Key | Type | Description
-:--- | :---: | :---
-component | `"all" | "none"` |  *Default `"all"`*.
-html | `"all" | "void" | "none"` |  *Default `"all"`*.
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+## Tests
+
 ### Invalid Examples
 
 These snippets cause lint errors, and some can be auto-fixed.

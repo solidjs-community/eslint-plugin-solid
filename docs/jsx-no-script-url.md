@@ -10,10 +10,12 @@ This rule is **an error** by default.
 See [this issue](https://github.com/joshwilsonvu/eslint-plugin-solid/issues/24) for rationale.
 
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
-
+ 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+## Tests
+
 ### Invalid Examples
 
 These snippets cause lint errors.

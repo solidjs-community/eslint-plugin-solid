@@ -10,17 +10,24 @@ This rule is **a warning** by default.
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
 ## Rule Options
 
-```
-  "style-prop": ["error", { "<key>": "<value>" }]
+Options shown here are the defaults. If you manually configure a rule, your options will **replace** the default set.
+
+```js
+{
+  "solid/style-prop": ["warn", { 
+    // an array of prop names to treat as a CSS style object
+    styleProps: ["style"], // Array<string>
+    // if allowString is set to true, this rule will not convert a style string literal into a style object (not recommended for performance)
+    allowString: false, 
+  }]
+}
 ```
 
-Key | Type | Description
-:--- | :---: | :---
-styleProps | `Array<string>` | an array of prop names to treat as a CSS style object *Default `["style"]`*.
-allowString | `boolean` | if allowString is set to true, this rule will not convert a style string literal into a style object (not recommended for performance) 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+## Tests
+
 ### Invalid Examples
 
 These snippets cause lint errors, and some can be auto-fixed.
