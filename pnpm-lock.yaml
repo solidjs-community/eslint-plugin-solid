@@ -75,7 +75,10 @@ importers:
     specifiers:
       '@rollup/plugin-commonjs': ^22.0.1
       '@rollup/plugin-node-resolve': ^13.3.0
+      eslint-plugin-solid: workspace:*
       rollup: ^2.77.0
+    dependencies:
+      eslint-plugin-solid: link:..
     devDependencies:
       '@rollup/plugin-commonjs': 22.0.1_rollup@2.77.0
       '@rollup/plugin-node-resolve': 13.3.0_rollup@2.77.0
