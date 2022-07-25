@@ -1,8 +1,7 @@
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
-// eslint-disable-next-line no-undef
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  resolver: 'jest-node-exports-resolver',
+  preset: "ts-jest",
+  testEnvironment: "node",
   testRegex: "\\.test\\.[jt]sx?$",
+  projects: "tsconfig.json",
 };
