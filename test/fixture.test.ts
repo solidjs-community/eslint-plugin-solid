@@ -10,15 +10,15 @@ const nodeModulesFileForTesting = path.resolve(
   "node_modules",
   "eslint-plugin-solid.js"
 );
-
+const eslintBinPath = path.resolve(__dirname, "..", "node_modules", ".bin", "eslint");
 const fixtureCwd = path.resolve(__dirname, "fixture");
+
 const getTestFiles = (dir: string): Array<string> => {
   const root = path.join(fixtureCwd, dir);
   return glob.sync("**/*.{js,jsx,tsx}", { cwd: root, absolute: true });
 };
 
 describe("fixture", function () {
-  let eslintPath: string;
   const validFiles = getTestFiles("valid");
   const invalidFiles = getTestFiles("invalid");
 
@@ -28,20 +28,21 @@ describe("fixture", function () {
     // level directory.
 
     await fs.outputFile(nodeModulesFileForTesting, 'module.exports = require("..");\n');
-    eslintPath = (await execa("yarn", ["bin", "eslint"])).stdout;
   });
 
   it("loads the plugin without crashing", async () => {
-    const { exitCode } = await execa.node(eslintPath, ["--print-config", "invalid/jsx-undef.jsx"], {
+    const { exitCode } = await execa(eslintBinPath, ["--print-config", "invalid/jsx-undef.jsx"], {
       cwd: fixtureCwd,
+      shell: true,
     });
     expect(exitCode).toBe(0);
   });
 
   it("produces reasonable lint errors", async () => {
     try {
-      await execa.node(eslintPath, ["invalid/jsx-undef.jsx"], {
+      await execa(eslintBinPath, ["invalid/jsx-undef.jsx"], {
         cwd: fixtureCwd,
+        shell: true,
       });
     } catch (error: any) {
       expect(error.exitCode).not.toBe(0);

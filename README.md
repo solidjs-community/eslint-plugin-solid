@@ -19,10 +19,14 @@ Install `eslint` and `eslint-plugin-solid` locally.
 ```sh
 npm install --save-dev eslint eslint-plugin-solid
 # or
+pnpm add --save-dev eslint eslint-plugin-solid
 yarn add --dev eslint eslint-plugin-solid
 
 # optional, to create an ESLint config file
 npx eslint --init
+# or
+pnpm eslint --init
+yarn eslint --init
 ```
 
 If you're using VSCode, you'll want to install the [ESLint extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).

@@ -26,9 +26,9 @@ If applicable, add screenshots to help explain your problem.
 **Desktop (please complete the following information):**
 
 - OS: [e.g. Mac OS 11, Windows 10]
-- Output of `node --version`:
-- Output of `npm list eslint-plugin-solid`/`yarn why eslint-plugin-solid`:
-- Output of `npm list eslint`/`yarn why eslint`:
+- Node version (`node --version`):
+- `eslint-plugin-solid` version (`npm list eslint-plugin-solid`/`yarn why eslint-plugin-solid`):
+- `eslint` version (`npm list eslint`/`yarn why eslint`):
 
 **Additional context**
 Add any other context about the problem here.

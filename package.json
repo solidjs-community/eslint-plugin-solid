@@ -12,16 +12,16 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "prepublishOnly": "yarn build && yarn lint && prettier --check src && yarn test:all",
-    "build": "tsc -p tsconfig.build.json && yarn run docs",
+    "prepublishOnly": "pnpm build && pnpm lint && prettier --check src && pnpm test:all",
+    "build": "tsc -p tsconfig.build.json && pnpm run docs",
     "docs": "PARSER=none ts-node --transpile-only scripts/docs.ts",
     "lint": "eslint src",
     "test": "jest --runInBand",
-    "test:ts": "PARSER=ts yarn test",
-    "test:babel": "PARSER=babel yarn test",
-    "test:v6": "PARSER=v6 yarn test",
-    "test:v7": "PARSER=v7 yarn test",
-    "test:all": "PARSER=all yarn test"
+    "test:ts": "PARSER=ts pnpm test",
+    "test:babel": "PARSER=babel pnpm test",
+    "test:v6": "PARSER=v6 pnpm test",
+    "test:v7": "PARSER=v7 pnpm test",
+    "test:all": "PARSER=all pnpm test"
   },
   "files": [
     "src",
