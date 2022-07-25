@@ -1,3 +1,11 @@
 {
-  "name": "eslint-plugin-solid-web-worker"
+  "name": "eslint-plugin-solid-web-worker",
+  "dependencies": {
+    "eslint-plugin-solid": "workspace:*"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.1",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "rollup": "^2.77.0"
+  }
 }
