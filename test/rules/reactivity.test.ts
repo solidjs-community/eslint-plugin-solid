@@ -190,6 +190,9 @@ export const cases = run("reactivity", rule, {
       console.log(something.a);
       return <div />;
     }`,
+    // function expression inside tagged template literal expression is tracked scope
+    "css`color: ${props => props.color}`;",
+    "html`<div>${props => props.name}</div>`;",
   ],
   invalid: [
     // Untracked signals
@@ -575,6 +578,20 @@ export const cases = run("reactivity", rule, {
         setPhotos(await res.json());
       });`,
       errors: [{ messageId: "noAsyncTrackedScope", line: 3 }],
+    },
+    // non-function expression inside tagged template literal expression is not tracked scope
+    {
+      code: `
+      const [signal] = createSignal("red");
+      css\`color: \${signal}\`;`,
+      errors: [{ messageId: "badSignal", line: 3 }],
+    },
+    {
+      code: `
+      const [signal] = createSignal("red");
+      const f = () => signal();
+      css\`color: \${f}\`;`,
+      errors: [{ messageId: "badSignal", line: 4 }],
     },
   ],
 });

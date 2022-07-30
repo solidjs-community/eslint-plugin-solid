@@ -59,7 +59,7 @@ export function findInScope(
   predicate: (node: T.Node) => boolean
 ) {
   const found = find(node, (node) => node === scope || predicate(node));
-  return found === scope ? null : found;
+  return found === scope && !predicate(node) ? null : found;
 }
 
 // The next two functions were adapted from "eslint-plugin-import" under the MIT license.

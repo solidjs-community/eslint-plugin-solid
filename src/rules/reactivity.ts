@@ -79,6 +79,7 @@ class ScopeStackItem {
 
 class ScopeStack extends Array<ScopeStackItem> {
   currentScope = () => this[this.length - 1];
+  parentScope = () => this[this.length - 2];
 
   /** Add references to a signal, memo, derived signal, etc. */
   pushSignal(
@@ -263,7 +264,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
 
     /** Represents the lexical function stack and relevant information for each function */
     const scopeStack = new ScopeStack();
-    const { currentScope } = scopeStack;
+    const { currentScope, parentScope } = scopeStack;
 
     /** Tracks imports from 'solid-js', handling aliases. */
     const { matchImport, handleImportDeclaration } = trackImports();
@@ -334,8 +335,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           // function scope, then the entire function becomes reactive with the
           // deepest declaration scope of the reactive variables it contains.
           // Let the next onFunctionExit up handle it.
-          const parentScope = scopeStack[scopeStack.length - 2];
-          if (!parentScope || !isFunctionNode(currentScopeNode)) {
+          if (!parentScope() || !isFunctionNode(currentScopeNode)) {
             throw new Error("this shouldn't happen!");
           }
 
@@ -344,7 +344,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           // this to be okay, the arrow function has to be the same node as one
           // of the tracked scopes, as we can't easily find references.
           const pushUnnamedDerivedSignal = () =>
-            (parentScope.unnamedDerivedSignals ??= new Set()).add(currentScopeNode);
+            (parentScope().unnamedDerivedSignals ??= new Set()).add(currentScopeNode);
 
           if (currentScopeNode.type === "FunctionDeclaration") {
             // get variable representing function, function node only defines one variable
@@ -394,7 +394,8 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               !currentScopeNode.id?.name?.match(/^[a-z]/))) ||
             // begins with lowercase === not component
             isPropsByName(paramsNode.name)) &&
-          currentScopeNode.parent?.type !== "JSXExpressionContainer" // "render props" aren't components
+          currentScopeNode.parent?.type !== "JSXExpressionContainer" && // "render props" aren't components
+          currentScopeNode.parent?.type !== "TemplateLiteral" // inline functions in tagged template literals aren't components
         ) {
           // This function is a component, consider its parameter a props
           const propsParam = findVariable(context.getScope(), paramsNode);
@@ -734,6 +735,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         | T.CallExpression
         | T.VariableDeclarator
         | T.AssignmentExpression
+        | T.TaggedTemplateExpression
     ) => {
       const pushTrackedScope = (node: T.Node, expect: TrackedScope["expect"]) => {
         currentScope().trackedScopes.push({ node, expect });
@@ -926,6 +928,21 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           // functions.
           pushTrackedScope(node.right, "called-function");
         }
+      } else if (node.type === "TaggedTemplateExpression") {
+        for (const expression of node.quasi.expressions) {
+          if (isFunctionNode(expression)) {
+            // ex. css`color: ${props => props.color}`. Use "called-function" to allow async handlers (permissive)
+            pushTrackedScope(expression, "called-function");
+
+            // exception case: add a reactive variable within checkForTrackedScopes when a param is props
+            for (const param of expression.params) {
+              if (param.type === "Identifier" && isPropsByName(param.name)) {
+                const variable = findVariable(context.getScope(), param);
+                if (variable) scopeStack.pushProps(variable, currentScope().node);
+              }
+            }
+          }
+        }
       }
     };
 
@@ -956,6 +973,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         if (node.left.type !== "MemberExpression") {
           checkForReactiveAssignment(node.left, node.right);
         }
+        checkForTrackedScopes(node);
+      },
+      TaggedTemplateExpression(node: T.TaggedTemplateExpression) {
         checkForTrackedScopes(node);
       },
       "JSXElement > JSXExpressionContainer > :function"(node: T.Node) {
