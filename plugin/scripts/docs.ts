@@ -167,14 +167,14 @@ const buildTilde = () => {
 };
 
 async function run() {
-  markdownMagic(path.join(__dirname, "..", "README.md"), {
+  markdownMagic(path.join(__dirname, "..", "..", "README.md"), {
     transforms: {
       RULES: () => buildRulesTable(ruleTableRows),
       TILDE: () => buildTilde(),
     },
   });
 
-  const docRoot = path.resolve(__dirname, "..", "docs");
+  const docRoot = path.resolve(__dirname, "..", "..", "docs");
   const docFiles = (await fs.readdir(docRoot)).filter((p) => p.endsWith(".md"));
   for (const docFile of docFiles) {
     markdownMagic(path.join(docRoot, docFile), {

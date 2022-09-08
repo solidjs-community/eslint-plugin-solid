@@ -1,5 +1,5 @@
 # Build directory
-dist
+plugin/dist
 
 # Logs
 logs
