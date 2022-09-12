@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { TSESLint } from "@typescript-eslint/utils";
 // @ts-ignore
 import { RuleTester as RuleTester_v6 } from "eslint-v6";
@@ -36,8 +37,8 @@ const babelTester = new RuleTester({
   parserOptions: {
     sourceType: "module",
     // @ts-ignore
-    requireConfigFile: false,
     babelOptions: {
+      requireConfigFile: false,
       parserOpts: {
         plugins: ["jsx", "typescript"],
       },

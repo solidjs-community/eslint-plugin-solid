@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["test/**/*.ts", "scripts/**/*.ts"],
+  "exclude": ["test", "scripts", "standalone"],
   "compilerOptions": {
     "removeComments": true
   }

@@ -1,0 +1,37 @@
+{
+  "name": "eslint-solid-standalone",
+  "version": "0.1.1",
+  "description": "A bundle with eslint and eslint-plugin-solid that can be used in the browser.",
+  "files": [
+    "dist.js",
+    "dist.d.ts",
+    "dist.js.map",
+    "README.md"
+  ],
+  "main": "dist.js",
+  "types": "dist.d.ts",
+  "repository": "https://github.com/joshwilsonvu/eslint-plugin-solid",
+  "author": "Josh Wilson <joshwilsonvu@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup --config=rollup.config.js",
+    "prepublishOnly": "cd .. && pnpm build && cd standalone && pnpm build"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^14.0.1",
+    "@rollup/pluginutils": "^4.2.1",
+    "@typescript-eslint/parser": "^5.36.2",
+    "eslint": "^8.0.0",
+    "magic-string": "^0.26.3",
+    "memoize-one": "^6.0.0",
+    "rollup": "^2.79.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "semver": "^7.3.7",
+    "typescript": "^4.8.3"
+  },
+  "peerDependencies": {
+    "typescript": "^4.0.0"
+  }
+}
