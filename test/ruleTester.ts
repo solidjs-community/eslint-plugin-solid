@@ -37,8 +37,8 @@ const babelTester = new RuleTester({
   parserOptions: {
     sourceType: "module",
     // @ts-ignore
+    requireConfigFile: false,
     babelOptions: {
-      requireConfigFile: false,
       parserOpts: {
         plugins: ["jsx", "typescript"],
       },
