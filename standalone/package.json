@@ -3,12 +3,12 @@
   "version": "0.1.1",
   "description": "A bundle with eslint and eslint-plugin-solid that can be used in the browser.",
   "files": [
-    "dist.js",
+    "dist.mjs",
     "dist.d.ts",
-    "dist.js.map",
+    "dist.mjs.map",
     "README.md"
   ],
-  "main": "dist.js",
+  "main": "dist.mjs",
   "types": "dist.d.ts",
   "repository": "https://github.com/joshwilsonvu/eslint-plugin-solid",
   "author": "Josh Wilson <joshwilsonvu@gmail.com>",
