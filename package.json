@@ -12,7 +12,7 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "prepublishOnly": "pnpm build && pnpm lint && prettier --check src && pnpm test:all && pnpm build-standalone",
+    "prepublishOnly": "pnpm build && pnpm lint && prettier --check src && pnpm test:all",
     "build": "tsc -p tsconfig.build.json && pnpm run docs",
     "lint": "eslint src",
     "docs": "PARSER=none ts-node --transpile-only scripts/docs.ts",
