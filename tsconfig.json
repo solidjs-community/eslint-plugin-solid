@@ -12,5 +12,5 @@
     "lib": ["ES2019"],
     "allowJs": true
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "scripts", "deps.d.ts", "standalone/standalone-entry.js"]
+  "include": ["src", "test", "scripts", "deps.d.ts", "standalone"]
 }
