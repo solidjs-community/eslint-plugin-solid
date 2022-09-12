@@ -1,6 +1,6 @@
 {
   "name": "eslint-solid-standalone",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A bundle with eslint and eslint-plugin-solid that can be used in the browser.",
   "files": [
     "dist.mjs",
