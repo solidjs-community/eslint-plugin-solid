@@ -1,4 +1,6 @@
 import type { ESLint, Linter } from "eslint";
+import type { Configs, AllRules } from "eslint-plugin-solid";
+export type { ESLint, Linter, Configs, AllRules };
 
 export declare const plugin: ESLint.Plugin;
 export declare const pluginVersion: string;
