@@ -36,8 +36,9 @@ const allRules = {
   // "validate-jsx-nesting": validateJsxNesting
 };
 
-// Must be module.exports for eslint to load everything
-module.exports = {
+export type AllRules = keyof typeof allRules;
+
+const plugin = {
   rules: allRules,
   configs: {
     recommended: {
@@ -89,7 +90,7 @@ module.exports = {
         "solid/jsx-no-undef": [2, { typescriptEnabled: true }],
         "solid/jsx-uses-vars": 2,
         // security problems
-        "solid/no-innerhtml": [2, { allowStatic: true }],
+        "solid/no-innerhtml": 2,
         "solid/jsx-no-script-url": 2,
         // reactivity
         "solid/components-return-once": 1,
@@ -110,3 +111,7 @@ module.exports = {
     },
   },
 };
+// Must be module.exports for eslint to load everything
+module.exports = plugin;
+
+export type Configs = keyof typeof plugin.configs;

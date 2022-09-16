@@ -57,7 +57,7 @@ export function findInScope(
   node: T.Node,
   scope: ProgramOrFunctionNode,
   predicate: (node: T.Node) => boolean
-) {
+): T.Node | null {
   const found = find(node, (node) => node === scope || predicate(node));
   return found === scope && !predicate(node) ? null : found;
 }
