@@ -51,7 +51,7 @@ function normalizeArray(parts, allowAboveRoot) {
 
 // Split a filename into [root, dir, basename, ext], unix version
 // 'root' is just a slash, or nothing.
-const splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+const splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^/]+?|)(\.[^./]*|))(?:[/]*)$/;
 const splitPath = function (filename) {
   return splitPathRe.exec(filename).slice(1);
 };
@@ -123,7 +123,7 @@ export function isAbsolute(path) {
 export function join() {
   const paths = Array.prototype.slice.call(arguments, 0);
   return normalize(
-    filter(paths, function (p, index) {
+    filter(paths, (p) => {
       if (typeof p !== "string") {
         throw new TypeError("Arguments to path.join must be strings");
       }
@@ -165,7 +165,7 @@ export function relative(from, to) {
     }
   }
 
-  const outputParts = [];
+  let outputParts = [];
   for (let i = samePartsLength; i < fromParts.length; i++) {
     outputParts.push("..");
   }

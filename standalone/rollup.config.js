@@ -3,7 +3,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
 
-const replace = require("./rollup-plugin-replace");
+import replace from "./rollup-plugin-replace";
 
 module.exports = {
   input: "index.js",
@@ -112,6 +112,10 @@ module.exports = {
           // replace all process.env.IGNORE_TEST_WIN32 with true
           test: /process\.env\.IGNORE_TEST_WIN32/u,
           replace: "true",
+        },
+        {
+          test: /process.cwd\(\)/u,
+          replace: "'~'",
         },
         {
           test: /__filename/u,

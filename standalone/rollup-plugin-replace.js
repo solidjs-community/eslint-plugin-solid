@@ -1,8 +1,8 @@
 // lifted from @typescript-eslint/website-eslint/rollup-plugin/replace.js
-const path = require("path");
-const Module = require("module");
-const rollupPluginUtils = require("@rollup/pluginutils");
-const MagicString = require("magic-string");
+import path from "path";
+import Module from "module";
+import { createFilter } from "@rollup/pluginutils";
+import MagicString from "magic-string";
 
 function toAbsolute(id) {
   return id.startsWith("./") ? path.resolve(id) : require.resolve(id);
@@ -18,11 +18,11 @@ function createMatcher(it) {
   if (typeof it === "function") {
     return it;
   } else {
-    return rollupPluginUtils.createFilter(it);
+    return createFilter(it);
   }
 }
 
-module.exports = (options = {}) => {
+export default (options = {}) => {
   const aliasesCache = new Map();
   const aliases = (options.alias || []).map((item) => {
     return {

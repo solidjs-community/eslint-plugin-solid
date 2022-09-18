@@ -32,7 +32,7 @@ const getConfig = memoizeOne((ruleSeverityOverrides) => {
   if (ruleSeverityOverrides) {
     // change severity levels of rules based on rules: Record<string, 0 | 1 | 2> arg
     Object.keys(ruleSeverityOverrides).forEach((key) => {
-      if (config.rules.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(config.rules, key)) {
         if (Array.isArray(config.rules[key])) {
           config.rules[key] = [ruleSeverityOverrides[key], ...config.rules[key].slice(1)];
         } else {
