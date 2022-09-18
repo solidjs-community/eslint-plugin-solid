@@ -11,7 +11,7 @@ const linter = new Linter();
 Object.keys(plugin.rules).forEach((key) => {
   linter.defineRule(`solid/${key}`, plugin.rules[key]);
 });
-console.log(linter.getRules());
+
 // Define TS parser
 linter.defineParser("@typescript-eslint/parser", parser);
 
