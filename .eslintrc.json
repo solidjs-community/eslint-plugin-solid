@@ -4,14 +4,13 @@
   "parserOptions": {
     "project": "tsconfig.json"
   },
-  "plugins": ["@typescript-eslint", "eslint-plugin", "import"],
+  "plugins": ["@typescript-eslint", "import"],
   "env": {
     "node": true
   },
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:eslint-plugin/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript"
   ],
@@ -19,11 +18,35 @@
     "import/no-unresolved": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/non-nullable-type-assertion-style": "warn",
-    "eslint-plugin/meta-property-ordering": "error",
-    "eslint-plugin/report-message-format": ["error", "^[A-Z\\{'].*\\.$"],
-    "eslint-plugin/test-case-property-ordering": "error",
-    "eslint-plugin/require-meta-docs-description": ["error", { "pattern": "^(Enforce|Require|Disallow)" }],
-    "eslint-plugin/require-meta-docs-url": ["error", { "pattern": "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/{{name}}.md" }]
-  }
+    "@typescript-eslint/non-nullable-type-assertion-style": "warn"
+  },
+  "overrides": [
+    {
+      "files": "src/rules/*.ts",
+      "plugins": ["eslint-plugin"],
+      "extends": ["plugin:eslint-plugin/recommended"],
+      "rules": {
+        "eslint-plugin/meta-property-ordering": "error",
+        "eslint-plugin/report-message-format": ["error", "^[A-Z\\{'].*\\.$"],
+        "eslint-plugin/test-case-property-ordering": "error",
+        "eslint-plugin/require-meta-docs-description": [
+          "error",
+          { "pattern": "^(Enforce|Require|Disallow)" }
+        ],
+        "eslint-plugin/require-meta-docs-url": [
+          "error",
+          {
+            "pattern": "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/{{name}}.md"
+          }
+        ]
+      }
+    },
+    {
+      "files": "standalone/**/*.ts",
+      "env": {
+        "node": false,
+        "worker": true
+      }
+    }
+  ]
 }

@@ -14,7 +14,7 @@
     "prepare": "husky install",
     "prepublishOnly": "pnpm build && pnpm lint && prettier --check src && pnpm test:all",
     "build": "tsc -p tsconfig.build.json && pnpm run docs",
-    "lint": "eslint src",
+    "lint": "eslint .",
     "docs": "PARSER=none ts-node --transpile-only scripts/docs.ts",
     "test": "jest --runInBand",
     "test:ts": "PARSER=ts pnpm test",
