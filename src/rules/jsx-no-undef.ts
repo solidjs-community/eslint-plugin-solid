@@ -1,5 +1,5 @@
 import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
-import { isDOMElementName, formatList, getCommentBefore } from "../utils";
+import { isDOMElementName, formatList, appendImports, insertImports } from "../utils";
 
 // Currently all of the control flow components are from 'solid-js'.
 const AUTO_COMPONENTS = ["Show", "For", "Index", "Switch", "Match"];
@@ -167,7 +167,6 @@ const rule: TSESLint.RuleModule<
         // add in any auto import components used in the program
         const missingComponents = Array.from(missingComponentsSet.values());
         if (autoImport && missingComponents.length) {
-          const identifiersString = missingComponents.join(", "); // "Show, For, Switch"
           const importNode = programNode.body.find(
             (n) =>
               n.type === "ImportDeclaration" &&
@@ -180,33 +179,11 @@ const rule: TSESLint.RuleModule<
               node: importNode,
               messageId: "autoImport",
               data: {
-                imports: formatList(missingComponents),
+                imports: formatList(missingComponents), // "Show, For, and Switch"
                 source: SOURCE_MODULE,
               },
               fix: (fixer) => {
-                const reversedSpecifiers = importNode.specifiers.slice().reverse();
-                const lastSpecifier = reversedSpecifiers.find((s) => s.type === "ImportSpecifier");
-                if (lastSpecifier) {
-                  // import A, { B } from 'source' => import A, { B, C, D } from 'source'
-                  // import { B } from 'source' => import { B, C, D } from 'source'
-                  return fixer.insertTextAfter(lastSpecifier, `, ${identifiersString}`);
-                }
-                const otherSpecifier = importNode.specifiers.find(
-                  (s) =>
-                    s.type === "ImportDefaultSpecifier" || s.type === "ImportNamespaceSpecifier"
-                );
-                if (otherSpecifier) {
-                  // import A from 'source' => import A, { B, C, D } from 'source'
-                  return fixer.insertTextAfter(otherSpecifier, `, { ${identifiersString} }`);
-                }
-                if (importNode.specifiers.length === 0) {
-                  // import 'source' => import { B, C, D } from 'source'
-                  const importToken = context.getSourceCode().getFirstToken(importNode);
-                  return importToken
-                    ? fixer.insertTextAfter(importToken, ` { ${identifiersString} } from`)
-                    : null;
-                }
-                return null;
+                return appendImports(fixer, context.getSourceCode(), importNode, missingComponents);
               },
             });
           } else {
@@ -218,18 +195,8 @@ const rule: TSESLint.RuleModule<
                 source: SOURCE_MODULE,
               },
               fix: (fixer) => {
-                // insert `import { missing, identifiers } from "source-module"` at top of module
-                const firstImport = programNode.body.find((n) => n.type === "ImportDeclaration");
-                if (firstImport) {
-                  return fixer.insertTextBeforeRange(
-                    (getCommentBefore(firstImport, context.getSourceCode()) ?? firstImport).range,
-                    `import { ${identifiersString} } from "${SOURCE_MODULE}";\n`
-                  );
-                }
-                return fixer.insertTextBeforeRange(
-                  [0, 0],
-                  `import { ${identifiersString} } from "${SOURCE_MODULE}";\n`
-                );
+                // insert `import { missing, identifiers } from "solid-js"` at top of module
+                return insertImports(fixer, context.getSourceCode(), "solid-js", missingComponents);
               },
             });
           }

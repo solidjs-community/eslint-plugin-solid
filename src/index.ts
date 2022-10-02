@@ -1,5 +1,6 @@
 import componentsReturnOnce from "./rules/components-return-once";
 import eventHandlers from "./rules/event-handlers";
+import imports from "./rules/imports";
 import jsxNoDuplicateProps from "./rules/jsx-no-duplicate-props";
 import jsxNoScriptUrl from "./rules/jsx-no-script-url";
 import jsxNoUndef from "./rules/jsx-no-undef";
@@ -19,6 +20,7 @@ import styleProp from "./rules/style-prop";
 const allRules = {
   "components-return-once": componentsReturnOnce,
   "event-handlers": eventHandlers,
+  imports,
   "jsx-no-duplicate-props": jsxNoDuplicateProps,
   "jsx-no-undef": jsxNoUndef,
   "jsx-no-script-url": jsxNoScriptUrl,
@@ -70,6 +72,7 @@ const plugin = {
         "solid/reactivity": 1,
         "solid/event-handlers": 1,
         // these rules are mostly style suggestions
+        "solid/imports": 1,
         "solid/style-prop": 1,
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,
@@ -99,6 +102,7 @@ const plugin = {
         "solid/reactivity": 1,
         "solid/event-handlers": 1,
         // these rules are mostly style suggestions
+        "solid/imports": 1,
         "solid/style-prop": 1,
         "solid/no-react-specific-props": 1,
         "solid/prefer-classlist": 1,

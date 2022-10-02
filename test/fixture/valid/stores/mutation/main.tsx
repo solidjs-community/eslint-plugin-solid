@@ -1,5 +1,6 @@
 // @ts-nocheck
-import { render, For } from "solid-js/web";
+import { For } from "solid-js";
+import { render } from "solid-js/web";
 import { createStore, produce } from "solid-js/store";
 
 const App = () => {

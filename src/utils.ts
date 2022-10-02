@@ -104,3 +104,75 @@ export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
   };
   return { matchImport, handleImportDeclaration };
 };
+
+export function appendImports(
+  fixer: TSESLint.RuleFixer,
+  sourceCode: TSESLint.SourceCode,
+  importNode: T.ImportDeclaration,
+  identifiers: Array<string>
+): TSESLint.RuleFix | null {
+  const identifiersString = identifiers.join(", ");
+  const reversedSpecifiers = importNode.specifiers.slice().reverse();
+  const lastSpecifier = reversedSpecifiers.find((s) => s.type === "ImportSpecifier");
+  if (lastSpecifier) {
+    // import A, { B } from 'source' => import A, { B, C, D } from 'source'
+    // import { B } from 'source' => import { B, C, D } from 'source'
+    return fixer.insertTextAfter(lastSpecifier, `, ${identifiersString}`);
+  }
+  const otherSpecifier = importNode.specifiers.find(
+    (s) => s.type === "ImportDefaultSpecifier" || s.type === "ImportNamespaceSpecifier"
+  );
+  if (otherSpecifier) {
+    // import A from 'source' => import A, { B, C, D } from 'source'
+    return fixer.insertTextAfter(otherSpecifier, `, { ${identifiersString} }`);
+  }
+  if (importNode.specifiers.length === 0) {
+    // import 'source' => import { B, C, D } from 'source'
+    const importToken = sourceCode.getFirstToken(importNode);
+    return importToken
+      ? fixer.insertTextAfter(importToken, ` { ${identifiersString} } from`)
+      : null;
+  }
+  return null;
+}
+export function insertImports(
+  fixer: TSESLint.RuleFixer,
+  sourceCode: TSESLint.SourceCode,
+  source: string,
+  identifiers: Array<string>,
+  aboveImport?: T.ImportDeclaration,
+  isType = false
+): TSESLint.RuleFix {
+  const identifiersString = identifiers.join(", ");
+  const programNode: T.Program = sourceCode.ast;
+
+  // insert `import { missing, identifiers } from "source"` above given node or at top of module
+  const firstImport = aboveImport ?? programNode.body.find((n) => n.type === "ImportDeclaration");
+  if (firstImport) {
+    return fixer.insertTextBeforeRange(
+      (getCommentBefore(firstImport, sourceCode) ?? firstImport).range,
+      `import ${isType ? "type " : ""}{ ${identifiersString} } from "${source}";\n`
+    );
+  }
+  return fixer.insertTextBeforeRange(
+    [0, 0],
+    `import ${isType ? "type " : ""}{ ${identifiersString} } from "${source}";\n`
+  );
+}
+
+export function removeSpecifier(
+  fixer: TSESLint.RuleFixer,
+  sourceCode: TSESLint.SourceCode,
+  specifier: T.ImportSpecifier,
+  pure = true
+) {
+  const declaration = specifier.parent as T.ImportDeclaration;
+  if (declaration.specifiers.length === 1 && pure) {
+    return fixer.remove(declaration);
+  }
+  const maybeComma = sourceCode.getTokenAfter(specifier);
+  if (maybeComma?.value === ",") {
+    return fixer.removeRange([specifier.range[0], maybeComma.range[1]]);
+  }
+  return fixer.remove(specifier);
+}
