@@ -20,7 +20,7 @@ function fetchUser() {
   });
 }
 
-let ringoPosts = [
+const ringoPosts = [
   {
     id: 0,
     text: "I get by with a little help from my friends",
@@ -36,7 +36,7 @@ let ringoPosts = [
 ];
 
 function fetchPosts() {
-  let ringoPostsAtTheTime = ringoPosts;
+  const ringoPostsAtTheTime = ringoPosts;
   console.log("fetch posts...");
   return new Promise((resolve) => {
     setTimeout(() => {

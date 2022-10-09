@@ -47,6 +47,20 @@
         "node": false,
         "worker": true
       }
+    },
+    {
+      "files": "test/fixture/**/*.{js,jsx,ts,tsx}",
+      "env": {
+        "node": false,
+        "browser": true
+      },
+      "plugins": ["solid"],
+      "extends": "plugin:solid/recommended",
+      "rules": {
+        "@typescript-eslint/ban-ts-comment": 0,
+        "@typescript-eslint/no-empty-function": 0
+      }
     }
-  ]
+  ],
+  "reportUnusedDisableDirectives": true
 }

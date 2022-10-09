@@ -1,47 +1,31 @@
 import execa from "execa";
 import path from "path";
-import fs from "fs-extra";
 import glob from "fast-glob";
 import { ESLint } from "eslint";
 
-const nodeModulesFileForTesting = path.resolve(
-  __dirname,
-  "..",
-  "node_modules",
-  "eslint-plugin-solid.js"
-);
 const eslintBinPath = path.resolve(__dirname, "..", "node_modules", ".bin", "eslint");
-const fixtureCwd = path.resolve(__dirname, "fixture");
+const eslint = new ESLint();
 
 const getTestFiles = (dir: string): Array<string> => {
-  const root = path.join(fixtureCwd, dir);
-  return glob.sync("**/*.{js,jsx,tsx}", { cwd: root, absolute: true });
+  const root = path.join("test", "fixture", dir);
+  return glob.sync("**/*.{js,jsx,ts,tsx}", { cwd: root, absolute: true });
 };
 
 describe("fixture", function () {
-  const validFiles = getTestFiles("valid");
-  const invalidFiles = getTestFiles("invalid");
-
-  beforeAll(async () => {
-    // We're trying to require the package we're currently in; we can work around
-    // this by putting a skeleton file inside `node_modules` that requires the top
-    // level directory.
-
-    await fs.outputFile(nodeModulesFileForTesting, 'module.exports = require("..");\n');
-  });
-
   it("loads the plugin without crashing", async () => {
-    const { exitCode } = await execa(eslintBinPath, ["--print-config", "invalid/jsx-undef.jsx"], {
-      cwd: fixtureCwd,
+    jest.setTimeout(10 * 1000);
+    const exampleFile = path.join("test", "fixture", "invalid", "jsx-undef.jsx");
+    const { exitCode } = await execa(eslintBinPath, ["--print-config", exampleFile], {
       shell: true,
     });
     expect(exitCode).toBe(0);
   });
 
   it("produces reasonable lint errors", async () => {
+    jest.setTimeout(10 * 1000);
     try {
-      await execa(eslintBinPath, ["invalid/jsx-undef.jsx"], {
-        cwd: fixtureCwd,
+      const exampleFile = path.join("test", "fixture", "invalid", "jsx-undef.jsx");
+      await execa(eslintBinPath, [exampleFile], {
         shell: true,
       });
     } catch (error: any) {
@@ -49,16 +33,14 @@ describe("fixture", function () {
       expect(error.stderr).toBe("");
       expect(error.stdout).toMatch(/'Component' is not defined/);
       expect(error.stdout).toMatch(/solid\/jsx-no-undef/);
-      expect(error.stdout).toMatch(/1 problem \(1 error, 0 warnings\)/);
     }
   });
 
   describe("valid examples", () => {
-    const eslint = new ESLint({ cwd: fixtureCwd });
-    test.each(validFiles.map((file) => [path.relative(fixtureCwd, file), file]))(
+    test.each(getTestFiles("valid").map((file) => [path.relative("test/fixture", file), file]))(
       "%s",
       async (_, file) => {
-        const [results] = await eslint.lintFiles(path.resolve(fixtureCwd, file));
+        const [results] = await eslint.lintFiles(file);
         expect(results.filePath).toBe(file);
         expect(results.messages).toEqual([]);
         expect(results.errorCount).toBe(0);
@@ -69,11 +51,10 @@ describe("fixture", function () {
   });
 
   describe("invalid examples", () => {
-    const eslint = new ESLint({ cwd: fixtureCwd });
-    test.each(invalidFiles.map((file) => [path.relative(fixtureCwd, file), file]))(
+    test.each(getTestFiles("invalid").map((file) => [path.relative("test/fixture", file), file]))(
       "%s",
       async (_, file) => {
-        const [results] = await eslint.lintFiles(path.resolve(fixtureCwd, file));
+        const [results] = await eslint.lintFiles(file);
         expect(results.filePath).toBe(file);
         expect(results.messages).not.toEqual([]);
         expect(results.warningCount + results.errorCount).toBeGreaterThan(0);

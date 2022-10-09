@@ -1,5 +1,3 @@
 dist
 node_modules
-scripts/docs.ts
 jest.config.js
-# test/fixture/invalid

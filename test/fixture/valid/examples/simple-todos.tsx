@@ -4,7 +4,7 @@ import { createStore, SetStoreFunction, Store } from "solid-js/store";
 import { render } from "solid-js/web";
 
 // Checked but not used for demo purposes
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function createLocalStore<T>(initState: T): [Store<T>, SetStoreFunction<T>] {
   const [state, setState] = createStore(initState);
   if (localStorage.todos) setState(JSON.parse(localStorage.todos));

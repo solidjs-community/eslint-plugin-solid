@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import path from "path";
 import fs from "fs-extra";
 import markdownMagic from "markdown-magic";
@@ -181,7 +182,7 @@ async function run() {
       transforms: {
         HEADER: () => buildHeader(docFile),
         OPTIONS: () => buildOptions(docFile),
-        CASES: (content) => buildCases(content, docFile),
+        CASES: (content: string) => buildCases(content, docFile),
       },
     });
   }
