@@ -5,12 +5,12 @@
 [![CI](https://github.com/joshwilsonvu/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg)](https://github.com/joshwilsonvu/eslint-plugin-solid/actions/workflows/ci.yml)
 ![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--8.x-blue)
 
-This package contains [Solid](https://www.solidjs.com/)-specific linting rules for ESLint.
-It can ease Solid's learning curve by finding and fixing problems around Solid's reactivity system,
-and can migrate some React patterns to Solid code.
+This package contains [Solid](https://www.solidjs.com/)-specific linting rules for ESLint. It can
+ease Solid's learning curve by finding and fixing problems around Solid's reactivity system, and can
+migrate some React patterns to Solid code.
 
-It's approaching a `1.0.0` release, and it's well tested and should
-be helpful in Solid projects today.
+It's approaching a `1.0.0` release, and it's well tested and should be helpful in Solid projects
+today.
 
 ## Installation
 
@@ -29,10 +29,25 @@ pnpm eslint --init
 yarn eslint --init
 ```
 
-If you're using VSCode, you'll want to install the [ESLint extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).
-If you're using Vite, you may want to install [vite-plugin-eslint](https://github.com/gxmari007/vite-plugin-eslint).
+If you're using VSCode, you'll want to install the [ESLint
+extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint). You're
+encouraged to enable auto-fixing problems on save by adding the following to your `settings.json`
+file.
 
-You may also want to check out [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y), which provides useful rules for keeping HTML accessible.
+```json
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  }
+}
+```
+
+If you're using Vite, you may want to install
+[vite-plugin-eslint](https://github.com/gxmari007/vite-plugin-eslint).
+
+You may also want to check out
+[eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y), which provides
+useful rules for writing accessible HTML.
 
 ## Configuration
 
@@ -60,10 +75,10 @@ This disables some features that overlap with type checking.
 
 ### Manual Configuration
 
-If you don't want to use a preset, you can configure rules individually. Add the `"solid"`
-plugin, enable JSX with the parser options (or use the equivalent options for
-`@typescript-eslint/parser` or `@babel/eslint-parser`), and configure the rules you
-would like to use.
+If you don't want to use a preset, you can configure rules individually. Add the `"solid"` plugin,
+enable JSX with the parser options (or use the equivalent options for `@typescript-eslint/parser` or
+`@babel/eslint-parser`), and configure the rules you would like to use. Some rules have additional
+options you can set.
 
 ```json
 {
@@ -81,11 +96,23 @@ would like to use.
 }
 ```
 
+### Disabling Rules
+
+The rules in this plugin provide sensible guidelines, but there may be occasions where you *know
+what you're doing* and want to ignore a warning. Just [add a
+comment](https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules) like the
+following:
+
+```jsx
+// eslint-disable-next-line solid/reactivity
+const [editedValue, setEditedValue] = createSignal(props.value)
+```
+
 ## Rules
 
 ✔: Enabled in the `recommended` configuration.
 
-🔧: Fixable with [`eslint --fix`](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems).
+🔧: Fixable with [`eslint --fix`](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems)/IDE auto-fix.
 
 <!-- AUTO-GENERATED-CONTENT:START (RULES) -->
 | ✔ | 🔧 | Rule | Description |
