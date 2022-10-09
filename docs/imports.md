@@ -35,6 +35,16 @@ console.log("hi");
 import { createSignal, Component } from "solid-js";
 console.log("hi");
  
+import { createSignal } from "solid-js/web";
+import "solid-js";
+// after eslint --fix:
+import { createSignal } from "solid-js";
+ 
+import { createSignal } from "solid-js/web";
+import {} from "solid-js";
+// after eslint --fix:
+import { createSignal } from "solid-js";
+ 
 import { createEffect } from "solid-js/web";
 import { render } from "solid-js";
 // after eslint --fix:

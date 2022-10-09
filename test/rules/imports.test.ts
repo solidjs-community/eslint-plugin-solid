@@ -58,6 +58,30 @@ import { createSignal, Component } from "solid-js";
 console.log('hi');`,
       parser: require.resolve("@typescript-eslint/parser"),
     },
+    {
+      code: `import { createSignal } from "solid-js/web";
+import "solid-js";`,
+      errors: [
+        {
+          messageId: "prefer-source",
+          data: { name: "createSignal", source: "solid-js" },
+        },
+      ],
+      output: `
+import { createSignal } from "solid-js";`,
+    },
+    {
+      code: `import { createSignal } from "solid-js/web";
+import {} from "solid-js";`,
+      errors: [
+        {
+          messageId: "prefer-source",
+          data: { name: "createSignal", source: "solid-js" },
+        },
+      ],
+      output: `
+import { createSignal } from "solid-js";`,
+    },
     // Two-part fix, output here is first pass...
     {
       code: `import { createEffect } from "solid-js/web";

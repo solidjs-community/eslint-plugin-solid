@@ -127,11 +127,16 @@ export function appendImports(
     return fixer.insertTextAfter(otherSpecifier, `, { ${identifiersString} }`);
   }
   if (importNode.specifiers.length === 0) {
-    // import 'source' => import { B, C, D } from 'source'
-    const importToken = sourceCode.getFirstToken(importNode);
-    return importToken
-      ? fixer.insertTextAfter(importToken, ` { ${identifiersString} } from`)
-      : null;
+    const [importToken, maybeBrace] = sourceCode.getFirstTokens(importNode, { count: 2 });
+    if (maybeBrace?.value === "{") {
+      // import {} from 'source' => import { B, C, D } from 'source'
+      return fixer.insertTextAfter(maybeBrace, ` ${identifiersString} `);
+    } else {
+      // import 'source' => import { B, C, D } from 'source'
+      return importToken
+        ? fixer.insertTextAfter(importToken, ` { ${identifiersString} } from`)
+        : null;
+    }
   }
   return null;
 }
