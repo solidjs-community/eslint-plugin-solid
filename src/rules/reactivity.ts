@@ -732,6 +732,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     const checkForTrackedScopes = (
       node:
         | T.JSXExpressionContainer
+        | T.JSXSpreadAttribute
         | T.CallExpression
         | T.VariableDeclarator
         | T.AssignmentExpression
@@ -766,6 +767,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             ? "called-function"
             : "expression";
         pushTrackedScope(node.expression, expect);
+      } else if (node.type === "JSXSpreadAttribute") {
+        // allow <div {...props.nestedProps} />; {...props} is already ignored
+        pushTrackedScope(node.argument, "expression");
       } else if (node.type === "CallExpression" && node.callee.type === "Identifier") {
         const {
           callee,
@@ -949,6 +953,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     return {
       ImportDeclaration: handleImportDeclaration,
       JSXExpressionContainer(node: T.JSXExpressionContainer) {
+        checkForTrackedScopes(node);
+      },
+      JSXSpreadAttribute(node: T.JSXSpreadAttribute) {
         checkForTrackedScopes(node);
       },
       CallExpression(node: T.CallExpression) {

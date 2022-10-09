@@ -68,6 +68,17 @@ export const cases = run("reactivity", rule, {
     on(value, () => console.log('hello'));`,
     `const [value, setValue] = createSignal();
     on([value], () => console.log('hello'));`,
+    // spreading props
+    `function Component(props) {
+      return <div {...props} />;
+    }`,
+    `function Component(props) {
+      return <div {...props.nestedProps} />;
+    }`,
+    `function Component() {
+      const [signal, setSignal] = createSignal({});
+      return <div {...signal()} />;
+    }`,
     // Derived signals
     `let c = () => {
       const [signal] = createSignal();
