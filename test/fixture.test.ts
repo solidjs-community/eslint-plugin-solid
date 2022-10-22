@@ -13,7 +13,7 @@ const getTestFiles = (dir: string): Array<string> => {
 
 describe("fixture", function () {
   it("loads the plugin without crashing", async () => {
-    jest.setTimeout(10 * 1000);
+    jest.setTimeout(100 * 1000);
     const exampleFile = path.join("test", "fixture", "invalid", "jsx-undef.jsx");
     const { exitCode } = await execa(eslintBinPath, ["--print-config", exampleFile], {
       shell: true,
@@ -22,7 +22,7 @@ describe("fixture", function () {
   });
 
   it("produces reasonable lint errors", async () => {
-    jest.setTimeout(10 * 1000);
+    jest.setTimeout(100 * 1000);
     try {
       const exampleFile = path.join("test", "fixture", "invalid", "jsx-undef.jsx");
       await execa(eslintBinPath, [exampleFile], {
