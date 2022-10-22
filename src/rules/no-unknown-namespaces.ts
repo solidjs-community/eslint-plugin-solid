@@ -14,7 +14,7 @@ const rule: TSESLint.RuleModule<
       recommended: "error",
       description:
         "Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`).",
-      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/no-unknown-namespaces.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-unknown-namespaces.md",
     },
     hasSuggestions: true,
     schema: [

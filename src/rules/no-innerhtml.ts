@@ -14,7 +14,7 @@ const rule: TSESLint.RuleModule<
       recommended: "error",
       description:
         "Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities.",
-      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/no-innerhtml.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-innerhtml.md",
     },
     fixable: "code",
     hasSuggestions: true,

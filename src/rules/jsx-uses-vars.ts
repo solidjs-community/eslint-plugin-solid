@@ -13,7 +13,7 @@ const rule: TSESLint.RuleModule<never, []> = {
       recommended: "error",
       // eslint-disable-next-line eslint-plugin/require-meta-docs-description
       description: "Prevent variables used in JSX from being marked as unused.",
-      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/jsx-uses-vars.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/jsx-uses-vars.md",
     },
     schema: [],
     messages: {},

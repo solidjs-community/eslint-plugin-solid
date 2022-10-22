@@ -7,7 +7,7 @@ This rule is **an error** by default.
 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
-See [this issue](https://github.com/joshwilsonvu/eslint-plugin-solid/issues/24) for rationale.
+See [this issue](https://github.com/solidjs-community/eslint-plugin-solid/issues/24) for rationale.
 
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
  

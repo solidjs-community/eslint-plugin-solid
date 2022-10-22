@@ -4,7 +4,7 @@
   "description": "Solid-specific linting rules for ESLint.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "repository": "https://github.com/joshwilsonvu/eslint-plugin-solid",
+  "repository": "https://github.com/solidjs-community/eslint-plugin-solid",
   "author": "Josh Wilson <joshwilsonvu@gmail.com>",
   "license": "MIT",
   "engines": {

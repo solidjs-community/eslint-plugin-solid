@@ -10,7 +10,7 @@ const rule: TSESLint.RuleModule<"preferFor" | "preferForOrIndex", []> = {
       recommended: "error",
       description:
         "Enforce using Solid's `<For />` component for mapping an array to JSX elements.",
-      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/prefer-for.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/prefer-for.md",
     },
     fixable: "code",
     schema: [],

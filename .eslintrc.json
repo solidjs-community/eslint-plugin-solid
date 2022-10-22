@@ -36,7 +36,7 @@
         "eslint-plugin/require-meta-docs-url": [
           "error",
           {
-            "pattern": "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/{{name}}.md"
+            "pattern": "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/{{name}}.md"
           }
         ]
       }

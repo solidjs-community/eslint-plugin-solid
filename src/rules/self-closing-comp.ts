@@ -42,7 +42,7 @@ const rule: TSESLint.RuleModule<
     docs: {
       description: "Disallow extra closing tags for components without children.",
       recommended: "warn",
-      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/self-closing-comp.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/self-closing-comp.md",
     },
     fixable: "code",
     schema: [

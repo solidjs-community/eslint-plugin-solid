@@ -9,7 +9,7 @@ const rule: TSESLint.RuleModule<"preferShowAnd" | "preferShowTernary", []> = {
       recommended: false,
       description:
         "Enforce using Solid's `<Show />` component for conditionally showing content. Solid's compiler covers this case, so it's a stylistic rule only.",
-      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/prefer-show.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/prefer-show.md",
     },
     fixable: "code",
     schema: [],

@@ -9,7 +9,7 @@ const rule: TSESLint.RuleModule<"preferClasslist", [{ classnames?: [string, ...A
         recommended: "warn",
         description:
           "Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames.",
-        url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/prefer-classlist.md",
+        url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/prefer-classlist.md",
       },
       fixable: "code",
       schema: [

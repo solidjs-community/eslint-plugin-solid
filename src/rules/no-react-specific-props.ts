@@ -14,7 +14,7 @@ const rule: TSESLint.RuleModule<"prefer" | "noUselessKey", []> = {
       recommended: "warn",
       description:
         "Disallow usage of React-specific `className`/`htmlFor` props, which were deprecated in v1.4.0.",
-      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/no-react-specific-props.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-react-specific-props.md",
     },
     fixable: "code",
     schema: [],

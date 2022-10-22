@@ -83,7 +83,7 @@ const rule: TSESLint.RuleModule<
       recommended: "warn",
       description:
         "Enforce naming DOM element event handlers consistently and prevent Solid's analysis from misunderstanding whether a prop should be an event handler.",
-      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/event-handlers.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/event-handlers.md",
     },
     fixable: "code",
     hasSuggestions: true,

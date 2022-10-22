@@ -22,7 +22,7 @@ const rule: TSESLint.RuleModule<"noJSURL", []> = {
     docs: {
       recommended: "error",
       description: "Disallow javascript: URLs.",
-      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/jsx-no-script-url.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/jsx-no-script-url.md",
     },
     schema: [],
     messages: {

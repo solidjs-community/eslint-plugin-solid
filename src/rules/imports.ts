@@ -127,7 +127,7 @@ const rule: TSESLint.RuleModule<"prefer-source", []> = {
       recommended: "warn",
       description:
         'Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store".',
-      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/imports.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/imports.md",
     },
     fixable: "code",
     schema: [],

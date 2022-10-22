@@ -10,7 +10,7 @@
   ],
   "main": "dist.mjs",
   "types": "dist.d.ts",
-  "repository": "https://github.com/joshwilsonvu/eslint-plugin-solid",
+  "repository": "https://github.com/solidjs-community/eslint-plugin-solid",
   "author": "Josh Wilson <joshwilsonvu@gmail.com>",
   "license": "MIT",
   "scripts": {

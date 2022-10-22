@@ -5,9 +5,9 @@
 # Solid ESLint Plugin
 
 [![npm version](https://img.shields.io/npm/v/eslint-plugin-solid?style=for-the-badge)](https://npmjs.com/packages/eslint-plugin-solid)
-[![GitHub package version](https://img.shields.io/github/package-json/v/joshwilsonvu/eslint-plugin-solid?style=for-the-badge)](https://github.com/joshwilsonvu/eslint-plugin-solid)
+[![GitHub package version](https://img.shields.io/github/package-json/v/solidjs-community/eslint-plugin-solid?style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid)
 ![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--8.x-blue?style=for-the-badge)
-[![CI](https://github.com/joshwilsonvu/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg?style=for-the-badge)](https://github.com/joshwilsonvu/eslint-plugin-solid/actions/workflows/ci.yml)
+[![CI](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg?style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml)
 
 This package contains [Solid](https://www.solidjs.com/)-specific linting rules for ESLint. It can
 ease Solid's learning curve by finding and fixing problems around Solid's reactivity system, and can
@@ -102,14 +102,14 @@ options you can set.
 
 ### Disabling Rules
 
-The rules in this plugin provide sensible guidelines, but there may be occasions where you *know
-what you're doing* and want to ignore a warning. Just [add a
+The rules in this plugin provide sensible guidelines, but there may be occasions where you _know
+what you're doing_ and want to ignore a warning. Just [add a
 comment](https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules) like the
 following:
 
 ```jsx
 // eslint-disable-next-line solid/reactivity
-const [editedValue, setEditedValue] = createSignal(props.value)
+const [editedValue, setEditedValue] = createSignal(props.value);
 ```
 
 ## Rules

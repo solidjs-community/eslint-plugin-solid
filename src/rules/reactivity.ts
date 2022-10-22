@@ -1,6 +1,6 @@
 /**
  * File overview here, scroll to bottom.
- * @link https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md
+ * @link https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md
  */
 
 import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/utils";
@@ -230,19 +230,19 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       recommended: "warn",
       description:
         "Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected.",
-      url: "https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md",
     },
     schema: [],
     messages: {
       noWrite: "The reactive variable '{{name}}' should not be reassigned or altered directly.",
       untrackedReactive:
-        "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or inside an event handler function. Details: https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md.",
+        "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or inside an event handler function. Details: https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md.",
       expectedFunctionGotExpression:
         "The reactive variable '{{name}}' should be wrapped in a function for reactivity. This includes event handler bindings, which are not reactive like other JSX props.",
       badSignal:
         "The reactive variable '{{name}}' should be called as a function when used in {{where}}.",
       badUnnamedDerivedSignal:
-        "This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity. Details: https://github.com/joshwilsonvu/eslint-plugin-solid/blob/main/docs/reactivity.md.",
+        "This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity. Details: https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md.",
       shouldDestructure:
         "For proper analysis, array destructuring should be used to capture the {{nth}}result of this function call.",
       shouldAssign:
