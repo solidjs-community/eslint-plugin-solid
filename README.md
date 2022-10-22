@@ -1,9 +1,13 @@
-# eslint-plugin-solid
+<p>
+  <img width="100%" src="https://assets.solidjs.com/banner?type=ESLint%20Extension&background=tiles&project=%20" alt="Solid ESLint Extension">
+</p>
 
-[![npm version](https://img.shields.io/npm/v/eslint-plugin-solid)](https://npmjs.com/packages/eslint-plugin-solid)
-[![GitHub package version](https://img.shields.io/github/package-json/v/joshwilsonvu/eslint-plugin-solid)](https://github.com/joshwilsonvu/eslint-plugin-solid)
-[![CI](https://github.com/joshwilsonvu/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg)](https://github.com/joshwilsonvu/eslint-plugin-solid/actions/workflows/ci.yml)
-![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--8.x-blue)
+# Solid ESLint Plugin
+
+[![npm version](https://img.shields.io/npm/v/eslint-plugin-solid?style=for-the-badge)](https://npmjs.com/packages/eslint-plugin-solid)
+[![GitHub package version](https://img.shields.io/github/package-json/v/joshwilsonvu/eslint-plugin-solid?style=for-the-badge)](https://github.com/joshwilsonvu/eslint-plugin-solid)
+![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--8.x-blue?style=for-the-badge)
+[![CI](https://github.com/joshwilsonvu/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg?style=for-the-badge)](https://github.com/joshwilsonvu/eslint-plugin-solid/actions/workflows/ci.yml)
 
 This package contains [Solid](https://www.solidjs.com/)-specific linting rules for ESLint. It can
 ease Solid's learning curve by finding and fixing problems around Solid's reactivity system, and can
