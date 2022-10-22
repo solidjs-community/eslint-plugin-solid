@@ -368,6 +368,8 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             } else {
               pushUnnamedDerivedSignal();
             }
+          } else if (currentScopeNode.parent?.type === "Property") {
+            // todo make this a unique props or something--for now, just ignore (unsafe)
           } else {
             pushUnnamedDerivedSignal();
           }
@@ -876,12 +878,14 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         } else if (/^(?:use|create)[A-Z]/.test(callee.name)) {
           // Custom hooks parameters may or may not be tracking scopes, no way to know.
           // Assume all identifier/function arguments are tracked scopes, and use "called-function"
-          // to allow async handlers (permissive)
-          node.arguments
-            .filter((arg) => isFunctionNode(arg) || arg.type === "Identifier")
-            .forEach((arg) => {
+          // to allow async handlers (permissive). Assume non-resolvable args are reactive expressions.
+          for (const arg of node.arguments) {
+            if (isFunctionNode(arg)) {
               pushTrackedScope(arg, "called-function");
-            });
+            } else if (arg.type === "Identifier" || arg.type === "ObjectExpression") {
+              pushTrackedScope(arg, "expression");
+            }
+          }
         }
       } else if (node.type === "CallExpression" && node.callee.type === "MemberExpression") {
         const { property } = node.callee;

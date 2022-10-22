@@ -143,13 +143,16 @@ export const cases = run("reactivity", rule, {
     `const [a, setA] = createSignal(1);
     const [b] = createSignal(2);
     on(b, async () => { await delay(1000); setA(a() + 1) });`,
+    // Custom hooks
     `const Component = (props) => {
       const localRef = () => props.ref;
-      // custom hooks
       const composedRef1 = useComposedRefs(localRef);
       const composedRef2 = useComposedRefs(() => props.ref);
       const composedRef3 = createComposedRefs(localRef);
     }`,
+    `function createFoo(v) {}
+    const [bar, setBar] = createSignal();
+    createFoo({ onBar: () => bar() });`,
     // Event listeners
     `const [signal, setSignal] = createSignal(1);
     const element = document.getElementById("id");
