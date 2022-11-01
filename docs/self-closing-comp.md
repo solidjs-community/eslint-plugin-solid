@@ -30,7 +30,7 @@ Options shown here are the defaults.
 
 ### Invalid Examples
 
-These snippets cause lint errors, and some can be auto-fixed.
+These snippets cause lint errors, and all of them can be auto-fixed.
 
 ```js
 let el = <div></div>;

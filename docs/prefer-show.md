@@ -16,7 +16,7 @@ This rule is **off** by default.
 
 ### Invalid Examples
 
-These snippets cause lint errors, and some can be auto-fixed.
+These snippets cause lint errors, and all of them can be auto-fixed.
 
 ```js
 function Component(props) {

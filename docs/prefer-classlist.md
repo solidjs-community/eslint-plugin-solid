@@ -28,7 +28,7 @@ Options shown here are the defaults. Manually configuring an array will *replace
 
 ### Invalid Examples
 
-These snippets cause lint errors, and some can be auto-fixed.
+These snippets cause lint errors, and all of them can be auto-fixed.
 
 ```js
 let el = <div class={cn({ red: true })}>Hello, world!</div>;

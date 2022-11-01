@@ -12,29 +12,35 @@ const getTestFiles = (dir: string): Array<string> => {
 };
 
 describe("fixture", function () {
-  it("loads the plugin without crashing", async () => {
-    jest.setTimeout(100 * 1000);
-    const exampleFile = path.join("test", "fixture", "invalid", "jsx-undef.jsx");
-    const { exitCode } = await execa(eslintBinPath, ["--print-config", exampleFile], {
-      shell: true,
-    });
-    expect(exitCode).toBe(0);
-  });
-
-  it("produces reasonable lint errors", async () => {
-    jest.setTimeout(100 * 1000);
-    try {
+  it(
+    "loads the plugin without crashing",
+    async () => {
       const exampleFile = path.join("test", "fixture", "invalid", "jsx-undef.jsx");
-      await execa(eslintBinPath, [exampleFile], {
+      const { exitCode } = await execa(eslintBinPath, ["--print-config", exampleFile], {
         shell: true,
       });
-    } catch (error: any) {
-      expect(error.exitCode).not.toBe(0);
-      expect(error.stderr).toBe("");
-      expect(error.stdout).toMatch(/'Component' is not defined/);
-      expect(error.stdout).toMatch(/solid\/jsx-no-undef/);
-    }
-  });
+      expect(exitCode).toBe(0);
+    },
+    100 * 1000
+  );
+
+  it(
+    "produces reasonable lint errors",
+    async () => {
+      try {
+        const exampleFile = path.join("test", "fixture", "invalid", "jsx-undef.jsx");
+        await execa(eslintBinPath, [exampleFile], {
+          shell: true,
+        });
+      } catch (error: any) {
+        expect(error.exitCode).not.toBe(0);
+        expect(error.stderr).toBe("");
+        expect(error.stdout).toMatch(/'Component' is not defined/);
+        expect(error.stdout).toMatch(/solid\/jsx-no-undef/);
+      }
+    },
+    100 * 1000
+  );
 
   describe("valid examples", () => {
     test.each(getTestFiles("valid").map((file) => [path.relative("test/fixture", file), file]))(

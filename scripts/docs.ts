@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs-extra";
 import markdownMagic from "markdown-magic";
 import prettier from "prettier";
+import type { TSESLint } from "@typescript-eslint/utils";
 const plugin = require("../src/index");
 
 const { rules, configs } = plugin;
@@ -59,11 +60,14 @@ const buildRulesTable = (rows: Array<string>) => {
 const buildHeader = (filename: string): string => {
   const ruleName = filename.replace(/\.md$/, "");
   if (!rules[ruleName]) return " ";
-  const description = rules[ruleName].meta.docs.description;
+  const meta: TSESLint.RuleMetaData<never> = rules[ruleName].meta;
   return [
     `# solid/${ruleName}`,
-    description,
-    `This rule is **${getLevelForRule(`solid/${ruleName}`, formatLevel)}** by default.\n`,
+    meta.docs?.description,
+    `This rule is ${meta.deprecated ? "**deprecated** and " : ""}**${getLevelForRule(
+      `solid/${ruleName}`,
+      formatLevel
+    )}** by default.\n`,
     `[View source](../src/rules/${ruleName}.ts) · [View tests](../test/rules/${ruleName}.test.ts)\n`,
   ].join("\n");
 };
@@ -94,9 +98,6 @@ const buildOptions = (filename: string): string => {
       return `    // ${properties[prop].description}\n    ${prop}: ${JSON.stringify(_default)}, ${
         type !== "boolean" ? "// " + type : ""
       }`;
-      // return `${prop} | \`${type}\` | ${properties[prop].description ?? ""}${
-      //   _default != null ? ` *Default \`${JSON.stringify(_default)}\`*.` : ""
-      // }`;
     }),
     "  }]",
     "}",
@@ -129,11 +130,14 @@ const buildCases = (content: string, filename: string) => {
   const valid = cases.valid?.map((c: any) => (typeof c === "string" ? { code: c } : c)) ?? [];
   const invalid = cases.invalid ?? [];
 
+  const allFixed = invalid.every((c: any) => c.output);
+  const someFixed = !allFixed && invalid.some((c: any) => c.output);
+
   const markdown = [
     "## Tests\n",
     "### Invalid Examples\n",
-    `These snippets cause lint errors${
-      invalid.some((c: any) => c.output) ? ", and some can be auto-fixed" : ""
+    `These snippets cause lint errors${allFixed ? ", and all of them can be auto-fixed" : ""}${
+      someFixed ? ", and some can be auto-fixed" : ""
     }.\n`,
     "```js",
     invalid.map((c: any) => [
