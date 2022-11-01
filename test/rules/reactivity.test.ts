@@ -11,7 +11,7 @@ jest.mock("../../src/utils", () => {
       const handleImportDeclaration = () => {};
       const matchImport = (imports: string | Array<string>, str: string) => {
         const importArr = Array.isArray(imports) ? imports : [imports];
-        return importArr.includes(str);
+        return importArr.find((i) => i === str);
       };
       return { matchImport, handleImportDeclaration };
     },

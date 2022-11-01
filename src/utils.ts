@@ -1,4 +1,5 @@
-import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
+import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/utils";
+const { findVariable } = ASTUtils;
 
 const domElementRegex = /^[a-z]/;
 export const isDOMElementName = (name: string): boolean => domElementRegex.test(name);
@@ -40,6 +41,32 @@ export function findParent<Guard extends T.Node>(
 export function findParent(node: T.Node, predicate: (node: T.Node) => boolean): T.Node | null;
 export function findParent(node: T.Node, predicate: (node: T.Node) => boolean): T.Node | null {
   return node.parent ? find(node.parent, predicate) : null;
+}
+
+// Try to resolve a variable to its definition
+export function trace(node: T.Node, initialScope: TSESLint.Scope.Scope): T.Node {
+  if (node.type === "Identifier") {
+    const variable = findVariable(initialScope, node);
+    if (!variable) return node;
+
+    const def = variable.defs[0];
+    switch (def.type) {
+      case "FunctionName":
+      case "ClassName":
+      case "ImportBinding":
+        return def.node;
+      case "Variable":
+        if (
+          ((def.node.parent as T.VariableDeclaration).kind === "const" ||
+            variable.references.every((ref) => ref.init || ref.isReadOnly())) &&
+          def.node.id.type === "Identifier" &&
+          def.node.init
+        ) {
+          return trace(def.node.init, initialScope);
+        }
+    }
+  }
+  return node;
 }
 
 export type FunctionNode = T.FunctionExpression | T.ArrowFunctionExpression | T.FunctionDeclaration;
@@ -95,12 +122,9 @@ export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
       }
     }
   };
-  const matchImport = (imports: string | Array<string>, str: string) => {
+  const matchImport = (imports: string | Array<string>, str: string): string | undefined => {
     const importArr = Array.isArray(imports) ? imports : [imports];
-    return importArr
-      .map((i) => importMap.get(i))
-      .filter(Boolean)
-      .includes(str);
+    return importArr.find((i) => importMap.get(i) === str);
   };
   return { matchImport, handleImportDeclaration };
 };
