@@ -18,6 +18,12 @@ export const cases = run("components-return-once", rule, {
       }
       return <div />;
     }`,
+    `callback(() => {
+      if (condition) {
+        return <div />;
+      }
+      return <div />;
+    });`,
   ],
   invalid: [
     // Early returns
@@ -110,6 +116,16 @@ export const cases = run("components-return-once", rule, {
   return props.primary || <div>{props.secondaryText}</div>;
 }`,
       errors: [{ messageId: "noConditionalReturn" }],
+    },
+    // HOCs
+    {
+      code: `HOC(() => {
+        if (condition) {
+          return <div />;
+        }
+        return <div />;
+      });`,
+      errors: [{ messageId: "noEarlyReturn" }],
     },
   ],
 });
