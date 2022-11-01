@@ -10,7 +10,7 @@ const rule: TSESLint.RuleModule<
     docs: {
       recommended: false,
       description:
-        "Disallow usage of APIs that use ES6 Proxies, to target environments that don't support them.",
+        "Disallow usage of APIs that use ES6 Proxies, only to target environments that don't support them.",
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-proxy-apis.md",
     },
     schema: [],
