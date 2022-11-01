@@ -7,6 +7,7 @@ import jsxNoUndef from "./rules/jsx-no-undef";
 import jsxUsesVars from "./rules/jsx-uses-vars";
 import noDestructure from "./rules/no-destructure";
 import noInnerHTML from "./rules/no-innerhtml";
+import noProxyApis from "./rules/no-proxy-apis";
 import noReactSpecificProps from "./rules/no-react-specific-props";
 import noUnknownNamespaces from "./rules/no-unknown-namespaces";
 import preferClasslist from "./rules/prefer-classlist";
@@ -27,6 +28,7 @@ const allRules = {
   "jsx-uses-vars": jsxUsesVars,
   "no-destructure": noDestructure,
   "no-innerhtml": noInnerHTML,
+  "no-proxy-apis": noProxyApis,
   "no-react-specific-props": noReactSpecificProps,
   "no-unknown-namespaces": noUnknownNamespaces,
   "prefer-classlist": preferClasslist,
@@ -79,6 +81,8 @@ const plugin = {
         "solid/self-closing-comp": 1,
         // handled by Solid compiler, opt-in style suggestion
         "solid/prefer-show": 0,
+        // only necessary for resource-constrained environments
+        "solid/no-proxy-apis": 0,
       },
     },
     typescript: {
@@ -111,6 +115,8 @@ const plugin = {
         "solid/no-unknown-namespaces": 0,
         // handled by Solid compiler, opt-in style suggestion
         "solid/prefer-show": 0,
+        // only necessary for resource-constrained environments
+        "solid/no-proxy-apis": 0,
       },
     },
   },
