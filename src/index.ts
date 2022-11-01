@@ -75,10 +75,11 @@ const plugin = {
         "solid/imports": 1,
         "solid/style-prop": 1,
         "solid/no-react-specific-props": 1,
-        "solid/prefer-classlist": 1,
         "solid/self-closing-comp": 1,
         // handled by Solid compiler, opt-in style suggestion
         "solid/prefer-show": 0,
+        // deprecated
+        "solid/prefer-classlist": 0,
       },
     },
     typescript: {
@@ -105,12 +106,13 @@ const plugin = {
         "solid/imports": 1,
         "solid/style-prop": 1,
         "solid/no-react-specific-props": 1,
-        "solid/prefer-classlist": 1,
         "solid/self-closing-comp": 1,
         // namespaces taken care of by TS
         "solid/no-unknown-namespaces": 0,
         // handled by Solid compiler, opt-in style suggestion
         "solid/prefer-show": 0,
+        // deprecated
+        "solid/prefer-classlist": 0,
       },
     },
   },
