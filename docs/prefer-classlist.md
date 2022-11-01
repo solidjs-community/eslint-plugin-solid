@@ -1,7 +1,7 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/prefer-classlist
 Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames.
-This rule is **a warning** by default.
+This rule is **off** by default.
 
 [View source](../src/rules/prefer-classlist.ts) · [View tests](../test/rules/prefer-classlist.test.ts)
 
@@ -14,7 +14,7 @@ Options shown here are the defaults. Manually configuring an array will *replace
 
 ```js
 {
-  "solid/prefer-classlist": ["warn", { 
+  "solid/prefer-classlist": ["off", { 
     // An array of names to treat as `classnames` functions
     classnames: ["cn","clsx","classnames"], // Array<string>
   }]

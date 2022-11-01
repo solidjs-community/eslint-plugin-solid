@@ -6,7 +6,7 @@ const rule: TSESLint.RuleModule<"preferClasslist", [{ classnames?: [string, ...A
     meta: {
       type: "problem",
       docs: {
-        recommended: "warn",
+        recommended: false,
         description:
           "Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames.",
         url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/prefer-classlist.md",
@@ -34,6 +34,7 @@ const rule: TSESLint.RuleModule<"preferClasslist", [{ classnames?: [string, ...A
         preferClasslist:
           "The classlist prop should be used instead of {{ classnames }} to efficiently set classes based on an object.",
       },
+      deprecated: true,
     },
     create(context) {
       const classnames = context.options[0]?.classnames ?? ["cn", "clsx", "classnames"];
