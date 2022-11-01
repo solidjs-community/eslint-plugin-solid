@@ -181,9 +181,18 @@ export const cases = run("reactivity", rule, {
       const [signal, setSignal] = createSignal(1);
       return <div on:click={() => console.log(signal())} />;
     }`,
-    // Don't warn on using props.initial* for initialization
+    // Pass reactive variables as-is into provider value prop
+    `const Component = props => {
+      const [signal] = createSignal();
+      return <SomeContext.Provider value={signal}>{props.children}</SomeContext.Provider>;
+    }`,
+    // Don't warn on using props.initial* or props.default* for initialization
     `function Component(props) {
       const [count, setCount] = useSignal(props.initialCount);
+      return <div>{count()}</div>;
+    }`,
+    `function Component(props) {
+      const [count, setCount] = useSignal(props.defaultCount);
       return <div>{count()}</div>;
     }`,
     // Store getters
@@ -556,6 +565,29 @@ export const cases = run("reactivity", rule, {
           data: { name: "props.theEffect" },
         },
       ],
+    },
+    // provider value passed as-is
+    {
+      code: `
+      const Component = props => {
+        return <SomeContext.Provider value={props.value}>{props.children}</SomeContext.Provider>;
+      }`,
+      errors: [{ messageId: "untrackedReactive", data: { name: "props.value" } }],
+    },
+    {
+      code: `
+      const Component = props => {
+        return <SomeProvider value={props.value}>{props.children}</SomeProvider>;
+      }`,
+      errors: [{ messageId: "untrackedReactive", data: { name: "props.value" } }],
+    },
+    {
+      code: `
+      const Component = props => {
+        const [signal] = createSignal();
+        return <SomeContext.Provider value={signal()} someOtherProp={props.foo}>{props.children}</SomeContext.Provider>;
+      }`,
+      errors: [{ messageId: "untrackedReactive", data: { name: "signal" } }],
     },
     // getOwner/runWithOwner
     {

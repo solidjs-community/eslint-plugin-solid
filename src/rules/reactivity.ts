@@ -753,22 +753,40 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         }
       };
       if (node.type === "JSXExpressionContainer") {
-        // Expect a function if the attribute is like onClick={} or on:click={}.
-        // From the docs: Events are never rebound and the bindings are not
-        // reactive, as it is expensive to attach and detach listeners. Since
-        // event handlers are called like any other function each time an event
-        // fires, there is no need for reactivity; simply shortcut your handler
-        // if desired.
-        // What this means here is we actually do consider an event handler a
-        // tracked scope expecting a function, i.e. it's okay to use changing
-        // props/signals in the body of the function, even though the changes
-        // don't affect when the handler will run.
-        const expect =
+        if (
           node.parent?.type === "JSXAttribute" &&
           /^on[:A-Z]/.test(sourceCode.getText(node.parent.name))
-            ? "called-function"
-            : "expression";
-        pushTrackedScope(node.expression, expect);
+        ) {
+          // Expect a function if the attribute is like onClick={} or on:click={}.
+          // From the docs: Events are never rebound and the bindings are not
+          // reactive, as it is expensive to attach and detach listeners. Since
+          // event handlers are called like any other function each time an event
+          // fires, there is no need for reactivity; simply shortcut your handler
+          // if desired.
+          // What this means here is we actually do consider an event handler a
+          // tracked scope expecting a function, i.e. it's okay to use changing
+          // props/signals in the body of the function, even though the changes
+          // don't affect when the handler will run.
+          pushTrackedScope(node.expression, "called-function");
+        } else if (
+          node.parent?.type === "JSXAttribute" &&
+          node.parent.name.name === "value" &&
+          node.parent.parent?.type === "JSXOpeningElement" &&
+          ((node.parent.parent.name.type === "JSXIdentifier" &&
+            node.parent.parent.name.name.endsWith("Provider")) ||
+            (node.parent.parent.name.type === "JSXMemberExpression" &&
+              node.parent.parent.name.property.name === "Provider"))
+        ) {
+          // From the docs: "The value passed to provider is passed to useContext as is. That means
+          // wrapping as a reactive expression will not work. You should pass in Signals and Stores
+          // directly instead of accessing them in the JSX."
+          // For `<SomeContext.Provider value={}>` or `<SomeProvider value={}>`, do nothing, the
+          // rule will warn later.
+          // TODO: add some kind of "anti- tracked scope" that still warns but enhances the error
+          // message if matched.
+        } else {
+          pushTrackedScope(node.expression, "expression");
+        }
       } else if (node.type === "JSXSpreadAttribute") {
         // allow <div {...props.nestedProps} />; {...props} is already ignored
         pushTrackedScope(node.argument, "expression");
