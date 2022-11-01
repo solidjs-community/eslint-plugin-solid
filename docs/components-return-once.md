@@ -106,6 +106,13 @@ function Component(props) {
   return props.primary || <div>{props.secondaryText}</div>;
 }
  
+HOC(() => {
+  if (condition) {
+    return <div />;
+  }
+  return <div />;
+});
+ 
 ```
 
 ### Valid Examples
@@ -130,6 +137,13 @@ function notAComponent() {
   }
   return <div />;
 }
+
+callback(() => {
+  if (condition) {
+    return <div />;
+  }
+  return <div />;
+});
 
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->

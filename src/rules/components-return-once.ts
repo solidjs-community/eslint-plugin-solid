@@ -62,7 +62,12 @@ const rule: TSESLint.RuleModule<"noEarlyReturn" | "noConditionalReturn", []> = {
     const onFunctionExit = (node: FunctionNode) => {
       if (
         (node.type === "FunctionDeclaration" && node.id?.name?.match(/^[a-z]/)) ||
-        node.parent?.type === "JSXExpressionContainer" // "render props" aren't components
+        // "render props" aren't components
+        node.parent?.type === "JSXExpressionContainer" ||
+        // ignore createMemo(() => conditional JSX), report HOC(() => conditional JSX)
+        (node.parent?.type === "CallExpression" &&
+          node.parent.arguments.some((n) => n === node) &&
+          !(node.parent.callee as T.Identifier).name?.match(/^[A-Z]/))
       ) {
         currentFunction().isComponent = false;
       }
