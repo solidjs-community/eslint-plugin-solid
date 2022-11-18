@@ -8,13 +8,12 @@ const plugin = require("../src/index");
 
 const { rules, configs } = plugin;
 
-const recommendedRules = Object.keys(configs.recommended.rules);
 const ruleTableRows = Object.keys(rules)
   .sort()
   .map((id) => {
     const { fixable, docs } = rules[id].meta;
     return [
-      recommendedRules.includes(`solid/${id}`) ? "✔" : "",
+      configs.recommended.rules[`solid/${id}`] ? "✔" : "",
       fixable ? "🔧" : "",
       `[solid/${id}](docs/${id}.md)`,
       docs.description,
