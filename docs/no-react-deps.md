@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/no-react-deps
-Disallow usage of dependency arrays in createEffect and createMemo.
+Disallow usage of dependency arrays in `createEffect` and `createMemo`.
 This rule is **a warning** by default.
 
 [View source](../src/rules/no-react-deps.ts) · [View tests](../test/rules/no-react-deps.test.ts)
@@ -16,7 +16,7 @@ This rule is **a warning** by default.
 
 ### Invalid Examples
 
-These snippets cause lint errors, and all of them can be auto-fixed.
+These snippets cause lint errors, and some can be auto-fixed.
 
 ```js
 createEffect(() => {
@@ -35,6 +35,11 @@ createEffect(() => {
   console.log(signal());
 });
  
+const deps = [signal];
+createEffect(() => {
+  console.log(signal());
+}, deps);
+ 
 const value = createMemo(() => computeExpensiveValue(a(), b()), [a(), b()]);
 // after eslint --fix:
 const value = createMemo(() => computeExpensiveValue(a(), b()));
@@ -46,6 +51,13 @@ const value = createMemo(() => computeExpensiveValue(a(), b()));
 const value = createMemo(() => computeExpensiveValue(a(), b()), [a, b()]);
 // after eslint --fix:
 const value = createMemo(() => computeExpensiveValue(a(), b()));
+ 
+const deps = [a, b];
+const value = createMemo(() => computeExpensiveValue(a(), b()), deps);
+ 
+const deps = [a, b];
+const memoFn = () => computeExpensiveValue(a(), b());
+const value = createMemo(memoFn, deps);
  
 ```
 

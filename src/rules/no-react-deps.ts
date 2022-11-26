@@ -6,14 +6,14 @@ const rule: TSESLint.RuleModule<"noUselessDep", []> = {
     type: "problem",
     docs: {
       recommended: "warn",
-      description: "Disallow usage of dependency arrays in createEffect and createMemo.",
+      description: "Disallow usage of dependency arrays in `createEffect` and `createMemo`.",
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-react-deps.md",
     },
     fixable: "code",
     schema: [],
     messages: {
       noUselessDep:
-        "In Solid, {{ name }} doesn't need a dependency array because it automatically tracks its dependencies. If you really need to override the list of dependencies, use `on`.",
+        "In Solid, `{{name}}` doesn't accept a dependency array because it automatically tracks its dependencies. If you really need to override the list of dependencies, use `on`.",
     },
   },
   create(context) {

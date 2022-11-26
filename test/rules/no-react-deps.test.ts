@@ -34,6 +34,14 @@ export const cases = run("no-react-deps", rule, {
       }, );`,
     },
     {
+      code: `const deps = [signal];
+      createEffect(() => {
+        console.log(signal());
+      }, deps);`,
+      errors: [{ messageId: "noUselessDep", data: { name: "createEffect" } }],
+      // no `output`
+    },
+    {
       code: `const value = createMemo(() => computeExpensiveValue(a(), b()), [a(), b()]);`,
       errors: [{ messageId: "noUselessDep", data: { name: "createMemo" } }],
       output: `const value = createMemo(() => computeExpensiveValue(a(), b()), );`,
@@ -47,6 +55,19 @@ export const cases = run("no-react-deps", rule, {
       code: `const value = createMemo(() => computeExpensiveValue(a(), b()), [a, b()]);`,
       errors: [{ messageId: "noUselessDep", data: { name: "createMemo" } }],
       output: `const value = createMemo(() => computeExpensiveValue(a(), b()), );`,
+    },
+    {
+      code: `const deps = [a, b];
+      const value = createMemo(() => computeExpensiveValue(a(), b()), deps);`,
+      errors: [{ messageId: "noUselessDep", data: { name: "createMemo" } }],
+      // no `output`
+    },
+    {
+      code: `const deps = [a, b];
+      const memoFn = () => computeExpensiveValue(a(), b());
+      const value = createMemo(memoFn, deps);`,
+      errors: [{ messageId: "noUselessDep", data: { name: "createMemo" } }],
+      // no `output`
     },
   ],
 });
