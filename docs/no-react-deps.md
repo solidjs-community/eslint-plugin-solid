@@ -71,8 +71,14 @@ createEffect(() => {
 });
 
 createEffect((prev) => {
-  console.log(signal() + prev);
+  console.log(signal());
+  return prev + 1;
 }, 0);
+
+createEffect((prev) => {
+  console.log(signal());
+  return (prev || 0) + 1;
+});
 
 const value = createMemo(() => computeExpensiveValue(a(), b()));
 

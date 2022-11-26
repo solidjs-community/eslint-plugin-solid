@@ -7,8 +7,13 @@ export const cases = run("no-react-deps", rule, {
       console.log(signal());
     });`,
     `createEffect((prev) => {
-      console.log(signal() + prev);
+      console.log(signal());
+      return prev + 1;
     }, 0);`,
+    `createEffect((prev) => {
+      console.log(signal());
+      return (prev || 0) + 1;
+    });`,
     `const value = createMemo(() => computeExpensiveValue(a(), b()));`,
     `const sum = createMemo((prev) => input() + prev, 0);`,
     `const args = [() => { console.log(signal()); }, [signal()]];
