@@ -16,64 +16,27 @@ This rule is **off** by default.
 
 ### Invalid Examples
 
-These snippets cause lint errors, and some can be auto-fixed.
+These snippets cause lint errors.
 
 ```js
-let el = <div className="greeting">Hello world!</div>;
-// after eslint --fix:
-let el = <div class="greeting">Hello world!</div>;
+let proxy = new Proxy(asdf, {});
  
-let el = <div className={"greeting"}>Hello world!</div>;
-// after eslint --fix:
-let el = <div class={"greeting"}>Hello world!</div>;
+let proxy = Proxy.revocable(asdf, {});
  
-let el = <div className="greeting" />;
-// after eslint --fix:
-let el = <div class="greeting" />;
+import {} from "solid-js/store";
  
-let el = (
-  <div many other attributes className="greeting">
-    Hello world!
-  </div>
-);
-// after eslint --fix:
-let el = (
-  <div many other attributes class="greeting">
-    Hello world!
-  </div>
-);
+let el = <div {...maybeSignal()} />;
  
-let el = <PascalComponent className="greeting">Hello world!</PascalComponent>;
-// after eslint --fix:
-let el = <PascalComponent class="greeting">Hello world!</PascalComponent>;
+let el = <div {...{ ...maybeSignal() }} />;
  
-let el = <label htmlFor="id">Hello world!</label>;
-// after eslint --fix:
-let el = <label for="id">Hello world!</label>;
+let el = <div {...maybeProps.foo} />;
  
-let el = <label htmlFor={"id"}>Hello world!</label>;
-// after eslint --fix:
-let el = <label for={"id"}>Hello world!</label>;
+let el = <div {...{ ...maybeProps.foo }} />;
  
-let el = (
-  <label many other attributes htmlFor="id">
-    Hello world!
-  </label>
-);
-// after eslint --fix:
-let el = (
-  <label many other attributes for="id">
-    Hello world!
-  </label>
-);
+let merged = mergeProps(maybeSignal);
  
-let el = <PascalComponent htmlFor="id">Hello world!</PascalComponent>;
-// after eslint --fix:
-let el = <PascalComponent for="id">Hello world!</PascalComponent>;
- 
-let el = <div key={item.id} />;
-// after eslint --fix:
-let el = <div />;
+let func = () => ({});
+let merged = mergeProps(func, props);
  
 ```
 
@@ -82,33 +45,28 @@ let el = <div />;
 These snippets don't cause lint errors.
 
 ```js
-let el = <div>Hello world!</div>;
+let merged = mergeProps({}, props);
 
-let el = <div class="greeting">Hello world!</div>;
+const obj = {};
+let merged = mergeProps(obj, props);
 
-let el = <div class={"greeting"}>Hello world!</div>;
+let obj = {};
+let merged = mergeProps(obj, props);
 
-let el = (
-  <div many other attributes class="greeting">
-    Hello world!
-  </div>
+let merged = mergeProps(
+  {
+    get asdf() {
+      signal();
+    },
+  },
+  props
 );
 
-let el = <label for="id">Hello world!</label>;
+let el = <div {...{ asdf: "asdf" }} />;
 
-let el = <label for="id">Hello world!</label>;
+let el = <div {...asdf} />;
 
-let el = <label for={"id"}>Hello world!</label>;
-
-let el = (
-  <label many other attributes for="id">
-    Hello world!
-  </label>
-);
-
-let el = <PascalComponent class="greeting" for="id" />;
-
-let el = <PascalComponent key={item.id} />;
+let obj = { Proxy: 1 };
 
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->

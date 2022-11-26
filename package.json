@@ -16,7 +16,7 @@
     "build": "tsc -p tsconfig.build.json && pnpm run docs",
     "lint": "eslint --ignore-pattern test/fixture/invalid .",
     "docs": "PARSER=none ts-node --transpile-only scripts/docs.ts",
-    "test": "jest --runInBand",
+    "test": "jest",
     "test:ts": "PARSER=ts pnpm test",
     "test:babel": "PARSER=babel pnpm test",
     "test:v6": "PARSER=v6 pnpm test",

@@ -12,6 +12,8 @@ This rule is **a warning** by default.
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+## Tests
+
 ### Invalid Examples
 
 These snippets cause lint errors.
@@ -22,30 +24,35 @@ const Component = () => {
   console.log(signal());
   return null;
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal(5);
   console.log(signal());
   return <div>{signal()}</div>;
 };
-
+ 
 const Component = (props) => {
   const value = props.value;
   return <div>{value()}</div>;
 };
-
+ 
 const Component = (props) => {
   const { value: valueProp } = props;
   const value = createMemo(() => valueProp || "default");
   return <div>{value()}</div>;
 };
-
+ 
 const Component = (props) => {
   const valueProp = props.value;
   const value = createMemo(() => valueProp || "default");
   return <div>{value()}</div>;
 };
-
+ 
+function Component(something) {
+  console.log(something.a);
+  return <div />;
+}
+ 
 const Component = () => {
   const [signal] = createSignal();
   const d = () => {
@@ -54,7 +61,16 @@ const Component = () => {
   };
   d(); // not ok
 };
-
+ 
+const Component = () => {
+  const [signal] = createSignal();
+  function d() {
+    // <-- d becomes a derived signal
+    signal();
+  }
+  d(); // not ok
+};
+ 
 const Component = () => {
   const [signal] = createSignal();
   const d = () => {
@@ -67,7 +83,7 @@ const Component = () => {
   };
   d(); // not ok
 };
-
+ 
 const Component = () => {
   const [signal1] = createSignal();
   const d = () => {
@@ -81,7 +97,7 @@ const Component = () => {
     e(); // not ok, signal2 is in scope
   };
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal();
   const foo = () => {
@@ -94,44 +110,123 @@ const Component = () => {
   };
   bar(); // not ok
 };
-
+ 
 const Component = () => {
   createSignal();
 };
-
+ 
 const Component = () => {
   const [, setSignal] = createSignal();
 };
-
+ 
 const Component = () => {
   createMemo(() => 5);
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal();
   return <div>{signal}</div>;
 };
-
+ 
 const Component = () => {
   const memo = createMemo(() => 5);
   return <div>{memo}</div>;
 };
-
+ 
+const Component = () => {
+  const [signal] = createSignal();
+  return <button type={signal}>Button</button>;
+};
+ 
+const Component = () => {
+  const [signal] = createSignal();
+  return <div>{signal}</div>;
+};
+ 
+const Component = () => {
+  const [signal] = createSignal("world");
+  const memo = createMemo(() => "hello " + signal);
+};
+ 
+const Component = () => {
+  const [signal] = createSignal("world");
+  const memo = createMemo(() => `hello ${signal}`);
+};
+ 
+const Component = () => {
+  const [signal] = createSignal(5);
+  const memo = createMemo(() => -signal);
+};
+ 
+const Component = (props) => {
+  const [signal] = createSignal(5);
+  const memo = createMemo(() => props.array[signal]);
+};
+ 
+const Component = (props) => {
+  return <div onClick={props.onClick} />;
+};
+ 
+const Component = (props) => {
+  createEffect(props.theEffect);
+};
+ 
+const Component = (props) => {
+  return (
+    <SomeContext.Provider value={props.value}>
+      {props.children}
+    </SomeContext.Provider>
+  );
+};
+ 
+const Component = (props) => {
+  return <SomeProvider value={props.value}>{props.children}</SomeProvider>;
+};
+ 
+const Component = (props) => {
+  const [signal] = createSignal();
+  return (
+    <SomeContext.Provider value={signal()} someOtherProp={props.foo}>
+      {props.children}
+    </SomeContext.Provider>
+  );
+};
+ 
 const owner = getOwner();
 const [signal] = createSignal();
 createEffect(() => runWithOwner(owner, () => console.log(signal())));
-
+ 
 function Component() {
   const owner = getOwner();
   const [signal] = createSignal();
   createEffect(() => runWithOwner(owner, () => console.log(signal())));
 }
-
+ 
+const [count, setCount] = createSignal(0);
+createEffect(async () => {
+  await Promise.resolve();
+  console.log(count());
+});
+ 
 const [photos, setPhotos] = createSignal([]);
 createEffect(async () => {
-  const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
+  const res = await fetch(
+    "https://jsonplaceholder.typicode.com/photos?_limit=20"
+  );
   setPhotos(await res.json());
 });
+ 
+const [signal] = createSignal("red");
+css`
+  color: ${signal};
+`;
+ 
+const [signal] = createSignal("red");
+const f = () => signal();
+css`
+  color: ${f};
+`;
+ 
 ```
 
 ### Valid Examples
@@ -202,13 +297,26 @@ on(value, () => console.log("hello"));
 const [value, setValue] = createSignal();
 on([value], () => console.log("hello"));
 
+function Component(props) {
+  return <div {...props} />;
+}
+
+function Component(props) {
+  return <div {...props.nestedProps} />;
+}
+
+function Component() {
+  const [signal, setSignal] = createSignal({});
+  return <div {...signal()} />;
+}
+
 let c = () => {
   const [signal] = createSignal();
   const d = () => {
-    const e = () => {
+    function e() {
       // <-- e becomes a derived signal
       signal();
-    };
+    }
   }; // <-- d never uses it
   d(); // <-- this is fine
 };
@@ -219,7 +327,19 @@ createEffect(() => console.log(signal()));
 const [signal] = createSignal();
 const memo = createMemo(() => signal());
 
-const el = <button onClick={() => toggleShow(!show())}>{show() ? "Hide" : "Show"}</button>;
+const el = (
+  <button onClick={() => toggleShow(!show())}>
+    {show() ? "Hide" : "Show"}
+  </button>
+);
+
+const [count] = createSignal();
+createEffect(() => {
+  (() => count())();
+});
+
+const [count] = createSignal();
+const el = <div>{(() => count())()}</div>;
 
 const el = <div />;
 
@@ -257,7 +377,9 @@ requestIdleCallback(() => console.log(signal()));
 
 const [photos, setPhotos] = createSignal([]);
 onMount(async () => {
-  const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
+  const res = await fetch(
+    "https://jsonplaceholder.typicode.com/photos?_limit=20"
+  );
   setPhotos(await res.json());
 });
 
@@ -270,11 +392,93 @@ on(b, async () => {
 
 const Component = (props) => {
   const localRef = () => props.ref;
-  // custom hooks
   const composedRef1 = useComposedRefs(localRef);
   const composedRef2 = useComposedRefs(() => props.ref);
   const composedRef3 = createComposedRefs(localRef);
 };
+
+function createFoo(v) {}
+const [bar, setBar] = createSignal();
+createFoo({ onBar: () => bar() });
+
+const [signal, setSignal] = createSignal(1);
+const element = document.getElementById("id");
+element.addEventListener(
+  "click",
+  () => {
+    console.log(signal());
+  },
+  { once: true }
+);
+
+const [signal, setSignal] = createSignal(1);
+const element = document.getElementById("id");
+element.onclick = () => {
+  console.log(signal());
+};
+
+function Component() {
+  const [signal, setSignal] = createSignal(1);
+  return <div onClick={() => console.log(signal())} />;
+}
+
+function Component() {
+  const [signal, setSignal] = createSignal(1);
+  const handler = () => console.log(signal());
+  return <div onClick={handler} />;
+}
+
+function Component() {
+  const [signal, setSignal] = createSignal(1);
+  return <div onClick={signal} />;
+}
+
+function Component() {
+  const [signal, setSignal] = createSignal(1);
+  return <div on:click={() => console.log(signal())} />;
+}
+
+const Component = (props) => {
+  const [signal] = createSignal();
+  return (
+    <SomeContext.Provider value={signal}>{props.children}</SomeContext.Provider>
+  );
+};
+
+function Component(props) {
+  const [count, setCount] = useSignal(props.initialCount);
+  return <div>{count()}</div>;
+}
+
+function Component(props) {
+  const [count, setCount] = useSignal(props.defaultCount);
+  return <div>{count()}</div>;
+}
+
+const [state, setState] = createStore({
+  firstName: "Will",
+  lastName: "Smith",
+  get fullName() {
+    return state.firstName + " " + state.lastName;
+  },
+});
+
+const [signal] = createSignal(5);
+untrack(() => {
+  console.log(signal());
+});
+
+function notAComponent(something) {
+  console.log(something.a);
+  return <div />;
+}
+
+css`
+  color: ${(props) => props.color};
+`;
+
+html`<div>${(props) => props.name}</div>`;
+
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
