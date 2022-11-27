@@ -200,6 +200,29 @@ export const cases = run("reactivity", rule, {
     // function expression inside tagged template literal expression is tracked scope
     "css`color: ${props => props.color}`;",
     "html`<div>${props => props.name}</div>`;",
+    // refs
+    `function Component() {
+      let canvas;
+      return <canvas ref={canvas} />;
+    }`,
+    `function Component() {
+      let canvas;
+      return (
+        <canvas ref={c => {
+          canvas = c;
+        }} />
+      );
+    }`,
+    `function Component() {
+      const [index] = createSignal(0);
+      let canvas;
+      return (
+        <canvas ref={c => {
+          index();
+          canvas = c;
+        }} />
+      );
+    }`,
   ],
   invalid: [
     // Untracked signals

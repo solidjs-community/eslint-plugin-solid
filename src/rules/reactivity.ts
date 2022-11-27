@@ -236,13 +236,13 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     messages: {
       noWrite: "The reactive variable '{{name}}' should not be reassigned or altered directly.",
       untrackedReactive:
-        "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or inside an event handler function. Details: https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md.",
+        "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or inside an event handler function.",
       expectedFunctionGotExpression:
         "The reactive variable '{{name}}' should be wrapped in a function for reactivity. This includes event handler bindings, which are not reactive like other JSX props.",
       badSignal:
         "The reactive variable '{{name}}' should be called as a function when used in {{where}}.",
       badUnnamedDerivedSignal:
-        "This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity. Details: https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md.",
+        "This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity.",
       shouldDestructure:
         "For proper analysis, array destructuring should be used to capture the {{nth}}result of this function call.",
       shouldAssign:
@@ -757,16 +757,14 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           node.parent?.type === "JSXAttribute" &&
           /^on[:A-Z]/.test(sourceCode.getText(node.parent.name))
         ) {
-          // Expect a function if the attribute is like onClick={} or on:click={}.
-          // From the docs: Events are never rebound and the bindings are not
-          // reactive, as it is expensive to attach and detach listeners. Since
-          // event handlers are called like any other function each time an event
-          // fires, there is no need for reactivity; simply shortcut your handler
+          // Expect a function if the attribute is like onClick={} or on:click={}. From the docs:
+          // Events are never rebound and the bindings are not reactive, as it is expensive to
+          // attach and detach listeners. Since event handlers are called like any other function
+          // each time an event fires, there is no need for reactivity; simply shortcut your handler
           // if desired.
-          // What this means here is we actually do consider an event handler a
-          // tracked scope expecting a function, i.e. it's okay to use changing
-          // props/signals in the body of the function, even though the changes
-          // don't affect when the handler will run.
+          // What this means here is we actually do consider an event handler a tracked scope
+          // expecting a function, i.e. it's okay to use changing props/signals in the body of the
+          // function, even though the changes don't affect when the handler will run.
           pushTrackedScope(node.expression, "called-function");
         } else if (
           node.parent?.type === "JSXAttribute" &&
@@ -784,6 +782,15 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           // rule will warn later.
           // TODO: add some kind of "anti- tracked scope" that still warns but enhances the error
           // message if matched.
+        } else if (
+          node.parent?.type === "JSXAttribute" &&
+          node.parent.name.name === "ref" &&
+          isFunctionNode(node.expression)
+        ) {
+          // Callback/function refs are called when an element is created but before it is connected
+          // to the DOM. This is semantically a "called function", so it's fine to read reactive
+          // variables here.
+          pushTrackedScope(node.expression, "called-function");
         } else {
           pushTrackedScope(node.expression, "expression");
         }
