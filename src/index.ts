@@ -8,6 +8,7 @@ import jsxUsesVars from "./rules/jsx-uses-vars";
 import noDestructure from "./rules/no-destructure";
 import noInnerHTML from "./rules/no-innerhtml";
 import noProxyApis from "./rules/no-proxy-apis";
+import noReactDeps from "./rules/no-react-deps";
 import noReactSpecificProps from "./rules/no-react-specific-props";
 import noUnknownNamespaces from "./rules/no-unknown-namespaces";
 import preferClasslist from "./rules/prefer-classlist";
@@ -29,6 +30,7 @@ const allRules = {
   "no-destructure": noDestructure,
   "no-innerhtml": noInnerHTML,
   "no-proxy-apis": noProxyApis,
+  "no-react-deps": noReactDeps,
   "no-react-specific-props": noReactSpecificProps,
   "no-unknown-namespaces": noUnknownNamespaces,
   "prefer-classlist": preferClasslist,
@@ -76,6 +78,7 @@ const plugin = {
         // these rules are mostly style suggestions
         "solid/imports": 1,
         "solid/style-prop": 1,
+        "solid/no-react-deps": 1,
         "solid/no-react-specific-props": 1,
         "solid/self-closing-comp": 1,
         // handled by Solid compiler, opt-in style suggestion
@@ -109,6 +112,7 @@ const plugin = {
         // these rules are mostly style suggestions
         "solid/imports": 1,
         "solid/style-prop": 1,
+        "solid/no-react-deps": 1,
         "solid/no-react-specific-props": 1,
         "solid/self-closing-comp": 1,
         // namespaces taken care of by TS

@@ -131,6 +131,7 @@ const [editedValue, setEditedValue] = createSignal(props.value);
 | ✔ | 🔧 | [solid/no-destructure](docs/no-destructure.md) | Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list. |
 | ✔ | 🔧 | [solid/no-innerhtml](docs/no-innerhtml.md) | Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities. |
 |  |  | [solid/no-proxy-apis](docs/no-proxy-apis.md) | Disallow usage of APIs that use ES6 Proxies, only to target environments that don't support them. |
+| ✔ | 🔧 | [solid/no-react-deps](docs/no-react-deps.md) | Disallow usage of dependency arrays in `createEffect` and `createMemo`. |
 | ✔ | 🔧 | [solid/no-react-specific-props](docs/no-react-specific-props.md) | Disallow usage of React-specific `className`/`htmlFor` props, which were deprecated in v1.4.0. |
 | ✔ |  | [solid/no-unknown-namespaces](docs/no-unknown-namespaces.md) | Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`). |
 |  | 🔧 | [solid/prefer-classlist](docs/prefer-classlist.md) | Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames. |
