@@ -19,6 +19,8 @@ Options shown here are the defaults.
   "solid/event-handlers": ["warn", { 
     // if true, don't warn on ambiguously named event handlers like `onclick` or `onchange`
     ignoreCase: false, 
+    // if true, warn when spreading event handlers onto JSX. Enable for Solid < v1.6.
+    warnOnSpread: false, 
   }]
 }
 ```
@@ -60,6 +62,39 @@ let el = <div onLy={"string"} />;
 const string = "string";
 let el = <div onLy={string} />;
  
+let el = <div onDoubleClick={() => {}} />;
+// after eslint --fix:
+let el = <div onDblClick={() => {}} />;
+ 
+let el = <div ondoubleclick={() => {}} />;
+// after eslint --fix:
+let el = <div onDblClick={() => {}} />;
+ 
+let el = <div ondblclick={() => {}} />;
+// after eslint --fix:
+let el = <div onDblClick={() => {}} />;
+ 
+/* eslint solid/event-handlers: ["error", { "warnOnSpread": true }] */
+const handleClick = () => 42;
+let el = <div {...{ onClick: handleClick, foo }} />;
+// after eslint --fix:
+const handleClick = () => 42;
+let el = <div {...{ foo }} onClick={handleClick} />;
+ 
+/* eslint solid/event-handlers: ["error", { "warnOnSpread": true }] */
+const handleClick = () => 42;
+let el = <div {...{ foo, onClick: handleClick }} />;
+// after eslint --fix:
+const handleClick = () => 42;
+let el = <div {...{ foo }} onClick={handleClick} />;
+ 
+/* eslint solid/event-handlers: ["error", { "warnOnSpread": true }] */
+const handleClick = () => 42;
+let el = <div {...{ onClick: handleClick }} />;
+// after eslint --fix:
+const handleClick = () => 42;
+let el = <div onClick={handleClick} />;
+ 
 ```
 
 ### Valid Examples
@@ -88,6 +123,11 @@ let el = <div onLy={() => {}} />;
 let el = <div on:ly={() => {}} />;
 
 let el = <foo.bar only="true" />;
+
+let el = <div onDblClick={() => {}} />;
+
+const onClick = () => 42;
+let el = <div {...{ onClick }} />;
 
 /* eslint solid/event-handlers: ["error", { "ignoreCase": true }] */
 let el = <div onclick={onclick} />;

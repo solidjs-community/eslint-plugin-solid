@@ -18,6 +18,9 @@ export const cases = run("event-handlers", rule, {
     `let el = <div onLy={() => {}} />;`,
     `let el = <div on:ly={() => {}} />;`,
     `let el = <foo.bar only="true" />;`,
+    `let el = <div onDblClick={() => {}} />;`,
+    `const onClick = () => 42;
+    let el = <div {...{ onClick }} />;`,
     { code: `let el = <div onclick={onclick} />`, options: [{ ignoreCase: true }] },
     { code: `let el = <div only={only} />`, options: [{ ignoreCase: true }] },
   ],
@@ -119,6 +122,51 @@ export const cases = run("event-handlers", rule, {
           type: T.JSXAttribute,
         },
       ],
+    },
+    {
+      code: `let el = <div onDoubleClick={() => {}} />;`,
+      errors: [
+        { messageId: "nonstandard", data: { name: "onDoubleClick", fixedName: "onDblClick" } },
+      ],
+      output: `let el = <div onDblClick={() => {}} />;`,
+    },
+    {
+      code: `let el = <div ondoubleclick={() => {}} />;`,
+      errors: [
+        { messageId: "nonstandard", data: { name: "ondoubleclick", fixedName: "onDblClick" } },
+      ],
+      output: `let el = <div onDblClick={() => {}} />;`,
+    },
+    {
+      code: `let el = <div ondblclick={() => {}} />;`,
+      errors: [
+        { messageId: "capitalization", data: { name: "ondblclick", fixedName: "onDblClick" } },
+      ],
+      output: `let el = <div onDblClick={() => {}} />;`,
+    },
+    {
+      code: `const handleClick = () => 42;
+      let el = <div {...{ onClick: handleClick, foo }} />;`,
+      options: [{ warnOnSpread: true }],
+      errors: [{ messageId: "spread-handler", data: { name: "onClick" } }],
+      output: `const handleClick = () => 42;
+      let el = <div {...{  foo }} onClick={handleClick} />;`,
+    },
+    {
+      code: `const handleClick = () => 42;
+      let el = <div {...{ foo, onClick: handleClick, }} />;`,
+      options: [{ warnOnSpread: true }],
+      errors: [{ messageId: "spread-handler", data: { name: "onClick" } }],
+      output: `const handleClick = () => 42;
+      let el = <div {...{ foo,  }} onClick={handleClick} />;`,
+    },
+    {
+      code: `const handleClick = () => 42;
+      let el = <div {...{ onClick: handleClick }} />;`,
+      options: [{ warnOnSpread: true }],
+      errors: [{ messageId: "spread-handler", data: { name: "onClick" } }],
+      output: `const handleClick = () => 42;
+      let el = <div  onClick={handleClick} />;`,
     },
   ],
 });
