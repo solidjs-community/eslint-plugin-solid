@@ -479,6 +479,35 @@ css`
 
 html`<div>${(props) => props.name}</div>`;
 
+function Component() {
+  let canvas;
+  return <canvas ref={canvas} />;
+}
+
+function Component() {
+  let canvas;
+  return (
+    <canvas
+      ref={(c) => {
+        canvas = c;
+      }}
+    />
+  );
+}
+
+function Component() {
+  const [index] = createSignal(0);
+  let canvas;
+  return (
+    <canvas
+      ref={(c) => {
+        index();
+        canvas = c;
+      }}
+    />
+  );
+}
+
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
