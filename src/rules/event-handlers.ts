@@ -3,79 +3,102 @@ import { isDOMElementName } from "../utils";
 
 const { getStaticValue } = ASTUtils;
 
-const COMMON_EVENTS: Record<string, string | null> = {
-  animationend: "AnimationEnd",
-  animationiteration: "AnimationIteration",
-  animationstart: "AnimationStart",
-  beforeinput: "BeforeInput",
-  blur: null,
-  change: null,
-  click: null,
-  contextmenu: "ContextMenu",
-  copy: null,
-  cut: null,
-  dblclick: "DoubleClick",
-  drag: null,
-  dragend: "DragEnd",
-  dragenter: "DragEnter",
-  dragexit: "DragExit",
-  dragleave: "DragLeave",
-  dragover: "DragOver",
-  dragstart: "DragStart",
-  drop: null,
-  error: null,
-  focus: null,
-  focusin: "FocusIn",
-  focusout: "FocusOut",
-  gotpointercapture: "GotPointerCapture",
-  input: null,
-  invalid: null,
-  keydown: "KeyDown",
-  keypress: "KeyPress",
-  keyup: "KeyUp",
-  load: null,
-  lostpointercapture: "LostPointerCapture",
-  mousedown: "MouseDown",
-  mouseenter: "MouseEnter",
-  mouseleave: "MouseLeave",
-  mousemove: "MouseMove",
-  mouseout: "MouseOut",
-  mouseover: "MouseOver",
-  mouseup: "MouseUp",
-  paste: null,
-  pointercancel: "PointerCancel",
-  pointerdown: "PointerDown",
-  pointerenter: "PointerEnter",
-  pointerleave: "PointerLeave",
-  pointermove: "PointerMove",
-  pointerout: "PointerOut",
-  pointerover: "PointerOver",
-  pointerup: "PointerUp",
-  reset: null,
-  scroll: null,
-  select: null,
-  submit: null,
-  toggle: null,
-  touchcancel: "TouchCancel",
-  touchend: "TouchEnd",
-  touchmove: "TouchMove",
-  touchstart: "TouchStart",
-  transitionend: "TransitionEnd",
-  wheel: null,
+const COMMON_EVENTS = [
+  "onAnimationEnd",
+  "onAnimationIteration",
+  "onAnimationStart",
+  "onBeforeInput",
+  "onBlur",
+  "onChange",
+  "onClick",
+  "onContextMenu",
+  "onCopy",
+  "onCut",
+  "onDblClick",
+  "onDrag",
+  "onDragEnd",
+  "onDragEnter",
+  "onDragExit",
+  "onDragLeave",
+  "onDragOver",
+  "onDragStart",
+  "onDrop",
+  "onError",
+  "onFocus",
+  "onFocusIn",
+  "onFocusOut",
+  "onGotPointerCapture",
+  "onInput",
+  "onInvalid",
+  "onKeyDown",
+  "onKeyPress",
+  "onKeyUp",
+  "onLoad",
+  "onLostPointerCapture",
+  "onMouseDown",
+  "onMouseEnter",
+  "onMouseLeave",
+  "onMouseMove",
+  "onMouseOut",
+  "onMouseOver",
+  "onMouseUp",
+  "onPaste",
+  "onPointerCancel",
+  "onPointerDown",
+  "onPointerEnter",
+  "onPointerLeave",
+  "onPointerMove",
+  "onPointerOut",
+  "onPointerOver",
+  "onPointerUp",
+  "onReset",
+  "onScroll",
+  "onSelect",
+  "onSubmit",
+  "onToggle",
+  "onTouchCancel",
+  "onTouchEnd",
+  "onTouchMove",
+  "onTouchStart",
+  "onTransitionEnd",
+  "onWheel",
+] as const;
+type CommonEvent = typeof COMMON_EVENTS[number];
+
+const COMMON_EVENTS_MAP = new Map<string, CommonEvent>(
+  (function* () {
+    for (const event of COMMON_EVENTS) {
+      yield [event.toLowerCase(), event] as const;
+    }
+  })()
+);
+
+const NONSTANDARD_EVENTS_MAP = {
+  ondoubleclick: "onDblClick",
 };
 
-const isCommonEventName = (lowercaseEventName: string) =>
-  Object.prototype.hasOwnProperty.call(COMMON_EVENTS, lowercaseEventName);
-const getCommonEventHandlerName = (lowercaseEventName: string) => {
-  return `on${
-    COMMON_EVENTS[lowercaseEventName] ??
-    lowercaseEventName[0].toUpperCase() + lowercaseEventName.slice(1).toLowerCase()
-  }`;
-};
+const isCommonHandlerName = (
+  lowercaseHandlerName: string
+): lowercaseHandlerName is Lowercase<CommonEvent> => COMMON_EVENTS_MAP.has(lowercaseHandlerName);
+const getCommonEventHandlerName = (lowercaseHandlerName: Lowercase<CommonEvent>): CommonEvent =>
+  COMMON_EVENTS_MAP.get(lowercaseHandlerName)!;
+
+const isNonstandardEventName = (
+  lowercaseEventName: string
+): lowercaseEventName is keyof typeof NONSTANDARD_EVENTS_MAP =>
+  Boolean((NONSTANDARD_EVENTS_MAP as Record<string, string>)[lowercaseEventName]);
+const getStandardEventHandlerName = (lowercaseEventName: keyof typeof NONSTANDARD_EVENTS_MAP) =>
+  NONSTANDARD_EVENTS_MAP[lowercaseEventName];
 
 const rule: TSESLint.RuleModule<
-  "naming" | "capitalization" | "make-handler" | "make-attr" | "detected-attr" | "spread-handler",
-  [{ ignoreCase?: boolean }?]
+  | "naming"
+  | "capitalization"
+  | "nonstandard"
+  | "make-handler"
+  | "make-attr"
+  | "detected-attr"
+  | "spread-handler",
+  [{ ignoreCase?: boolean; warnOnSpread?: boolean }?]
 > = {
   meta: {
     type: "problem",
@@ -97,6 +120,12 @@ const rule: TSESLint.RuleModule<
               "if true, don't warn on ambiguously named event handlers like `onclick` or `onchange`",
             default: false,
           },
+          warnOnSpread: {
+            type: "boolean",
+            description:
+              "if true, warn when spreading event handlers onto JSX. Enable for Solid < v1.6.",
+            default: false,
+          },
         },
         additionalProperties: false,
       },
@@ -107,6 +136,8 @@ const rule: TSESLint.RuleModule<
       naming:
         "The {{name}} prop is ambiguous. If it is an event handler, change it to {{handlerName}}. If it is an attribute, change it to {{attrName}}.",
       capitalization: "The {{name}} prop should be renamed to {{fixedName}} for readability.",
+      nonstandard:
+        "The {{name}} prop should be renamed to {{fixedName}}, because it's not a standard event handler.",
       "make-handler": "Change the {{name}} prop to {{handlerName}}.",
       "make-attr": "Change the {{name}} prop to {{attrName}}.",
       "spread-handler":
@@ -127,14 +158,13 @@ const rule: TSESLint.RuleModule<
         }
 
         if (node.name.type === "JSXNamespacedName") {
-          return; // bail early on attr:, on:, etc. props
+          return; // bail early on attr:, on:, oncapture:, etc. props
         }
 
         // string name of the name node
         const { name } = node.name;
 
-        const match = /^on([a-zA-Z].*)$/.exec(name);
-        if (!match) {
+        if (!/^on[a-zA-Z].*$/.test(name)) {
           return; // bail if Solid doesn't consider the prop name an event handler
         }
 
@@ -175,9 +205,17 @@ const rule: TSESLint.RuleModule<
             },
           });
         } else if (!context.options[0]?.ignoreCase) {
-          const lowercaseEventName = match[1].toLowerCase();
-          if (isCommonEventName(lowercaseEventName)) {
-            const fixedName = getCommonEventHandlerName(lowercaseEventName);
+          const lowercaseHandlerName = name.toLowerCase();
+          if (isNonstandardEventName(lowercaseHandlerName)) {
+            const fixedName = getStandardEventHandlerName(lowercaseHandlerName);
+            context.report({
+              node: node.name,
+              messageId: "nonstandard",
+              data: { name, fixedName },
+              fix: (fixer) => fixer.replaceText(node.name, fixedName),
+            });
+          } else if (isCommonHandlerName(lowercaseHandlerName)) {
+            const fixedName = getCommonEventHandlerName(lowercaseHandlerName);
             if (fixedName !== name) {
               // For common DOM event names, we know the user intended the prop to be an event handler.
               // Fix it to have an uppercase third letter and be properly camel-cased.
@@ -192,7 +230,7 @@ const rule: TSESLint.RuleModule<
             // this includes words like `only` and `ongoing` as well as unknown handlers like `onfoobar`.
             // Enforce using either /^on[A-Z]/ (event handler) or /^attr:on[a-z]/ (forced regular attribute)
             // to make user intent clear and code maximally readable
-            const handlerName = `on${match[1][0].toUpperCase()}${match[1].slice(1)}`;
+            const handlerName = `on${name[2].toUpperCase()}${name.slice(3)}`;
             const attrName = `attr:${name}`;
             context.report({
               node: node.name,
@@ -214,30 +252,45 @@ const rule: TSESLint.RuleModule<
           }
         }
       },
-      "JSXSpreadAttribute > ObjectExpression > Property"(node: T.Property) {
-        const openingElement = node.parent!.parent!.parent as T.JSXOpeningElement;
+      Property(node: T.Property) {
         if (
-          openingElement.name.type === "JSXIdentifier" &&
-          isDOMElementName(openingElement.name.name)
+          context.options[0]?.warnOnSpread &&
+          node.parent?.type === "ObjectExpression" &&
+          node.parent.parent?.type === "JSXSpreadAttribute" &&
+          node.parent.parent.parent?.type === "JSXOpeningElement"
         ) {
-          if (node.key.type === "Identifier" && /^on/.test(node.key.name)) {
-            const handlerName = node.key.name;
-            // An event handler is being spread in (ex. <button {...{ onClick }} />), which doesn't
-            // actually add an event listener, just a plain attribute.
-            context.report({
-              node,
-              messageId: "spread-handler",
-              data: {
-                name: node.key.name,
-              },
-              fix: (fixer) => [
-                fixer.remove(node),
-                fixer.insertTextAfter(
-                  node.parent!.parent!,
-                  ` ${handlerName}={${sourceCode.getText(node.value)}}`
-                ),
-              ],
-            });
+          const openingElement = node.parent.parent.parent;
+          if (
+            openingElement.name.type === "JSXIdentifier" &&
+            isDOMElementName(openingElement.name.name)
+          ) {
+            if (node.key.type === "Identifier" && /^on/.test(node.key.name)) {
+              const handlerName = node.key.name;
+              // An event handler is being spread in (ex. <button {...{ onClick }} />), which doesn't
+              // actually add an event listener, just a plain attribute.
+              context.report({
+                node,
+                messageId: "spread-handler",
+                data: {
+                  name: node.key.name,
+                },
+                *fix(fixer) {
+                  const commaAfter = sourceCode.getTokenAfter(node);
+                  yield fixer.remove(
+                    (node.parent as T.ObjectExpression).properties.length === 1
+                      ? node.parent!.parent!
+                      : node
+                  );
+                  if (commaAfter?.value === ",") {
+                    yield fixer.remove(commaAfter);
+                  }
+                  yield fixer.insertTextAfter(
+                    node.parent!.parent!,
+                    ` ${handlerName}={${sourceCode.getText(node.value)}}`
+                  );
+                },
+              });
+            }
           }
         }
       },
