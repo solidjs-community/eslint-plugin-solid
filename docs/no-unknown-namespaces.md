@@ -72,12 +72,19 @@ let el = <div prop:scrollTop="0px" />;
 
 let el = <div attr:title="title" />;
 
-/* eslint solid/no-unknown-namespaces: ["error", { "allowedNamespaces": ["xmlns"] }] */
 let el = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    version="1.1"
     xmlns:xlink="http://www.w3.org/1999/xlink"
+  ></svg>
+);
+
+/* eslint solid/no-unknown-namespaces: ["error", { "allowedNamespaces": ["foo"] }] */
+let el = (
+  <bar
+    foo="http://www.w3.org/2000/svg"
+    version="1.1"
+    foo:bar="http://www.w3.org/1999/xlink"
   />
 );
 

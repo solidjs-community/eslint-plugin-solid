@@ -12,9 +12,10 @@ export const cases = run("no-unknown-namespaces", rule, {
     `let el = <div use:X />;`,
     `let el = <div prop:scrollTop="0px" />;`,
     `let el = <div attr:title="title" />;`,
+    `let el = <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>`,
     {
-      options: [{ allowedNamespaces: ["xmlns"] }],
-      code: `let el = <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" />`,
+      options: [{ allowedNamespaces: ["foo"] }],
+      code: `let el = <bar foo="http://www.w3.org/2000/svg" version="1.1" foo:bar="http://www.w3.org/1999/xlink" />`,
     },
   ],
   invalid: [
