@@ -438,6 +438,10 @@ function Component() {
   return <div on:click={() => console.log(signal())} />;
 }
 
+const Parent = (props) => {
+  return <Child onClick={props.onClick} />;
+};
+
 const Component = (props) => {
   const [signal] = createSignal();
   return (
