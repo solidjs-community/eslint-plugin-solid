@@ -227,6 +227,16 @@ css`
   color: ${f};
 `;
  
+function createCustomStore() {
+  const [store, updateStore] = createStore({});
+
+  return mapArray(
+    [],
+    // the second argument to mapArray is not tracked
+    (item) => store.path.to.field
+  );
+}
+ 
 ```
 
 ### Valid Examples
@@ -505,6 +515,16 @@ function Component() {
         canvas = c;
       }}
     />
+  );
+}
+
+function createCustomStore() {
+  const [store, updateStore] = createStore({});
+
+  return mapArray(
+    // the first argument to mapArray is a tracked scope
+    () => store.path.to.field,
+    (item) => ({})
   );
 }
 
