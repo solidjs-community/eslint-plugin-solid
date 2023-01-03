@@ -223,6 +223,16 @@ export const cases = run("reactivity", rule, {
         }} />
       );
     }`,
+    // mapArray()
+    `function createCustomStore() {
+      const [store, updateStore] = createStore({});
+
+      return mapArray(
+        // the first argument to mapArray is a tracked scope
+        () => store.path.to.field,
+        (item) => ({})
+      );
+    }`,
   ],
   invalid: [
     // Untracked signals
@@ -645,6 +655,20 @@ export const cases = run("reactivity", rule, {
       const f = () => signal();
       css\`color: \${f}\`;`,
       errors: [{ messageId: "badSignal", line: 4 }],
+    },
+    // mapArray
+    {
+      code: `
+      function createCustomStore() {
+        const [store, updateStore] = createStore({});
+
+        return mapArray(
+          [],
+          // the second argument to mapArray is not tracked
+          (item) => store.path.to.field
+        );
+      }`,
+      errors: [{ messageId: "badUnnamedDerivedSignal", line: 7 }],
     },
   ],
 });

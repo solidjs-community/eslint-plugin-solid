@@ -813,6 +813,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               "createComputed",
               "createSelector",
               "untrack",
+              "mapArray",
             ],
             callee.name
           ) ||
