@@ -3,6 +3,7 @@ import { isDOMElementName } from "../utils";
 
 const knownNamespaces = ["on", "oncapture", "use", "prop", "attr"];
 const styleNamespaces = ["style", "class"];
+const otherNamespaces = ["xmlns", "xlink"];
 
 const rule: TSESLint.RuleModule<
   "unknown" | "style" | "component" | "component-suggest",
@@ -71,7 +72,11 @@ const rule: TSESLint.RuleModule<
 
         const namespace = node.namespace?.name;
         if (
-          !(knownNamespaces.includes(namespace) || explicitlyAllowedNamespaces?.includes(namespace))
+          !(
+            knownNamespaces.includes(namespace) ||
+            otherNamespaces.includes(namespace) ||
+            explicitlyAllowedNamespaces?.includes(namespace)
+          )
         ) {
           if (styleNamespaces.includes(namespace)) {
             context.report({

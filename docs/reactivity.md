@@ -410,6 +410,9 @@ function createFoo(v) {}
 const [bar, setBar] = createSignal();
 createFoo({ onBar: () => bar() });
 
+const [bar, setBar] = createSignal();
+X.createFoo(() => bar());
+
 const [signal, setSignal] = createSignal(1);
 const element = document.getElementById("id");
 element.addEventListener(
@@ -491,6 +494,16 @@ css`
 `;
 
 html`<div>${(props) => props.name}</div>`;
+
+styled.css`
+  color: ${(props) => props.color};
+`;
+
+createCss`color: ${props.color}`;
+
+styled.createCss`
+  color: ${props.color};
+`;
 
 function Component() {
   let canvas;
