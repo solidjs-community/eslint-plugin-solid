@@ -236,6 +236,16 @@ function createCustomStore() {
   );
 }
  
+const [array] = createSignal([]);
+const result = mapArray(array, (item, i) => {
+  i();
+});
+ 
+const [array] = createSignal([]);
+const result = indexArray(array, (item) => {
+  item();
+});
+ 
 ```
 
 ### Valid Examples
@@ -413,6 +423,9 @@ createFoo({ onBar: () => bar() });
 const [bar, setBar] = createSignal();
 X.createFoo(() => bar());
 
+const [bar, setBar] = createSignal();
+X.Y.createFoo(() => bar());
+
 const [signal, setSignal] = createSignal(1);
 const element = document.getElementById("id");
 element.addEventListener(
@@ -499,12 +512,6 @@ styled.css`
   color: ${(props) => props.color};
 `;
 
-createCss`color: ${props.color}`;
-
-styled.createCss`
-  color: ${props.color};
-`;
-
 function Component() {
   let canvas;
   return <canvas ref={canvas} />;
@@ -544,6 +551,16 @@ function createCustomStore() {
   );
 }
 
+function createCustomStore() {
+  const [store, updateStore] = createStore({});
+
+  return indexArray(
+    // the first argument to mapArray is a tracked scope
+    () => store.path.to.field,
+    (item) => ({})
+  );
+}
+
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
@@ -571,5 +588,5 @@ Notes:
   "bubble up" forever, though; as soon as you reach a scope where one
   contained reactive primitive was declared, the current function should
   match a tracked scope that expects a function.
-- This rule ignores object and class methods completely. Solid is based on
-  functions/closures only, and it's uncommon to see methods in Solid code.
+- This rule ignores classes. Solid is based on functions/closures only, and 
+  it's uncommon to see classes with reactivity in Solid code.
