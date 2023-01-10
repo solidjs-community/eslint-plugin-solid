@@ -165,6 +165,10 @@ export const cases = run("reactivity", rule, {
       const [signal, setSignal] = createSignal(1);
       return <div on:click={() => console.log(signal())} />;
     }`,
+    // event listeners are reactive on components
+    `const Parent = props => {
+      return <Child onClick={props.onClick} />;
+    }`,
     // Pass reactive variables as-is into provider value prop
     `const Component = props => {
       const [signal] = createSignal();
@@ -554,7 +558,7 @@ export const cases = run("reactivity", rule, {
         },
       ],
     },
-    // event listeners not rebound
+    // event listeners are not rebound on native elements
     {
       code: `
       const Component = props => {

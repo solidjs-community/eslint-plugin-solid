@@ -238,7 +238,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       untrackedReactive:
         "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or inside an event handler function.",
       expectedFunctionGotExpression:
-        "The reactive variable '{{name}}' should be wrapped in a function for reactivity. This includes event handler bindings, which are not reactive like other JSX props.",
+        "The reactive variable '{{name}}' should be wrapped in a function for reactivity. This includes event handler bindings on native elements, which are not reactive like other JSX props.",
       badSignal:
         "The reactive variable '{{name}}' should be called as a function when used in {{where}}.",
       badUnnamedDerivedSignal:
@@ -755,7 +755,10 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       if (node.type === "JSXExpressionContainer") {
         if (
           node.parent?.type === "JSXAttribute" &&
-          /^on[:A-Z]/.test(sourceCode.getText(node.parent.name))
+          /^on[:A-Z]/.test(sourceCode.getText(node.parent.name)) &&
+          node.parent.parent?.type === "JSXOpeningElement" &&
+          node.parent.parent.name.type === "JSXIdentifier" &&
+          isDOMElementName(node.parent.parent.name.name)
         ) {
           // Expect a function if the attribute is like onClick={} or on:click={}. From the docs:
           // Events are never rebound and the bindings are not reactive, as it is expensive to
