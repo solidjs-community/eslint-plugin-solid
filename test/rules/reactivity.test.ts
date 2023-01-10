@@ -665,7 +665,6 @@ export const cases = run("reactivity", rule, {
       code: `
       function createCustomStore() {
         const [store, updateStore] = createStore({});
-
         return mapArray(
           [],
           // the second argument to mapArray is not tracked

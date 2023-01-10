@@ -229,7 +229,6 @@ css`
  
 function createCustomStore() {
   const [store, updateStore] = createStore({});
-
   return mapArray(
     [],
     // the second argument to mapArray is not tracked
