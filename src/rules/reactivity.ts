@@ -626,29 +626,35 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           scopeStack.syncCallbacks.add(node.arguments[0]);
         }
       }
-      if (
-        node.callee.type === "Identifier" &&
-        matchImport(["createSignal", "createStore"], node.callee.name) &&
-        node.parent?.type === "VariableDeclarator"
-      ) {
-        // Allow using reactive variables in state setter if the current scope is tracked.
-        // ex.  const [state, setState] = createStore({ ... });
-        //      setState(() => ({ preferredName: state.firstName, lastName: "Milner" }));
-        const setter = getNthDestructuredVar(node.parent.id, 1, context.getScope());
-        if (setter) {
-          for (const reference of setter.references) {
-            const { identifier } = reference;
-            if (
-              !reference.init &&
-              reference.isRead() &&
-              identifier.parent?.type === "CallExpression"
-            ) {
-              for (const arg of identifier.parent.arguments) {
-                if (isFunctionNode(arg) && !arg.async) {
-                  scopeStack.syncCallbacks.add(arg);
+      if (node.callee.type === "Identifier") {
+        if (
+          matchImport(["createSignal", "createStore"], node.callee.name) &&
+          node.parent?.type === "VariableDeclarator"
+        ) {
+          // Allow using reactive variables in state setter if the current scope is tracked.
+          // ex.  const [state, setState] = createStore({ ... });
+          //      setState(() => ({ preferredName: state.firstName, lastName: "Milner" }));
+          const setter = getNthDestructuredVar(node.parent.id, 1, context.getScope());
+          if (setter) {
+            for (const reference of setter.references) {
+              const { identifier } = reference;
+              if (
+                !reference.init &&
+                reference.isRead() &&
+                identifier.parent?.type === "CallExpression"
+              ) {
+                for (const arg of identifier.parent.arguments) {
+                  if (isFunctionNode(arg) && !arg.async) {
+                    scopeStack.syncCallbacks.add(arg);
+                  }
                 }
               }
             }
+          }
+        } else if (matchImport(["mapArray", "indexArray"], node.callee.name)) {
+          const arg1 = node.arguments[1];
+          if (isFunctionNode(arg1)) {
+            scopeStack.syncCallbacks.add(arg1);
           }
         }
       }
@@ -727,6 +733,30 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           if (mutable) {
             scopeStack.pushProps(mutable, currentScope().node);
           }
+        } else if (matchImport("mapArray", callee.name)) {
+          const arg1 = init.arguments[1];
+          if (
+            isFunctionNode(arg1) &&
+            arg1.params.length >= 2 &&
+            arg1.params[1].type === "Identifier"
+          ) {
+            const indexSignal = findVariable(context.getScope(), arg1.params[1]);
+            if (indexSignal) {
+              scopeStack.pushSignal(indexSignal);
+            }
+          }
+        } else if (matchImport("indexArray", callee.name)) {
+          const arg1 = init.arguments[1];
+          if (
+            isFunctionNode(arg1) &&
+            arg1.params.length >= 1 &&
+            arg1.params[0].type === "Identifier"
+          ) {
+            const valueSignal = findVariable(context.getScope(), arg1.params[0]);
+            if (valueSignal) {
+              scopeStack.pushSignal(valueSignal);
+            }
+          }
         }
       }
     };
@@ -797,131 +827,153 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       } else if (node.type === "JSXSpreadAttribute") {
         // allow <div {...props.nestedProps} />; {...props} is already ignored
         pushTrackedScope(node.argument, "expression");
-      } else if (node.type === "CallExpression" && node.callee.type === "Identifier") {
-        const {
-          callee,
-          arguments: { 0: arg0, 1: arg1 },
-        } = node;
-        if (
-          matchImport(
+      } else if (node.type === "CallExpression") {
+        if (node.callee.type === "Identifier") {
+          const {
+            callee,
+            arguments: { 0: arg0, 1: arg1 },
+          } = node;
+          if (
+            matchImport(
+              [
+                "createMemo",
+                "children",
+                "createEffect",
+                "createRenderEffect",
+                "createDeferred",
+                "createComputed",
+                "createSelector",
+                "untrack",
+                "mapArray",
+                "indexArray",
+              ],
+              callee.name
+            ) ||
+            (matchImport("createResource", callee.name) && node.arguments.length >= 2)
+          ) {
+            // createEffect, createMemo, etc. fn arg, and createResource optional
+            // `source` first argument may be a signal
+            pushTrackedScope(arg0, "function");
+          } else if (
+            matchImport(["onMount", "onCleanup", "onError"], callee.name) ||
             [
-              "createMemo",
-              "children",
-              "createEffect",
-              "createRenderEffect",
-              "createDeferred",
-              "createComputed",
-              "createSelector",
-              "untrack",
-              "mapArray",
-            ],
-            callee.name
-          ) ||
-          (matchImport("createResource", callee.name) && node.arguments.length >= 2)
-        ) {
-          // createEffect, createMemo, etc. fn arg, and createResource optional
-          // `source` first argument may be a signal
-          pushTrackedScope(arg0, "function");
-        } else if (
-          matchImport(["onMount", "onCleanup", "onError"], callee.name) ||
-          [
-            "setInterval",
-            "setTimeout",
-            "setImmediate",
-            "requestAnimationFrame",
-            "requestIdleCallback",
-          ].includes(callee.name)
-        ) {
-          // on* and timers are NOT tracked scopes. However, they don't need to react
-          // to updates to reactive variables; it's okay to poll the current
-          // value. Consider them called-function tracked scopes for our purposes.
-          pushTrackedScope(arg0, "called-function");
-        } else if (matchImport("createMutable", callee.name) && arg0) {
-          pushTrackedScope(arg0, "expression");
-        } else if (matchImport("on", callee.name)) {
-          // on accepts a signal or an array of signals as its first argument,
-          // and a tracking function as its second
-          if (arg0) {
-            if (arg0.type === "ArrayExpression") {
-              arg0.elements.forEach((element) => {
-                pushTrackedScope(element, "function");
-              });
-            } else {
-              pushTrackedScope(arg0, "function");
-            }
-          }
-          if (arg1) {
-            // Since dependencies are known, function can be async
-            pushTrackedScope(arg1, "called-function");
-          }
-        } else if (matchImport("createStore", callee.name) && arg0?.type === "ObjectExpression") {
-          for (const property of arg0.properties) {
-            if (
-              property.type === "Property" &&
-              property.kind === "get" &&
-              isFunctionNode(property.value)
-            ) {
-              pushTrackedScope(property.value, "function");
-            }
-          }
-        } else if (matchImport("runWithOwner", callee.name)) {
-          // runWithOwner(owner, fn) only creates a tracked scope if `owner =
-          // getOwner()` runs in a tracked scope. If owner is a variable,
-          // attempt to detect if it's a tracked scope or not, but if this
-          // can't be done, assume it's a tracked scope.
-          if (arg1) {
-            let isTrackedScope = true;
-            const owner = arg0.type === "Identifier" && findVariable(context.getScope(), arg0);
-            if (owner) {
-              const decl = owner.defs[0];
-              if (
-                decl &&
-                decl.node.type === "VariableDeclarator" &&
-                decl.node.init?.type === "CallExpression" &&
-                decl.node.init.callee.type === "Identifier" &&
-                matchImport("getOwner", decl.node.init.callee.name)
-              ) {
-                // Check if the function in which getOwner() is called is a tracked scope. If the scopeStack
-                // has moved on from that scope already, assume it's tracked, since that's less intrusive.
-                const ownerFunction = findParent(decl.node, isProgramOrFunctionNode);
-                const scopeStackIndex = scopeStack.findIndex(({ node }) => ownerFunction === node);
-                if (
-                  (scopeStackIndex >= 1 &&
-                    !scopeStack[scopeStackIndex - 1].trackedScopes.some(
-                      (trackedScope) =>
-                        trackedScope.expect === "function" && trackedScope.node === ownerFunction
-                    )) ||
-                  scopeStackIndex === 0
-                ) {
-                  isTrackedScope = false;
-                }
+              "setInterval",
+              "setTimeout",
+              "setImmediate",
+              "requestAnimationFrame",
+              "requestIdleCallback",
+            ].includes(callee.name)
+          ) {
+            // on* and timers are NOT tracked scopes. However, they don't need to react
+            // to updates to reactive variables; it's okay to poll the current
+            // value. Consider them called-function tracked scopes for our purposes.
+            pushTrackedScope(arg0, "called-function");
+          } else if (matchImport("createMutable", callee.name) && arg0) {
+            pushTrackedScope(arg0, "expression");
+          } else if (matchImport("on", callee.name)) {
+            // on accepts a signal or an array of signals as its first argument,
+            // and a tracking function as its second
+            if (arg0) {
+              if (arg0.type === "ArrayExpression") {
+                arg0.elements.forEach((element) => {
+                  pushTrackedScope(element, "function");
+                });
+              } else {
+                pushTrackedScope(arg0, "function");
               }
             }
-            if (isTrackedScope) {
-              pushTrackedScope(arg1, "function");
+            if (arg1) {
+              // Since dependencies are known, function can be async
+              pushTrackedScope(arg1, "called-function");
+            }
+          } else if (matchImport("createStore", callee.name) && arg0?.type === "ObjectExpression") {
+            for (const property of arg0.properties) {
+              if (
+                property.type === "Property" &&
+                property.kind === "get" &&
+                isFunctionNode(property.value)
+              ) {
+                pushTrackedScope(property.value, "function");
+              }
+            }
+          } else if (matchImport("runWithOwner", callee.name)) {
+            // runWithOwner(owner, fn) only creates a tracked scope if `owner =
+            // getOwner()` runs in a tracked scope. If owner is a variable,
+            // attempt to detect if it's a tracked scope or not, but if this
+            // can't be done, assume it's a tracked scope.
+            if (arg1) {
+              let isTrackedScope = true;
+              const owner = arg0.type === "Identifier" && findVariable(context.getScope(), arg0);
+              if (owner) {
+                const decl = owner.defs[0];
+                if (
+                  decl &&
+                  decl.node.type === "VariableDeclarator" &&
+                  decl.node.init?.type === "CallExpression" &&
+                  decl.node.init.callee.type === "Identifier" &&
+                  matchImport("getOwner", decl.node.init.callee.name)
+                ) {
+                  // Check if the function in which getOwner() is called is a tracked scope. If the scopeStack
+                  // has moved on from that scope already, assume it's tracked, since that's less intrusive.
+                  const ownerFunction = findParent(decl.node, isProgramOrFunctionNode);
+                  const scopeStackIndex = scopeStack.findIndex(
+                    ({ node }) => ownerFunction === node
+                  );
+                  if (
+                    (scopeStackIndex >= 1 &&
+                      !scopeStack[scopeStackIndex - 1].trackedScopes.some(
+                        (trackedScope) =>
+                          trackedScope.expect === "function" && trackedScope.node === ownerFunction
+                      )) ||
+                    scopeStackIndex === 0
+                  ) {
+                    isTrackedScope = false;
+                  }
+                }
+              }
+              if (isTrackedScope) {
+                pushTrackedScope(arg1, "function");
+              }
+            }
+          } else if (/^(?:use|create)[A-Z]/.test(callee.name)) {
+            // Custom hooks parameters may or may not be tracking scopes, no way to know.
+            // Assume all identifier/function arguments are tracked scopes, and use "called-function"
+            // to allow async handlers (permissive). Assume non-resolvable args are reactive expressions.
+            for (const arg of node.arguments) {
+              if (isFunctionNode(arg)) {
+                pushTrackedScope(arg, "called-function");
+              } else if (
+                arg.type === "Identifier" ||
+                arg.type === "ObjectExpression" ||
+                arg.type === "ArrayExpression"
+              ) {
+                pushTrackedScope(arg, "expression");
+              }
             }
           }
-        } else if (/^(?:use|create)[A-Z]/.test(callee.name)) {
-          // Custom hooks parameters may or may not be tracking scopes, no way to know.
-          // Assume all identifier/function arguments are tracked scopes, and use "called-function"
-          // to allow async handlers (permissive). Assume non-resolvable args are reactive expressions.
-          for (const arg of node.arguments) {
-            if (isFunctionNode(arg)) {
-              pushTrackedScope(arg, "called-function");
-            } else if (arg.type === "Identifier" || arg.type === "ObjectExpression") {
-              pushTrackedScope(arg, "expression");
+        } else if (node.callee.type === "MemberExpression") {
+          const { property } = node.callee;
+          if (
+            property.type === "Identifier" &&
+            property.name === "addEventListener" &&
+            node.arguments.length >= 2
+          ) {
+            // Like `on*` event handlers, mark all `addEventListener` listeners as called functions.
+            pushTrackedScope(node.arguments[1], "called-function");
+          } else if (property.type === "Identifier" && /^(?:use|create)[A-Z]/.test(property.name)) {
+            // Handle custom hook parameters for property access custom hooks
+            for (const arg of node.arguments) {
+              if (isFunctionNode(arg)) {
+                pushTrackedScope(arg, "called-function");
+              } else if (
+                arg.type === "Identifier" ||
+                arg.type === "ObjectExpression" ||
+                arg.type === "ArrayExpression"
+              ) {
+                pushTrackedScope(arg, "expression");
+              }
             }
           }
-        }
-      } else if (node.type === "CallExpression" && node.callee.type === "MemberExpression") {
-        const { property } = node.callee;
-        if (
-          property.type === "Identifier" &&
-          property.name === "addEventListener" &&
-          node.arguments.length >= 2
-        ) {
-          // Like `on*` event handlers, mark all `addEventListener` listeners as called functions.
-          pushTrackedScope(node.arguments[1], "called-function");
         }
       } else if (node.type === "VariableDeclarator") {
         // Solid 1.3 createReactive (renamed createReaction?) returns a track
@@ -942,6 +994,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
                   arg0 && pushTrackedScope(arg0, "function");
                 }
               }
+            }
+            if (isFunctionNode(node.init.arguments[0])) {
+              pushTrackedScope(node.init.arguments[0], "called-function");
             }
           }
         }

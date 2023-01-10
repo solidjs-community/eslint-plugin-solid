@@ -237,6 +237,16 @@ function createCustomStore() {
   );
 }
  
+const [array] = createSignal([]);
+const result = mapArray(array, (item, i) => {
+  i();
+});
+ 
+const [array] = createSignal([]);
+const result = indexArray(array, (item) => {
+  item();
+});
+ 
 ```
 
 ### Valid Examples
@@ -411,6 +421,12 @@ function createFoo(v) {}
 const [bar, setBar] = createSignal();
 createFoo({ onBar: () => bar() });
 
+const [bar, setBar] = createSignal();
+X.createFoo(() => bar());
+
+const [bar, setBar] = createSignal();
+X.Y.createFoo(() => bar());
+
 const [signal, setSignal] = createSignal(1);
 const element = document.getElementById("id");
 element.addEventListener(
@@ -489,6 +505,10 @@ css`
 
 html`<div>${(props) => props.name}</div>`;
 
+styled.css`
+  color: ${(props) => props.color};
+`;
+
 function Component() {
   let canvas;
   return <canvas ref={canvas} />;
@@ -522,6 +542,16 @@ function createCustomStore() {
   const [store, updateStore] = createStore({});
 
   return mapArray(
+    // the first argument to mapArray is a tracked scope
+    () => store.path.to.field,
+    (item) => ({})
+  );
+}
+
+function createCustomStore() {
+  const [store, updateStore] = createStore({});
+
+  return indexArray(
     // the first argument to mapArray is a tracked scope
     () => store.path.to.field,
     (item) => ({})

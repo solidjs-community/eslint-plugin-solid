@@ -137,6 +137,10 @@ export const cases = run("reactivity", rule, {
     `function createFoo(v) {}
     const [bar, setBar] = createSignal();
     createFoo({ onBar: () => bar() });`,
+    `const [bar, setBar] = createSignal();
+    X.createFoo(() => bar());`,
+    `const [bar, setBar] = createSignal();
+    X . Y\n. createFoo(() => bar());`,
     // Event listeners
     `const [signal, setSignal] = createSignal(1);
     const element = document.getElementById("id");
@@ -200,6 +204,7 @@ export const cases = run("reactivity", rule, {
     // function expression inside tagged template literal expression is tracked scope
     "css`color: ${props => props.color}`;",
     "html`<div>${props => props.name}</div>`;",
+    "styled.css`color: ${props => props.color};`",
     // refs
     `function Component() {
       let canvas;
@@ -228,6 +233,15 @@ export const cases = run("reactivity", rule, {
       const [store, updateStore] = createStore({});
 
       return mapArray(
+        // the first argument to mapArray is a tracked scope
+        () => store.path.to.field,
+        (item) => ({})
+      );
+    }`,
+    `function createCustomStore() {
+      const [store, updateStore] = createStore({});
+
+      return indexArray(
         // the first argument to mapArray is a tracked scope
         () => store.path.to.field,
         (item) => ({})
@@ -668,7 +682,23 @@ export const cases = run("reactivity", rule, {
           (item) => store.path.to.field
         );
       }`,
-      errors: [{ messageId: "badUnnamedDerivedSignal", line: 7 }],
+      errors: [{ messageId: "untrackedReactive", line: 8 }],
+    },
+    {
+      code: `
+      const [array] = createSignal([]);
+      const result = mapArray(array, (item, i) => {
+        i()
+      });`,
+      errors: [{ messageId: "untrackedReactive", line: 4 }],
+    },
+    {
+      code: `
+      const [array] = createSignal([]);
+      const result = indexArray(array, (item) => {
+        item()
+      });`,
+      errors: [{ messageId: "untrackedReactive", line: 4 }],
     },
   ],
 });
