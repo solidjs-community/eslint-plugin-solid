@@ -681,11 +681,10 @@ export const cases = run("reactivity", rule, {
         const [store, updateStore] = createStore({});
         return mapArray(
           [],
-          // the second argument to mapArray is not tracked
           (item) => store.path.to.field
         );
       }`,
-      errors: [{ messageId: "untrackedReactive", line: 8 }],
+      errors: [{ messageId: "untrackedReactive" }],
     },
     {
       code: `

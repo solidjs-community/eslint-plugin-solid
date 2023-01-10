@@ -229,11 +229,7 @@ css`
  
 function createCustomStore() {
   const [store, updateStore] = createStore({});
-  return mapArray(
-    [],
-    // the second argument to mapArray is not tracked
-    (item) => store.path.to.field
-  );
+  return mapArray([], (item) => store.path.to.field);
 }
  
 const [array] = createSignal([]);
