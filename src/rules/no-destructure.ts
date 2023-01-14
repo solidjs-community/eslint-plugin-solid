@@ -126,7 +126,13 @@ const rule: TSESLint.RuleModule<"noDestructure", []> = {
 
       // Replace destructured props with a `props` identifier (`_props` in case of rest params/defaults)
       const origProps = !(hasDefaults || rest) ? propsName : "_" + propsName;
-      fixes.push(fixer.replaceText(props, origProps));
+      if (props.typeAnnotation) {
+        // in `{ prop1, prop2 }: Props`, leave `: Props` alone
+        const range = [props.range[0], props.typeAnnotation.range[0]] as const;
+        fixes.push(fixer.replaceTextRange(range, origProps));
+      } else {
+        fixes.push(fixer.replaceText(props, origProps));
+      }
 
       const sourceCode = context.getSourceCode();
 

@@ -35,6 +35,10 @@ export const cases = run("no-destructure", rule, {
       return <div a={a} />;
     }`,
     `let element = <div />`, // parse top level JSX
+    {
+      code: `let Component = (props: Props) => <div />;`,
+      parser: require.resolve("@typescript-eslint/parser"),
+    },
   ],
   invalid: [
     {
@@ -239,6 +243,12 @@ various();
       output: `let Component = (_props) => {
   const [props, rest] = splitProps(mergeProps({ ['a' + '']: 5 }, _props), ['a' + '']);  return (<div a={props['a' + '']} b={rest.b} />);
 }`,
+    },
+    {
+      code: `let Component = ({ prop1, prop2 }: Props) => <div p1={prop1} p2={prop2} />;`,
+      parser: require.resolve("@typescript-eslint/parser"),
+      errors: [{ messageId: "noDestructure" }],
+      output: `let Component = (props: Props) => <div p1={props.prop1} p2={props.prop2} />;`,
     },
   ],
 });

@@ -199,6 +199,10 @@ let Component = (_props) => {
   return <div a={props["a" + ""]} b={rest.b} />;
 };
  
+let Component = ({ prop1, prop2 }: Props) => <div p1={prop1} p2={prop2} />;
+// after eslint --fix:
+let Component = (props: Props) => <div p1={props.prop1} p2={props.prop2} />;
+ 
 ```
 
 ### Valid Examples
@@ -250,6 +254,8 @@ let Component = (props) => {
 };
 
 let element = <div />;
+
+let Component = (props: Props) => <div />;
 
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
