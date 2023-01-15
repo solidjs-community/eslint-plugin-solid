@@ -1,4 +1,4 @@
-import { run } from "../ruleTester";
+import { run, tsOnlyTest } from "../ruleTester";
 import rule from "../../src/rules/no-destructure";
 
 export const cases = run("no-destructure", rule, {
@@ -37,7 +37,7 @@ export const cases = run("no-destructure", rule, {
     `let element = <div />`, // parse top level JSX
     {
       code: `let Component = (props: Props) => <div />;`,
-      parser: require.resolve("@typescript-eslint/parser"),
+      ...tsOnlyTest,
     },
   ],
   invalid: [
@@ -246,9 +246,9 @@ various();
     },
     {
       code: `let Component = ({ prop1, prop2 }: Props) => <div p1={prop1} p2={prop2} />;`,
-      parser: require.resolve("@typescript-eslint/parser"),
       errors: [{ messageId: "noDestructure" }],
       output: `let Component = (props: Props) => <div p1={props.prop1} p2={props.prop2} />;`,
+      ...tsOnlyTest,
     },
   ],
 });

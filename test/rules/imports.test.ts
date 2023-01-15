@@ -1,4 +1,4 @@
-import { run } from "../ruleTester";
+import { run, tsOnlyTest } from "../ruleTester";
 import rule from "../../src/rules/imports";
 
 export const cases = run("imports", rule, {
@@ -15,7 +15,7 @@ export const cases = run("imports", rule, {
     {
       code: `import type { Component, JSX } from "solid-js";
 import type { Store } from "solid-js/store";`,
-      parser: require.resolve("@typescript-eslint/parser"),
+      ...tsOnlyTest,
     },
   ],
   invalid: [
@@ -56,7 +56,7 @@ console.log('hi');`,
       output: `
 import { createSignal, Component } from "solid-js";
 console.log('hi');`,
-      parser: require.resolve("@typescript-eslint/parser"),
+      ...tsOnlyTest,
     },
     {
       code: `import { createSignal } from "solid-js/web";
