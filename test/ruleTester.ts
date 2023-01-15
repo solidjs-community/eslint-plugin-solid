@@ -20,8 +20,8 @@ const jsxTester = new RuleTester({
   },
 });
 
-// TypeScript's ESLint parser
-const tsTester = new RuleTester({
+// spread ...tsOnlyTest into a test case to enforce it always runs with the TS parser
+export const tsOnlyTest: Pick<TSESLint.RuleTesterConfig, "parser" | "parserOptions"> = {
   parser: require.resolve("@typescript-eslint/parser"),
   parserOptions: {
     ecmaVersion: 2018,
@@ -30,7 +30,11 @@ const tsTester = new RuleTester({
       jsx: true,
     },
   },
-});
+};
+
+// TypeScript's ESLint parser
+const tsTester = new RuleTester(tsOnlyTest);
+
 // Babel's ESLint parser
 const babelTester = new RuleTester({
   parser: require.resolve("@babel/eslint-parser"),
