@@ -17,7 +17,7 @@ module.exports = {
   external: ["vs/language/typescript/tsWorker", "typescript"],
   plugins: [
     replace({
-      // verbose: true,
+      verbose: true,
       alias: [
         // import eslint from eslint-plugin-solid deps for consistency with ../dist
         {
@@ -85,40 +85,44 @@ module.exports = {
         {
           // we do not want dynamic imports
           match: /eslint\/lib\/linter\/rules\.js$/u,
-          test: /require\(this\._rules\[ruleId\]\)/u,
+          test: /require\(this\._rules\[ruleId\]\)/g,
           replace: "null",
         },
         {
           // esquery has both browser and node versions, we are bundling browser version that has different export
-          test: /esquery\.parse\(/u,
+          test: /esquery\.parse\(/g,
           replace: "esquery.default.parse(",
         },
         {
           // esquery has both browser and node versions, we are bundling browser version that has different export
-          test: /esquery\.matches\(/u,
+          test: /esquery\.matches\(/g,
           replace: "esquery.default.matches(",
         },
         {
-          // replace all process.env.NODE_DEBUG with false
-          test: /process\.env\.NODE_DEBUG/u,
-          replace: "false",
-        },
-        {
-          // replace all process.env.TIMING with false
-          test: /process\.env\.TIMING/u,
+          // replace these env vars with false
+          test: /process\.env\.(?:DEBUG|NODE_DEBUG|TIMING)/g,
           replace: "false",
         },
         {
           // replace all process.env.IGNORE_TEST_WIN32 with true
-          test: /process\.env\.IGNORE_TEST_WIN32/u,
+          test: /process\.env\.IGNORE_TEST_WIN32/g,
           replace: "true",
         },
         {
-          test: /process.cwd\(\)/u,
+          // mock all other env vars as unset
+          test: /process\.env\.\w+/gu,
+          replace: "undefined",
+        },
+        {
+          test: /process.cwd\(\)/g,
           replace: "'~'",
         },
         {
-          test: /__filename/u,
+          test: /process\.emitWarning/g,
+          replace: "console.log",
+        },
+        {
+          test: /__filename/g,
           replace: "''",
         },
       ],
