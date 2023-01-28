@@ -569,6 +569,17 @@ const m = createMemo(() => 5)!;
 
 const m = createMemo(() => 5)! as Accessor<number>;
 
+function Component(props) {
+  return (
+    <div>
+      {() => {
+        console.log("hello");
+        return props.greeting;
+      }}
+    </div>
+  );
+}
+
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 

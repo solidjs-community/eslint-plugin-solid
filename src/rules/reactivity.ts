@@ -840,6 +840,8 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           // to the DOM. This is semantically a "called function", so it's fine to read reactive
           // variables here.
           pushTrackedScope(node.expression, "called-function");
+        } else if (node.parent?.type === "JSXElement" && isFunctionNode(node.expression)) {
+          pushTrackedScope(node.expression, "function"); // functions inline in JSX containers will be tracked
         } else {
           pushTrackedScope(node.expression, "expression");
         }
