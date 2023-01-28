@@ -271,11 +271,31 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     /** Tracks imports from 'solid-js', handling aliases. */
     const { matchImport, handleImportDeclaration } = trackImports();
 
+    /** Workaround for #61 */
+    const markPropsOnCondition = (node: FunctionNode, cb: (props: T.Identifier) => boolean) => {
+      if (
+        node.params.length === 1 &&
+        node.params[0].type === "Identifier" &&
+        node.parent?.type !== "JSXExpressionContainer" && // "render props" aren't components
+        node.parent?.type !== "TemplateLiteral" && // inline functions in tagged template literals aren't components
+        cb(node.params[0])
+      ) {
+        // This function is a component, consider its parameter a props
+        const propsParam = findVariable(context.getScope(), node.params[0]);
+        if (propsParam) {
+          scopeStack.pushProps(propsParam, node);
+        }
+      }
+    };
+
     /** Populates the function stack. */
     const onFunctionEnter = (node: ProgramOrFunctionNode) => {
-      if (isFunctionNode(node) && scopeStack.syncCallbacks.has(node)) {
-        // Ignore sync callbacks like Array#forEach and certain Solid primitives
-        return;
+      if (isFunctionNode(node)) {
+        markPropsOnCondition(node, (props) => isPropsByName(props.name));
+        if (scopeStack.syncCallbacks.has(node)) {
+          // Ignore sync callbacks like Array#forEach and certain Solid primitives
+          return;
+        }
       }
       scopeStack.push(new ScopeStackItem(node));
     };
@@ -381,32 +401,24 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
 
     /** Performs all analysis and reporting. */
     const onFunctionExit = (currentScopeNode: ProgramOrFunctionNode) => {
+      // If this function is a component, add its props as a reactive variable
+      if (isFunctionNode(currentScopeNode)) {
+        markPropsOnCondition(
+          currentScopeNode,
+          (props) =>
+            !isPropsByName(props.name) && // already added in markPropsOnEnter
+            currentScope().hasJSX &&
+            // begins with lowercase === not component
+            (currentScopeNode.type !== "FunctionDeclaration" ||
+              !currentScopeNode.id?.name?.match(/^[a-z]/))
+        );
+      }
+
       // Ignore sync callbacks like Array#forEach and certain Solid primitives.
       // In this case only, currentScopeNode !== currentScope().node, but we're
       // returning early so it doesn't matter.
       if (isFunctionNode(currentScopeNode) && scopeStack.syncCallbacks.has(currentScopeNode)) {
         return;
-      }
-
-      // If this function is a component, add its props as a reactive variable
-      if (isFunctionNode(currentScopeNode) && currentScopeNode.params.length === 1) {
-        const paramsNode = currentScopeNode.params[0];
-        if (
-          paramsNode?.type === "Identifier" &&
-          ((currentScope().hasJSX &&
-            (currentScopeNode.type !== "FunctionDeclaration" ||
-              !currentScopeNode.id?.name?.match(/^[a-z]/))) ||
-            // begins with lowercase === not component
-            isPropsByName(paramsNode.name)) &&
-          currentScopeNode.parent?.type !== "JSXExpressionContainer" && // "render props" aren't components
-          currentScopeNode.parent?.type !== "TemplateLiteral" // inline functions in tagged template literals aren't components
-        ) {
-          // This function is a component, consider its parameter a props
-          const propsParam = findVariable(context.getScope(), paramsNode);
-          if (propsParam) {
-            scopeStack.pushProps(propsParam);
-          }
-        }
       }
 
       // Iterate through all usages of (derived) signals in the current scope

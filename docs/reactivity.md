@@ -48,6 +48,12 @@ const Component = (props) => {
   return <div>{value()}</div>;
 };
  
+const Component = (props) => {
+  const derived = () => props.value;
+  const oops = derived();
+  return <div>{oops}</div>;
+};
+ 
 function Component(something) {
   console.log(something.a);
   return <div />;

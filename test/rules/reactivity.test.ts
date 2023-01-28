@@ -320,6 +320,22 @@ export const cases = run("reactivity", rule, {
         },
       ],
     },
+    // mark `props` as props by name before we've determined if Component is a component in :exit
+    {
+      code: `
+      const Component = props => {
+        const derived = () => props.value;
+        const oops = derived();
+        return <div>{oops}</div>;
+      }`,
+      errors: [
+        {
+          messageId: "untrackedReactive",
+          data: { name: "derived" },
+          type: T.CallExpression,
+        },
+      ],
+    },
     // treat first parameter of uppercase function with JSX as a props
     {
       code: `
