@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
-import { run } from "../ruleTester";
+import { run, tsOnlyTest } from "../ruleTester";
 import rule from "../../src/rules/reactivity";
 
 export const cases = run("reactivity", rule, {
@@ -251,6 +251,19 @@ export const cases = run("reactivity", rule, {
         (item) => ({})
       );
     }`,
+    // type casting
+    {
+      code: `const m = createMemo(() => 5) as Accessor<number>;`,
+      ...tsOnlyTest,
+    },
+    {
+      code: `const m = createMemo(() => 5)!;`,
+      ...tsOnlyTest,
+    },
+    {
+      code: `const m = createMemo(() => 5)! as Accessor<number>;`,
+      ...tsOnlyTest,
+    },
   ],
   invalid: [
     // Untracked signals
