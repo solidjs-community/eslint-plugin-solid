@@ -557,10 +557,16 @@ function createCustomStore() {
   );
 }
 
+const m = createMemo(() => 5) as Accessor<number>;
+
+const m = createMemo(() => 5)!;
+
+const m = createMemo(() => 5)! as Accessor<number>;
+
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
-### Implementation
+## Implementation
 
 We analyze in a single pass but take advantage of ESLint's ":exit" selector
 to take action both on the way down the tree and on the way back up. At any
@@ -586,3 +592,76 @@ Notes:
   match a tracked scope that expects a function.
 - This rule ignores classes. Solid is based on functions/closures only, and 
   it's uncommon to see classes with reactivity in Solid code.
+
+## Implementation v2 (in progress)
+
+`solid/reactivity` has been public for exactly one year (!) at the time of writing, and after lots
+of feedback, testing, and changes, I've noticed a few problems with its first implementation:
+
+- **Hard to change.** All of the data structure, analysis, and reporting code is colocated in a
+  single file with all the cases for detecting signals, props, and tracked scopes based on Solid
+  APIs. There's a few edge cases where detection code is mixed with analysis code. This makes it
+  hard for contributors to make PRs and hard for others to be able to maintain it.
+- **Limited to variables.** The analysis code relies heavily on ESLint's `ScopeManager` and scope
+  utilities, and therefore it can only deal with variable references, not implicitly reactive
+  expressions.
+- **Non-extensible.** Since detection code is hardcoded in the `reactivity.ts` file, it is plainly
+  not possible for users to mark certain APIs as reactive in some way.
+- **Susceptible to timing issues.** I'm very proud of the rule's stack-based algorithm for running
+  signal/props/tracked scope detection and reactivity analysis in a single pass. Its performance is
+  going to be extremely difficult to beat. But the single-pass approach puts complex requirements on
+  the detection phase—signals and props have to be marked before nested `function:exit`s, relying on
+  initialization before usage in source order. That's not a requirement I feel comfortable putting on
+  plugin authors, or really even myself in a few months.
+
+So, I've decided to partially rewrite the rule with a plugin architecture to alleviate these issues.
+Both the core detection code and any plugins to alter detection will use the same API.
+
+### Ease of change and extensibility: Plugins (Customizations)
+
+`solid/reactivity`, itself part of an ESLint plugin, will support plugins of its own.
+
+`eslint-plugin-solid` will expose a CLI command `eslint-plugin-solid` that searches
+`package.json` files in the current working directory and its `node_modules` for a
+`"solid/reactivity"` key at the top level (raw string search first for perf). This key will be expected to
+contain a relative path to a CommonJS or native ESM file, accessible from requiring a subpath of the
+module. For example:
+
+```ts
+const packageJson = { "solid/reactivity": "./reactivity-plugin.js" };
+require.resolve(`${packageJson.name}/${packageJson["solid/reactivity"]}`);
+// path to reactivity plugin
+```
+
+The command will not run any code in `node_modules`; it will just print out an example ESLint config for
+the `solid/reactivity` rule, configured to load all plugins found. For example:
+
+```json
+"solid/reactivity": [1, {
+  "plugins": ["./node_modules/some-module-with-plugin/solid-reactivity-plugin.cjs"]
+}]
+```
+
+This code can be inspected to ensure it matches expections, or edited to add additional paths to
+more plugins. You can manually configure a particular path as a plugin without running the CLI at
+all. At runtime, any plugins configured will be loaded and run alongside the base rules. Custom
+hooks (`use*`/`create*`) from imported from these packages will not be treated permissively, others
+will.
+
+> `eslint-plugin-solid` will **not** automatically load plugins. They must be preconfigured in an
+> ESLint config file.
+
+### Expression Support
+
+Having detection code being moved to plugins and an API boundary lets us put reference tracking into
+the analysis code, so analyzing arbitrary expressions for reactivity becomes easier. Instead of
+using `TSESLint.Scope.Reference`s only, a custom data structure can be built to handle any `Node` from
+the plugin API.
+
+### Timing
+
+This is a good opportunity to transition from a stack-based algorithm, where information is lost
+after the exit pass, to a tree-based algorithm that can capture all reactivity information in a data
+structure. By using the built tree to walk through the final analysis, and colocating references
+with their associated scopes, performance should stay good. The reactivity rule could then power 
+an editor plugin to show signals, tracked scopes, etc.

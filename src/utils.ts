@@ -69,6 +69,17 @@ export function trace(node: T.Node, initialScope: TSESLint.Scope.Scope): T.Node 
   return node;
 }
 
+/** Get the relevant node when wrapped by a node that doesn't change the behavior */
+export function ignoreTransparentWrappers(node: T.Node, up = false): T.Node {
+  if (node.type === "TSAsExpression" || node.type === "TSNonNullExpression") {
+    const next = up ? node.parent : node.expression;
+    if (next) {
+      return ignoreTransparentWrappers(next, up);
+    }
+  }
+  return node;
+}
+
 export type FunctionNode = T.FunctionExpression | T.ArrowFunctionExpression | T.FunctionDeclaration;
 const FUNCTION_TYPES = ["FunctionExpression", "ArrowFunctionExpression", "FunctionDeclaration"];
 export const isFunctionNode = (node: T.Node | null | undefined): node is FunctionNode =>

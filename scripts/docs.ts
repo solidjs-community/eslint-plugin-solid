@@ -104,7 +104,7 @@ const buildOptions = (filename: string): string => {
   ].join("\n");
 };
 
-const pretty = (code: string) => prettier.format(code, { parser: "babel" }).trim();
+const pretty = (code: string) => prettier.format(code, { parser: "typescript" }).trim();
 const options = (options: Array<any>) =>
   options
     .map((o) =>

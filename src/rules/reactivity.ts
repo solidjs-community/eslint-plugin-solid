@@ -14,6 +14,7 @@ import {
   isProgramOrFunctionNode,
   trackImports,
   isDOMElementName,
+  ignoreTransparentWrappers,
 } from "../utils";
 
 const { findVariable, getFunctionHeadLocation } = ASTUtils;
@@ -159,6 +160,7 @@ class ScopeStack extends Array<ScopeStackItem> {
         reference,
         declarationScope: variable.declarationScope,
       }));
+      // I don't think this is needed! Just a perf optimization
       variable.references = notInScope;
     }
   }
@@ -667,8 +669,10 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     /** Checks VariableDeclarators, AssignmentExpressions, and CallExpressions for reactivity. */
     const checkForReactiveAssignment = (
       id: T.BindingName | T.AssignmentExpression["left"] | null,
-      init: T.Expression
+      init: T.Node
     ) => {
+      init = ignoreTransparentWrappers(init);
+
       // Mark return values of certain functions as reactive
       if (init.type === "CallExpression" && init.callee.type === "Identifier") {
         const { callee } = init;
@@ -871,8 +875,6 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             // to updates to reactive variables; it's okay to poll the current
             // value. Consider them called-function tracked scopes for our purposes.
             pushTrackedScope(arg0, "called-function");
-          } else if (matchImport("createMutable", callee.name) && arg0) {
-            pushTrackedScope(arg0, "expression");
           } else if (matchImport("on", callee.name)) {
             // on accepts a signal or an array of signals as its first argument,
             // and a tracking function as its second
@@ -1051,10 +1053,8 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         checkForSyncCallbacks(node);
 
         // ensure calls to reactive primitives use the results.
-        if (
-          node.parent?.type !== "AssignmentExpression" &&
-          node.parent?.type !== "VariableDeclarator"
-        ) {
+        const parent = node.parent && ignoreTransparentWrappers(node.parent, true);
+        if (parent?.type !== "AssignmentExpression" && parent?.type !== "VariableDeclarator") {
           checkForReactiveAssignment(null, node);
         }
       },
