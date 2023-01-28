@@ -264,6 +264,15 @@ export const cases = run("reactivity", rule, {
       code: `const m = createMemo(() => 5)! as Accessor<number>;`,
       ...tsOnlyTest,
     },
+    // functions in JSXExpressionContainers
+    `function Component(props) {
+      return (
+        <div>{() => {
+          console.log('hello');
+          return props.greeting;
+        }}</div>
+      );
+    }`,
   ],
   invalid: [
     // Untracked signals
