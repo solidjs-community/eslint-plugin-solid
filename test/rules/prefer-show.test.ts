@@ -45,5 +45,51 @@ export const cases = run("prefer-show", rule, {
         );
       }`,
     },
+    {
+      code: `
+      function Component(props) {
+        return (
+            <For each={props.someList}>
+                {(listItem) => listItem.cond && <span>Content</span>}
+            </For>
+        );
+      }`,
+      errors: [{ messageId: "preferShowAnd" }],
+      output: `
+      function Component(props: any) {
+        return (
+            <For each={props.someList}>
+                {(listItem) => <Show when={listItem.cond}><span>Content</span></Show>}
+            </For>
+        );
+      }`,
+    },
+    {
+      code: `
+      function Component(props) {
+        return (
+          <For each={props.someList}>
+            {(listItem) => (listItem.cond ? (
+              <span>Content</span> 
+            ) : (
+              <span>Fallback</span>
+            ))}
+          </For>
+        );
+      }`,
+      errors: [{ messageId: "preferShowTernary" }],
+      output: `
+      function Component(props) {
+        return (
+            <For each={props.someList}>
+                {(listItem) => (
+                    <Show when={listItem.cond} fallback={<span>Fallback</span>}>
+                        <span>Content</span>
+                    </Show>
+                )}
+            </For>
+        );
+      }`,
+    },
   ],
 });
