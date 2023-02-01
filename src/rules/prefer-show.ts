@@ -26,51 +26,46 @@ const rule: TSESLint.RuleModule<"preferShowAnd" | "preferShowTernary", []> = {
       return node.type === "JSXElement" || node.type === "JSXFragment" ? text : `{${text}}`;
     };
 
-    const logicalExpressionHandler = (node: T.LogicalExpression) => {
-      if (node.operator === "&&" && EXPENSIVE_TYPES.includes(node.right.type)) {
-        context.report({
-          node,
-          messageId: "preferShowAnd",
-          fix: (fixer) =>
-            fixer.replaceText(
-              node.parent?.type === "JSXExpressionContainer" &&
-                node.parent.parent?.type === "JSXElement"
-                ? node.parent
-                : node,
-              `<Show when={${sourceCode.getText(node.left)}}>${putIntoJSX(node.right)}</Show>`
-            ),
-        });
-      }
-    };
-    const conditionalExpressionHandler = (node: T.ConditionalExpression) => {
-      if (
-        EXPENSIVE_TYPES.includes(node.consequent.type) ||
-        EXPENSIVE_TYPES.includes(node.alternate.type)
-      ) {
-        context.report({
-          node,
-          messageId: "preferShowTernary",
-          fix: (fixer) =>
-            fixer.replaceText(
-              node.parent?.type === "JSXExpressionContainer" &&
-                node.parent.parent?.type === "JSXElement"
-                ? node.parent
-                : node,
-              `<Show when={${sourceCode.getText(node.test)}} fallback={${sourceCode.getText(
-                node.alternate
-              )}}>${putIntoJSX(node.consequent)}</Show>`
-            ),
-        });
-      }
-    };
-
     return {
-      "JSXElement > JSXExpressionContainer > LogicalExpression": logicalExpressionHandler,
-      "JSXElement > JSXExpressionContainer > ArrowFunctionExpression > LogicalExpression":
-        logicalExpressionHandler,
-      "JSXElement > JSXExpressionContainer > ConditionalExpression": conditionalExpressionHandler,
-      "JSXElement > JSXExpressionContainer > ArrowFunctionExpression > ConditionalExpression":
-        conditionalExpressionHandler,
+      "JSXElement > JSXExpressionContainer > LogicalExpression": (node: T.LogicalExpression) => {
+        if (node.operator === "&&" && EXPENSIVE_TYPES.includes(node.right.type)) {
+          context.report({
+            node,
+            messageId: "preferShowAnd",
+            fix: (fixer) =>
+              fixer.replaceText(
+                node.parent?.type === "JSXExpressionContainer" &&
+                  node.parent.parent?.type === "JSXElement"
+                  ? node.parent
+                  : node,
+                `<Show when={${sourceCode.getText(node.left)}}>${putIntoJSX(node.right)}</Show>`
+              ),
+          });
+        }
+      },
+      "JSXElement > JSXExpressionContainer > ConditionalExpression": (
+        node: T.ConditionalExpression
+      ) => {
+        if (
+          EXPENSIVE_TYPES.includes(node.consequent.type) ||
+          EXPENSIVE_TYPES.includes(node.alternate.type)
+        ) {
+          context.report({
+            node,
+            messageId: "preferShowTernary",
+            fix: (fixer) =>
+              fixer.replaceText(
+                node.parent?.type === "JSXExpressionContainer" &&
+                  node.parent.parent?.type === "JSXElement"
+                  ? node.parent
+                  : node,
+                `<Show when={${sourceCode.getText(node.test)}} fallback={${sourceCode.getText(
+                  node.alternate
+                )}}>${putIntoJSX(node.consequent)}</Show>`
+              ),
+          });
+        }
+      },
     };
   },
 };

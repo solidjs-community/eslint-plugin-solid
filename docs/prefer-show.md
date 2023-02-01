@@ -47,48 +47,6 @@ function Component(props) {
   );
 }
  
-function Component(props) {
-  return (
-    <For each={props.someList}>
-      {(listItem) => listItem.cond && <span>Content</span>}
-    </For>
-  );
-}
-// after eslint --fix:
-function Component(props: any) {
-  return (
-    <For each={props.someList}>
-      {(listItem) => (
-        <Show when={listItem.cond}>
-          <span>Content</span>
-        </Show>
-      )}
-    </For>
-  );
-}
- 
-function Component(props) {
-  return (
-    <For each={props.someList}>
-      {(listItem) =>
-        listItem.cond ? <span>Content</span> : <span>Fallback</span>
-      }
-    </For>
-  );
-}
-// after eslint --fix:
-function Component(props) {
-  return (
-    <For each={props.someList}>
-      {(listItem) => (
-        <Show when={listItem.cond} fallback={<span>Fallback</span>}>
-          <span>Content</span>
-        </Show>
-      )}
-    </For>
-  );
-}
- 
 ```
 
 ### Valid Examples
