@@ -33,6 +33,17 @@ export const cases = run("prefer-for", rule, {
         return <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;
       }`,
     },
+    {
+      code: `
+      function Component(props) {
+        return <ol>{props.data?.map(d => <li>{d.text}</li>)}</ol>;
+      }`,
+      errors: [{ messageId: "preferFor" }],
+      output: `
+      function Component(props) {
+        return <ol>{<For each={props.data}>{(d) => <li>{d.text}</li>}</For>}</ol>;
+      }`,
+    },
     // deopts
     {
       code: `let Component = (props) => <ol>{props.data.map(() => <li />)}</ol>;`,
