@@ -65,6 +65,20 @@ function Component(props) {
   );
 }
  
+function Component(props) {
+  return (
+    <ol>
+      {props.data?.map((d) => (
+        <li>{d.text}</li>
+      ))}
+    </ol>
+  );
+}
+// after eslint --fix:
+function Component(props) {
+  return <ol>{<For each={props.data}>{(d) => <li>{d.text}</li>}</For>}</ol>;
+}
+ 
 let Component = (props) => (
   <ol>
     {props.data.map(() => (

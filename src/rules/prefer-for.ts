@@ -48,29 +48,32 @@ const rule: TSESLint.RuleModule<"preferFor" | "preferForOrIndex", []> = {
       });
     };
 
-    return {
-      "JSXElement > JSXExpressionContainer > CallExpression": (node: T.CallExpression) => {
-        if (
-          node.callee.type === "MemberExpression" &&
-          getPropertyName(node.callee) === "map" &&
-          node.arguments.length === 1 && // passing thisArg to Array.prototype.map is rare, deopt in that case
-          isFunctionNode(node.arguments[0])
-        ) {
-          const mapFnNode = node.arguments[0];
-          if (mapFnNode.params.length === 1 && mapFnNode.params[0].type !== "RestElement") {
-            // The map fn doesn't take an index param, so it can't possibly be an index-keyed list. Use <For />.
-            // The returned JSX, if it's coming from React, will have an unnecessary `key` prop to be removed in
-            // the useless-keys rule.
-            reportPreferFor(node);
-          } else {
-            // Too many possible solutions to make a suggestion or fix
-            context.report({
-              node,
-              messageId: "preferForOrIndex",
-            });
-          }
+    const report = (node: T.CallExpression) => {
+      if (
+        node.callee.type === "MemberExpression" &&
+        getPropertyName(node.callee) === "map" &&
+        node.arguments.length === 1 && // passing thisArg to Array.prototype.map is rare, deopt in that case
+        isFunctionNode(node.arguments[0])
+      ) {
+        const mapFnNode = node.arguments[0];
+        if (mapFnNode.params.length === 1 && mapFnNode.params[0].type !== "RestElement") {
+          // The map fn doesn't take an index param, so it can't possibly be an index-keyed list. Use <For />.
+          // The returned JSX, if it's coming from React, will have an unnecessary `key` prop to be removed in
+          // the useless-keys rule.
+          reportPreferFor(node);
+        } else {
+          // Too many possible solutions to make a suggestion or fix
+          context.report({
+            node,
+            messageId: "preferForOrIndex",
+          });
         }
-      },
+      }
+    };
+
+    return {
+      "JSXElement > JSXExpressionContainer > CallExpression": report,
+      "JSXElement > JSXExpressionContainer > ChainExpression > CallExpression": report,
     };
   },
 };
