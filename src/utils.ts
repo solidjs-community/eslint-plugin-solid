@@ -148,11 +148,14 @@ export const getCommentAfter = (
 
 export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
   const importMap = new Map<string, string>();
+  const moduleMap = new Map<string, string>();
+
   const handleImportDeclaration = (node: T.ImportDeclaration) => {
     if (fromModule.test(node.source.value)) {
       for (const specifier of node.specifiers) {
         if (specifier.type === "ImportSpecifier") {
           importMap.set(specifier.imported.name, specifier.local.name);
+          moduleMap.set(specifier.local.name, node.source.value);
         }
       }
     }
@@ -161,7 +164,9 @@ export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
     const importArr = Array.isArray(imports) ? imports : [imports];
     return importArr.find((i) => importMap.get(i) === str);
   };
-  return { matchImport, handleImportDeclaration };
+  const matchLocalToModule = (local: string): string | undefined => moduleMap.get(local);
+
+  return { matchImport, handleImportDeclaration, matchLocalToModule };
 };
 
 export function appendImports(

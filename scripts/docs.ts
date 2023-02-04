@@ -181,13 +181,15 @@ async function run() {
   const docRoot = path.resolve(__dirname, "..", "docs");
   const docFiles = (await fs.readdir(docRoot)).filter((p) => p.endsWith(".md"));
   for (const docFile of docFiles) {
-    markdownMagic(path.join(docRoot, docFile), {
-      transforms: {
-        HEADER: () => buildHeader(docFile),
-        OPTIONS: () => buildOptions(docFile),
-        CASES: (content: string) => buildCases(content, docFile),
-      },
-    });
+    if (docFile !== "reactivity-customization.md") {
+      markdownMagic(path.join(docRoot, docFile), {
+        transforms: {
+          HEADER: () => buildHeader(docFile),
+          OPTIONS: () => buildOptions(docFile),
+          CASES: (content: string) => buildCases(content, docFile),
+        },
+      });
+    }
   }
 }
 
