@@ -17,6 +17,7 @@ import preferShow from "./rules/prefer-show";
 import reactivity from "./rules/reactivity";
 import selfClosingComp from "./rules/self-closing-comp";
 import styleProp from "./rules/style-prop";
+import noArrayHandlers from "./rules/no-array-handlers";
 // import validateJsxNesting from "./rules/validate-jsx-nesting";
 
 const allRules = {
@@ -39,6 +40,7 @@ const allRules = {
   reactivity,
   "self-closing-comp": selfClosingComp,
   "style-prop": styleProp,
+  "no-array-handlers": noArrayHandlers,
   // "validate-jsx-nesting": validateJsxNesting
 };
 
@@ -81,6 +83,7 @@ const plugin = {
         "solid/no-react-deps": 1,
         "solid/no-react-specific-props": 1,
         "solid/self-closing-comp": 1,
+        "solid/no-array-handlers": 0,
         // handled by Solid compiler, opt-in style suggestion
         "solid/prefer-show": 0,
         // only necessary for resource-constrained environments
@@ -115,6 +118,7 @@ const plugin = {
         "solid/no-react-deps": 1,
         "solid/no-react-specific-props": 1,
         "solid/self-closing-comp": 1,
+        "solid/no-array-handlers": 0,
         // namespaces taken care of by TS
         "solid/no-unknown-namespaces": 0,
         // handled by Solid compiler, opt-in style suggestion
