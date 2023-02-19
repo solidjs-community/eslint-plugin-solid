@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
 # solid/no-array-handlers
-Disallow usage of unsafe event handlers.
+Disallow usage of type-unsafe event handlers.
 This rule is **off** by default.
 
 [View source](../src/rules/no-array-handlers.ts) · [View tests](../test/rules/no-array-handlers.test.ts)

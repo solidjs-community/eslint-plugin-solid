@@ -128,7 +128,7 @@ const [editedValue, setEditedValue] = createSignal(props.value);
 | ✔ |  | [solid/jsx-no-script-url](docs/jsx-no-script-url.md) | Disallow javascript: URLs. |
 | ✔ | 🔧 | [solid/jsx-no-undef](docs/jsx-no-undef.md) | Disallow references to undefined variables in JSX. Handles custom directives. |
 | ✔ |  | [solid/jsx-uses-vars](docs/jsx-uses-vars.md) | Prevent variables used in JSX from being marked as unused. |
-|  |  | [solid/no-array-handlers](docs/no-array-handlers.md) | Disallow usage of unsafe event handlers. |
+|  |  | [solid/no-array-handlers](docs/no-array-handlers.md) | Disallow usage of type-unsafe event handlers. |
 | ✔ | 🔧 | [solid/no-destructure](docs/no-destructure.md) | Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list. |
 | ✔ | 🔧 | [solid/no-innerhtml](docs/no-innerhtml.md) | Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities. |
 |  |  | [solid/no-proxy-apis](docs/no-proxy-apis.md) | Disallow usage of APIs that use ES6 Proxies, only to target environments that don't support them. |

@@ -164,7 +164,7 @@ const rule: TSESLint.RuleModule<
         // string name of the name node
         const { name } = node.name;
 
-        if (!/^on[a-zA-Z].*$/.test(name)) {
+        if (!/^on[a-zA-Z]/.test(name)) {
           return; // bail if Solid doesn't consider the prop name an event handler
         }
 
