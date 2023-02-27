@@ -100,10 +100,10 @@ options you can set.
 }
 ```
 
-### Disabling Rules
+### Troubleshooting
 
-The rules in this plugin provide sensible guidelines, but there may be occasions where you _know
-what you're doing_ and want to ignore a warning. Just [add a
+The rules in this plugin provide sensible guidelines as well as possible, but there may be times
+where the you better than the rule and want to ignore a warning. Just [add a
 comment](https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules) like the
 following:
 
@@ -111,6 +111,10 @@ following:
 // eslint-disable-next-line solid/reactivity
 const [editedValue, setEditedValue] = createSignal(props.value);
 ```
+
+_However_, there may also be times where a rule correctly warns about a subtle problem,
+even if it looks like a false positive at first. With `solid/reactivity`, please look at the
+[docs](./docs/reactivity.md#troubleshooting) before deciding to disable the rule.
 
 ## Rules
 
@@ -138,7 +142,7 @@ const [editedValue, setEditedValue] = createSignal(props.value);
 |  | 🔧 | [solid/prefer-classlist](docs/prefer-classlist.md) | Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames. |
 | ✔ | 🔧 | [solid/prefer-for](docs/prefer-for.md) | Enforce using Solid's `<For />` component for mapping an array to JSX elements. |
 |  | 🔧 | [solid/prefer-show](docs/prefer-show.md) | Enforce using Solid's `<Show />` component for conditionally showing content. Solid's compiler covers this case, so it's a stylistic rule only. |
-| ✔ |  | [solid/reactivity](docs/reactivity.md) | Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected. |
+| ✔ |  | [solid/reactivity](docs/reactivity.md) | Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected. |
 | ✔ | 🔧 | [solid/self-closing-comp](docs/self-closing-comp.md) | Disallow extra closing tags for components without children. |
 | ✔ | 🔧 | [solid/style-prop](docs/style-prop.md) | Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values with dimensions are strings, not numbers with implicit 'px' units. |
 <!-- AUTO-GENERATED-CONTENT:END -->

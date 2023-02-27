@@ -231,20 +231,20 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     docs: {
       recommended: "warn",
       description:
-        "Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected.",
+        "Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected.",
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md",
     },
     schema: [],
     messages: {
       noWrite: "The reactive variable '{{name}}' should not be reassigned or altered directly.",
       untrackedReactive:
-        "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or inside an event handler function.",
+        "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or inside an event handler function, or else changes will be ignored.",
       expectedFunctionGotExpression:
         "The reactive variable '{{name}}' should be wrapped in a function for reactivity. This includes event handler bindings on native elements, which are not reactive like other JSX props.",
       badSignal:
         "The reactive variable '{{name}}' should be called as a function when used in {{where}}.",
       badUnnamedDerivedSignal:
-        "This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity.",
+        "This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity, or else changes will be ignored.",
       shouldDestructure:
         "For proper analysis, array destructuring should be used to capture the {{nth}}result of this function call.",
       shouldAssign:

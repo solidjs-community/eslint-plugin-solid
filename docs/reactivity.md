@@ -1,17 +1,159 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+
 # solid/reactivity
-Enforce that reactive expressions (props, signals, memos, etc.) are only used in tracked scopes; otherwise, they won't update the view as expected.
+
+Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected.
 This rule is **a warning** by default.
 
 [View source](../src/rules/reactivity.ts) · [View tests](../test/rules/reactivity.test.ts)
 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
+## Troubleshooting
+
+Below are a few common patterns that cause warnings, what these warnings mean, and whether these
+warnings can be safely ignored.
+
+- **Accessing reactive variables in the component body**
+
+  ```jsx
+  function Greeting(props) {
+    const text = `Hello, ${props.name}!`;
+    //                     ^^^^^^^^^^
+    // The reactive variable 'props.name' should be used within JSX, a tracked scope (like
+    // createEffect), or inside an event handler function, or else changes will be ignored.
+
+    return <span class="greeting">{text}</span>;
+  }
+  ```
+
+  Using a prop (or calling a signal, etc.) directly inside of the component body will trigger a
+  warning about a real problem and should rarely be ignored. This is because props (and signals,
+  etc.) can change over time, but Solid components only run once, so a change to the prop will have
+  no effect. For example, if `props.name` is initially equal to `'Alice'`, but is later changed to
+  `'Bob'`, the `<Greeting />` component will still display "Hello, Alice!"
+
+  Given that components run once, the way to handle this is to move `props.*` accesses and signal calls
+  into the JSX (or certain other places called "tracked scopes"). Alternatively, you can use wrapper functions
+  instead, and call those functions in the JSX. For example, either of the following solutions will work
+  and eliminate the warning:
+
+  ```jsx
+  function Greeting(props) {
+    return <span class="greeting">Hello, {props.name}!</span>;
+  }
+  // or
+  function Greeting(props) {
+    const text = () => `Hello, ${props.name}!`; // `text` now acts like a signal
+
+    return <span class="greeting">{text()}</span>;
+  }
+  ```
+
+  <details>
+  <summary>Why does this work?</summary>
+
+  Solid's compiler transforms expressions in JSX; it wraps them in a function, and creates an effect
+  to track when they've changed in order to update the UI. So `<span>{text()}</span>` becomes
+  `<span>{() => text()}</span>`, and `<span>{props.name}</span>` becomes `<span>{() => props.name}</span>`. The `props.name` access works just like a signal call because `.name` is a
+  getter function under the hood; a function call in both cases. It's important that the accesses
+  happen in the JSX for the tracking to work.
+  </details>
+
+- **Initializing state from props**
+
+  ```js
+  function Counter(props) {
+    const [count, setCount] = createSignal(props.count);
+    //                                     ^^^^^^^^^^^
+    // The reactive variable 'props.count' should be used within JSX, a tracked scope (like
+    // createEffect), or inside an event handler function, or else changes will be ignored.
+  }
+  ```
+
+  Even when using a prop to initialize a signal, you'll still get the same warning as described
+  above. This code ignores any changes to `props.count`, instead of reacting to those changes.
+
+  > React developers: this is equivalent to `const [count, setCount] = useState(props.count)`.
+
+  Though it's often better to use props directly instead of creating new state from props, there are
+  cases where this pattern is what you want. You can safely ignore the rule when you are providing
+  an "initial" or "default" value to a component ("uncontrolled components" in React).
+
+  That's why there's an escape hatch for this case; any props beginning with `initial` or `default`
+  won't trigger this warning. By using the `initial` or `default` prefix, you've shown that you
+  intend to ignore updates to that prop. If you can't or don't want to use the prefix, adding an `// eslint-disable-next-line` comment to disable the warning accomplishes the same thing.
+
+  ```js
+  const [count, setCount] = createSignal(props.initialCount); // fixed!
+  ```
+
+- **Using reactivity with a context provider**
+
+  ```jsx
+  const CountContext = createContext();
+  function CountProvider(props) {
+    const [count, setCount] = createSignal(0);
+
+    return <CountContext.Provider value={count()}>{props.children}</CountContext.Provider>;
+    //                                   ^^^^^^^
+    // The reactive variable 'count' should be used within JSX, a tracked scope (like
+    // createEffect), or inside an event handler function, or else changes will be ignored.
+  }
+  ```
+
+  Even though `count()` is used in JSX, this warning indicates a real problem and should not be
+  ignored. Unlike most props, the `value` prop in a Provider is _not_ a tracked scope, meaning it
+  will not react to changes in `count()`. The solution is to [pass the signal
+  as-is](https://www.solidjs.com/docs/latest#createcontext), and call it when using `useContext()`.
+
+  ```jsx
+  return <CountContext.Provider value={count}>{props.children}</CountContext.Provider>; // fixed!
+  ```
+
+  Passing `props` or a store will work, but when passing a property access, it needs to be wrapped
+  in a function so that the property access is done only as needed.
+
+- **Passing event handler props directly to native elements**
+
+  ```jsx
+  function Button(props) {
+    return <button onClick={props.onClick}>{props.children}</button>;
+    //                      ^^^^^^^^^^^^^
+    // The reactive variable 'props.onClick' should be wrapped in a function for
+    // reactivity. This includes event handler bindings on native elements, which
+    // are not reactive like other JSX props.
+  }
+  ```
+
+  This warning indicates a real problem and should not be ignored. Unlike most props, `on*` event
+  handlers on native elements are _not_ tracked scopes and don't react to changes in props. In this
+  example, if `props.onClick` were to change, clicking the button would run the initial handler, not
+  the current one.
+
+  This behavior is by design—instead of running `removeEventListener()` and `addEventListener()`
+  each time the handler is changed (which is slow), Solid asks you for an event handler that
+  accesses the _current_ prop (or signal, etc.) when called, like the following:
+
+  ```jsx
+  return <button onClick={(e) => props.onClick(e)}>{props.children}</button>; // fixed!
+  ```
+
+<!-- <details><summary>Less common patterns...</summary>
+
+- **Static props**
+
+  Sometimes, you are _certain_ that a particular prop will _never change._ This is fragile and not
+  recommended in most cases.
+
+</details> -->
+
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
- 
+
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+
 ## Tests
 
 ### Invalid Examples
@@ -24,41 +166,41 @@ const Component = () => {
   console.log(signal());
   return null;
 };
- 
+
 const Component = () => {
   const [signal] = createSignal(5);
   console.log(signal());
   return <div>{signal()}</div>;
 };
- 
+
 const Component = (props) => {
   const value = props.value;
   return <div>{value()}</div>;
 };
- 
+
 const Component = (props) => {
   const { value: valueProp } = props;
   const value = createMemo(() => valueProp || "default");
   return <div>{value()}</div>;
 };
- 
+
 const Component = (props) => {
   const valueProp = props.value;
   const value = createMemo(() => valueProp || "default");
   return <div>{value()}</div>;
 };
- 
+
 const Component = (props) => {
   const derived = () => props.value;
   const oops = derived();
   return <div>{oops}</div>;
 };
- 
+
 function Component(something) {
   console.log(something.a);
   return <div />;
 }
- 
+
 const Component = () => {
   const [signal] = createSignal();
   const d = () => {
@@ -67,7 +209,7 @@ const Component = () => {
   };
   d(); // not ok
 };
- 
+
 const Component = () => {
   const [signal] = createSignal();
   function d() {
@@ -76,7 +218,7 @@ const Component = () => {
   }
   d(); // not ok
 };
- 
+
 const Component = () => {
   const [signal] = createSignal();
   const d = () => {
@@ -89,7 +231,7 @@ const Component = () => {
   };
   d(); // not ok
 };
- 
+
 const Component = () => {
   const [signal1] = createSignal();
   const d = () => {
@@ -103,7 +245,7 @@ const Component = () => {
     e(); // not ok, signal2 is in scope
   };
 };
- 
+
 const Component = () => {
   const [signal] = createSignal();
   const foo = () => {
@@ -116,79 +258,75 @@ const Component = () => {
   };
   bar(); // not ok
 };
- 
+
 const Component = () => {
   createSignal();
 };
- 
+
 const Component = () => {
   const [, setSignal] = createSignal();
 };
- 
+
 const Component = () => {
   createMemo(() => 5);
 };
- 
+
 const Component = () => {
   const [signal] = createSignal();
   return <div>{signal}</div>;
 };
- 
+
 const Component = () => {
   const memo = createMemo(() => 5);
   return <div>{memo}</div>;
 };
- 
+
 const Component = () => {
   const [signal] = createSignal();
   return <button type={signal}>Button</button>;
 };
- 
+
 const Component = () => {
   const [signal] = createSignal();
   return <div>{signal}</div>;
 };
- 
+
 const Component = () => {
   const [signal] = createSignal("world");
   const memo = createMemo(() => "hello " + signal);
 };
- 
+
 const Component = () => {
   const [signal] = createSignal("world");
   const memo = createMemo(() => `hello ${signal}`);
 };
- 
+
 const Component = () => {
   const [signal] = createSignal(5);
   const memo = createMemo(() => -signal);
 };
- 
+
 const Component = (props) => {
   const [signal] = createSignal(5);
   const memo = createMemo(() => props.array[signal]);
 };
- 
+
 const Component = (props) => {
   return <div onClick={props.onClick} />;
 };
- 
+
 const Component = (props) => {
   createEffect(props.theEffect);
 };
- 
+
 const Component = (props) => {
-  return (
-    <SomeContext.Provider value={props.value}>
-      {props.children}
-    </SomeContext.Provider>
-  );
+  return <SomeContext.Provider value={props.value}>{props.children}</SomeContext.Provider>;
 };
- 
+
 const Component = (props) => {
   return <SomeProvider value={props.value}>{props.children}</SomeProvider>;
 };
- 
+
 const Component = (props) => {
   const [signal] = createSignal();
   return (
@@ -197,57 +335,54 @@ const Component = (props) => {
     </SomeContext.Provider>
   );
 };
- 
+
 const owner = getOwner();
 const [signal] = createSignal();
 createEffect(() => runWithOwner(owner, () => console.log(signal())));
- 
+
 function Component() {
   const owner = getOwner();
   const [signal] = createSignal();
   createEffect(() => runWithOwner(owner, () => console.log(signal())));
 }
- 
+
 const [count, setCount] = createSignal(0);
 createEffect(async () => {
   await Promise.resolve();
   console.log(count());
 });
- 
+
 const [photos, setPhotos] = createSignal([]);
 createEffect(async () => {
-  const res = await fetch(
-    "https://jsonplaceholder.typicode.com/photos?_limit=20"
-  );
+  const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
   setPhotos(await res.json());
 });
- 
+
 const [signal] = createSignal("red");
 css`
   color: ${signal};
 `;
- 
+
 const [signal] = createSignal("red");
 const f = () => signal();
 css`
   color: ${f};
 `;
- 
+
 function createCustomStore() {
   const [store, updateStore] = createStore({});
   return mapArray([], (item) => store.path.to.field);
 }
- 
+
 const [array] = createSignal([]);
 const result = mapArray(array, (item, i) => {
   i();
 });
- 
+
 const [array] = createSignal([]);
 const result = indexArray(array, (item) => {
   item();
 });
- 
 ```
 
 ### Valid Examples
@@ -581,6 +716,7 @@ function Component(props) {
 }
 
 ```
+
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 ## Implementation
@@ -607,7 +743,7 @@ Notes:
   "bubble up" forever, though; as soon as you reach a scope where one
   contained reactive primitive was declared, the current function should
   match a tracked scope that expects a function.
-- This rule ignores classes. Solid is based on functions/closures only, and 
+- This rule ignores classes. Solid is based on functions/closures only, and
   it's uncommon to see classes with reactivity in Solid code.
 
 ## Implementation v2 (in progress)
@@ -680,5 +816,5 @@ the plugin API.
 This is a good opportunity to transition from a stack-based algorithm, where information is lost
 after the exit pass, to a tree-based algorithm that can capture all reactivity information in a data
 structure. By using the built tree to walk through the final analysis, and colocating references
-with their associated scopes, performance should stay good. The reactivity rule could then power 
+with their associated scopes, performance should stay good. The reactivity rule could then power
 an editor plugin to show signals, tracked scopes, etc.
