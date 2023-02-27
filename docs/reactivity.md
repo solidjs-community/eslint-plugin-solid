@@ -1,7 +1,5 @@
 <!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
-
 # solid/reactivity
-
 Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected.
 This rule is **a warning** by default.
 
@@ -149,11 +147,10 @@ warnings can be safely ignored.
 </details> -->
 
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
-
+ 
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
-
 ## Tests
 
 ### Invalid Examples
@@ -166,41 +163,41 @@ const Component = () => {
   console.log(signal());
   return null;
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal(5);
   console.log(signal());
   return <div>{signal()}</div>;
 };
-
+ 
 const Component = (props) => {
   const value = props.value;
   return <div>{value()}</div>;
 };
-
+ 
 const Component = (props) => {
   const { value: valueProp } = props;
   const value = createMemo(() => valueProp || "default");
   return <div>{value()}</div>;
 };
-
+ 
 const Component = (props) => {
   const valueProp = props.value;
   const value = createMemo(() => valueProp || "default");
   return <div>{value()}</div>;
 };
-
+ 
 const Component = (props) => {
   const derived = () => props.value;
   const oops = derived();
   return <div>{oops}</div>;
 };
-
+ 
 function Component(something) {
   console.log(something.a);
   return <div />;
 }
-
+ 
 const Component = () => {
   const [signal] = createSignal();
   const d = () => {
@@ -209,7 +206,7 @@ const Component = () => {
   };
   d(); // not ok
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal();
   function d() {
@@ -218,7 +215,7 @@ const Component = () => {
   }
   d(); // not ok
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal();
   const d = () => {
@@ -231,7 +228,7 @@ const Component = () => {
   };
   d(); // not ok
 };
-
+ 
 const Component = () => {
   const [signal1] = createSignal();
   const d = () => {
@@ -245,7 +242,7 @@ const Component = () => {
     e(); // not ok, signal2 is in scope
   };
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal();
   const foo = () => {
@@ -258,75 +255,79 @@ const Component = () => {
   };
   bar(); // not ok
 };
-
+ 
 const Component = () => {
   createSignal();
 };
-
+ 
 const Component = () => {
   const [, setSignal] = createSignal();
 };
-
+ 
 const Component = () => {
   createMemo(() => 5);
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal();
   return <div>{signal}</div>;
 };
-
+ 
 const Component = () => {
   const memo = createMemo(() => 5);
   return <div>{memo}</div>;
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal();
   return <button type={signal}>Button</button>;
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal();
   return <div>{signal}</div>;
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal("world");
   const memo = createMemo(() => "hello " + signal);
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal("world");
   const memo = createMemo(() => `hello ${signal}`);
 };
-
+ 
 const Component = () => {
   const [signal] = createSignal(5);
   const memo = createMemo(() => -signal);
 };
-
+ 
 const Component = (props) => {
   const [signal] = createSignal(5);
   const memo = createMemo(() => props.array[signal]);
 };
-
+ 
 const Component = (props) => {
   return <div onClick={props.onClick} />;
 };
-
+ 
 const Component = (props) => {
   createEffect(props.theEffect);
 };
-
+ 
 const Component = (props) => {
-  return <SomeContext.Provider value={props.value}>{props.children}</SomeContext.Provider>;
+  return (
+    <SomeContext.Provider value={props.value}>
+      {props.children}
+    </SomeContext.Provider>
+  );
 };
-
+ 
 const Component = (props) => {
   return <SomeProvider value={props.value}>{props.children}</SomeProvider>;
 };
-
+ 
 const Component = (props) => {
   const [signal] = createSignal();
   return (
@@ -335,54 +336,57 @@ const Component = (props) => {
     </SomeContext.Provider>
   );
 };
-
+ 
 const owner = getOwner();
 const [signal] = createSignal();
 createEffect(() => runWithOwner(owner, () => console.log(signal())));
-
+ 
 function Component() {
   const owner = getOwner();
   const [signal] = createSignal();
   createEffect(() => runWithOwner(owner, () => console.log(signal())));
 }
-
+ 
 const [count, setCount] = createSignal(0);
 createEffect(async () => {
   await Promise.resolve();
   console.log(count());
 });
-
+ 
 const [photos, setPhotos] = createSignal([]);
 createEffect(async () => {
-  const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
+  const res = await fetch(
+    "https://jsonplaceholder.typicode.com/photos?_limit=20"
+  );
   setPhotos(await res.json());
 });
-
+ 
 const [signal] = createSignal("red");
 css`
   color: ${signal};
 `;
-
+ 
 const [signal] = createSignal("red");
 const f = () => signal();
 css`
   color: ${f};
 `;
-
+ 
 function createCustomStore() {
   const [store, updateStore] = createStore({});
   return mapArray([], (item) => store.path.to.field);
 }
-
+ 
 const [array] = createSignal([]);
 const result = mapArray(array, (item, i) => {
   i();
 });
-
+ 
 const [array] = createSignal([]);
 const result = indexArray(array, (item) => {
   item();
 });
+ 
 ```
 
 ### Valid Examples
@@ -716,7 +720,6 @@ function Component(props) {
 }
 
 ```
-
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 ## Implementation
