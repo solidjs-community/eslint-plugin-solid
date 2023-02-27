@@ -100,22 +100,6 @@ options you can set.
 }
 ```
 
-### Troubleshooting
-
-The rules in this plugin provide sensible guidelines as well as possible, but there may be times
-where the you better than the rule and want to ignore a warning. Just [add a
-comment](https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules) like the
-following:
-
-```jsx
-// eslint-disable-next-line solid/reactivity
-const [editedValue, setEditedValue] = createSignal(props.value);
-```
-
-_However_, there may also be times where a rule correctly warns about a subtle problem,
-even if it looks like a false positive at first. With `solid/reactivity`, please look at the
-[docs](./docs/reactivity.md#troubleshooting) before deciding to disable the rule.
-
 ## Rules
 
 ✔: Enabled in the `recommended` configuration.
@@ -146,6 +130,22 @@ even if it looks like a false positive at first. With `solid/reactivity`, please
 | ✔ | 🔧 | [solid/self-closing-comp](docs/self-closing-comp.md) | Disallow extra closing tags for components without children. |
 | ✔ | 🔧 | [solid/style-prop](docs/style-prop.md) | Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values with dimensions are strings, not numbers with implicit 'px' units. |
 <!-- AUTO-GENERATED-CONTENT:END -->
+
+## Troubleshooting
+
+The rules in this plugin provide sensible guidelines as well as possible, but there may be times
+where the you better than the rule and want to ignore a warning. Just [add a
+comment](https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules) like the
+following:
+
+```jsx
+// eslint-disable-next-line solid/reactivity
+const [editedValue, setEditedValue] = createSignal(props.value);
+```
+
+_However_, there may also be times where a rule correctly warns about a subtle problem,
+even if it looks like a false positive at first. With `solid/reactivity`, please look at the
+[reactivity docs](./docs/reactivity.md#troubleshooting) before deciding to disable the rule.
 
 ## Versioning
 
