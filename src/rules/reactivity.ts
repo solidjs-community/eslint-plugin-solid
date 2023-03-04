@@ -893,9 +893,10 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               "ResizeObserver",
             ].includes(callee.name)
           ) {
-            // on* and timers are NOT tracked scopes. However, they don't need to react
-            // to updates to reactive variables; it's okay to poll the current
-            // value. Consider them called-function tracked scopes for our purposes.
+            // on*, timers, and observers are NOT tracked scopes. However, they
+            // don't need to react to updates to reactive variables; it's okay
+            // to poll the current value. Consider them called-function tracked
+            // scopes for our purposes.
             pushTrackedScope(arg0, "called-function");
           } else if (matchImport("on", callee.name)) {
             // on accepts a signal or an array of signals as its first argument,
