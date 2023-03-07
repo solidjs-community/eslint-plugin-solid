@@ -273,6 +273,14 @@ export const cases = run("reactivity", rule, {
         }}</div>
       );
     }`,
+    // static* prefix for props
+    `function Component(props) {
+      const value = props.staticValue;
+    }`,
+    `function Component() {
+      const staticValue = () => props.value;
+      const value = staticValue();
+    }`,
   ],
   invalid: [
     // Untracked signals
@@ -739,6 +747,13 @@ export const cases = run("reactivity", rule, {
         item()
       });`,
       errors: [{ messageId: "untrackedReactive", line: 4 }],
+    },
+    // static* prefix for props
+    {
+      code: `
+      const [signal] = createSignal();
+      let el = <Component staticProp={signal()} />;`,
+      errors: [{ messageId: "untrackedReactive" }],
     },
   ],
 });
