@@ -861,7 +861,30 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       } else if (node.type === "JSXSpreadAttribute") {
         // allow <div {...props.nestedProps} />; {...props} is already ignored
         pushTrackedScope(node.argument, "expression");
-      } else if (node.type === "CallExpression" || node.type === "NewExpression") {
+      } else if (node.type === "NewExpression") {
+        const {
+          callee,
+          arguments: { 0: arg0 },
+        } = node;
+        if (
+          callee.type === "Identifier" &&
+          arg0 &&
+          // Observers from Standard Web APIs
+          [
+            "IntersectionObserver",
+            "MutationObserver",
+            "PerformanceObserver",
+            "ReportingObserver",
+            "ResizeObserver",
+          ].includes(callee.name)
+        ) {
+          // Observers callbacks are NOT tracked scopes. However, they
+          // don't need to react to updates to reactive variables; it's okay
+          // to poll the current value. Consider them called-function tracked
+          // scopes for our purposes.
+          pushTrackedScope(arg0, "called-function");
+        }
+      } else if (node.type === "CallExpression") {
         if (node.callee.type === "Identifier") {
           const {
             callee,
@@ -897,15 +920,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
               "setImmediate",
               "requestAnimationFrame",
               "requestIdleCallback",
-              // Observers from Standard Web APIs
-              "IntersectionObserver",
-              "MutationObserver",
-              "PerformanceObserver",
-              "ReportingObserver",
-              "ResizeObserver",
             ].includes(callee.name)
           ) {
-            // on*, timers, and observers are NOT tracked scopes. However, they
+            // on* and timers are NOT tracked scopes. However, they
             // don't need to react to updates to reactive variables; it's okay
             // to poll the current value. Consider them called-function tracked
             // scopes for our purposes.

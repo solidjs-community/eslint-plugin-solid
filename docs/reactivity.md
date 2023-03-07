@@ -437,7 +437,6 @@ let Component = (_props) => {
 let Component = () => {
   const [a, setA] = createSignal(1);
   const [b, setB] = createSignal(1);
-
   createEffect(() => {
     console.log(a(), untrack(b));
   });
