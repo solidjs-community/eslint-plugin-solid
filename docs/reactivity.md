@@ -535,6 +535,13 @@ setImmediate(() => console.log(signal()));
 requestAnimationFrame(() => console.log(signal()));
 requestIdleCallback(() => console.log(signal()));
 
+const [signal] = createSignal(5);
+new IntersectionObserver(() => console.log(signal()));
+new MutationObserver(() => console.log(signal()));
+new PerformanceObserver(() => console.log(signal()));
+new ReportingObserver(() => console.log(signal()));
+new ResizeObserver(() => console.log(signal()));
+
 const [photos, setPhotos] = createSignal([]);
 onMount(async () => {
   const res = await fetch(

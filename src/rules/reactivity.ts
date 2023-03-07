@@ -785,6 +785,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         | T.VariableDeclarator
         | T.AssignmentExpression
         | T.TaggedTemplateExpression
+        | T.NewExpression
     ) => {
       const pushTrackedScope = (node: T.Node, expect: TrackedScope["expect"]) => {
         currentScope().trackedScopes.push({ node, expect });
@@ -848,7 +849,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       } else if (node.type === "JSXSpreadAttribute") {
         // allow <div {...props.nestedProps} />; {...props} is already ignored
         pushTrackedScope(node.argument, "expression");
-      } else if (node.type === "CallExpression") {
+      } else if (node.type === "CallExpression" || node.type === "NewExpression") {
         if (node.callee.type === "Identifier") {
           const {
             callee,
@@ -878,16 +879,24 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           } else if (
             matchImport(["onMount", "onCleanup", "onError"], callee.name) ||
             [
+              // Timers
               "setInterval",
               "setTimeout",
               "setImmediate",
               "requestAnimationFrame",
               "requestIdleCallback",
+              // Observers from Standard Web APIs
+              "IntersectionObserver",
+              "MutationObserver",
+              "PerformanceObserver",
+              "ReportingObserver",
+              "ResizeObserver",
             ].includes(callee.name)
           ) {
-            // on* and timers are NOT tracked scopes. However, they don't need to react
-            // to updates to reactive variables; it's okay to poll the current
-            // value. Consider them called-function tracked scopes for our purposes.
+            // on*, timers, and observers are NOT tracked scopes. However, they
+            // don't need to react to updates to reactive variables; it's okay
+            // to poll the current value. Consider them called-function tracked
+            // scopes for our purposes.
             pushTrackedScope(arg0, "called-function");
           } else if (matchImport("on", callee.name)) {
             // on accepts a signal or an array of signals as its first argument,
@@ -1071,6 +1080,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         if (parent?.type !== "AssignmentExpression" && parent?.type !== "VariableDeclarator") {
           checkForReactiveAssignment(null, node);
         }
+      },
+      NewExpression(node: T.NewExpression) {
+        checkForTrackedScopes(node);
       },
       VariableDeclarator(node: T.VariableDeclarator) {
         if (node.init) {

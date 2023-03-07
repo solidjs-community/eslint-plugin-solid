@@ -34,7 +34,6 @@ export const cases = run("reactivity", rule, {
     `let Component = () => {
       const [a, setA] = createSignal(1);
       const [b, setB] = createSignal(1);
-    
       createEffect(() => {
         console.log(a(), untrack(b));
       });
@@ -118,6 +117,13 @@ export const cases = run("reactivity", rule, {
     setImmediate(() => console.log(signal()));
     requestAnimationFrame(() => console.log(signal()));
     requestIdleCallback(() => console.log(signal()));`,
+    // Observers from Standard Web APIs
+    `const [signal] = createSignal(5);
+    new IntersectionObserver(() => console.log(signal()));
+    new MutationObserver(() => console.log(signal()));
+    new PerformanceObserver(() => console.log(signal()));
+    new ReportingObserver(() => console.log(signal()));
+    new ResizeObserver(() => console.log(signal()));`,
     // Async tracking scope exceptions
     `const [photos, setPhotos] = createSignal([]);
     onMount(async () => {
