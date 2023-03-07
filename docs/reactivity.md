@@ -387,6 +387,9 @@ const result = indexArray(array, (item) => {
   item();
 });
  
+const [signal] = createSignal();
+let el = <Component staticProp={signal()} />;
+ 
 ```
 
 ### Valid Examples
@@ -724,6 +727,15 @@ function Component(props) {
       }}
     </div>
   );
+}
+
+function Component(props) {
+  const value = props.staticValue;
+}
+
+function Component() {
+  const staticValue = () => props.value;
+  const value = staticValue();
 }
 
 ```

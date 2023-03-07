@@ -547,7 +547,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             });
           } else if (
             parent.property.type === "Identifier" &&
-            /^(?:initial|default)[A-Z]/.test(parent.property.name)
+            /^(?:initial|default|static)[A-Z]/.test(parent.property.name)
           ) {
             // We're using a prop with a name that starts with `initial` or
             // `default`, like `props.initialCount`. We'll refrain from warning
@@ -832,6 +832,18 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
           // rule will warn later.
           // TODO: add some kind of "anti- tracked scope" that still warns but enhances the error
           // message if matched.
+        } else if (
+          node.parent?.type === "JSXAttribute" &&
+          node.parent.name?.type === "JSXIdentifier" &&
+          /^static[A-Z]/.test(node.parent.name.name) &&
+          node.parent.parent?.type === "JSXOpeningElement" &&
+          node.parent.parent.name.type === "JSXIdentifier" &&
+          !isDOMElementName(node.parent.parent.name.name)
+        ) {
+          // A caller is passing a value to a prop prefixed with `static` in a component, i.e.
+          // `<Box staticName={...} />`. Since we're considering these props as static in the component
+          // we shouldn't allow passing reactive values to them, as this isn't just ignoring reactivity
+          // like initial*/default*; this is disabling it altogether as a convention. Do nothing.
         } else if (
           node.parent?.type === "JSXAttribute" &&
           node.parent.name.name === "ref" &&
