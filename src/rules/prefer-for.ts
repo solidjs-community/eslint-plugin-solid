@@ -15,9 +15,10 @@ const rule: TSESLint.RuleModule<"preferFor" | "preferForOrIndex", []> = {
     fixable: "code",
     schema: [],
     messages: {
-      preferFor: "Use Solid's `<For />` component for efficiently rendering lists.",
+      preferFor:
+        "Use Solid's `<For />` component for efficiently rendering lists. Array#map causes DOM elements to be recreated.",
       preferForOrIndex:
-        "Use Solid's `<For />` component or `<Index />` component for rendering lists.",
+        "Use Solid's `<For />` component or `<Index />` component for rendering lists. Array#map causes DOM elements to be recreated.",
     },
   },
   create(context) {
