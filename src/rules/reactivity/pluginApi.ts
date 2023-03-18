@@ -58,7 +58,7 @@ export interface ReactivityPluginApi {
    *   reactive(node, '.error');
    * }
    */
-  reactive(node: T.Node, path: string): void;
+  reactive(node: T.Node, path: string, options?: { mutable?: boolean }): void;
 
   /**
    * Convenience method for checking if a node is a call expression. If `primitive` is provided,
