@@ -627,7 +627,7 @@ export default createRule<Options, MessageIds>({
     };
 
     /*
-     * Sync array functions (forEach, map, reduce, reduceRight, flatMap),
+     * Sync array functions (forEach, map, reduce, reduceRight, flatMap), IIFEs,
      * store update fn params (ex. setState("todos", (t) => [...t.slice(0, i()),
      * ...t.slice(i() + 1)])), batch, onCleanup, and onError fn params, and
      * maybe a few others don't actually create a new scope. That is, any

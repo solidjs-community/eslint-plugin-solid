@@ -18,8 +18,28 @@ interface TrackedScope {
 }
 
 export interface VirtualReference {
-  reference: TSESLint.Scope.Reference | T.Node; // store references directly instead of pushing variables?
-  declarationScope: ReactivityScope;
+  /**
+   * The node, commonly an identifier, where reactivity is referenced.
+   */
+  node: T.Node;
+  /**
+   * The scope where the variable `node` is referencing is declared, or `null` if no variable.
+   * Since reactivity is, by definition, set up once and accessed multiple times, the final
+   * call or property access in a reactive expression's `path` is the access that's reactive.
+   * Previous `path` segments just describe the API. It's safe to assume that the second-to-last
+   * `path` segment defines the declaration scope unless the reactive expression is a derived signal.
+   * 
+   * @example
+   * function Component() {
+   *   const [signal1] = createSignal(42);
+   *   const signal2 = createSignal(42)[0];
+   *   const signal3 = createSignal(42)[0];
+   *   const d = () => {
+   *     console.log(signal()); // declarationScope === Component
+   *   }
+   *   console.log(createSignal(42)[0]()); // declarationScope === 
+   */
+  declarationScope: ReactivityScope | null;
 }
 
 function isRangeWithin(inner: T.Range, outer: T.Range): boolean {
