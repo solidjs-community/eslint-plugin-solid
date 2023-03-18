@@ -13,5 +13,12 @@
     "lib": ["ES2019"],
     "allowJs": true
   },
-  "include": ["src", "test", "scripts", "deps.d.ts", "standalone", "jest.setup.js"]
+  "include": [
+    "src",
+    "test",
+    "scripts",
+    "standalone/index.js",
+    "standalone/dist.d.ts",
+    "jest.setup.js"
+  ]
 }

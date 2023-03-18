@@ -503,6 +503,13 @@ createEffect(() => {
 const [count] = createSignal();
 const el = <div>{(() => count())()}</div>;
 
+const [count, setCount] = createSignal();
+const el = (
+  <button type="button" onClick={() => setCount(count() + 1)}>
+    Increment
+  </button>
+);
+
 const el = <div />;
 
 const [signal] = createSignal();

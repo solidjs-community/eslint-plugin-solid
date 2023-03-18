@@ -85,6 +85,8 @@ export const cases = run("reactivity", rule, {
     })`,
     `const [count] = createSignal();
     const el = <div>{(() => count())()}</div>`,
+    `const [count, setCount] = createSignal();
+    const el = <button type="button" onClick={() => setCount(count() + 1)}>Increment</button>;`,
     // Parse top level JSX
     `const el = <div />`,
     // getOwner/runWithOwner
