@@ -18,8 +18,7 @@
     "src",
     "test",
     "scripts",
-    "standalone/index.js",
-    "standalone/dist.d.ts",
+    "standalone",
     "jest.setup.js"
   ]
 }
