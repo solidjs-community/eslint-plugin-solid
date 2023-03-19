@@ -1,13 +1,14 @@
-import { TSESLint, ASTUtils } from "@typescript-eslint/utils";
+import { ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
 import { propName } from "jsx-ast-utils";
 import isHtml from "is-html";
 
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStringIfConstant } = ASTUtils;
 
-const rule: TSESLint.RuleModule<
-  "dangerous" | "conflict" | "notHtml" | "useInnerText" | "dangerouslySetInnerHTML",
-  [{ allowStatic?: boolean }?]
-> = {
+type MessageIds = "dangerous" | "conflict" | "notHtml" | "useInnerText" | "dangerouslySetInnerHTML";
+type Options = [{ allowStatic?: boolean }?];
+
+export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
@@ -43,6 +44,7 @@ const rule: TSESLint.RuleModule<
         "The dangerouslySetInnerHTML prop is not supported; use innerHTML instead.",
     },
   },
+  defaultOptions: [{ allowStatic: true }],
   create(context) {
     const allowStatic = Boolean(context.options[0]?.allowStatic ?? true);
     return {
@@ -131,6 +133,4 @@ const rule: TSESLint.RuleModule<
       },
     };
   },
-};
-
-export default rule;
+});

@@ -1,6 +1,7 @@
-import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
 import { isDOMElementName } from "../utils";
 
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStaticValue } = ASTUtils;
 
 const COMMON_EVENTS = [
@@ -63,7 +64,7 @@ const COMMON_EVENTS = [
   "onTransitionEnd",
   "onWheel",
 ] as const;
-type CommonEvent = typeof COMMON_EVENTS[number];
+type CommonEvent = (typeof COMMON_EVENTS)[number];
 
 const COMMON_EVENTS_MAP = new Map<string, CommonEvent>(
   (function* () {
@@ -90,16 +91,17 @@ const isNonstandardEventName = (
 const getStandardEventHandlerName = (lowercaseEventName: keyof typeof NONSTANDARD_EVENTS_MAP) =>
   NONSTANDARD_EVENTS_MAP[lowercaseEventName];
 
-const rule: TSESLint.RuleModule<
+type MessageIds =
   | "naming"
   | "capitalization"
   | "nonstandard"
   | "make-handler"
   | "make-attr"
   | "detected-attr"
-  | "spread-handler",
-  [{ ignoreCase?: boolean; warnOnSpread?: boolean }?]
-> = {
+  | "spread-handler";
+type Options = [{ ignoreCase?: boolean; warnOnSpread?: boolean }?];
+
+export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
@@ -144,6 +146,7 @@ const rule: TSESLint.RuleModule<
         "The {{name}} prop should be added as a JSX attribute, not spread in. Solid doesn't add listeners when spreading into JSX.",
     },
   },
+  defaultOptions: [],
   create(context) {
     const sourceCode = context.getSourceCode();
 
@@ -296,6 +299,4 @@ const rule: TSESLint.RuleModule<
       },
     };
   },
-};
-
-export default rule;
+});

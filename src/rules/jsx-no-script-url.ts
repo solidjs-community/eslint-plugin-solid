@@ -1,5 +1,7 @@
-import { TSESLint, ASTUtils } from "@typescript-eslint/utils";
-const { getStaticValue } = ASTUtils;
+import { ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
+const { getStaticValue }: { getStaticValue: any } = ASTUtils;
 
 // A javascript: URL can contain leading C0 control or \u0020 SPACE,
 // and any newline or tab are filtered out as if they're not part of the URL.
@@ -16,7 +18,7 @@ const isJavaScriptProtocol =
  * This rule is adapted from eslint-plugin-react's jsx-no-script-url rule under the MIT license.
  * Thank you for your work!
  */
-const rule: TSESLint.RuleModule<"noJSURL", []> = {
+export default createRule({
   meta: {
     type: "problem",
     docs: {
@@ -29,11 +31,12 @@ const rule: TSESLint.RuleModule<"noJSURL", []> = {
       noJSURL: "For security, don't use javascript: URLs. Use event handlers instead if you can.",
     },
   },
+  defaultOptions: [],
   create(context) {
     return {
       JSXAttribute(node) {
         if (node.name.type === "JSXIdentifier" && node.value) {
-          const link = getStaticValue(
+          const link: { value: unknown } | null = getStaticValue(
             node.value.type === "JSXExpressionContainer" ? node.value.expression : node.value,
             context.getScope()
           );
@@ -47,6 +50,4 @@ const rule: TSESLint.RuleModule<"noJSURL", []> = {
       },
     };
   },
-};
-
-export default rule;
+});

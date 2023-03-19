@@ -1,9 +1,10 @@
-import { TSESLint, TSESTree as T, ASTUtils } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
 import { isFunctionNode } from "../utils";
 
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getPropertyName } = ASTUtils;
 
-const rule: TSESLint.RuleModule<"preferFor" | "preferForOrIndex", []> = {
+export default createRule({
   meta: {
     type: "problem",
     docs: {
@@ -21,6 +22,7 @@ const rule: TSESLint.RuleModule<"preferFor" | "preferForOrIndex", []> = {
         "Use Solid's `<For />` component or `<Index />` component for rendering lists. Array#map causes DOM elements to be recreated.",
     },
   },
+  defaultOptions: [],
   create(context) {
     const reportPreferFor = (node: T.CallExpression) => {
       const jsxExpressionContainerNode = node.parent as T.JSXExpressionContainer;
@@ -81,6 +83,4 @@ const rule: TSESLint.RuleModule<"preferFor" | "preferForOrIndex", []> = {
       },
     };
   },
-};
-
-export default rule;
+});

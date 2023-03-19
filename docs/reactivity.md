@@ -724,6 +724,8 @@ const m = createMemo(() => 5)!;
 
 const m = createMemo(() => 5)! as Accessor<number>;
 
+const m = createMemo(() => 5) satisfies Accessor<number>;
+
 function Component(props) {
   return (
     <div>

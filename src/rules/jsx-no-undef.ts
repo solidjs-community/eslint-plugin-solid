@@ -1,5 +1,7 @@
-import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { isDOMElementName, formatList, appendImports, insertImports } from "../utils";
+
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 // Currently all of the control flow components are from 'solid-js'.
 const AUTO_COMPONENTS = ["Show", "For", "Index", "Switch", "Match"];
@@ -9,16 +11,15 @@ const SOURCE_MODULE = "solid-js";
  * This rule is adapted from eslint-plugin-react's jsx-no-undef rule under
  * the MIT license. Thank you for your work!
  */
-const rule: TSESLint.RuleModule<
-  "undefined" | "customDirectiveUndefined" | "autoImport",
-  [
-    {
-      allowGlobals?: boolean;
-      autoImport?: boolean;
-      typescriptEnabled?: boolean;
-    }?
-  ]
-> = {
+type MessageIds = "undefined" | "customDirectiveUndefined" | "autoImport";
+type Options = [
+  {
+    allowGlobals?: boolean;
+    autoImport?: boolean;
+    typescriptEnabled?: boolean;
+  }?
+];
+export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
@@ -58,6 +59,7 @@ const rule: TSESLint.RuleModule<
       autoImport: "{{imports}} should be imported from '{{source}}'.",
     },
   },
+  defaultOptions: [],
   create(context) {
     const allowGlobals = context.options[0]?.allowGlobals ?? false;
     const autoImport = context.options[0]?.autoImport !== false;
@@ -204,6 +206,4 @@ const rule: TSESLint.RuleModule<
       },
     };
   },
-};
-
-export default rule;
+});

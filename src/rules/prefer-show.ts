@@ -1,8 +1,10 @@
-import { TSESLint, TSESTree as T } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 const EXPENSIVE_TYPES = ["JSXElement", "JSXFragment", "Identifier"];
 
-const rule: TSESLint.RuleModule<"preferShowAnd" | "preferShowTernary", []> = {
+export default createRule({
   meta: {
     type: "problem",
     docs: {
@@ -19,6 +21,7 @@ const rule: TSESLint.RuleModule<"preferShowAnd" | "preferShowTernary", []> = {
         "Use Solid's `<Show />` component for conditionally showing content with a fallback.",
     },
   },
+  defaultOptions: [],
   create(context) {
     const sourceCode = context.getSourceCode();
     const putIntoJSX = (node: T.Node): string => {
@@ -87,6 +90,4 @@ const rule: TSESLint.RuleModule<"preferShowAnd" | "preferShowTernary", []> = {
       },
     };
   },
-};
-
-export default rule;
+});

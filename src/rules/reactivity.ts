@@ -3,7 +3,7 @@
  * @link https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md
  */
 
-import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/utils";
+import { TSESTree as T, TSESLint, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
 import {
   findParent,
   findInScope,
@@ -18,6 +18,7 @@ import {
 } from "../utils";
 
 const { findVariable, getFunctionHeadLocation } = ASTUtils;
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 type Scope = TSESLint.Scope.Scope;
 type Variable = TSESLint.Scope.Variable;
@@ -215,17 +216,7 @@ const getReturnedVar = (id: T.Node, scope: Scope): Variable | null => {
   return null;
 };
 
-type MessageIds =
-  | "noWrite"
-  | "untrackedReactive"
-  | "expectedFunctionGotExpression"
-  | "badSignal"
-  | "badUnnamedDerivedSignal"
-  | "shouldDestructure"
-  | "shouldAssign"
-  | "noAsyncTrackedScope";
-
-const rule: TSESLint.RuleModule<MessageIds, []> = {
+export default createRule({
   meta: {
     type: "problem",
     docs: {
@@ -253,6 +244,7 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
         "This tracked scope should not be async. Solid's reactivity only tracks synchronously.",
     },
   },
+  defaultOptions: [] as const,
   create(context) {
     const warnShouldDestructure = (node: T.Node, nth?: string) =>
       context.report({
@@ -933,7 +925,9 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
             if (arg0) {
               if (arg0.type === "ArrayExpression") {
                 arg0.elements.forEach((element) => {
-                  pushTrackedScope(element, "function");
+                  if (element && element?.type !== "SpreadElement") {
+                    pushTrackedScope(element, "function");
+                  }
                 });
               } else {
                 pushTrackedScope(arg0, "function");
@@ -1186,6 +1180,4 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       },
     };
   },
-};
-
-export default rule;
+});

@@ -1,5 +1,7 @@
-import { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { isDOMElementName } from "../utils";
+
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 function isComponent(node: T.JSXOpeningElement) {
   return (
@@ -29,14 +31,14 @@ function childrenIsMultilineSpaces(node: T.JSXOpeningElement) {
   );
 }
 
+type MessageIds = "selfClose" | "dontSelfClose";
+type Options = [{ component?: "all" | "none"; html?: "all" | "void" | "none" }?];
+
 /**
  * This rule is adapted from eslint-plugin-react's self-closing-comp rule under the MIT license,
  * with some enhancements. Thank you for your work!
  */
-const rule: TSESLint.RuleModule<
-  "selfClose" | "dontSelfClose",
-  [{ component?: "all" | "none"; html?: "all" | "void" | "none" }?]
-> = {
+export default createRule<Options, MessageIds>({
   meta: {
     type: "layout",
     docs: {
@@ -70,7 +72,7 @@ const rule: TSESLint.RuleModule<
       dontSelfClose: "This element should not be self-closing.",
     },
   },
-
+  defaultOptions: [],
   create(context) {
     function shouldBeSelfClosedWhenPossible(node: T.JSXOpeningElement): boolean {
       if (isComponent(node)) {
@@ -137,6 +139,4 @@ const rule: TSESLint.RuleModule<
       },
     };
   },
-};
-
-export default rule;
+});

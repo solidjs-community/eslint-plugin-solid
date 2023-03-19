@@ -1,7 +1,9 @@
-import { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { isDOMElementName, trace } from "../utils";
 
-const rule: TSESLint.RuleModule<"noArrayHandlers", []> = {
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
+
+export default createRule({
   meta: {
     type: "problem",
     docs: {
@@ -14,6 +16,7 @@ const rule: TSESLint.RuleModule<"noArrayHandlers", []> = {
       noArrayHandlers: "Passing an array as an event handler is potentially type-unsafe.",
     },
   },
+  defaultOptions: [],
   create(context) {
     return {
       JSXAttribute(node) {
@@ -44,6 +47,4 @@ const rule: TSESLint.RuleModule<"noArrayHandlers", []> = {
       },
     };
   },
-};
-
-export default rule;
+});

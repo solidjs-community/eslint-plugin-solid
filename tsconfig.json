@@ -11,7 +11,8 @@
     "outDir": "dist",
     "declaration": true,
     "lib": ["ES2019"],
-    "allowJs": true
+    "allowJs": true,
+    "preserveSymlinks": true
   },
   "include": [
     "src",

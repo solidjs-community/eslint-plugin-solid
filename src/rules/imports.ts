@@ -1,5 +1,7 @@
-import { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
+import { TSESTree as T, TSESLint, ESLintUtils } from "@typescript-eslint/utils";
 import { appendImports, insertImports, removeSpecifier } from "../utils";
+
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 // Below: create maps of imports and types to designated import source.
 // We could mess with `Object.keys(require("solid-js"))` to generate this, but requiring it from
@@ -118,9 +120,10 @@ for (const type of ["StoreNode", "Store", "SetStoreFunction"]) {
   typeMap.set(type, "solid-js/store");
 }
 
-const isSource = (source: string): source is Source => /^solid-js(?:\/web|\/store)?$/.test(source);
+const sourceRegex = /^solid-js(?:\/web|\/store)?$/;
+const isSource = (source: string): source is Source => sourceRegex.test(source);
 
-const rule: TSESLint.RuleModule<"prefer-source", []> = {
+export default createRule({
   meta: {
     type: "suggestion",
     docs: {
@@ -135,6 +138,7 @@ const rule: TSESLint.RuleModule<"prefer-source", []> = {
       "prefer-source": 'Prefer importing {{name}} from "{{source}}".',
     },
   },
+  defaultOptions: [],
   create(context) {
     return {
       ImportDeclaration(node) {
@@ -193,6 +197,4 @@ const rule: TSESLint.RuleModule<"prefer-source", []> = {
       },
     };
   },
-};
-
-export default rule;
+});

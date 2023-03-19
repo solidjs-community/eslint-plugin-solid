@@ -1,10 +1,9 @@
-import { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { isFunctionNode, trackImports, isPropsByName, trace } from "../utils";
 
-const rule: TSESLint.RuleModule<
-  "noStore" | "spreadCall" | "spreadMember" | "proxyLiteral" | "mergeProps",
-  []
-> = {
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
+
+export default createRule({
   meta: {
     type: "problem",
     docs: {
@@ -25,6 +24,7 @@ const rule: TSESLint.RuleModule<
         "If you pass a function to `mergeProps`, it will create a Proxy, which are incompatible with your target environment.",
     },
   },
+  defaultOptions: [],
   create(context) {
     const { matchImport, handleImportDeclaration } = trackImports();
 
@@ -86,6 +86,4 @@ const rule: TSESLint.RuleModule<
       },
     };
   },
-};
-
-export default rule;
+});
