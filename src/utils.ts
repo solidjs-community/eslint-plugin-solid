@@ -71,7 +71,11 @@ export function trace(node: T.Node, initialScope: TSESLint.Scope.Scope): T.Node 
 
 /** Get the relevant node when wrapped by a node that doesn't change the behavior */
 export function ignoreTransparentWrappers(node: T.Node, up = false): T.Node {
-  if (node.type === "TSAsExpression" || node.type === "TSNonNullExpression") {
+  if (
+    node.type === "TSAsExpression" ||
+    node.type === "TSNonNullExpression" ||
+    node.type === "TSSatisfiesExpression"
+  ) {
     const next = up ? node.parent : node.expression;
     if (next) {
       return ignoreTransparentWrappers(next, up);

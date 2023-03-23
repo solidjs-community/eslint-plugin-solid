@@ -1,13 +1,16 @@
-import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 /*
  * This rule is adapted from eslint-plugin-react's jsx-no-duplicate-props rule under
  * the MIT license, with some enhancements. Thank you for your work!
  */
-const rule: TSESLint.RuleModule<
-  "noDuplicateProps" | "noDuplicateClass" | "noDuplicateChildren",
-  [{ ignoreCase?: boolean }?]
-> = {
+
+type MessageIds = "noDuplicateProps" | "noDuplicateClass" | "noDuplicateChildren";
+type Options = [{ ignoreCase?: boolean }?];
+
+export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
@@ -34,6 +37,7 @@ const rule: TSESLint.RuleModule<
       noDuplicateChildren: "Using {{used}} at the same time is not allowed.",
     },
   },
+  defaultOptions: [],
   create(context) {
     return {
       JSXOpeningElement(node) {
@@ -99,6 +103,4 @@ const rule: TSESLint.RuleModule<
       },
     };
   },
-};
-
-export default rule;
+});

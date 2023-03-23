@@ -1,13 +1,15 @@
-import type { TSESLint } from "@typescript-eslint/utils";
+import { TSESLint, ESLintUtils } from "@typescript-eslint/utils";
 import { getProp, hasProp } from "jsx-ast-utils";
 import { isDOMElementName } from "../utils";
+
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 const reactSpecificProps = [
   { from: "className", to: "class" },
   { from: "htmlFor", to: "for" },
 ];
 
-const rule: TSESLint.RuleModule<"prefer" | "noUselessKey", []> = {
+export default createRule({
   meta: {
     type: "problem",
     docs: {
@@ -23,6 +25,7 @@ const rule: TSESLint.RuleModule<"prefer" | "noUselessKey", []> = {
       noUselessKey: "Elements in a <For> or <Index> list do not need a key prop.",
     },
   },
+  defaultOptions: [],
   create(context) {
     return {
       JSXOpeningElement(node) {
@@ -56,6 +59,4 @@ const rule: TSESLint.RuleModule<"prefer" | "noUselessKey", []> = {
       },
     };
   },
-};
-
-export default rule;
+});

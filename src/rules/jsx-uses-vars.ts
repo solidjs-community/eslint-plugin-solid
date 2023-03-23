@@ -1,4 +1,6 @@
-import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 /*
  * This rule is lifted almost verbatim from eslint-plugin-react's
@@ -6,7 +8,7 @@ import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
  * Solid's custom directives are also handled.
  */
 
-const rule: TSESLint.RuleModule<never, []> = {
+export default createRule({
   meta: {
     type: "problem",
     docs: {
@@ -16,9 +18,10 @@ const rule: TSESLint.RuleModule<never, []> = {
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/jsx-uses-vars.md",
     },
     schema: [],
+    // eslint-disable-next-line eslint-plugin/prefer-message-ids
     messages: {},
   },
-
+  defaultOptions: [],
   create(context) {
     return {
       JSXOpeningElement(node) {
@@ -52,6 +55,4 @@ const rule: TSESLint.RuleModule<never, []> = {
       },
     };
   },
-};
-
-export default rule;
+});

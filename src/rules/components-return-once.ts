@@ -1,5 +1,7 @@
-import { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import type { FunctionNode } from "../utils";
+
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 const isNothing = (node?: T.Node): boolean => {
   if (!node) {
@@ -17,7 +19,7 @@ const isNothing = (node?: T.Node): boolean => {
 
 const getLineLength = (loc: T.SourceLocation) => loc.end.line - loc.start.line + 1;
 
-const rule: TSESLint.RuleModule<"noEarlyReturn" | "noConditionalReturn", []> = {
+export default createRule({
   meta: {
     type: "problem",
     docs: {
@@ -35,6 +37,7 @@ const rule: TSESLint.RuleModule<"noEarlyReturn" | "noConditionalReturn", []> = {
         "Solid components run once, so a conditional return breaks reactivity. Move the condition inside a JSX element, such as a fragment or <Show />.",
     },
   },
+  defaultOptions: [],
   create(context) {
     const functionStack: Array<{
       /** switched to true by :exit if the current function is detected to be a component */
@@ -193,6 +196,4 @@ const rule: TSESLint.RuleModule<"noEarlyReturn" | "noConditionalReturn", []> = {
       },
     };
   },
-};
-
-export default rule;
+});

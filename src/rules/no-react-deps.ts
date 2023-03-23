@@ -1,7 +1,9 @@
-import type { TSESLint } from "@typescript-eslint/utils";
+import { ESLintUtils } from "@typescript-eslint/utils";
 import { isFunctionNode, trace, trackImports } from "../utils";
 
-const rule: TSESLint.RuleModule<"noUselessDep", []> = {
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
+
+export default createRule({
   meta: {
     type: "problem",
     docs: {
@@ -16,6 +18,7 @@ const rule: TSESLint.RuleModule<"noUselessDep", []> = {
         "In Solid, `{{name}}` doesn't accept a dependency array because it automatically tracks its dependencies. If you really need to override the list of dependencies, use `on`.",
     },
   },
+  defaultOptions: [],
   create(context) {
     /** Tracks imports from 'solid-js', handling aliases. */
     const { matchImport, handleImportDeclaration } = trackImports();
@@ -50,6 +53,4 @@ const rule: TSESLint.RuleModule<"noUselessDep", []> = {
       },
     };
   },
-};
-
-export default rule;
+});

@@ -272,6 +272,10 @@ export const cases = run("reactivity", rule, {
       code: `const m = createMemo(() => 5)! as Accessor<number>;`,
       ...tsOnlyTest,
     },
+    {
+      code: `const m = createMemo(() => 5) satisfies Accessor<number>;`,
+      ...tsOnlyTest,
+    },
     // functions in JSXExpressionContainers
     `function Component(props) {
       return (

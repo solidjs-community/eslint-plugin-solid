@@ -1,17 +1,18 @@
-import { TSESLint, TSESTree as T, ASTUtils } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
 import kebabCase from "kebab-case";
 import { all as allCssProperties } from "known-css-properties";
 import parse from "style-to-object";
 import { propName } from "jsx-ast-utils";
 
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getPropertyName, getStaticValue } = ASTUtils;
 
 const lengthPercentageRegex = /\b(?:width|height|margin|padding|border-width|font-size)\b/i;
 
-const rule: TSESLint.RuleModule<
-  "kebabStyleProp" | "invalidStyleProp" | "numericStyleValue" | "stringStyle",
-  [{ styleProps?: [string, ...Array<string>]; allowString?: boolean }?]
-> = {
+type MessageIds = "kebabStyleProp" | "invalidStyleProp" | "numericStyleValue" | "stringStyle";
+type Options = [{ styleProps?: Array<string>; allowString?: boolean }?];
+
+export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
@@ -54,6 +55,7 @@ const rule: TSESLint.RuleModule<
       stringStyle: "Use an object for the style prop instead of a string.",
     },
   },
+  defaultOptions: [],
   create(context) {
     const allCssPropertiesSet: Set<string> = new Set(allCssProperties);
     const allowString = Boolean(context.options[0]?.allowString);
@@ -117,13 +119,7 @@ const rule: TSESLint.RuleModule<
               // and suggests quoting or appending 'px'
               const value: unknown = getStaticValue(prop.value)?.value;
               if (typeof value === "number" && value !== 0) {
-                context.report({
-                  node: prop.value,
-                  messageId: "numericStyleValue",
-                  data: {
-                    value: String(value),
-                  },
-                });
+                context.report({ node: prop.value, messageId: "numericStyleValue" });
               }
             }
           });
@@ -131,6 +127,4 @@ const rule: TSESLint.RuleModule<
       },
     };
   },
-};
-
-export default rule;
+});

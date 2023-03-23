@@ -1,14 +1,16 @@
-import type { TSESLint, TSESTree as T } from "@typescript-eslint/utils";
+import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
 import { isDOMElementName } from "../utils";
+
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 const knownNamespaces = ["on", "oncapture", "use", "prop", "attr"];
 const styleNamespaces = ["style", "class"];
 const otherNamespaces = ["xmlns", "xlink"];
 
-const rule: TSESLint.RuleModule<
-  "unknown" | "style" | "component" | "component-suggest",
-  [{ allowedNamespaces: [string, ...Array<string>] }]
-> = {
+type MessageIds = "unknown" | "style" | "component" | "component-suggest";
+type Options = [{ allowedNamespaces: Array<string> }?];
+
+export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
@@ -46,6 +48,7 @@ const rule: TSESLint.RuleModule<
       "component-suggest": "Replace {{namespace}}:{{name}} with {{name}}.",
     },
   },
+  defaultOptions: [],
   create(context) {
     const explicitlyAllowedNamespaces = context.options?.[0]?.allowedNamespaces;
     return {
@@ -95,6 +98,4 @@ const rule: TSESLint.RuleModule<
       },
     };
   },
-};
-
-export default rule;
+});
