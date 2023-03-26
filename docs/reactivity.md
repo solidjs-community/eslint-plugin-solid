@@ -746,6 +746,19 @@ function Component() {
   const value = staticValue();
 }
 
+function Component(props) {
+  const count$ = observable(() => props.count);
+  return <div />;
+}
+
+const [signal, setSignal] = createSignal(0);
+const value$ = observable(signal);
+
+let someHook;
+function Component(props) {
+  return <div use:someHook={() => props.count} />;
+}
+
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
