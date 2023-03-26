@@ -298,6 +298,13 @@ export const cases = run("reactivity", rule, {
       const count$ = observable(() => props.count);
       return <div />;
     }`,
+    `const [signal, setSignal] = createSignal(0);
+    const value$ = observable(signal);`,
+    // use: functions
+    `let someHook;
+    function Component(props) {
+      return <div use:someHook={() => props.count} />;
+    }`,
   ],
   invalid: [
     // Untracked signals

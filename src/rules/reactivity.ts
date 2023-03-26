@@ -806,7 +806,17 @@ export default createRule({
           // if desired.
           // What this means here is we actually do consider an event handler a tracked scope
           // expecting a function, i.e. it's okay to use changing props/signals in the body of the
-          // function, even though the changes don't affect when the handler will run.
+          // function, even though the changes don't affect when the handler will run. This is what
+          // "called-function" represents—not quite a tracked scope, but a place where it's okay to
+          // read reactive values.
+          pushTrackedScope(node.expression, "called-function");
+        } else if (
+          node.parent?.type === "JSXAttribute" &&
+          node.parent.name.type === "JSXNamespacedName" &&
+          node.parent.name.namespace.name === "use" &&
+          isFunctionNode(node.expression)
+        ) {
+          // With a `use:` hook, assume that a function passed is a called function.
           pushTrackedScope(node.expression, "called-function");
         } else if (
           node.parent?.type === "JSXAttribute" &&
