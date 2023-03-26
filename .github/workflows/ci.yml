@@ -1,5 +1,8 @@
 name: CI
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - reactivity-v2
 jobs:
   build:
     name: Build

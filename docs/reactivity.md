@@ -799,10 +799,12 @@ Notes:
 `solid/reactivity` has been public for exactly one year (!) at the time of writing, and after lots
 of feedback, testing, and changes, I've noticed a few problems with its first implementation:
 
-- **Hard to change.** All of the data structure, analysis, and reporting code is colocated in a
-  single file with all the cases for detecting signals, props, and tracked scopes based on Solid
-  APIs. There's a few edge cases where detection code is mixed with analysis code. This makes it
-  hard for contributors to make PRs and hard for others to be able to maintain it.
+- **Hard to make big changes.** All of the data structure, analysis, and reporting code is colocated
+  in a single file with all the cases for detecting signals, props, and tracked scopes based on
+  Solid APIs. There's a few edge cases where detection code is mixed with analysis code. This makes
+  it hard for contributors and maintainers to make sweeping generalizations about how the rule works
+  or make significant changes in its behavior. (That's not to say it's hard to make changes at
+  all—PRs are still welcome!)
 - **Limited to variables.** The analysis code relies heavily on ESLint's `ScopeManager` and scope
   utilities, and therefore it can only deal with variable references, not implicitly reactive
   expressions.
@@ -815,42 +817,22 @@ of feedback, testing, and changes, I've noticed a few problems with its first im
   initialization before usage in source order. That's not a requirement I feel comfortable putting on
   plugin authors, or really even myself in a few months.
 
-So, I've decided to partially rewrite the rule with a plugin architecture to alleviate these issues.
-Both the core detection code and any plugins to alter detection will use the same API.
+So, I've decided to partially rewrite the rule with a modular architecture to alleviate these issues.
+Both the core detection code and any dependency-specific detections will use the same API.
 
 ### Ease of change and extensibility: Plugins (Customizations)
 
-`solid/reactivity`, itself part of an ESLint plugin, will support plugins of its own.
+`solid/reactivity`, itself part of an ESLint plugin, will move to a more modular, plugin-like architecture.
+The `reactivity/modules` folder will hold files for core `solid-js` reactivity detection as well as
+detection for specific dependencies (like `solid-primitives`, `solid-start`, etc.). All of these modules
+will use the same API exposed in a requirable file. A `reactivity/modules/index.ts` file will manage
+metadata and lazy module loading.
 
-`eslint-plugin-solid` will expose a CLI command `eslint-plugin-solid` that searches
-`package.json` files in the current working directory and its `node_modules` for a
-`"solid/reactivity"` key at the top level (raw string search first for perf). This key will be expected to
-contain a relative path to a CommonJS or native ESM file, accessible from requiring a subpath of the
-module. For example:
+When configuring `solid/reactivity`, users will be able to choose which dependency-specific modules
+will be included, or fall back to the default which scans either the current file's imports or the
+`package.json` (not sure yet) to automatically load the correct modules and no others.
 
-```ts
-const packageJson = { "solid/reactivity": "./reactivity-plugin.js" };
-require.resolve(`${packageJson.name}/${packageJson["solid/reactivity"]}`);
-// path to reactivity plugin
-```
-
-The command will not run any code in `node_modules`; it will just print out an example ESLint config for
-the `solid/reactivity` rule, configured to load all plugins found. For example:
-
-```json
-"solid/reactivity": [1, {
-  "plugins": ["./node_modules/some-module-with-plugin/solid-reactivity-plugin.cjs"]
-}]
-```
-
-This code can be inspected to ensure it matches expections, or edited to add additional paths to
-more plugins. You can manually configure a particular path as a plugin without running the CLI at
-all. At runtime, any plugins configured will be loaded and run alongside the base rules. Custom
-hooks (`use*`/`create*`) from imported from these packages will not be treated permissively, others
-will.
-
-> `eslint-plugin-solid` will **not** automatically load plugins. They must be preconfigured in an
-> ESLint config file.
+Modules will be associated with semver versions to handle breaking changes.
 
 ### Expression Support
 
