@@ -895,6 +895,7 @@ export default createRule({
                 "untrack",
                 "mapArray",
                 "indexArray",
+                "observable",
               ],
               callee.name
             ) ||

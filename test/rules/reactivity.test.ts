@@ -293,6 +293,11 @@ export const cases = run("reactivity", rule, {
       const staticValue = () => props.value;
       const value = staticValue();
     }`,
+    // observable
+    `function Component(props) {
+      const count$ = observable(() => props.count);
+      return <div />;
+    }`,
   ],
   invalid: [
     // Untracked signals
