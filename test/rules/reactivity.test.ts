@@ -240,6 +240,10 @@ export const cases = run("reactivity", rule, {
         }} />
       );
     }`,
+    `function Component() {
+      const [canvas, setCanvas] = createSignal();
+      return <canvas ref={c => setCanvas(c)} />;
+    }`,
     // mapArray()
     `function createCustomStore() {
       const [store, updateStore] = createStore({});

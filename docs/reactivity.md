@@ -698,6 +698,11 @@ function Component() {
   );
 }
 
+function Component() {
+  const [canvas, setCanvas] = createSignal();
+  return <canvas ref={(c) => setCanvas(c)} />;
+}
+
 function createCustomStore() {
   const [store, updateStore] = createStore({});
 
