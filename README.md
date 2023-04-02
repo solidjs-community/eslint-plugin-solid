@@ -4,7 +4,7 @@
 
 # Solid ESLint Plugin
 
-[![npm version](https://img.shields.io/npm/v/eslint-plugin-solid?style=for-the-badge)](https://npmjs.com/packages/eslint-plugin-solid)
+[![npm version](https://img.shields.io/npm/v/eslint-plugin-solid?style=for-the-badge)](https://npmjs.com/package/eslint-plugin-solid)
 [![GitHub package version](https://img.shields.io/github/package-json/v/solidjs-community/eslint-plugin-solid?style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid)
 ![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--8.x-blue?style=for-the-badge)
 [![CI](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg?style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml)
