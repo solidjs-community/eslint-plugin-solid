@@ -72,9 +72,9 @@ export function trace(node: T.Node, initialScope: TSESLint.Scope.Scope): T.Node 
 }
 
 /** Get the relevant node when wrapped by a node that doesn't change the behavior */
-export function ignoreTransparentWrappers(node: T.Expression, dir = 'down'): T.Expression {
+export function ignoreTransparentWrappers(node: T.Node, dir = "down"): T.Node {
   if (node.type === "TSAsExpression" || node.type === "TSNonNullExpression") {
-    const next = dir === 'up' ? node.parent as T.Expression : node.expression;
+    const next = dir === "up" ? node.parent : node.expression;
     if (next) {
       return ignoreTransparentWrappers(next, dir);
     }
@@ -142,27 +142,37 @@ export const getCommentAfter = (
     .getCommentsAfter(node)
     .find((comment) => comment.loc!.start.line === node.loc!.end.line);
 
-export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
-  const importMap = new Map<string, string>();
-  const moduleMap = new Map<string, string>();
+export const trackImports = (program: T.Program) => {
+  const solidRegex = /^solid-js(?:\/?|\b)/;
+  const importMap = new Map<string, { imported: string; source: string }>();
 
-  const handleImportDeclaration = (node: T.ImportDeclaration) => {
-    if (fromModule.test(node.source.value)) {
+  for (const node of program.body) {
+    if (node.type === "ImportDeclaration") {
       for (const specifier of node.specifiers) {
-        if (specifier.type === "ImportSpecifier") {
-          importMap.set(specifier.imported.name, specifier.local.name);
-          moduleMap.set(specifier.local.name, node.source.value);
+        if (specifier.type === "ImportSpecifier" && specifier.importKind !== "type") {
+          importMap.set(specifier.local.name, {
+            imported: specifier.imported.name,
+            source: node.source.value,
+          });
         }
       }
     }
-  };
-  const matchImport = (imports: string | Array<string>, str: string): string | undefined => {
+  }
+  const matchImport = (
+    imports: string | Array<string>,
+    local: string,
+    module = solidRegex
+  ): string | undefined => {
+    const match = importMap.get(local);
+    if (!match || !module.test(match.source)) {
+      return;
+    }
     const importArr = Array.isArray(imports) ? imports : [imports];
-    return importArr.find((i) => importMap.get(i) === str);
+    return importArr.find((i) => i === match.imported);
   };
-  const matchLocalToModule = (local: string): string | undefined => moduleMap.get(local);
+  const matchLocalToModule = (local: string): string | undefined => importMap.get(local)?.source;
 
-  return { matchImport, handleImportDeclaration, matchLocalToModule };
+  return { matchImport, matchLocalToModule };
 };
 
 export function appendImports(

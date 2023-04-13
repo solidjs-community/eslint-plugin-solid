@@ -1,5 +1,5 @@
-import { TSESLint, TSESTree as T, ASTUtils } from "@typescript-eslint/utils";
-import invariant from 'tiny-invariant'
+import { TSESLint, TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import invariant from "tiny-invariant";
 import {
   ProgramOrFunctionNode,
   FunctionNode,
@@ -10,6 +10,7 @@ import {
 import { ReactivityScope, VirtualReference } from "./analyze";
 import type { ReactivityPlugin, ReactivityPluginApi } from "./pluginApi";
 
+const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { findVariable } = ASTUtils;
 
 function parsePath(path: string): Array<string> | null {
@@ -24,18 +25,7 @@ function parsePath(path: string): Array<string> | null {
   return null;
 }
 
-type MessageIds =
-  | "noWrite"
-  | "untrackedReactive"
-  | "expectedFunctionGotExpression"
-  | "badSignal"
-  | "badUnnamedDerivedSignal"
-  | "shouldDestructure"
-  | "shouldAssign"
-  | "noAsyncTrackedScope"
-  | "jsxReactiveVariable";
-
-const rule: TSESLint.RuleModule<MessageIds, []> = {
+export default createRule({
   meta: {
     type: "problem",
     docs: {
@@ -64,10 +54,11 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       jsxReactiveVariable: "This variable should not be used as a JSX element.",
     },
   },
+  defaultOptions: [],
   create(context) {
     const sourceCode = context.getSourceCode();
 
-    const { handleImportDeclaration, matchImport, matchLocalToModule } = trackImports();
+    const { matchImport, matchLocalToModule } = trackImports(sourceCode.ast);
 
     const root = new ReactivityScope(sourceCode.ast, null);
     const syncCallbacks = new Set<FunctionNode>();
@@ -116,20 +107,40 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
     }
 
     function VirtualReference(node: T.Node): VirtualReference {
-      return { node, declarationScope: }
+      return { node, declarationScope: null };
     }
 
     /**
      * Given what's usually a CallExpression and a description of how the expression must be used
      * in order to be accessed reactively, return a list of virtual references for each place where
      * a reactive expression is accessed.
-     * `path` is a string formatted according to `pluginApi`.
+     * `path` is a array of segments parsed by `parsePath` according to `pluginApi`.
      */
-    function* getReferences(node: T.Expression, path: string, allowMutable = false): Generator<VirtualReference> {
+    function getReferences(
+      node: T.Node,
+      path: string | null,
+      allowMutable = false
+    ): Array<VirtualReference> {
       node = ignoreTransparentWrappers(node, "up");
-      if (!path) {
+      const parsedPathOuter = path != null ? parsePath(path) : null;
+      const eqCount = parsedPathOuter?.reduce((c, segment) => c + +(segment === '='), 0) ?? 0;
+      if (eqCount > 1) {
+        throw new Error(`'${path}' must have 0 or 1 '=' characters, has ${eqCount}`)
+      }
+      const hasEq = eqCount === 1;
+
+      let declarationScope = hasEq ? null : context.getScope();
+
+      function* recursiveGenerator(node: T.Node, parsedPath: Array<string> | null) {
+
+      
+      if (!parsedPath) {
         yield VirtualReference(node);
       } else if (node.parent?.type === "VariableDeclarator" && node.parent.init === node) {
+        yield getReferences(node.parent.id);
+      } else if (node.type === "Identifier") {
+
+      }
         const { id } = node.parent;
         if (id.type === "Identifier") {
           const variable = findVariable(context.getScope(), id);
@@ -144,31 +155,34 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
                   context.report({ node: reference.identifier, messageId: "noWrite" });
                 }
               } else {
-                yield* getReferences(reference.identifier, path);
+                yield* getReferences(reference.identifier, parsedPath, allowMutable);
               }
             }
           }
         } else if (id.type === "ArrayPattern") {
-          const parsedPath = parsePath(path)
-          if (parsedPath) {
-            const newPath = path.substring(match[0].length);
-            const index = match[1]
-            if (index === '*') {
-
-            } else {
-
+          if (parsedPath[0] === "[]") {
+            for (const el of id.elements) {
+              if (!el) {
+                // ignore
+              } else if (el.type === "Identifier") {
+                yield* getReferences(el, parsedPath.slice(1), allowMutable);
+              } else if (el.type === "RestElement") {
+                yield* getReferences(el.argument, parsedPath, allowMutable);
+              }
             }
+          } else {
           }
-          
         }
-      }
+      
+      
+      return Array.from(recursiveGenerator(node, parsePath(path)));
     }
 
     function distributeReferences(root: ReactivityScope, references: Array<VirtualReference>) {
       references.forEach((ref) => {
         const range = ref.node.range;
         const scope = root.deepestScopeContaining(range);
-        invariant(scope != null)
+        invariant(scope != null);
         scope.references.push(ref);
       });
     }
@@ -238,4 +252,4 @@ const rule: TSESLint.RuleModule<MessageIds, []> = {
       },
     };
   },
-};
+});

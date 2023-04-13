@@ -45,9 +45,11 @@ export interface ReactivityPluginApi {
    *   - `.foo`: when the 'foo' property is accessed
    *   - `.*`: when any direct property is accessed
    *   - `.**`: when any direct or nested property is accessed
+   *   - `=`: defines the declaration scope, no other effect; implicitly current scope if not given,
+   *     only one `=` is allowed
    * @example
    * if (isCall(node, "createSignal")) {
-   *   reactive(node, '[0]()');
+   *   reactive(node, '[0]=()');
    * } else if (isCall(node, "createMemo")) {
    *   reactive(node, '()');
    * } else if (isCall(node, "splitProps")) {
@@ -73,6 +75,7 @@ export interface ReactivityPluginApi {
 
 export interface ReactivityPlugin {
   package: string;
+  version: string;
   create: (api: ReactivityPluginApi) => TSESLint.RuleListener;
 }
 

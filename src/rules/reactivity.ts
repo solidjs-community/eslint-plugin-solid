@@ -295,7 +295,7 @@ export default createRule<Options, MessageIds>({
     const { currentScope, parentScope } = scopeStack;
 
     /** Tracks imports from 'solid-js', handling aliases. */
-    const { matchImport, handleImportDeclaration } = trackImports();
+    const { matchImport } = trackImports(sourceCode.ast);
 
     /** Workaround for #61 */
     const markPropsOnCondition = (node: FunctionNode, cb: (props: T.Identifier) => boolean) => {
@@ -1144,7 +1144,6 @@ export default createRule<Options, MessageIds>({
     };
 
     return {
-      ImportDeclaration: handleImportDeclaration,
       JSXExpressionContainer(node: T.JSXExpressionContainer) {
         checkForTrackedScopes(node);
       },
@@ -1156,7 +1155,7 @@ export default createRule<Options, MessageIds>({
         checkForSyncCallbacks(node);
 
         // ensure calls to reactive primitives use the results.
-        const parent = node.parent && ignoreTransparentWrappers(node.parent, true);
+        const parent = node.parent && ignoreTransparentWrappers(node.parent, "up");
         if (parent?.type !== "AssignmentExpression" && parent?.type !== "VariableDeclarator") {
           checkForReactiveAssignment(null, node);
         }
