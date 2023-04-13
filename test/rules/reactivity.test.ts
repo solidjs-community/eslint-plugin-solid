@@ -177,9 +177,15 @@ export const cases = run("reactivity", rule, {
       const [signal, setSignal] = createSignal(1);
       return <div on:click={() => console.log(signal())} />;
     }`,
+    `function Component(props) {
+      return <div onClick={e => props.onClick(e)} />;
+    }`,
     // event listeners are reactive on components
     `const Parent = props => {
       return <Child onClick={props.onClick} />;
+    }`,
+    `const Parent = props => {
+      return <Child onClick={e => props.onClick(e)} />;
     }`,
     // Pass reactive variables as-is into provider value prop
     `const Component = props => {
@@ -289,6 +295,9 @@ export const cases = run("reactivity", rule, {
         }}</div>
       );
     }`,
+    // passing function instead of signal
+    `const [signal, setSignal] = createSignal();
+    let el = <Child foo={() => signal()}></Child>`,
     // static* prefix for props
     `function Component(props) {
       const value = props.staticValue;

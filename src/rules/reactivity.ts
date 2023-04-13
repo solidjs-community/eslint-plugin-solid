@@ -568,16 +568,14 @@ export default createRule({
       }
 
       // If there are any unnamed derived signals, they must match a tracked
-      // scope exactly. Usually anonymous arrow function args to createEffect,
+      // scope. Usually anonymous arrow function args to createEffect,
       // createMemo, etc.
       const { unnamedDerivedSignals } = currentScope();
       if (unnamedDerivedSignals) {
         for (const node of unnamedDerivedSignals) {
           if (
-            !currentScope().trackedScopes.find(
-              (trackedScope) =>
-                trackedScope.node === node &&
-                (trackedScope.expect === "function" || trackedScope.expect === "called-function")
+            !currentScope().trackedScopes.find((trackedScope) =>
+              matchTrackedScope(trackedScope, node)
             )
           ) {
             context.report({
