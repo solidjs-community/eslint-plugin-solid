@@ -620,8 +620,16 @@ function Component() {
   return <div on:click={() => console.log(signal())} />;
 }
 
+function Component(props) {
+  return <div onClick={(e) => props.onClick(e)} />;
+}
+
 const Parent = (props) => {
   return <Child onClick={props.onClick} />;
+};
+
+const Parent = (props) => {
+  return <Child onClick={(e) => props.onClick(e)} />;
 };
 
 const Component = (props) => {
@@ -741,6 +749,9 @@ function Component(props) {
     </div>
   );
 }
+
+const [signal, setSignal] = createSignal();
+let el = <Child foo={() => signal()}></Child>;
 
 function Component(props) {
   const value = props.staticValue;
