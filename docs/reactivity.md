@@ -12,139 +12,158 @@ This rule is **a warning** by default.
 Below are a few common patterns that cause warnings, what these warnings mean, and whether these
 warnings can be safely ignored.
 
-- **Accessing reactive variables in the component body**
+### Accessing reactive variables in the component body
 
-  ```jsx
-  function Greeting(props) {
-    const text = `Hello, ${props.name}!`;
-    //                     ^^^^^^^^^^
-    // The reactive variable 'props.name' should be used within JSX, a tracked scope (like
-    // createEffect), or inside an event handler function, or else changes will be ignored.
+```jsx
+function Greeting(props) {
+  const text = `Hello, ${props.name}!`;
+  //                     ^^^^^^^^^^
+  // The reactive variable 'props.name' should be used within JSX, a tracked scope (like
+  // createEffect), or inside an event handler function, or else changes will be ignored.
 
-    return <span class="greeting">{text}</span>;
-  }
+  return <span class="greeting">{text}</span>;
+}
+```
+
+Using a prop (or calling a signal, etc.) directly inside of the component body will trigger a
+warning about a real problem and should rarely be ignored. This is because props (and signals,
+etc.) can change over time, but Solid components only run once, so a change to the prop will have
+no effect. For example, if `props.name` is initially equal to `'Alice'`, but is later changed to
+`'Bob'`, the `<Greeting />` component will still display "Hello, Alice!"
+
+Given that components run once, the way to handle this is to move `props.*` accesses and signal calls
+into the JSX (or certain other places called "tracked scopes"). Alternatively, you can use wrapper functions
+instead, and call those functions in the JSX. For example, either of the following solutions will work
+and eliminate the warning:
+
+```jsx
+function Greeting(props) {
+  return <span class="greeting">Hello, {props.name}!</span>;
+}
+// or
+function Greeting(props) {
+  const text = () => `Hello, ${props.name}!`; // `text` now acts like a signal
+
+  return <span class="greeting">{text()}</span>;
+}
   ```
 
-  Using a prop (or calling a signal, etc.) directly inside of the component body will trigger a
-  warning about a real problem and should rarely be ignored. This is because props (and signals,
-  etc.) can change over time, but Solid components only run once, so a change to the prop will have
-  no effect. For example, if `props.name` is initially equal to `'Alice'`, but is later changed to
-  `'Bob'`, the `<Greeting />` component will still display "Hello, Alice!"
+<details>
+<summary>Why does this work?</summary>
 
-  Given that components run once, the way to handle this is to move `props.*` accesses and signal calls
-  into the JSX (or certain other places called "tracked scopes"). Alternatively, you can use wrapper functions
-  instead, and call those functions in the JSX. For example, either of the following solutions will work
-  and eliminate the warning:
+Solid's compiler transforms expressions in JSX; it wraps them in a function, and creates an effect
+to track when they've changed in order to update the UI. So `<span>{text()}</span>` becomes
+`<span>{() => text()}</span>`, and `<span>{props.name}</span>` becomes `<span>{() => props.name}</span>`. The `props.name` access works just like a signal call because `.name` is a
+getter function under the hood; a function call in both cases. It's important that the accesses
+happen in the JSX for the tracking to work.
+</details>
 
-  ```jsx
-  function Greeting(props) {
-    return <span class="greeting">Hello, {props.name}!</span>;
-  }
-  // or
-  function Greeting(props) {
-    const text = () => `Hello, ${props.name}!`; // `text` now acts like a signal
+### Initializing state from props
 
-    return <span class="greeting">{text()}</span>;
-  }
-  ```
+```js
+function Counter(props) {
+  const [count, setCount] = createSignal(props.count);
+  //                                     ^^^^^^^^^^^
+  // The reactive variable 'props.count' should be used within JSX, a tracked scope (like
+  // createEffect), or inside an event handler function, or else changes will be ignored.
+}
+```
 
-  <details>
-  <summary>Why does this work?</summary>
+Even when using a prop to initialize a signal, you'll still get the same warning as described
+above. This code ignores any changes to `props.count`, instead of reacting to those changes.
 
-  Solid's compiler transforms expressions in JSX; it wraps them in a function, and creates an effect
-  to track when they've changed in order to update the UI. So `<span>{text()}</span>` becomes
-  `<span>{() => text()}</span>`, and `<span>{props.name}</span>` becomes `<span>{() => props.name}</span>`. The `props.name` access works just like a signal call because `.name` is a
-  getter function under the hood; a function call in both cases. It's important that the accesses
-  happen in the JSX for the tracking to work.
-  </details>
+> React developers: this is equivalent to `const [count, setCount] = useState(props.count)`.
 
-- **Initializing state from props**
+Though it's often better to use props directly instead of creating new state from props, there are
+cases where this pattern is what you want. You can safely ignore the rule when you are providing
+an "initial" or "default" value to a component ("uncontrolled components" in React).
 
-  ```js
-  function Counter(props) {
-    const [count, setCount] = createSignal(props.count);
-    //                                     ^^^^^^^^^^^
-    // The reactive variable 'props.count' should be used within JSX, a tracked scope (like
-    // createEffect), or inside an event handler function, or else changes will be ignored.
-  }
-  ```
+That's why there's an escape hatch for this case; any props beginning with `initial` or `default`
+won't trigger this warning. By using the `initial` or `default` prefix, you've shown that you
+intend to ignore updates to that prop. If you can't or don't want to use the prefix, adding an `// eslint-disable-next-line` comment to disable the warning accomplishes the same thing.
 
-  Even when using a prop to initialize a signal, you'll still get the same warning as described
-  above. This code ignores any changes to `props.count`, instead of reacting to those changes.
+```js
+const [count, setCount] = createSignal(props.initialCount); // fixed!
+```
 
-  > React developers: this is equivalent to `const [count, setCount] = useState(props.count)`.
+### Using reactivity with a context provider
 
-  Though it's often better to use props directly instead of creating new state from props, there are
-  cases where this pattern is what you want. You can safely ignore the rule when you are providing
-  an "initial" or "default" value to a component ("uncontrolled components" in React).
+```jsx
+const CountContext = createContext();
+function CountProvider(props) {
+  const [count, setCount] = createSignal(0);
 
-  That's why there's an escape hatch for this case; any props beginning with `initial` or `default`
-  won't trigger this warning. By using the `initial` or `default` prefix, you've shown that you
-  intend to ignore updates to that prop. If you can't or don't want to use the prefix, adding an `// eslint-disable-next-line` comment to disable the warning accomplishes the same thing.
+  return <CountContext.Provider value={count()}>{props.children}</CountContext.Provider>;
+  //                                   ^^^^^^^
+  // The reactive variable 'count' should be used within JSX, a tracked scope (like
+  // createEffect), or inside an event handler function, or else changes will be ignored.
+}
+```
 
-  ```js
-  const [count, setCount] = createSignal(props.initialCount); // fixed!
-  ```
+Even though `count()` is used in JSX, this warning indicates a real problem and should not be
+ignored. Unlike most props, the `value` prop in a Provider is _not_ a tracked scope, meaning it
+will not react to changes in `count()`. The solution is to [pass the signal
+as-is](https://www.solidjs.com/docs/latest#createcontext), and call it when using `useContext()`.
 
-- **Using reactivity with a context provider**
+```jsx
+return <CountContext.Provider value={count}>{props.children}</CountContext.Provider>; // fixed!
+```
 
-  ```jsx
-  const CountContext = createContext();
-  function CountProvider(props) {
-    const [count, setCount] = createSignal(0);
+Passing `props` or a store will work, but when passing a property access, it needs to be wrapped
+in a function so that the property access is done only as needed.
 
-    return <CountContext.Provider value={count()}>{props.children}</CountContext.Provider>;
-    //                                   ^^^^^^^
-    // The reactive variable 'count' should be used within JSX, a tracked scope (like
-    // createEffect), or inside an event handler function, or else changes will be ignored.
-  }
-  ```
+### Passing event handler props directly to native elements
 
-  Even though `count()` is used in JSX, this warning indicates a real problem and should not be
-  ignored. Unlike most props, the `value` prop in a Provider is _not_ a tracked scope, meaning it
-  will not react to changes in `count()`. The solution is to [pass the signal
-  as-is](https://www.solidjs.com/docs/latest#createcontext), and call it when using `useContext()`.
+```jsx
+function Button(props) {
+  return <button onClick={props.onClick}>{props.children}</button>;
+  //                      ^^^^^^^^^^^^^
+  // The reactive variable 'props.onClick' should be wrapped in a function for
+  // reactivity. This includes event handler bindings on native elements, which
+  // are not reactive like other JSX props.
+}
+```
 
-  ```jsx
-  return <CountContext.Provider value={count}>{props.children}</CountContext.Provider>; // fixed!
-  ```
+This warning indicates a real problem and should not be ignored. Unlike most props, `on*` event
+handlers on native elements are _not_ tracked scopes and don't react to changes in props. In this
+example, if `props.onClick` were to change, clicking the button would run the initial handler, not
+the current one.
 
-  Passing `props` or a store will work, but when passing a property access, it needs to be wrapped
-  in a function so that the property access is done only as needed.
+This behavior is by design—instead of running `removeEventListener()` and `addEventListener()`
+each time the handler is changed (which is slow), Solid asks you for an event handler that
+accesses the _current_ prop (or signal, etc.) when called, like the following:
 
-- **Passing event handler props directly to native elements**
+```jsx
+return <button onClick={(e) => props.onClick(e)}>{props.children}</button>; // fixed!
+```
 
-  ```jsx
-  function Button(props) {
-    return <button onClick={props.onClick}>{props.children}</button>;
-    //                      ^^^^^^^^^^^^^
-    // The reactive variable 'props.onClick' should be wrapped in a function for
-    // reactivity. This includes event handler bindings on native elements, which
-    // are not reactive like other JSX props.
-  }
-  ```
+<details><summary>Less common patterns...</summary>
 
-  This warning indicates a real problem and should not be ignored. Unlike most props, `on*` event
-  handlers on native elements are _not_ tracked scopes and don't react to changes in props. In this
-  example, if `props.onClick` were to change, clicking the button would run the initial handler, not
-  the current one.
+### Static props
 
-  This behavior is by design—instead of running `removeEventListener()` and `addEventListener()`
-  each time the handler is changed (which is slow), Solid asks you for an event handler that
-  accesses the _current_ prop (or signal, etc.) when called, like the following:
+Sometimes, you are _certain_ that a particular prop should _never change._ This is fragile and not
+recommended in most cases. But, it is possible to tell the linter that a prop should be "static," 
+which lets you access it anywhere, including the component body, without worrying about missing updates.
+  
+To do this, much like [initial/default props](#initializing-state-from-props), prefix the prop name
+with `static`, like 
+  
+```jsx
+function Component(props) {
+  const name = props.staticName;
+  // ...
+ }
+ ```
+  
+Though a static prop can be used directly in a component, you must not pass a reactive expression
+to it when using the component. For example, the following code will warn:
+  
+```jsx
+return <Component staticName={props.name} />
+//                            ^^^^^^^^^^
+```
 
-  ```jsx
-  return <button onClick={(e) => props.onClick(e)}>{props.children}</button>; // fixed!
-  ```
-
-<!-- <details><summary>Less common patterns...</summary>
-
-- **Static props**
-
-  Sometimes, you are _certain_ that a particular prop will _never change._ This is fragile and not
-  recommended in most cases.
-
-</details> -->
+</details>
 
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
  
