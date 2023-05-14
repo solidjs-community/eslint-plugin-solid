@@ -100,6 +100,42 @@ options you can set.
 }
 ```
 
+### Flat Config
+
+To use this plugin in a [Flat Config](https://eslint.org/docs/latest/use/configure/configuration-files-new) require/import the plugin and add to a new configuration object like this:
+
+```js
+import js from "@eslint/js";
+import solid from "eslint-plugin-solid";
+import globals from "globals";
+
+export default [
+  js.configs.recommended, // replaces eslint:recommended
+  // your configs here,
+  {
+    files: ["**/*.jsx", "**/*.tsx"],
+    plugins: {
+      solid
+    },
+    languageOptions: {
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      },
+      globals: {
+        ...globals.browser,
+        ...globals["es2015"]
+      }
+    },
+    rules: solid.configs.recommended.rules
+    // or solid.configs.typescript.rules for use with TypeScript
+  }
+];
+```
+
+You can also use spread and add your own rules below or create your own manual configuration.
+
 ## Rules
 
 ✔: Enabled in the `recommended` configuration.
