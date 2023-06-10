@@ -1,6 +1,7 @@
 import { plugin } from "../plugin";
 
 const recommended = {
+  files: ["**/*.js?(x)"],
   plugins: {
     solid: plugin,
   },
@@ -43,8 +44,5 @@ const recommended = {
     "solid/prefer-classlist": 0,
   },
 };
-
-// This prevents warnings on the languageOptions key in the new FlatConfig system
-Object.defineProperty(recommended, "languageOptions", { enumerable: false });
 
 export = recommended;

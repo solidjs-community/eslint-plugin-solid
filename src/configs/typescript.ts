@@ -1,6 +1,7 @@
 import { plugin } from "../plugin";
 
 const typescript = {
+  files: ["**/*.js?(x)", "**/*.ts?(x)"],
   plugins: {
     solid: plugin,
   },
@@ -44,8 +45,5 @@ const typescript = {
     "solid/prefer-classlist": 0,
   },
 };
-
-// This prevents warnings on the languageOptions key in the new FlatConfig system
-Object.defineProperty(typescript, "languageOptions", { enumerable: false });
 
 export = typescript;
