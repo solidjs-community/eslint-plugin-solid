@@ -100,41 +100,25 @@ options you can set.
 }
 ```
 
-### Flat Config
+## Flat Configuration
 
-To use this plugin in a [Flat Config](https://eslint.org/docs/latest/use/configure/configuration-files-new) require/import the plugin and add to a new configuration object like this:
+The configurations are also available [Flat Config](https://eslint.org/docs/latest/use/configure/configuration-files-new) objects:
+
+- Recommended: `eslint-plugin-solid/dist/configs/recommended.js`
+- TypeScript: `eslint-plugin-solid/dist/configs/typescript.js`
+- Plugin (for manual configuration): `import solid from "eslint-plugin-solid"`
 
 ```js
 import js from "@eslint/js";
-import solid from "eslint-plugin-solid";
-import globals from "globals";
+import solid from "eslint-plugin-solid/dist/configs/recommended.ts";
 
 export default [
   js.configs.recommended, // replaces eslint:recommended
-  // your configs here,
-  {
-    files: ["**/*.jsx", "**/*.tsx"],
-    plugins: {
-      solid
-    },
-    languageOptions: {
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true
-        }
-      },
-      globals: {
-        ...globals.browser,
-        ...globals["es2015"]
-      }
-    },
-    rules: solid.configs.recommended.rules
-    // or solid.configs.typescript.rules for use with TypeScript
-  }
+  solid
 ];
 ```
 
-You can also use spread and add your own rules below or create your own manual configuration.
+Note for VSCode Extension: Enable the "Use Flat Config" setting for your workspace to enable Flat Config support.
 
 ## Rules
 
