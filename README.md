@@ -102,19 +102,17 @@ options you can set.
 
 ## Flat Configuration
 
-The configurations are also available [Flat Config](https://eslint.org/docs/latest/use/configure/configuration-files-new) objects:
-
-- Recommended: `eslint-plugin-solid/dist/configs/recommended.js`
-- TypeScript: `eslint-plugin-solid/dist/configs/typescript.js`
-- Plugin (for manual configuration): `import solid from "eslint-plugin-solid"`
+The configurations are also available [Flat Config](https://eslint.org/docs/latest/use/configure/configuration-files-new) objects. They use the `"files"` key to apply to their respective file extensions (`.js`, `.mjs` and `.jsx` for the recommended configuration; `.ts` and `.tsx` for the typescript configuration). Alternatively you can import `eslint-plugin-solid` directly for a manual configuration as described above.
 
 ```js
 import js from "@eslint/js";
-import solid from "eslint-plugin-solid/dist/configs/recommended.ts";
+import solid from "eslint-plugin-solid/dist/configs/recommended.js";
+import solidTS from "eslint-plugin-solid/dist/configs/typescript.js";
 
 export default [
   js.configs.recommended, // replaces eslint:recommended
-  solid
+  solid,
+  solidTS // optional
 ];
 ```
 

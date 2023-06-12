@@ -1,7 +1,7 @@
 import { plugin } from "../plugin";
 
 const recommended = {
-  files: ["**/*.js?(x)"],
+  files: ["**/*.js?(x)", "**/*.mjs"],
   plugins: {
     solid: plugin,
   },

@@ -2,7 +2,7 @@ import { plugin } from "../plugin";
 import recommended from "./recommended";
 
 const typescript = {
-  files: ["**/*.js?(x)", "**/*.ts?(x)"],
+  files: ["**/*.ts?(x)"],
   plugins: {
     solid: plugin,
   },
