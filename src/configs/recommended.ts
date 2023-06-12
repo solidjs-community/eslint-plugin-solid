@@ -10,7 +10,6 @@ const recommended = {
     parserOptions: {
       ecmaFeatures: {
         jsx: true,
-        impliedStrict: true,
       },
     },
   },

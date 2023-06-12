@@ -11,7 +11,6 @@ const typescript = {
     parserOptions: {
       ecmaFeatures: {
         jsx: true,
-        impliedStrict: true,
       },
     },
   },

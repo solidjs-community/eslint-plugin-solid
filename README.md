@@ -116,6 +116,8 @@ export default [
 ];
 ```
 
+These configurations do not configure global variables in ESLint. You can do this yourself manually or with a package like [globals](https://www.npmjs.com/package/globals) by creating a configuration with a `languageOptions.globals` object. We recommend setting up global variables for Browser APIs as well as at least ES2015.
+
 Note for VSCode Extension: Enable the "Use Flat Config" setting for your workspace to enable Flat Config support.
 
 ## Rules
