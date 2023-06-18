@@ -850,7 +850,7 @@ of feedback, testing, and changes, I've noticed a few problems with its first im
 So, I've decided to partially rewrite the rule with a modular architecture to alleviate these issues.
 Both the core detection code and any dependency-specific detections will use the same API.
 
-### Ease of change and extensibility: Plugins (Customizations)
+### Ease of change and extensibility
 
 `solid/reactivity`, itself part of an ESLint plugin, will move to a more modular, plugin-like architecture.
 The `reactivity/modules` folder will hold files for core `solid-js` reactivity detection as well as
