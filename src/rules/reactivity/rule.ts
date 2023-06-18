@@ -123,24 +123,21 @@ export default createRule({
     ): Array<VirtualReference> {
       node = ignoreTransparentWrappers(node, "up");
       const parsedPathOuter = path != null ? parsePath(path) : null;
-      const eqCount = parsedPathOuter?.reduce((c, segment) => c + +(segment === '='), 0) ?? 0;
+      const eqCount = parsedPathOuter?.reduce((c, segment) => c + +(segment === "="), 0) ?? 0;
       if (eqCount > 1) {
-        throw new Error(`'${path}' must have 0 or 1 '=' characters, has ${eqCount}`)
+        throw new Error(`'${path}' must have 0 or 1 '=' characters, has ${eqCount}`);
       }
       const hasEq = eqCount === 1;
 
-      let declarationScope = hasEq ? null : context.getScope();
+      const declarationScope = hasEq ? null : context.getScope();
 
       function* recursiveGenerator(node: T.Node, parsedPath: Array<string> | null) {
-
-      
-      if (!parsedPath) {
-        yield VirtualReference(node);
-      } else if (node.parent?.type === "VariableDeclarator" && node.parent.init === node) {
-        yield getReferences(node.parent.id);
-      } else if (node.type === "Identifier") {
-
-      }
+        if (!parsedPath) {
+          yield VirtualReference(node);
+        } else if (node.parent?.type === "VariableDeclarator" && node.parent.init === node) {
+          yield getReferences(node.parent.id);
+        } else if (node.type === "Identifier") {
+        }
         const { id } = node.parent;
         if (id.type === "Identifier") {
           const variable = findVariable(context.getScope(), id);
@@ -173,9 +170,9 @@ export default createRule({
           } else {
           }
         }
-      
-      
-      return Array.from(recursiveGenerator(node, parsePath(path)));
+
+        return Array.from(recursiveGenerator(node, parsePath(path)));
+      }
     }
 
     function distributeReferences(root: ReactivityScope, references: Array<VirtualReference>) {
