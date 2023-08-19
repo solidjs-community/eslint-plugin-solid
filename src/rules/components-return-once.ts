@@ -23,7 +23,6 @@ export default createRule({
   meta: {
     type: "problem",
     docs: {
-      recommended: "error",
       description:
         "Disallow early returns in components. Solid components only run once, and so conditionals should be inside JSX.",
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/components-return-once.md",

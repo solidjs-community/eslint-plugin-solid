@@ -14,7 +14,6 @@ export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
-      recommended: "error",
       description: "Disallow passing the same prop twice in JSX.",
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/jsx-no-duplicate-props.md",
     },

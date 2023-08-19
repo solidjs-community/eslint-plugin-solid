@@ -2,6 +2,8 @@
   "extends": "./tsconfig.json",
   "exclude": ["configs", "test", "scripts", "standalone", "jest.setup.js"],
   "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist",
     "removeComments": true
   }
 }

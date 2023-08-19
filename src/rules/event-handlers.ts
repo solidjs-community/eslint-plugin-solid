@@ -105,7 +105,6 @@ export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
-      recommended: "warn",
       description:
         "Enforce naming DOM element event handlers consistently and prevent Solid's analysis from misunderstanding whether a prop should be an event handler.",
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/event-handlers.md",
@@ -190,7 +189,7 @@ export default createRule<Options, MessageIds>({
           // inlined, report that.
           // https://github.com/ryansolid/dom-expressions/blob/cb3be7558c731e2a442e9c7e07d25373c40cf2be/packages/babel-plugin-jsx-dom-expressions/src/dom/element.js#L347
           context.report({
-            node: node,
+            node,
             messageId: "detected-attr",
             data: {
               name,
@@ -200,7 +199,7 @@ export default createRule<Options, MessageIds>({
         } else if (node.value === null || node.value?.type === "Literal") {
           // Check for same as above for literal values
           context.report({
-            node: node,
+            node,
             messageId: "detected-attr",
             data: {
               name,

@@ -7,7 +7,6 @@ export default createRule({
   meta: {
     type: "problem",
     docs: {
-      recommended: "warn",
       description: "Disallow usage of dependency arrays in `createEffect` and `createMemo`.",
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-react-deps.md",
     },

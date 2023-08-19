@@ -16,7 +16,6 @@ export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
-      recommended: "warn",
       description:
         "Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, " +
         "and that property values with dimensions are strings, not numbers with implicit 'px' units.",
@@ -33,9 +32,9 @@ export default createRule<Options, MessageIds>({
             type: "array",
             items: {
               type: "string",
-              minItems: 1,
-              uniqueItems: true,
             },
+            minItems: 1,
+            uniqueItems: true,
           },
           allowString: {
             description:

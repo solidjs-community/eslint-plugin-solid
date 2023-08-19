@@ -127,7 +127,6 @@ export default createRule({
   meta: {
     type: "suggestion",
     docs: {
-      recommended: "warn",
       description:
         'Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store".',
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/imports.md",

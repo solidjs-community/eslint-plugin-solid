@@ -1,18 +1,9 @@
 {
+  "extends": "@tsconfig/node16/tsconfig.json",
   "compilerOptions": {
-    "target": "ES2017",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "strict": true,
-    "outDir": "dist",
-    "declaration": true,
-    "lib": ["ES2019"],
-    "allowJs": true,
-    "preserveSymlinks": true
+    "noEmit": true
   },
   "include": ["src", "configs", "test", "scripts", "standalone", "jest.setup.js"]
 }

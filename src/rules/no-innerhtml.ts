@@ -12,7 +12,6 @@ export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
-      recommended: "error",
       description:
         "Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities.",
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-innerhtml.md",

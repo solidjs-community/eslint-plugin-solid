@@ -29,7 +29,7 @@ const App = () => {
       const name = newName.value,
         score = +newScore.value;
       if (!name.length || isNaN(score)) return;
-      setState("players", (p) => [...p, { name: name, score: score }]);
+      setState("players", (p) => [...p, { name, score }]);
       newName.value = newScore.value = "";
     },
     handleDeleteClick = (player) => {

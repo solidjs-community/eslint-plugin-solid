@@ -45,5 +45,3 @@ const allRules = {
 };
 
 export const plugin = { rules: allRules };
-
-export type AllRules = keyof typeof allRules;

@@ -1,8 +1,6 @@
-import { type AllRules, plugin } from "./plugin";
+import { plugin } from "./plugin";
 import recommendedConfig from "./configs/recommended";
 import typescriptConfig from "./configs/typescript";
-
-export type { AllRules };
 
 const pluginLegacy = {
   rules: plugin.rules,
@@ -31,5 +29,3 @@ const pluginLegacy = {
 };
 // Must be module.exports for eslint to load everything
 module.exports = pluginLegacy;
-
-export type Configs = keyof typeof pluginLegacy.configs;
