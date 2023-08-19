@@ -1,3 +1,4 @@
-dist
+./dist
+./configs
 node_modules
-jest.config.js
+./jest.config.js

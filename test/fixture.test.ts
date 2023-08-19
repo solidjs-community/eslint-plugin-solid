@@ -1,40 +1,68 @@
 import path from "path";
-import glob from "fast-glob";
 import { ESLint } from "eslint";
+// @ts-expect-error Type definitions not updated to include FlatESLint
+import { FlatESLint } from "eslint/use-at-your-own-risk";
 
-const getTestFiles = () => {
-  const root = path.join("test", "fixture");
-  return glob("**/*.{js,jsx,ts,tsx}", { cwd: root, absolute: true });
-};
+import * as tsParser from "@typescript-eslint/parser";
+import recommendedConfig from "eslint-plugin-solid/configs/recommended";
+import typescriptConfig from "eslint-plugin-solid/configs/typescript";
 
-const validDir = path.resolve("test", "fixture", "valid");
-const jsxUndefPath = path.resolve("test", "fixture", "invalid", "jsx-undef.jsx");
+const cwd = path.resolve("test", "fixture");
+const validDir = path.join(cwd, "valid");
+const jsxUndefPath = path.join(cwd, "invalid", "jsx-undef.jsx");
 
-test("fixture", async () => {
-  const files = await getTestFiles();
+const checkResult = (result: ESLint.LintResult) => {
+  if (result.filePath.startsWith(validDir)) {
+    expect(result.messages).toEqual([]);
+    expect(result.errorCount).toBe(0);
+    expect(result.warningCount).toBe(0);
+    expect(result.usedDeprecatedRules).toEqual([]);
+  } else {
+    expect(result.messages).not.toEqual([]);
+    expect(result.warningCount + result.errorCount).toBeGreaterThan(0);
+    expect(result.usedDeprecatedRules).toEqual([]);
 
-  const eslint = new ESLint();
-  const results = await eslint.lintFiles(files);
-
-  for (const result of results) {
-    if (result.filePath.startsWith(validDir)) {
-      expect(result.messages).toEqual([]);
-      expect(result.errorCount).toBe(0);
-      expect(result.warningCount).toBe(0);
-      expect(result.usedDeprecatedRules).toEqual([]);
-    } else {
-      expect(result.messages).not.toEqual([]);
-      expect(result.warningCount + result.errorCount).toBeGreaterThan(0);
-      expect(result.usedDeprecatedRules).toEqual([]);
-
-      if (result.filePath === jsxUndefPath) {
-        // test for one specific error message
-        expect(
-          result.messages.some((message) => /'Component' is not defined/.test(message.message))
-        );
-      }
+    if (result.filePath === jsxUndefPath) {
+      // test for one specific error message
+      expect(result.messages.some((message) => /'Component' is not defined/.test(message.message)));
     }
   }
+};
+
+test.concurrent("fixture", async () => {
+  const eslint = new ESLint({ cwd });
+  const results = await eslint.lintFiles("**/*.{js,jsx,ts,tsx}");
+
+  results.forEach(checkResult);
+
+  expect(results.filter((result) => result.filePath === jsxUndefPath).length).toBe(1);
+});
+
+test.concurrent("fixture (flat)", async () => {
+  const eslint = new FlatESLint({
+    cwd,
+    overrideConfigFile: true,
+    ignore: false,
+    overrideConfig: [
+      {
+        files: ["**/*.{js,jsx}"],
+        ...recommendedConfig,
+      },
+      {
+        files: ["**/*.{ts,tsx}"],
+        ...typescriptConfig,
+        languageOptions: {
+          parser: tsParser,
+          parserOptions: {
+            project: "tsconfig.json",
+          },
+        },
+      },
+    ],
+  });
+  const results: Array<ESLint.LintResult> = await eslint.lintFiles("**/*.{js,jsx,ts,tsx}");
+
+  results.forEach(checkResult);
 
   expect(results.filter((result) => result.filePath === jsxUndefPath).length).toBe(1);
 });

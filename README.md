@@ -16,6 +16,17 @@ migrate some React patterns to Solid code.
 It's approaching a `1.0.0` release, and it's well tested and should be helpful in Solid projects
 today.
 
+<!-- AUTO-GENERATED-CONTENT:START (TOC) -->
+- [Installation](#installation)
+- [Configuration](#configuration)
+  - [TypeScript](#typescript)
+  - [Manual Configuration](#manual-configuration)
+  - [Flat Configuration](#flat-configuration)
+- [Rules](#rules)
+- [Troubleshooting](#troubleshooting)
+- [Versioning](#versioning)
+<!-- AUTO-GENERATED-CONTENT:END -->
+
 ## Installation
 
 Install `eslint` and `eslint-plugin-solid` locally.
@@ -100,6 +111,54 @@ options you can set.
 }
 ```
 
+### Flat Configuration
+
+ESLint's new configuration system, [Flat
+Configuration](https://eslint.org/docs/latest/use/configure/configuration-files-new#using-configurations-included-in-plugins),
+is available starting in ESLint [v8.23.0](https://github.com/eslint/eslint/releases/tag/v8.23.0). To
+use it, create an `eslint.config.js` file at the root of your project, instead of `.eslintrc.*`
+and/or `.eslintignore`.
+
+```js
+import js from "@eslint/js";
+import solid from "eslint-plugin-solid/configs/recommended";
+
+export default [
+  js.configs.recommended, // replaces eslint:recommended
+  solid,
+];
+```
+
+For TypeScript:
+
+```js
+import js from "@eslint/js";
+import solid from 'eslint-plugin-solid/configs/typescript';
+import * as tsParser from "@typescript-eslint/parser",
+
+export default [
+  js.configs.recommended,
+  {
+    files: ["**/*.{ts,tsx}"],
+    ...solid,
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        project: 'tsconfig.json',
+      },
+    },
+  },
+]
+```
+
+These configurations do not configure global variables in ESLint. You can do this yourself manually
+or with a package like [globals](https://www.npmjs.com/package/globals) by creating a configuration
+with a `languageOptions.globals` object. We recommend setting up global variables for Browser APIs
+as well as at least ES2015.
+
+Note for the ESLint VSCode Extension: Enable the "Use Flat Config" setting for your workspace to
+enable Flat Config support.
+
 ## Rules
 
 ✔: Enabled in the `recommended` configuration.
@@ -134,7 +193,7 @@ options you can set.
 ## Troubleshooting
 
 The rules in this plugin provide sensible guidelines as well as possible, but there may be times
-where the you better than the rule and want to ignore a warning. Just [add a
+where you know better than the rule and want to ignore a warning. To do that, [add a
 comment](https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules) like the
 following:
 
@@ -143,9 +202,12 @@ following:
 const [editedValue, setEditedValue] = createSignal(props.value);
 ```
 
-_However_, there may also be times where a rule correctly warns about a subtle problem,
+_Please note_: there may also be times where a rule correctly warns about a subtle problem,
 even if it looks like a false positive at first. With `solid/reactivity`, please look at the
 [reactivity docs](./docs/reactivity.md#troubleshooting) before deciding to disable the rule.
+
+When in doubt, feel free to [file an
+issue](https://github.com/solidjs-community/eslint-plugin-solid/issues/new/choose).
 
 ## Versioning
 
