@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-solid",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "description": "Solid-specific linting rules for ESLint.",
   "keywords": [
     "eslint",
