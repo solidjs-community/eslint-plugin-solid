@@ -9,13 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ["14", "16", "18"]
+        node: ["16", "18", "20"]
     steps:
       - uses: actions/checkout@v3
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 7
+          version: 8
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
