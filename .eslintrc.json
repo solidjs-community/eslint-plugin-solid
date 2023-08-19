@@ -57,6 +57,7 @@
       "plugins": ["solid"],
       "extends": "plugin:solid/recommended",
       "rules": {
+        "@typescript-eslint/no-unused-vars": 0,
         "@typescript-eslint/ban-ts-comment": 0,
         "@typescript-eslint/no-empty-function": 0
       }

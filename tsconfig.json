@@ -14,11 +14,5 @@
     "allowJs": true,
     "preserveSymlinks": true
   },
-  "include": [
-    "src",
-    "test",
-    "scripts",
-    "standalone",
-    "jest.setup.js"
-  ]
+  "include": ["src", "configs", "test", "scripts", "standalone", "jest.setup.js"]
 }

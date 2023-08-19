@@ -13,9 +13,7 @@ const pluginLegacy = {
         browser: true,
         es6: true,
       },
-      parserOptions: Object.assign({}, recommendedConfig.languageOptions.parserOptions, {
-        sourceType: "module",
-      }),
+      parserOptions: recommendedConfig.languageOptions.parserOptions,
       rules: recommendedConfig.rules,
     },
     typescript: {
@@ -24,9 +22,9 @@ const pluginLegacy = {
         browser: true,
         es6: true,
       },
-      parserOptions: Object.assign({}, typescriptConfig.languageOptions.parserOptions, {
+      parserOptions: {
         sourceType: "module",
-      }),
+      },
       rules: typescriptConfig.rules,
     },
   },
