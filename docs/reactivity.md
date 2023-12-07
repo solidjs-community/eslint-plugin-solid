@@ -166,7 +166,19 @@ return <Component staticName={props.name} />
 </details>
 
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
- 
+## Rule Options
+
+Options shown here are the defaults. Manually configuring an array will *replace* the defaults.
+
+```js
+{
+  "solid/reactivity": ["warn", { 
+    // List of function names to consider as reactive functions (allow signals to be safely passed as arguments). In addition, any create* or use* functions are automatically included.
+    customReactiveFunctions: [], // Array<string>
+  }]
+}
+```
+
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
