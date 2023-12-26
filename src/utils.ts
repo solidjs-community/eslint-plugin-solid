@@ -220,3 +220,27 @@ export function removeSpecifier(
   }
   return fixer.remove(specifier);
 }
+
+export function jsxPropName(prop: T.JSXAttribute) {
+  if (!prop.type || prop.type !== "JSXAttribute") {
+    throw new Error("The prop must be a JSXAttribute collected by the AST parser.");
+  }
+
+  if (prop.name.type === "JSXNamespacedName") {
+    return `${prop.name.namespace.name}:${prop.name.name.name}`;
+  }
+
+  return prop.name.name;
+}
+
+export function jsxHasProp(props: (T.JSXAttribute | T.JSXSpreadAttribute)[], prop: string) {
+  return props.some(
+    (attribute) => attribute.type !== "JSXSpreadAttribute" && prop === jsxPropName(attribute)
+  );
+}
+
+export function jsxGetProp(props: (T.JSXAttribute | T.JSXSpreadAttribute)[], prop: string) {
+  return props.find(
+    (attribute) => attribute.type !== "JSXSpreadAttribute" && prop === jsxPropName(attribute)
+  ) as T.JSXAttribute | undefined;
+}

@@ -1,6 +1,6 @@
 import { ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
-import { propName } from "jsx-ast-utils";
 import isHtml from "is-html";
+import { jsxPropName } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStringIfConstant } = ASTUtils;
@@ -48,7 +48,7 @@ export default createRule<Options, MessageIds>({
     const allowStatic = Boolean(context.options[0]?.allowStatic ?? true);
     return {
       JSXAttribute(node) {
-        if (propName(node) === "dangerouslySetInnerHTML") {
+        if (jsxPropName(node) === "dangerouslySetInnerHTML") {
           if (
             node.value?.type === "JSXExpressionContainer" &&
             node.value.expression.type === "ObjectExpression" &&
@@ -85,7 +85,7 @@ export default createRule<Options, MessageIds>({
             });
           }
           return;
-        } else if (propName(node) !== "innerHTML") {
+        } else if (jsxPropName(node) !== "innerHTML") {
           return;
         }
 
