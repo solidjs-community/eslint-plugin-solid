@@ -3,6 +3,32 @@ import rule from "../../src/rules/components-return-once";
 
 export const cases = run("components-return-once", rule, {
   valid: [
+    `
+      function Component() {
+        const renderContent = () => true ? <div /> : <p />
+
+        return (
+          <div>
+            {renderContent()}
+          </div>
+        )
+      }
+    `,
+
+    `
+      function Component() {
+        const renderContent = () => {
+          const renderInner = () => true ? <div /> : <p />
+
+          return true ? renderInner() : <div />
+        }
+
+        return (
+          <div>{renderContent()}</div>
+        )
+      }
+    `,
+
     `function Component() {
       return <div />;
     }`,
@@ -50,19 +76,13 @@ export const cases = run("components-return-once", rule, {
       code: `function Component() {
   return Math.random() > 0.5 ? <div>Big!</div> : <div>Small!</div>;
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
-      output: `function Component() {
-  return <>{Math.random() > 0.5 ? <div>Big!</div> : <div>Small!</div>}</>;
-}`,
+      errors: [{ messageId: "noEarlyReturn" }],
     },
     {
       code: `function Component() {
   return Math.random() > 0.5 ? <div>Big!</div> : "Small!";
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
-      output: `function Component() {
-  return <>{Math.random() > 0.5 ? <div>Big!</div> : "Small!"}</>;
-}`,
+      errors: [{ messageId: "noEarlyReturn" }],
     },
     // Ternaries with clear fallback
     {
@@ -74,13 +94,7 @@ export const cases = run("components-return-once", rule, {
     </div>
   ) : <div>Small!</div>;
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
-      output: `function Component() {
-  return <Show when={Math.random() > 0.5} fallback={<div>Small!</div>}><div>
-      Big!
-      No, really big!
-    </div></Show>;
-}`,
+      errors: [{ messageId: "noEarlyReturn" }],
     },
     // Switch/Match
     {
@@ -93,29 +107,20 @@ export const cases = run("components-return-once", rule, {
     <div>Neither condition 1 or 2</div>
   );
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
-      output: `function Component(props) {
-  return <Switch fallback={<div>Neither condition 1 or 2</div>}>
-<Match when={props.cond1}><div>Condition 1</div></Match>
-<Match when={Boolean(props.cond2)}><div>Not condition 1, but condition 2</div></Match>
-</Switch>;
-}`,
+      errors: [{ messageId: "noEarlyReturn" }],
     },
     // Logical
     {
       code: `function Component(props) {
   return !!props.cond && <div>Conditional</div>;
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
-      output: `function Component(props) {
-  return <Show when={!!props.cond}><div>Conditional</div></Show>;
-}`,
+      errors: [{ messageId: "noEarlyReturn" }],
     },
     {
       code: `function Component(props) {
   return props.primary || <div>{props.secondaryText}</div>;
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
+      errors: [{ messageId: "noEarlyReturn" }],
     },
     // HOCs
     {
