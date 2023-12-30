@@ -25,6 +25,17 @@ export const cases = run("prefer-show", rule, {
     {
       code: `
       function Component(props) {
+        return <>{props.cond && <span>Content</span>}</>;
+      }`,
+      errors: [{ messageId: "preferShowAnd" }],
+      output: `
+      function Component(props) {
+        return <><Show when={props.cond}><span>Content</span></Show></>;
+      }`,
+    },
+    {
+      code: `
+      function Component(props) {
         return (
           <div>
             {props.cond ? (

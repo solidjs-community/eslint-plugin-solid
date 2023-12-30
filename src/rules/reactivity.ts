@@ -16,6 +16,7 @@ import {
   isDOMElementName,
   ignoreTransparentWrappers,
   getFunctionName,
+  isJSXElementOrFragment,
 } from "../utils";
 
 const { findVariable, getFunctionHeadLocation } = ASTUtils;
@@ -527,7 +528,7 @@ export default createRule<Options, MessageIds>({
             if (
               // The signal is not being called and is being used as a props.children, where calling
               // the signal was the likely intent.
-              elementOrAttribute?.type === "JSXElement" ||
+              isJSXElementOrFragment(elementOrAttribute) ||
               // We can't say for sure about user components, but we know for a fact that a signal
               // should not be passed to a non-event handler DOM element attribute without calling it.
               (elementOrAttribute?.type === "JSXAttribute" &&
@@ -886,7 +887,7 @@ export default createRule<Options, MessageIds>({
           // to the DOM. This is semantically a "called function", so it's fine to read reactive
           // variables here.
           pushTrackedScope(node.expression, "called-function");
-        } else if (node.parent?.type === "JSXElement" && isFunctionNode(node.expression)) {
+        } else if (isJSXElementOrFragment(node.parent) && isFunctionNode(node.expression)) {
           pushTrackedScope(node.expression, "function"); // functions inline in JSX containers will be tracked
         } else {
           pushTrackedScope(node.expression, "expression");

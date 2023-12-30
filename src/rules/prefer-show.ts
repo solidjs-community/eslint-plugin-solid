@@ -1,4 +1,5 @@
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+import { isJSXElementOrFragment } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -25,7 +26,7 @@ export default createRule({
     const sourceCode = context.getSourceCode();
     const putIntoJSX = (node: T.Node): string => {
       const text = sourceCode.getText(node);
-      return node.type === "JSXElement" || node.type === "JSXFragment" ? text : `{${text}}`;
+      return isJSXElementOrFragment(node) ? text : `{${text}}`;
     };
 
     const logicalExpressionHandler = (node: T.LogicalExpression) => {
@@ -36,7 +37,7 @@ export default createRule({
           fix: (fixer) =>
             fixer.replaceText(
               node.parent?.type === "JSXExpressionContainer" &&
-                node.parent.parent?.type === "JSXElement"
+                isJSXElementOrFragment(node.parent.parent)
                 ? node.parent
                 : node,
               `<Show when={${sourceCode.getText(node.left)}}>${putIntoJSX(node.right)}</Show>`
@@ -55,7 +56,7 @@ export default createRule({
           fix: (fixer) =>
             fixer.replaceText(
               node.parent?.type === "JSXExpressionContainer" &&
-                node.parent.parent?.type === "JSXElement"
+                isJSXElementOrFragment(node.parent.parent)
                 ? node.parent
                 : node,
               `<Show when={${sourceCode.getText(node.test)}} fallback={${sourceCode.getText(
@@ -68,7 +69,7 @@ export default createRule({
 
     return {
       JSXExpressionContainer(node) {
-        if (node.parent?.type !== "JSXElement") {
+        if (!isJSXElementOrFragment(node.parent)) {
           return;
         }
         if (node.expression.type === "LogicalExpression") {
