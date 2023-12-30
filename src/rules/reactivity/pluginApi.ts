@@ -79,7 +79,7 @@ export interface ReactivityPlugin {
   create: (api: ReactivityPluginApi) => TSESLint.RuleListener;
 }
 
-// Defeats type widening
+// Defeats type widening, could also use `satisfies ReactivityPlugin`
 export function plugin(p: ReactivityPlugin): ReactivityPlugin {
   return p;
 }
