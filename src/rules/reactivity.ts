@@ -216,7 +216,18 @@ const getReturnedVar = (id: T.Node, scope: Scope): Variable | null => {
   return null;
 };
 
-export default createRule({
+type MessageIds =
+  | "noWrite"
+  | "untrackedReactive"
+  | "expectedFunctionGotExpression"
+  | "badSignal"
+  | "badUnnamedDerivedSignal"
+  | "shouldDestructure"
+  | "shouldAssign"
+  | "noAsyncTrackedScope";
+type Options = [{ customReactiveFunctions: string[] }];
+
+export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
@@ -224,7 +235,23 @@ export default createRule({
         "Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected.",
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md",
     },
-    schema: [],
+    schema: [
+      {
+        type: "object",
+        properties: {
+          customReactiveFunctions: {
+            description:
+              "List of function names to consider as reactive functions (allow signals to be safely passed as arguments). In addition, any create* or use* functions are automatically included.",
+            type: "array",
+            items: {
+              type: "string",
+            },
+            default: [],
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       noWrite: "The reactive variable '{{name}}' should not be reassigned or altered directly.",
       untrackedReactive:
@@ -243,8 +270,12 @@ export default createRule({
         "This tracked scope should not be async. Solid's reactivity only tracks synchronously.",
     },
   },
-  defaultOptions: [] as const,
-  create(context) {
+  defaultOptions: [
+    {
+      customReactiveFunctions: [],
+    },
+  ],
+  create(context, [options]) {
     const warnShouldDestructure = (node: T.Node, nth?: string) =>
       context.report({
         node,
@@ -994,7 +1025,10 @@ export default createRule({
                 pushTrackedScope(arg1, "function");
               }
             }
-          } else if (/^(?:use|create)[A-Z]/.test(callee.name)) {
+          } else if (
+            /^(?:use|create)[A-Z]/.test(callee.name) ||
+            options.customReactiveFunctions.includes(callee.name)
+          ) {
             // Custom hooks parameters may or may not be tracking scopes, no way to know.
             // Assume all identifier/function arguments are tracked scopes, and use "called-function"
             // to allow async handlers (permissive). Assume non-resolvable args are reactive expressions.
@@ -1019,7 +1053,11 @@ export default createRule({
           ) {
             // Like `on*` event handlers, mark all `addEventListener` listeners as called functions.
             pushTrackedScope(node.arguments[1], "called-function");
-          } else if (property.type === "Identifier" && /^(?:use|create)[A-Z]/.test(property.name)) {
+          } else if (
+            property.type === "Identifier" &&
+            (/^(?:use|create)[A-Z]/.test(property.name) ||
+              options.customReactiveFunctions.includes(property.name))
+          ) {
             // Handle custom hook parameters for property access custom hooks
             for (const arg of node.arguments) {
               if (isFunctionNode(arg)) {

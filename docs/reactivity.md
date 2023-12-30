@@ -166,7 +166,19 @@ return <Component staticName={props.name} />
 </details>
 
 <!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
- 
+## Rule Options
+
+Options shown here are the defaults. Manually configuring an array will *replace* the defaults.
+
+```js
+{
+  "solid/reactivity": ["warn", { 
+    // List of function names to consider as reactive functions (allow signals to be safely passed as arguments). In addition, any create* or use* functions are automatically included.
+    customReactiveFunctions: [], // Array<string>
+  }]
+}
+```
+
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 <!-- AUTO-GENERATED-CONTENT:START (CASES) -->
@@ -606,6 +618,11 @@ X.createFoo(() => bar());
 
 const [bar, setBar] = createSignal();
 X.Y.createFoo(() => bar());
+
+/* eslint solid/reactivity: ["error", { "customReactiveFunctions": ["customQuery"] }] */
+function customQuery(v) {}
+const [signal, setSignal] = createSignal();
+customQuery(() => signal());
 
 const [signal, setSignal] = createSignal(1);
 const element = document.getElementById("id");
