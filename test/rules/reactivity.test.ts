@@ -95,6 +95,10 @@ export const cases = run("reactivity", rule, {
       const owner = getOwner();
       runWithOwner(owner, () => console.log(signal()));
     });`,
+    `const [signal] = createSignal();
+    createEffect(() => {
+      runWithOwner(undefined, () => console.log(signal()));
+    });`,
     // Sync callbacks
     `const [signal] = createSignal();
     createEffect(() => {

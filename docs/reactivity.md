@@ -539,6 +539,11 @@ createEffect(() => {
 
 const [signal] = createSignal();
 createEffect(() => {
+  runWithOwner(undefined, () => console.log(signal()));
+});
+
+const [signal] = createSignal();
+createEffect(() => {
   [1, 2].forEach(() => console.log(signal()));
 });
 

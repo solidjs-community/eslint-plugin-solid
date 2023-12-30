@@ -80,6 +80,11 @@ createEffect((prev) => {
   return (prev || 0) + 1;
 });
 
+createEffect((prev) => {
+  console.log(signal());
+  return prev ? prev + 1 : 1;
+}, undefined);
+
 const value = createMemo(() => computeExpensiveValue(a(), b()));
 
 const sum = createMemo((prev) => input() + prev, 0);
