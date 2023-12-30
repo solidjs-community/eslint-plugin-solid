@@ -145,5 +145,33 @@ callback(() => {
   return <div />;
 });
 
+function Component() {
+  const renderContent = () => {
+    if (false) return <></>;
+    return <></>;
+  };
+  return <>{renderContent()}</>;
+}
+
+function Component() {
+  function renderContent() {
+    if (false) return <></>;
+    return <></>;
+  }
+  return <>{renderContent()}</>;
+}
+
+function Component() {
+  const renderContent = () => {
+    const renderContentInner = () => {
+      // ifs in render functions are fine no matter what nesting level this is
+      if (false) return;
+      return <></>;
+    };
+    return <>{renderContentInner()}</>;
+  };
+  return <></>;
+}
+
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->

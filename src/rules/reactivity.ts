@@ -15,6 +15,7 @@ import {
   trackImports,
   isDOMElementName,
   ignoreTransparentWrappers,
+  getFunctionName,
 } from "../utils";
 
 const { findVariable, getFunctionHeadLocation } = ASTUtils;
@@ -425,15 +426,17 @@ export default createRule<Options, MessageIds>({
     const onFunctionExit = (currentScopeNode: ProgramOrFunctionNode) => {
       // If this function is a component, add its props as a reactive variable
       if (isFunctionNode(currentScopeNode)) {
-        markPropsOnCondition(
-          currentScopeNode,
-          (props) =>
+        markPropsOnCondition(currentScopeNode, (props) => {
+          if (
             !isPropsByName(props.name) && // already added in markPropsOnEnter
-            currentScope().hasJSX &&
+            currentScope().hasJSX
+          ) {
+            const functionName = getFunctionName(currentScopeNode);
             // begins with lowercase === not component
-            (currentScopeNode.type !== "FunctionDeclaration" ||
-              !currentScopeNode.id?.name?.match(/^[a-z]/))
-        );
+            if (functionName && !/^[a-z]/.test(functionName)) return true;
+          }
+          return false;
+        });
       }
 
       // Ignore sync callbacks like Array#forEach and certain Solid primitives.
