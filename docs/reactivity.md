@@ -816,6 +816,12 @@ function Component(props) {
   return <div use:someHook={() => props.count} />;
 }
 
+function formObjectDispatch(formObject, action) {
+  const { field } = action.payload;
+  formObject.findIndex((props) => props.field === field);
+  formObject.findIndex((props) => props.field === field);
+}
+
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
