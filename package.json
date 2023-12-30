@@ -33,6 +33,7 @@
   "files": [
     "src",
     "dist",
+    "configs",
     "README.md"
   ],
   "dependencies": {
