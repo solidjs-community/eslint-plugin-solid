@@ -614,6 +614,11 @@ X.createFoo(() => bar());
 const [bar, setBar] = createSignal();
 X.Y.createFoo(() => bar());
 
+/* eslint solid/reactivity: ["error", { "customReactiveFunctions": ["customQuery"] }] */
+function customQuery(v) {}
+const [signal, setSignal] = createSignal();
+customQuery(() => signal());
+
 const [signal, setSignal] = createSignal(1);
 const element = document.getElementById("id");
 element.addEventListener(

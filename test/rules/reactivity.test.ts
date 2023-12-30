@@ -149,6 +149,12 @@ export const cases = run("reactivity", rule, {
     X.createFoo(() => bar());`,
     `const [bar, setBar] = createSignal();
     X . Y\n. createFoo(() => bar());`,
+    {
+      code: `function customQuery(v) {}
+      const [signal, setSignal] = createSignal();
+      customQuery(() => signal());`,
+      options: [{ customReactiveFunctions: ["customQuery"] }], // only needed when not create*/use*
+    },
     // Event listeners
     `const [signal, setSignal] = createSignal(1);
     const element = document.getElementById("id");
