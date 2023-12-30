@@ -1,4 +1,5 @@
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+import { jsxGetAllProps } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -58,27 +59,9 @@ export default createRule<Options, MessageIds>({
           props.add(name);
         };
 
-        node.attributes.forEach((decl) => {
-          if (decl.type === "JSXSpreadAttribute") {
-            if (decl.argument.type === "ObjectExpression") {
-              for (const prop of decl.argument.properties) {
-                if (prop.type === "Property") {
-                  if (prop.key.type === "Identifier") {
-                    checkPropName(prop.key.name, prop.key);
-                  } else if (prop.key.type === "Literal") {
-                    checkPropName(String(prop.key.value), prop.key);
-                  }
-                }
-              }
-            }
-          } else {
-            const name =
-              decl.name.type === "JSXNamespacedName"
-                ? `${decl.name.namespace.name}:${decl.name.name.name}`
-                : decl.name.name;
-            checkPropName(name, decl.name);
-          }
-        });
+        for (const [name, propNode] of jsxGetAllProps(node.attributes)) {
+          checkPropName(name, propNode);
+        }
 
         const hasChildrenProp = props.has("children");
         const hasChildren = (node.parent as T.JSXElement | T.JSXFragment).children.length > 0;

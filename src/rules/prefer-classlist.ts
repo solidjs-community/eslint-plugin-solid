@@ -1,5 +1,5 @@
 import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
-import { hasProp, propName } from "jsx-ast-utils";
+import { jsxHasProp, jsxPropName } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -45,10 +45,11 @@ export default createRule<Options, MessageIds>({
     return {
       JSXAttribute(node) {
         if (
-          ["class", "className"].indexOf(propName(node)) === -1 ||
-          hasProp((node.parent as T.JSXOpeningElement | undefined)?.attributes, "classlist", {
-            ignoreCase: false,
-          })
+          ["class", "className"].indexOf(jsxPropName(node)) === -1 ||
+          jsxHasProp(
+            (node.parent as T.JSXOpeningElement | undefined)?.attributes ?? [],
+            "classlist"
+          )
         ) {
           return;
         }

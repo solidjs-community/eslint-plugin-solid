@@ -2,7 +2,7 @@ import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
 import kebabCase from "kebab-case";
 import { all as allCssProperties } from "known-css-properties";
 import parse from "style-to-object";
-import { propName } from "jsx-ast-utils";
+import { jsxPropName } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getPropertyName, getStaticValue } = ASTUtils;
@@ -62,7 +62,7 @@ export default createRule<Options, MessageIds>({
 
     return {
       JSXAttribute(node) {
-        if (styleProps.indexOf(propName(node)) === -1) {
+        if (styleProps.indexOf(jsxPropName(node)) === -1) {
           return;
         }
         const style =

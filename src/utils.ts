@@ -220,3 +220,47 @@ export function removeSpecifier(
   }
   return fixer.remove(specifier);
 }
+
+export function jsxPropName(prop: T.JSXAttribute) {
+  if (prop.name.type === "JSXNamespacedName") {
+    return `${prop.name.namespace.name}:${prop.name.name.name}`;
+  }
+
+  return prop.name.name;
+}
+
+type Props = T.JSXOpeningElement["attributes"];
+
+/** Iterate through both attributes and spread object props, yielding the name and the node. */
+export function* jsxGetAllProps(props: Props): Generator<[string, T.Node]> {
+  for (const attr of props) {
+    if (attr.type === "JSXSpreadAttribute" && attr.argument.type === "ObjectExpression") {
+      for (const property of attr.argument.properties) {
+        if (property.type === "Property") {
+          if (property.key.type === "Identifier") {
+            yield [property.key.name, property.key];
+          } else if (property.key.type === "Literal") {
+            yield [String(property.key.value), property.key];
+          }
+        }
+      }
+    } else if (attr.type === "JSXAttribute") {
+      yield [jsxPropName(attr), attr.name];
+    }
+  }
+}
+
+/** Returns whether an element has a prop, checking spread object props. */
+export function jsxHasProp(props: Props, prop: string) {
+  for (const [p] of jsxGetAllProps(props)) {
+    if (p === prop) return true;
+  }
+  return false;
+}
+
+/** Get a JSXAttribute, excluding spread props. */
+export function jsxGetProp(props: Props, prop: string) {
+  return props.find(
+    (attribute) => attribute.type !== "JSXSpreadAttribute" && prop === jsxPropName(attribute)
+  ) as T.JSXAttribute | undefined;
+}

@@ -38,7 +38,6 @@
   "dependencies": {
     "@typescript-eslint/utils": "^6.4.0",
     "is-html": "^2.0.0",
-    "jsx-ast-utils": "^3.3.3",
     "kebab-case": "^1.0.2",
     "known-css-properties": "^0.24.0",
     "style-to-object": "^0.3.0"

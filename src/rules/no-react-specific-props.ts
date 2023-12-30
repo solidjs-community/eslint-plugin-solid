@@ -1,6 +1,5 @@
 import { TSESLint, ESLintUtils } from "@typescript-eslint/utils";
-import { getProp, hasProp } from "jsx-ast-utils";
-import { isDOMElementName } from "../utils";
+import { isDOMElementName, jsxGetProp, jsxHasProp } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -29,10 +28,10 @@ export default createRule({
     return {
       JSXOpeningElement(node) {
         for (const { from, to } of reactSpecificProps) {
-          const classNameAttribute = getProp(node.attributes, from);
+          const classNameAttribute = jsxGetProp(node.attributes, from);
           if (classNameAttribute) {
             // only auto-fix if there is no class prop defined
-            const fix = !hasProp(node.attributes, to, { ignoreCase: false })
+            const fix = !jsxHasProp(node.attributes, to)
               ? (fixer: TSESLint.RuleFixer) => fixer.replaceText(classNameAttribute.name, to)
               : undefined;
 
@@ -45,7 +44,7 @@ export default createRule({
           }
         }
         if (node.name.type === "JSXIdentifier" && isDOMElementName(node.name.name)) {
-          const keyProp = getProp(node.attributes, "key");
+          const keyProp = jsxGetProp(node.attributes, "key");
           if (keyProp) {
             // no DOM element has a 'key' prop, so we can assert that this is a holdover from React.
             context.report({
