@@ -97,6 +97,19 @@ export const isProgramOrFunctionNode = (
   node: T.Node | null | undefined
 ): node is ProgramOrFunctionNode => !!node && PROGRAM_OR_FUNCTION_TYPES.includes(node.type);
 
+export const getFunctionName = (node: FunctionNode): string | null => {
+  if (
+    (node.type === "FunctionDeclaration" || node.type === "FunctionExpression") &&
+    node.id != null
+  ) {
+    return node.id.name;
+  }
+  if (node.parent?.type === "VariableDeclarator" && node.parent.id.type === "Identifier") {
+    return node.parent.id.name;
+  }
+  return null;
+};
+
 export function findInScope(
   node: T.Node,
   scope: ProgramOrFunctionNode,

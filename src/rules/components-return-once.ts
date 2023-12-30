@@ -1,5 +1,5 @@
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import type { FunctionNode } from "../utils";
+import { getFunctionName, type FunctionNode } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -63,8 +63,8 @@ export default createRule({
 
     const onFunctionExit = (node: FunctionNode) => {
       if (
-        (node.type === "FunctionDeclaration" && node.id?.name?.match(/^[a-z]/)) ||
         // "render props" aren't components
+        getFunctionName(node)?.match(/^[a-z]/) ||
         node.parent?.type === "JSXExpressionContainer" ||
         // ignore createMemo(() => conditional JSX), report HOC(() => conditional JSX)
         (node.parent?.type === "CallExpression" &&
