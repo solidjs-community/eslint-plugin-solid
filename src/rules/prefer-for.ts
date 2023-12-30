@@ -1,5 +1,5 @@
 import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
-import { isFunctionNode } from "../utils";
+import { isFunctionNode, isJSXElementOrFragment } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getPropertyName } = ASTUtils;
@@ -55,7 +55,7 @@ export default createRule({
         const callOrChain = node.parent?.type === "ChainExpression" ? node.parent : node;
         if (
           callOrChain.parent?.type === "JSXExpressionContainer" &&
-          callOrChain.parent.parent?.type === "JSXElement"
+          isJSXElementOrFragment(callOrChain.parent.parent)
         ) {
           // check for Array.prototype.map in JSX
           if (

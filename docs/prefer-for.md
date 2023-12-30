@@ -34,6 +34,20 @@ let Component = (props) => (
 );
  
 let Component = (props) => (
+  <>
+    {props.data.map((d) => (
+      <li>{d.text}</li>
+    ))}
+  </>
+);
+// after eslint --fix:
+let Component = (props) => (
+  <>
+    <For each={props.data}>{(d) => <li>{d.text}</li>}</For>
+  </>
+);
+ 
+let Component = (props) => (
   <ol>
     {props.data.map((d) => (
       <li key={d.id}>{d.text}</li>

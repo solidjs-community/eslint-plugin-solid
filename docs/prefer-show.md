@@ -34,6 +34,20 @@ function Component(props) {
 }
  
 function Component(props) {
+  return <>{props.cond && <span>Content</span>}</>;
+}
+// after eslint --fix:
+function Component(props) {
+  return (
+    <>
+      <Show when={props.cond}>
+        <span>Content</span>
+      </Show>
+    </>
+  );
+}
+ 
+function Component(props) {
   return <div>{props.cond ? <span>Content</span> : <span>Fallback</span>}</div>;
 }
 // after eslint --fix:

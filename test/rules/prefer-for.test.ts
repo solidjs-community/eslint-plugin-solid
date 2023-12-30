@@ -18,6 +18,11 @@ export const cases = run("prefer-for", rule, {
       output: `let Component = (props) => <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;`,
     },
     {
+      code: `let Component = (props) => <>{props.data.map(d => <li>{d.text}</li>)}</>;`,
+      errors: [{ messageId: "preferFor" }],
+      output: `let Component = (props) => <><For each={props.data}>{d => <li>{d.text}</li>}</For></>;`,
+    },
+    {
       code: `let Component = (props) => <ol>{props.data.map(d => <li key={d.id}>{d.text}</li>)}</ol>;`,
       errors: [{ messageId: "preferFor" }],
       output: `let Component = (props) => <ol><For each={props.data}>{d => <li key={d.id}>{d.text}</li>}</For></ol>;`,

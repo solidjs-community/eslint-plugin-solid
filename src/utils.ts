@@ -97,6 +97,11 @@ export const isProgramOrFunctionNode = (
   node: T.Node | null | undefined
 ): node is ProgramOrFunctionNode => !!node && PROGRAM_OR_FUNCTION_TYPES.includes(node.type);
 
+export const isJSXElementOrFragment = (
+  node: T.Node | null | undefined
+): node is T.JSXElement | T.JSXFragment =>
+  node?.type === "JSXElement" || node?.type === "JSXFragment";
+
 export const getFunctionName = (node: FunctionNode): string | null => {
   if (
     (node.type === "FunctionDeclaration" || node.type === "FunctionExpression") &&
