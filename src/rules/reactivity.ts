@@ -315,11 +315,11 @@ export default createRule<Options, MessageIds>({
     /** Populates the function stack. */
     const onFunctionEnter = (node: ProgramOrFunctionNode) => {
       if (isFunctionNode(node)) {
-        markPropsOnCondition(node, (props) => isPropsByName(props.name));
         if (scopeStack.syncCallbacks.has(node)) {
           // Ignore sync callbacks like Array#forEach and certain Solid primitives
           return;
         }
+        markPropsOnCondition(node, (props) => isPropsByName(props.name));
       }
       scopeStack.push(new ScopeStackItem(node));
     };

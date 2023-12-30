@@ -328,6 +328,12 @@ export const cases = run("reactivity", rule, {
     function Component(props) {
       return <div use:someHook={() => props.count} />;
     }`,
+    // f*cking insane edge case with multiple functions taking props as sync callbacks (#110)
+    `function formObjectDispatch(formObject, action) {
+      const { field } = action.payload;
+      formObject.findIndex((props) => props.field === field);
+      formObject.findIndex((props) => props.field === field);
+    }`,
   ],
   invalid: [
     // Untracked signals
