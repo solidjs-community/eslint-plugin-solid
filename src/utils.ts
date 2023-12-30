@@ -50,7 +50,9 @@ export function trace(node: T.Node, initialScope: TSESLint.Scope.Scope): T.Node 
     if (!variable) return node;
 
     const def = variable.defs[0];
-    switch (def.type) {
+
+    // def is `undefined` for Identifier `undefined`
+    switch (def?.type) {
       case "FunctionName":
       case "ClassName":
       case "ImportBinding":
