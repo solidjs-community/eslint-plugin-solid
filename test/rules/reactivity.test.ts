@@ -402,6 +402,13 @@ export const cases = run("reactivity", rule, {
         },
       ],
     },
+    {
+      code: `
+      const Component = props => {
+        const [value] = createSignal(props.value);
+      }`,
+      errors: [{ messageId: "untrackedReactive", type: T.MemberExpression }],
+    },
     // mark `props` as props by name before we've determined if Component is a component in :exit
     {
       code: `

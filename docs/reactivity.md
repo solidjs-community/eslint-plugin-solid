@@ -219,6 +219,10 @@ const Component = (props) => {
 };
  
 const Component = (props) => {
+  const [value] = createSignal(props.value);
+};
+ 
+const Component = (props) => {
   const derived = () => props.value;
   const oops = derived();
   return <div>{oops}</div>;

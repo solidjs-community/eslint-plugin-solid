@@ -836,6 +836,7 @@ export default createRule<Options, MessageIds>({
             if (
               isFunctionNode(traced) ||
               (traced.type === "Identifier" &&
+                traced.parent.type !== "MemberExpression" &&
                 !(traced.parent.type === "CallExpression" && traced.parent.callee === traced))
             ) {
               pushTrackedScope(childNode, "called-function");
