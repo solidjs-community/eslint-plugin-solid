@@ -8,6 +8,9 @@ dependencies:
   '@typescript-eslint/utils':
     specifier: ^6.4.0
     version: 6.4.0(eslint@8.43.0)(typescript@5.1.6)
+  estraverse:
+    specifier: ^5.3.0
+    version: 5.3.0
   is-html:
     specifier: ^2.0.0
     version: 2.0.0
@@ -46,6 +49,9 @@ devDependencies:
   '@types/eslint':
     specifier: ^8.40.2
     version: 8.40.2
+  '@types/estraverse':
+    specifier: ^5.1.7
+    version: 5.1.7
   '@types/fs-extra':
     specifier: ^9.0.13
     version: 9.0.13
@@ -146,7 +152,7 @@ packages:
   /@babel/code-frame@7.12.11:
     resolution: {integrity: sha512-Zt1yodBx1UcyiePMSkWnU4hPqhwq7hGi2nFL1LeA3EUl+q2LQx16MISgJ0+z7dnmgvP9QtIleuETGOiOH1RcIw==}
     dependencies:
-      '@babel/highlight': 7.22.10
+      '@babel/highlight': 7.22.20
     dev: true
 
   /@babel/code-frame@7.18.6:
@@ -1161,6 +1167,12 @@ packages:
     dependencies:
       '@types/estree': 1.0.0
       '@types/json-schema': 7.0.11
+    dev: true
+
+  /@types/estraverse@5.1.7:
+    resolution: {integrity: sha512-JRVtdKYZz7VkNp7hMC/WKoiZ8DS3byw20ZGoMZ1R8eBrBPIY7iBaDAS1zcrnXQCwK44G4vbXkimeU7R0VLG8UQ==}
+    dependencies:
+      '@types/estree': 1.0.0
     dev: true
 
   /@types/estree@0.0.39:
@@ -2350,7 +2362,7 @@ packages:
     engines: {node: ^8.10.0 || ^10.13.0 || >=11.10.1}
     hasBin: true
     dependencies:
-      '@babel/code-frame': 7.22.10
+      '@babel/code-frame': 7.22.13
       ajv: 6.12.6
       chalk: 2.4.2
       cross-spawn: 6.0.5

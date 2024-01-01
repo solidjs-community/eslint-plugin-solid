@@ -149,6 +149,18 @@ export const cases = run("reactivity", rule, {
     `function createFoo(v) {}
     const [bar, setBar] = createSignal();
     createFoo({ onBar: () => bar() });`,
+    `function createFoo(v) {}
+    const [bar, setBar] = createSignal();
+    createFoo({ onBar() { bar() } });`,
+    `function createFoo(v) {}
+    const [bar, setBar] = createSignal();
+    createFoo(bar);`,
+    `function createFoo(v) {}
+    const [bar, setBar] = createSignal();
+    createFoo([bar]);`,
+    // `function createFoo(v) {}
+    // const [bar, setBar] = createSignal();
+    // createFoo((() => () => bar())());`,
     `const [bar, setBar] = createSignal();
     X.createFoo(() => bar());`,
     `const [bar, setBar] = createSignal();
@@ -807,6 +819,31 @@ export const cases = run("reactivity", rule, {
       const [signal] = createSignal();
       let el = <Component staticProp={signal()} />;`,
       errors: [{ messageId: "untrackedReactive" }],
+    },
+    // custom hooks
+    {
+      code: `
+      const [signal] = createSignal(0);
+      useExample(signal())`,
+      errors: [{ messageId: "untrackedReactive" }],
+    },
+    {
+      code: `
+      const [signal] = createSignal(0);
+      useExample([signal()])`,
+      errors: [{ messageId: "untrackedReactive" }],
+    },
+    {
+      code: `
+      const [signal] = createSignal(0);
+      useExample({ value: signal() })`,
+      errors: [{ messageId: "untrackedReactive" }],
+    },
+    {
+      code: `
+      const [signal] = createSignal(0);
+      useExample((() => signal())())`,
+      errors: [{ messageId: "expectedFunctionGotExpression" }],
     },
   ],
 });
