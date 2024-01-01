@@ -219,6 +219,10 @@ const Component = (props) => {
 };
  
 const Component = (props) => {
+  const [value] = createSignal(props.value);
+};
+ 
+const Component = (props) => {
   const derived = () => props.value;
   const oops = derived();
   return <div>{oops}</div>;
@@ -421,6 +425,18 @@ const result = indexArray(array, (item) => {
 const [signal] = createSignal();
 let el = <Component staticProp={signal()} />;
  
+const [signal] = createSignal(0);
+useExample(signal());
+ 
+const [signal] = createSignal(0);
+useExample([signal()]);
+ 
+const [signal] = createSignal(0);
+useExample({ value: signal() });
+ 
+const [signal] = createSignal(0);
+useExample((() => signal())());
+ 
 ```
 
 ### Valid Examples
@@ -612,6 +628,22 @@ const Component = (props) => {
 function createFoo(v) {}
 const [bar, setBar] = createSignal();
 createFoo({ onBar: () => bar() });
+
+function createFoo(v) {}
+const [bar, setBar] = createSignal();
+createFoo({
+  onBar() {
+    bar();
+  },
+});
+
+function createFoo(v) {}
+const [bar, setBar] = createSignal();
+createFoo(bar);
+
+function createFoo(v) {}
+const [bar, setBar] = createSignal();
+createFoo([bar]);
 
 const [bar, setBar] = createSignal();
 X.createFoo(() => bar());

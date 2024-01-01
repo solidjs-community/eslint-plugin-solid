@@ -149,6 +149,18 @@ export const cases = run("reactivity", rule, {
     `function createFoo(v) {}
     const [bar, setBar] = createSignal();
     createFoo({ onBar: () => bar() });`,
+    `function createFoo(v) {}
+    const [bar, setBar] = createSignal();
+    createFoo({ onBar() { bar() } });`,
+    `function createFoo(v) {}
+    const [bar, setBar] = createSignal();
+    createFoo(bar);`,
+    `function createFoo(v) {}
+    const [bar, setBar] = createSignal();
+    createFoo([bar]);`,
+    // `function createFoo(v) {}
+    // const [bar, setBar] = createSignal();
+    // createFoo((() => () => bar())());`,
     `const [bar, setBar] = createSignal();
     X.createFoo(() => bar());`,
     `const [bar, setBar] = createSignal();
@@ -389,6 +401,13 @@ export const cases = run("reactivity", rule, {
           type: T.MemberExpression,
         },
       ],
+    },
+    {
+      code: `
+      const Component = props => {
+        const [value] = createSignal(props.value);
+      }`,
+      errors: [{ messageId: "untrackedReactive", type: T.MemberExpression }],
     },
     // mark `props` as props by name before we've determined if Component is a component in :exit
     {
@@ -807,6 +826,31 @@ export const cases = run("reactivity", rule, {
       const [signal] = createSignal();
       let el = <Component staticProp={signal()} />;`,
       errors: [{ messageId: "untrackedReactive" }],
+    },
+    // custom hooks
+    {
+      code: `
+      const [signal] = createSignal(0);
+      useExample(signal())`,
+      errors: [{ messageId: "untrackedReactive" }],
+    },
+    {
+      code: `
+      const [signal] = createSignal(0);
+      useExample([signal()])`,
+      errors: [{ messageId: "untrackedReactive" }],
+    },
+    {
+      code: `
+      const [signal] = createSignal(0);
+      useExample({ value: signal() })`,
+      errors: [{ messageId: "untrackedReactive" }],
+    },
+    {
+      code: `
+      const [signal] = createSignal(0);
+      useExample((() => signal())())`,
+      errors: [{ messageId: "expectedFunctionGotExpression" }],
     },
   ],
 });

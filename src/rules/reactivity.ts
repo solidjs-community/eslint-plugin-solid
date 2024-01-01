@@ -4,6 +4,7 @@
  */
 
 import { TSESTree as T, TSESLint, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import { traverse } from "estraverse";
 import {
   findParent,
   findInScope,
@@ -17,6 +18,7 @@ import {
   ignoreTransparentWrappers,
   getFunctionName,
   isJSXElementOrFragment,
+  trace,
 } from "../utils";
 
 const { findVariable, getFunctionHeadLocation } = ASTUtils;
@@ -823,6 +825,27 @@ export default createRule<Options, MessageIds>({
           });
         }
       };
+      // given some expression, mark any functions within it as tracking scopes, and do not traverse
+      // those functions
+      const permissivelyTrackNode = (node: T.Node) => {
+        traverse(node as any, {
+          enter(cn) {
+            const childNode = cn as T.Node;
+            const traced = trace(childNode, context.getScope());
+            // when referencing a function or something that could be a derived signal, track it
+            if (
+              isFunctionNode(traced) ||
+              (traced.type === "Identifier" &&
+                traced.parent.type !== "MemberExpression" &&
+                !(traced.parent.type === "CallExpression" && traced.parent.callee === traced))
+            ) {
+              pushTrackedScope(childNode, "called-function");
+              this.skip(); // poor-man's `findInScope`: don't enter child scopes
+            }
+          },
+        });
+      };
+
       if (node.type === "JSXExpressionContainer") {
         if (
           node.parent?.type === "JSXAttribute" &&
@@ -1037,15 +1060,7 @@ export default createRule<Options, MessageIds>({
             // Assume all identifier/function arguments are tracked scopes, and use "called-function"
             // to allow async handlers (permissive). Assume non-resolvable args are reactive expressions.
             for (const arg of node.arguments) {
-              if (isFunctionNode(arg)) {
-                pushTrackedScope(arg, "called-function");
-              } else if (
-                arg.type === "Identifier" ||
-                arg.type === "ObjectExpression" ||
-                arg.type === "ArrayExpression"
-              ) {
-                pushTrackedScope(arg, "expression");
-              }
+              permissivelyTrackNode(arg);
             }
           }
         } else if (node.callee.type === "MemberExpression") {
@@ -1064,15 +1079,7 @@ export default createRule<Options, MessageIds>({
           ) {
             // Handle custom hook parameters for property access custom hooks
             for (const arg of node.arguments) {
-              if (isFunctionNode(arg)) {
-                pushTrackedScope(arg, "called-function");
-              } else if (
-                arg.type === "Identifier" ||
-                arg.type === "ObjectExpression" ||
-                arg.type === "ArrayExpression"
-              ) {
-                pushTrackedScope(arg, "expression");
-              }
+              permissivelyTrackNode(arg);
             }
           }
         }
