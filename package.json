@@ -63,6 +63,7 @@
     "eslint-plugin-solid": "link:",
     "eslint-v6": "npm:eslint@^6.8.0",
     "eslint-v7": "npm:eslint@^7.32.0",
+    "expect-type": "^0.19.0",
     "husky": "^8.0.3",
     "jest": "^29.7.0",
     "lint-staged": "^13.3.0",
@@ -70,7 +71,8 @@
     "prettier": "^2.8.8",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.3",
+    "typescript-eslint": "^7.6.0"
   },
   "peerDependencies": {
     "eslint": "^6.0.0 || ^7.0.0 || ^8.0.0"
