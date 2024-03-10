@@ -3,6 +3,7 @@
   "exclude": ["configs", "test", "scripts", "standalone", "jest.setup.js"],
   "compilerOptions": {
     "noEmit": false,
+    "declaration": true,
     "outDir": "dist",
     "removeComments": true
   }
