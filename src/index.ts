@@ -35,5 +35,6 @@ const pluginLegacy = {
     },
   },
 };
-// Must be module.exports for eslint to load everything
-module.exports = pluginLegacy;
+
+// Must be `export = ` for eslint to load everything
+export = pluginLegacy;
