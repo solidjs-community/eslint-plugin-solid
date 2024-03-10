@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import path from "path";
-import fs from "fs-extra";
+import fs from "node:fs/promises";
 import markdownMagic from "markdown-magic";
 import prettier from "prettier";
 import type { TSESLint } from "@typescript-eslint/utils";
