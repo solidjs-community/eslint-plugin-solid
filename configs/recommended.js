@@ -1,1 +1,2 @@
-module.exports = require("../dist/configs/recommended");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+module.exports = require("../dist/index").configs["flat/recommended"];

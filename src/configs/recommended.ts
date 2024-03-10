@@ -6,12 +6,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { plugin } from "../plugin";
-
-const recommended = {
-  plugins: {
-    solid: plugin,
-  },
+const flat = {
   languageOptions: {
     sourceType: "module",
     parserOptions: {
@@ -49,6 +44,20 @@ const recommended = {
     // deprecated
     "solid/prefer-classlist": 0,
   },
+};
+
+const legacy = {
+  env: {
+    browser: true,
+    es6: true,
+  },
+  parserOptions: flat.languageOptions.parserOptions,
+  rules: flat.rules,
+};
+
+const recommended = {
+  flat,
+  legacy,
 };
 
 export = recommended;

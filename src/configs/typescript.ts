@@ -8,19 +8,36 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import recommended from "./recommended";
 
-const typescript = {
+const flat = {
   // no files; either apply to all files, or let users spread in this config
   // and specify matching patterns. This is eslint-plugin-react's take.
-  plugins: recommended.plugins,
+
   // no languageOptions; ESLint's default parser can't parse TypeScript,
   // and parsers are configured in languageOptions, so let the user handle
   // this rather than cause potential conflicts
+
   rules: {
-    ...recommended.rules,
+    ...recommended.flat.rules,
     "solid/jsx-no-undef": [2, { typescriptEnabled: true }],
     // namespaces taken care of by TS
     "solid/no-unknown-namespaces": 0,
   },
+};
+
+const legacy = {
+  env: {
+    browser: true,
+    es6: true,
+  },
+  parserOptions: {
+    sourceType: "module",
+  },
+  rules: flat.rules,
+};
+
+const typescript = {
+  flat,
+  legacy,
 };
 
 export = typescript;

@@ -28,7 +28,7 @@ import styleProp from "./rules/style-prop";
 import noArrayHandlers from "./rules/no-array-handlers";
 // import validateJsxNesting from "./rules/validate-jsx-nesting";
 
-const allRules = {
+const rules = {
   "components-return-once": componentsReturnOnce,
   "event-handlers": eventHandlers,
   imports,
@@ -52,4 +52,4 @@ const allRules = {
   // "validate-jsx-nesting": validateJsxNesting
 };
 
-export const plugin = { rules: allRules };
+export = rules;
