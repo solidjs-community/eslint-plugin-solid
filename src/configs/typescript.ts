@@ -7,6 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import recommended from "./recommended";
+import type { Linter } from "eslint";
 
 const flat = {
   // no files; either apply to all files, or let users spread in this config
@@ -22,7 +23,7 @@ const flat = {
     // namespaces taken care of by TS
     "solid/no-unknown-namespaces": 0,
   },
-};
+} satisfies Linter.FlatConfig;
 
 const legacy = {
   env: {
@@ -33,7 +34,7 @@ const legacy = {
     sourceType: "module",
   },
   rules: flat.rules,
-};
+} satisfies Linter.Config;
 
 const typescript = {
   flat,

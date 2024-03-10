@@ -9,6 +9,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 import rules from "./rules";
 import recommended from "./configs/recommended";
 import typescript from "./configs/typescript";
+import type { Linter } from "eslint";
 
 const plugin = {
   configs: {},
@@ -16,13 +17,12 @@ const plugin = {
 };
 
 const configs = {
-  "flat/recommended": { plugins: { solid: plugin }, ...recommended.flat },
-  "flat/typescript": { plugins: { solid: plugin }, ...typescript.flat },
-  recommended: { plugins: ["solid"], ...recommended.legacy },
-  typescript: { plugins: ["solid"], ...typescript.legacy },
+  "flat/recommended": { plugins: { solid: plugin }, ...recommended.flat } as unknown as Linter.FlatConfig,
+  "flat/typescript": { plugins: { solid: plugin }, ...typescript.flat } as unknown as Linter.FlatConfig,
+  recommended: { plugins: ["solid"], ...recommended.legacy } as Linter.Config,
+  typescript: { plugins: ["solid"], ...typescript.legacy } as Linter.Config,
 };
-
 plugin.configs = configs;
 
 // Must be `export = ` for eslint to load everything
-export = plugin;
+export = plugin as typeof plugin & { configs: typeof configs };

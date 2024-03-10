@@ -6,6 +6,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
+import type { Linter } from "eslint";
+
 const flat = {
   languageOptions: {
     sourceType: "module",
@@ -44,7 +46,7 @@ const flat = {
     // deprecated
     "solid/prefer-classlist": 0,
   },
-};
+} satisfies Linter.FlatConfig;
 
 const legacy = {
   env: {
@@ -53,7 +55,7 @@ const legacy = {
   },
   parserOptions: flat.languageOptions.parserOptions,
   rules: flat.rules,
-};
+} satisfies Linter.Config;
 
 const recommended = {
   flat,
