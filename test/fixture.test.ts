@@ -4,6 +4,7 @@ import { ESLint } from "eslint";
 import { FlatESLint } from "eslint/use-at-your-own-risk";
 
 import * as tsParser from "@typescript-eslint/parser";
+import plugin from "eslint-plugin-solid";
 import recommendedConfig from "eslint-plugin-solid/configs/recommended";
 import typescriptConfig from "eslint-plugin-solid/configs/typescript";
 
@@ -38,7 +39,10 @@ test.concurrent("fixture", async () => {
   expect(results.filter((result) => result.filePath === jsxUndefPath).length).toBe(1);
 });
 
-test.concurrent("fixture (flat)", async () => {
+test.concurrent.each([
+  [plugin.configs["flat/recommended"], plugin.configs["flat/typescript"]],
+  [recommendedConfig, typescriptConfig],
+])("fixture (flat)", async (recommendedConfig, typescriptConfig) => {
   const eslint = new FlatESLint({
     cwd,
     overrideConfigFile: true,
