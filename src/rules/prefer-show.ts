@@ -1,3 +1,11 @@
+/**
+ * FIXME: remove this comments and import when below issue is fixed.
+ * This import is necessary for type generation due to a bug in the TypeScript compiler.
+ * See: https://github.com/microsoft/TypeScript/issues/42873
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { TSESLint } from "@typescript-eslint/utils";
+
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { isJSXElementOrFragment } from "../utils";
 
