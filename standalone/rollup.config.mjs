@@ -3,9 +3,9 @@ import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
 
-import replace from "./rollup-plugin-replace";
+import replace from "./rollup-plugin-replace.mjs";
 
-module.exports = {
+export default {
   input: "index.js",
   output: {
     format: "module",
