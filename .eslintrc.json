@@ -19,7 +19,9 @@
     "object-shorthand": "warn",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/non-nullable-type-assertion-style": "warn"
+    "@typescript-eslint/non-nullable-type-assertion-style": "warn",
+    "no-extra-semi": "off",
+    "no-mixed-spaces-and-tabs": "off"
   },
   "overrides": [
     {
