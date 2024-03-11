@@ -14,7 +14,7 @@
   "author": "Josh Wilson <joshwilsonvu@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "rollup --config=rollup.config.js",
+    "build": "rollup --config=rollup.config.mjs",
     "prepublishOnly": "cd .. && pnpm build && cd standalone && pnpm build && pnpm test",
     "test": "node --experimental-vm-modules ./test.mjs"
   },
@@ -28,7 +28,7 @@
     "eslint": "^8.57.0",
     "magic-string": "^0.30.8",
     "memoize-one": "^6.0.0",
-    "rollup": "^2.79.1",
+    "rollup": "^3.29.4",
     "semver": "^7.6.0",
     "typescript": "~5.3.3"
   },
