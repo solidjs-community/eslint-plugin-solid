@@ -1,5 +1,5 @@
 {
-  "extends": "@tsconfig/node16/tsconfig.json",
+  "extends": "./node_modules/@tsconfig/node20/tsconfig.json",
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
