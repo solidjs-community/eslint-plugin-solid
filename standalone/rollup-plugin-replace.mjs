@@ -3,6 +3,9 @@ import path from "path";
 import Module from "module";
 import { createFilter } from "@rollup/pluginutils";
 import MagicString from "magic-string";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
 
 function toAbsolute(id) {
   return id.startsWith("./") ? path.resolve(id) : require.resolve(id);
