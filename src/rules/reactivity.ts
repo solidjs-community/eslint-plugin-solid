@@ -295,7 +295,7 @@ export default createRule<Options, MessageIds>({
     const { currentScope, parentScope } = scopeStack;
 
     /** Tracks imports from 'solid-js', handling aliases. */
-    const { matchImport, handleImportDeclaration } = trackImports();
+    const { matchImport } = trackImports(sourceCode.ast);
 
     /** Workaround for #61 */
     const markPropsOnCondition = (node: FunctionNode, cb: (props: T.Identifier) => boolean) => {
@@ -627,7 +627,7 @@ export default createRule<Options, MessageIds>({
     };
 
     /*
-     * Sync array functions (forEach, map, reduce, reduceRight, flatMap),
+     * Sync array functions (forEach, map, reduce, reduceRight, flatMap), IIFEs,
      * store update fn params (ex. setState("todos", (t) => [...t.slice(0, i()),
      * ...t.slice(i() + 1)])), batch, onCleanup, and onError fn params, and
      * maybe a few others don't actually create a new scope. That is, any
@@ -1144,7 +1144,6 @@ export default createRule<Options, MessageIds>({
     };
 
     return {
-      ImportDeclaration: handleImportDeclaration,
       JSXExpressionContainer(node: T.JSXExpressionContainer) {
         checkForTrackedScopes(node);
       },
@@ -1156,7 +1155,7 @@ export default createRule<Options, MessageIds>({
         checkForSyncCallbacks(node);
 
         // ensure calls to reactive primitives use the results.
-        const parent = node.parent && ignoreTransparentWrappers(node.parent, true);
+        const parent = node.parent && ignoreTransparentWrappers(node.parent, "up");
         if (parent?.type !== "AssignmentExpression" && parent?.type !== "VariableDeclarator") {
           checkForReactiveAssignment(null, node);
         }
