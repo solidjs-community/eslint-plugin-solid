@@ -843,6 +843,7 @@ export default createRule<Options, MessageIds>({
               this.skip(); // poor-man's `findInScope`: don't enter child scopes
             }
           },
+          fallback: "iteration", // Don't crash when encounter unknown node.
         });
       };
 
