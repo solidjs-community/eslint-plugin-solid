@@ -119,13 +119,19 @@ is available starting in ESLint [v8.23.0](https://github.com/eslint/eslint/relea
 use it, create an `eslint.config.js` file at the root of your project, instead of `.eslintrc.*`
 and/or `.eslintignore`.
 
+> [!IMPORTANT]
+> If you were using flat configs with a version prior to 0.13.3, please note that the entry points
+> `"eslint-plugin-solid/configs/recommended"` or `"eslint-plugin-solid/configs/typescript"`
+> have been deprecated starting with version 0.13.3. Instead, refer to the example below and
+> import from the `"eslint-plugin-solid"` root entry.
+
 ```js
 import js from "@eslint/js";
-import solid from "eslint-plugin-solid/configs/recommended";
+import solid from "eslint-plugin-solid";
 
 export default [
   js.configs.recommended, // replaces eslint:recommended
-  solid,
+  solid.configs["flat/recommended"],
 ];
 ```
 
@@ -133,22 +139,24 @@ For TypeScript:
 
 ```js
 import js from "@eslint/js";
-import solid from 'eslint-plugin-solid/configs/typescript';
-import * as tsParser from "@typescript-eslint/parser";
+import tseslint from 'typescript-eslint';
+import solid from 'eslint-plugin-solid';
 
-export default [
+export default tseslint.config( // utility for flat configuration
   js.configs.recommended,
   {
     files: ["**/*.{ts,tsx}"],
-    ...solid,
+    extends: [
+      ...tseslint.configs.base, // minimal config sets for typescript
+      solid.configs["flat/typescript"],
+    ],
     languageOptions: {
-      parser: tsParser,
       parserOptions: {
         project: 'tsconfig.json',
       },
     },
   },
-]
+);
 ```
 
 These configurations do not configure global variables in ESLint. You can do this yourself manually
