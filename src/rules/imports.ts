@@ -158,11 +158,11 @@ export default createRule({
                   source: correctSource,
                 },
                 fix(fixer) {
-                  const sourceCode = context.getSourceCode();
+                  const sourceCode = context.sourceCode;
                   const program: T.Program = sourceCode.ast;
                   const correctDeclaration = program.body.find(
                     (node) =>
-                      node.type === "ImportDeclaration" && node.source.value === correctSource
+                      node.type === "ImportDeclaration" && node.source.value === correctSource,
                   ) as T.ImportDeclaration | undefined;
 
                   if (correctDeclaration) {
@@ -175,7 +175,7 @@ export default createRule({
                   }
 
                   const firstSolidDeclaration = program.body.find(
-                    (node) => node.type === "ImportDeclaration" && isSource(node.source.value)
+                    (node) => node.type === "ImportDeclaration" && isSource(node.source.value),
                   ) as T.ImportDeclaration | undefined;
                   return [
                     removeSpecifier(fixer, sourceCode, specifier),
@@ -185,7 +185,7 @@ export default createRule({
                       correctSource,
                       [sourceCode.getText(specifier)],
                       firstSolidDeclaration,
-                      isType
+                      isType,
                     ),
                   ];
                 },

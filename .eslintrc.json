@@ -16,6 +16,8 @@
   ],
   "rules": {
     "import/no-unresolved": "off",
+    "no-extra-semi": "off",
+    "no-mixed-spaces-and-tabs": "off",
     "object-shorthand": "warn",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",

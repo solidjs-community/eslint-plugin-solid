@@ -31,7 +31,7 @@ export default createRule({
   },
   defaultOptions: [],
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
     const putIntoJSX = (node: T.Node): string => {
       const text = sourceCode.getText(node);
       return isJSXElementOrFragment(node) ? text : `{${text}}`;
@@ -48,7 +48,7 @@ export default createRule({
                 isJSXElementOrFragment(node.parent.parent)
                 ? node.parent
                 : node,
-              `<Show when={${sourceCode.getText(node.left)}}>${putIntoJSX(node.right)}</Show>`
+              `<Show when={${sourceCode.getText(node.left)}}>${putIntoJSX(node.right)}</Show>`,
             ),
         });
       }
@@ -68,8 +68,8 @@ export default createRule({
                 ? node.parent
                 : node,
               `<Show when={${sourceCode.getText(node.test)}} fallback={${sourceCode.getText(
-                node.alternate
-              )}}>${putIntoJSX(node.consequent)}</Show>`
+                node.alternate,
+              )}}>${putIntoJSX(node.consequent)}</Show>`,
             ),
         });
       }

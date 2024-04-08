@@ -100,7 +100,7 @@ export default createRule<Options, MessageIds>({
           });
         } else if (style.type === "ObjectExpression") {
           const properties = style.properties.filter(
-            (prop) => prop.type === "Property"
+            (prop) => prop.type === "Property",
           ) as Array<T.Property>;
           properties.forEach((prop) => {
             const name: string | null = getPropertyName(prop, context.getScope());

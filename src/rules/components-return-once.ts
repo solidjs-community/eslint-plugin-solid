@@ -53,7 +53,7 @@ export default createRule({
       earlyReturns: Array<T.ReturnStatement>;
     }> = [];
     const putIntoJSX = (node: T.Node): string => {
-      const text = context.getSourceCode().getText(node);
+      const text = context.sourceCode.getText(node);
       return node.type === "JSXElement" || node.type === "JSXFragment" ? text : `{${text}}`;
     };
     const currentFunction = () => functionStack[functionStack.length - 1];
@@ -92,7 +92,7 @@ export default createRule({
 
         const argument = currentFunction().lastReturn?.argument;
         if (argument?.type === "ConditionalExpression") {
-          const sourceCode = context.getSourceCode();
+          const sourceCode = context.sourceCode;
           context.report({
             node: argument.parent!,
             messageId: "noConditionalReturn",
@@ -117,17 +117,17 @@ export default createRule({
                     .map(
                       ({ test, consequent }) =>
                         `<Match when={${sourceCode.getText(test)}}>${putIntoJSX(
-                          consequent
-                        )}</Match>`
+                          consequent,
+                        )}</Match>`,
                     )
-                    .join("\n")}\n</Switch>`
+                    .join("\n")}\n</Switch>`,
                 );
               }
               if (isNothing(consequent)) {
                 // we have a single ternary and the consequent is nothing. Negate the condition and use a <Show>.
                 return fixer.replaceText(
                   argument,
-                  `<Show when={!(${sourceCode.getText(test)})}>${putIntoJSX(alternate)}</Show>`
+                  `<Show when={!(${sourceCode.getText(test)})}>${putIntoJSX(alternate)}</Show>`,
                 );
               }
               if (
@@ -142,8 +142,8 @@ export default createRule({
                 return fixer.replaceText(
                   argument,
                   `<Show when={${sourceCode.getText(test)}}${fallbackStr}>${putIntoJSX(
-                    consequent
-                  )}</Show>`
+                    consequent,
+                  )}</Show>`,
                 );
               }
 
@@ -154,7 +154,7 @@ export default createRule({
           });
         } else if (argument?.type === "LogicalExpression")
           if (argument.operator === "&&") {
-            const sourceCode = context.getSourceCode();
+            const sourceCode = context.sourceCode;
             // we have a `return condition && expression`--put that in a <Show />
             context.report({
               node: argument,
@@ -163,7 +163,7 @@ export default createRule({
                 const { left: test, right: consequent } = argument;
                 return fixer.replaceText(
                   argument,
-                  `<Show when={${sourceCode.getText(test)}}>${putIntoJSX(consequent)}</Show>`
+                  `<Show when={${sourceCode.getText(test)}}>${putIntoJSX(consequent)}</Show>`,
                 );
               },
             });

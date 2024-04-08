@@ -91,7 +91,7 @@ export default createRule({
     function* fixDestructure(
       func: FunctionNode,
       props: T.ObjectPattern,
-      fixer: TSESLint.RuleFixer
+      fixer: TSESLint.RuleFixer,
     ): Generator<TSESLint.RuleFix> {
       const propsName = "props";
       const properties = props.properties;
@@ -123,7 +123,7 @@ export default createRule({
         yield fixer.replaceText(props, origProps);
       }
 
-      const sourceCode = context.getSourceCode();
+      const sourceCode = context.sourceCode;
 
       const defaultsObjectString = () =>
         propertyInfo
@@ -132,7 +132,7 @@ export default createRule({
             (info) =>
               `${info.computed ? "[" : ""}${sourceCode.getText(info.real)}${
                 info.computed ? "]" : ""
-              }: ${sourceCode.getText(info.init)}`
+              }: ${sourceCode.getText(info.init)}`,
           )
           .join(", ");
       const splitPropsArray = () =>
@@ -140,7 +140,7 @@ export default createRule({
           .map((info) =>
             info.real.type === "Identifier"
               ? JSON.stringify(info.real.name)
-              : sourceCode.getText(info.real)
+              : sourceCode.getText(info.real),
           )
           .join(", ")}]`;
 
@@ -190,7 +190,7 @@ export default createRule({
       if (scope) {
         // iterate through destructured variables, associated with real node
         for (const [info, variable] of propertyInfo.map(
-          (info) => [info, scope.set.get(info.var)] as const
+          (info) => [info, scope.set.get(info.var)] as const,
         )) {
           if (variable) {
             // replace all usages of the variable with props accesses

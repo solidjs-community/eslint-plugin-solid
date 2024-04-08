@@ -25,7 +25,7 @@ type Options = [
     allowGlobals?: boolean;
     autoImport?: boolean;
     typescriptEnabled?: boolean;
-  }?
+  }?,
 ];
 export default createRule<Options, MessageIds>({
   meta: {
@@ -84,10 +84,10 @@ export default createRule<Options, MessageIds>({
       {
         isComponent,
         isCustomDirective,
-      }: { isComponent?: boolean; isCustomDirective?: boolean } = {}
+      }: { isComponent?: boolean; isCustomDirective?: boolean } = {},
     ) {
-      let scope = context.getScope();
-      const sourceCode = context.getSourceCode();
+      const sourceCode = context.sourceCode;
+      let scope = sourceCode.getScope(node);
       const sourceType = sourceCode.ast.sourceType;
       const scopeUpperBound = !allowGlobals && sourceType === "module" ? "module" : "global";
       const variables = [...scope.variables];
@@ -181,7 +181,7 @@ export default createRule<Options, MessageIds>({
               n.type === "ImportDeclaration" &&
               n.importKind !== "type" &&
               n.source.type === "Literal" &&
-              n.source.value === SOURCE_MODULE
+              n.source.value === SOURCE_MODULE,
           ) as T.ImportDeclaration | undefined;
           if (importNode) {
             context.report({
@@ -192,7 +192,7 @@ export default createRule<Options, MessageIds>({
                 source: SOURCE_MODULE,
               },
               fix: (fixer) => {
-                return appendImports(fixer, context.getSourceCode(), importNode, missingComponents);
+                return appendImports(fixer, context.sourceCode, importNode, missingComponents);
               },
             });
           } else {
@@ -205,7 +205,7 @@ export default createRule<Options, MessageIds>({
               },
               fix: (fixer) => {
                 // insert `import { missing, identifiers } from "solid-js"` at top of module
-                return insertImports(fixer, context.getSourceCode(), "solid-js", missingComponents);
+                return insertImports(fixer, context.sourceCode, "solid-js", missingComponents);
               },
             });
           }

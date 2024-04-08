@@ -36,7 +36,7 @@ export const find = (node: T.Node, predicate: (node: T.Node) => boolean): T.Node
 };
 export function findParent<Guard extends T.Node>(
   node: T.Node,
-  predicate: (node: T.Node) => node is Guard
+  predicate: (node: T.Node) => node is Guard,
 ): Guard | null;
 export function findParent(node: T.Node, predicate: (node: T.Node) => boolean): T.Node | null;
 export function findParent(node: T.Node, predicate: (node: T.Node) => boolean): T.Node | null {
@@ -94,11 +94,11 @@ export const isFunctionNode = (node: T.Node | null | undefined): node is Functio
 export type ProgramOrFunctionNode = FunctionNode | T.Program;
 const PROGRAM_OR_FUNCTION_TYPES = ["Program"].concat(FUNCTION_TYPES);
 export const isProgramOrFunctionNode = (
-  node: T.Node | null | undefined
+  node: T.Node | null | undefined,
 ): node is ProgramOrFunctionNode => !!node && PROGRAM_OR_FUNCTION_TYPES.includes(node.type);
 
 export const isJSXElementOrFragment = (
-  node: T.Node | null | undefined
+  node: T.Node | null | undefined,
 ): node is T.JSXElement | T.JSXFragment =>
   node?.type === "JSXElement" || node?.type === "JSXFragment";
 
@@ -118,7 +118,7 @@ export const getFunctionName = (node: FunctionNode): string | null => {
 export function findInScope(
   node: T.Node,
   scope: ProgramOrFunctionNode,
-  predicate: (node: T.Node) => boolean
+  predicate: (node: T.Node) => boolean,
 ): T.Node | null {
   const found = find(node, (node) => node === scope || predicate(node));
   return found === scope && !predicate(node) ? null : found;
@@ -130,7 +130,7 @@ export function findInScope(
 // the same line as `node` (starts).
 export const getCommentBefore = (
   node: T.Node,
-  sourceCode: TSESLint.SourceCode
+  sourceCode: TSESLint.SourceCode,
 ): T.Comment | undefined =>
   sourceCode
     .getCommentsBefore(node)
@@ -140,7 +140,7 @@ export const getCommentBefore = (
 // (ends).
 export const getCommentAfter = (
   node: T.Node,
-  sourceCode: TSESLint.SourceCode
+  sourceCode: TSESLint.SourceCode,
 ): T.Comment | undefined =>
   sourceCode
     .getCommentsAfter(node)
@@ -168,7 +168,7 @@ export function appendImports(
   fixer: TSESLint.RuleFixer,
   sourceCode: TSESLint.SourceCode,
   importNode: T.ImportDeclaration,
-  identifiers: Array<string>
+  identifiers: Array<string>,
 ): TSESLint.RuleFix | null {
   const identifiersString = identifiers.join(", ");
   const reversedSpecifiers = importNode.specifiers.slice().reverse();
@@ -179,7 +179,7 @@ export function appendImports(
     return fixer.insertTextAfter(lastSpecifier, `, ${identifiersString}`);
   }
   const otherSpecifier = importNode.specifiers.find(
-    (s) => s.type === "ImportDefaultSpecifier" || s.type === "ImportNamespaceSpecifier"
+    (s) => s.type === "ImportDefaultSpecifier" || s.type === "ImportNamespaceSpecifier",
   );
   if (otherSpecifier) {
     // import A from 'source' => import A, { B, C, D } from 'source'
@@ -205,7 +205,7 @@ export function insertImports(
   source: string,
   identifiers: Array<string>,
   aboveImport?: T.ImportDeclaration,
-  isType = false
+  isType = false,
 ): TSESLint.RuleFix {
   const identifiersString = identifiers.join(", ");
   const programNode: T.Program = sourceCode.ast;
@@ -215,12 +215,12 @@ export function insertImports(
   if (firstImport) {
     return fixer.insertTextBeforeRange(
       (getCommentBefore(firstImport, sourceCode) ?? firstImport).range,
-      `import ${isType ? "type " : ""}{ ${identifiersString} } from "${source}";\n`
+      `import ${isType ? "type " : ""}{ ${identifiersString} } from "${source}";\n`,
     );
   }
   return fixer.insertTextBeforeRange(
     [0, 0],
-    `import ${isType ? "type " : ""}{ ${identifiersString} } from "${source}";\n`
+    `import ${isType ? "type " : ""}{ ${identifiersString} } from "${source}";\n`,
   );
 }
 
@@ -228,7 +228,7 @@ export function removeSpecifier(
   fixer: TSESLint.RuleFixer,
   sourceCode: TSESLint.SourceCode,
   specifier: T.ImportSpecifier,
-  pure = true
+  pure = true,
 ) {
   const declaration = specifier.parent as T.ImportDeclaration;
   if (declaration.specifiers.length === 1 && pure) {
@@ -281,6 +281,6 @@ export function jsxHasProp(props: Props, prop: string) {
 /** Get a JSXAttribute, excluding spread props. */
 export function jsxGetProp(props: Props, prop: string) {
   return props.find(
-    (attribute) => attribute.type !== "JSXSpreadAttribute" && prop === jsxPropName(attribute)
+    (attribute) => attribute.type !== "JSXSpreadAttribute" && prop === jsxPropName(attribute),
   ) as T.JSXAttribute | undefined;
 }

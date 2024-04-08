@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import path from "path";
 import fs from "fs-extra";
-import markdownMagic from "markdown-magic";
+// @ts-expect-error -- @types/markdown-magic are not updated with latest version
+import { markdownMagic } from "markdown-magic";
 import prettier from "prettier";
 import type { TSESLint } from "@typescript-eslint/utils";
 const plugin = require("../src/index");
@@ -59,13 +60,13 @@ const buildRulesTable = (rows: Array<string>) => {
 const buildHeader = (filename: string): string => {
   const ruleName = filename.replace(/\.md$/, "");
   if (!rules[ruleName]) return " ";
-  const meta: TSESLint.RuleMetaData<never> = rules[ruleName].meta;
+  const meta: TSESLint.RuleMetaData<string, unknown[]> = rules[ruleName].meta;
   return [
     `# solid/${ruleName}`,
     meta.docs?.description,
     `This rule is ${meta.deprecated ? "**deprecated** and " : ""}**${getLevelForRule(
       `solid/${ruleName}`,
-      formatLevel
+      formatLevel,
     )}** by default.\n`,
     `[View source](../src/rules/${ruleName}.ts) · [View tests](../test/rules/${ruleName}.test.ts)\n`,
   ].join("\n");
@@ -104,13 +105,14 @@ const buildOptions = (filename: string): string => {
   ].join("\n");
 };
 
-const pretty = (code: string) => prettier.format(code, { parser: "typescript" }).trim();
+const pretty = async (code: string) =>
+  (await prettier.format(code, { parser: "typescript" })).trim();
 const options = (options: Array<any>) =>
   options
     .map((o) =>
       JSON.stringify(o)
         .replace(/([,{:])/g, "$1 ")
-        .replace(/[}]/g, " }")
+        .replace(/[}]/g, " }"),
     )
     .join(", ");
 

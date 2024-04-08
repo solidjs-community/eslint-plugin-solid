@@ -56,7 +56,7 @@ export default createRule<Options, MessageIds>({
           ["class", "className"].indexOf(jsxPropName(node)) === -1 ||
           jsxHasProp(
             (node.parent as T.JSXOpeningElement | undefined)?.attributes ?? [],
-            "classlist"
+            "classlist",
           )
         ) {
           return;

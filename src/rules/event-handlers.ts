@@ -79,7 +79,7 @@ const COMMON_EVENTS_MAP = new Map<string, CommonEvent>(
     for (const event of COMMON_EVENTS) {
       yield [event.toLowerCase(), event] as const;
     }
-  })()
+  })(),
 );
 
 const NONSTANDARD_EVENTS_MAP = {
@@ -87,13 +87,13 @@ const NONSTANDARD_EVENTS_MAP = {
 };
 
 const isCommonHandlerName = (
-  lowercaseHandlerName: string
+  lowercaseHandlerName: string,
 ): lowercaseHandlerName is Lowercase<CommonEvent> => COMMON_EVENTS_MAP.has(lowercaseHandlerName);
 const getCommonEventHandlerName = (lowercaseHandlerName: Lowercase<CommonEvent>): CommonEvent =>
   COMMON_EVENTS_MAP.get(lowercaseHandlerName)!;
 
 const isNonstandardEventName = (
-  lowercaseEventName: string
+  lowercaseEventName: string,
 ): lowercaseEventName is keyof typeof NONSTANDARD_EVENTS_MAP =>
   Boolean((NONSTANDARD_EVENTS_MAP as Record<string, string>)[lowercaseEventName]);
 const getStandardEventHandlerName = (lowercaseEventName: keyof typeof NONSTANDARD_EVENTS_MAP) =>
@@ -155,7 +155,7 @@ export default createRule<Options, MessageIds>({
   },
   defaultOptions: [],
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
 
     return {
       JSXAttribute(node) {
@@ -289,14 +289,14 @@ export default createRule<Options, MessageIds>({
                   yield fixer.remove(
                     (node.parent as T.ObjectExpression).properties.length === 1
                       ? node.parent!.parent!
-                      : node
+                      : node,
                   );
                   if (commaAfter?.value === ",") {
                     yield fixer.remove(commaAfter);
                   }
                   yield fixer.insertTextAfter(
                     node.parent!.parent!,
-                    ` ${handlerName}={${sourceCode.getText(node.value)}}`
+                    ` ${handlerName}={${sourceCode.getText(node.value)}}`,
                   );
                 },
               });
