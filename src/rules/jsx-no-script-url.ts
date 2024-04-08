@@ -45,7 +45,7 @@ export default createRule({
         if (node.name.type === "JSXIdentifier" && node.value) {
           const link: { value: unknown } | null = getStaticValue(
             node.value.type === "JSXExpressionContainer" ? node.value.expression : node.value,
-            context.getScope(),
+            context.sourceCode.getScope(node),
           );
           if (link && typeof link.value === "string" && isJavaScriptProtocol.test(link.value)) {
             context.report({

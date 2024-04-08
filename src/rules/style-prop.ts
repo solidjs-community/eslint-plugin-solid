@@ -103,7 +103,7 @@ export default createRule<Options, MessageIds>({
             (prop) => prop.type === "Property",
           ) as Array<T.Property>;
           properties.forEach((prop) => {
-            const name: string | null = getPropertyName(prop, context.getScope());
+            const name: string | null = getPropertyName(prop, context.sourceCode.getScope(style));
             if (name && !name.startsWith("--") && !allCssPropertiesSet.has(name)) {
               const kebabName: string = kebabCase(name);
               if (allCssPropertiesSet.has(kebabName)) {

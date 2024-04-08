@@ -183,7 +183,10 @@ export default createRule<Options, MessageIds>({
           node.value?.type === "JSXExpressionContainer" &&
           node.value.expression.type !== "JSXEmptyExpression" &&
           node.value.expression.type !== "ArrayExpression" && // array syntax prevents inlining
-          (staticValue = getStaticValue(node.value.expression, context.getScope())) !== null &&
+          (staticValue = getStaticValue(
+            node.value.expression,
+            context.sourceCode.getScope(node),
+          )) !== null &&
           (typeof staticValue.value === "string" || typeof staticValue.value === "number")
         ) {
           // One of the first things Solid (actually babel-plugin-dom-expressions) does with an

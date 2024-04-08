@@ -307,7 +307,7 @@ export default createRule<Options, MessageIds>({
         cb(node.params[0])
       ) {
         // This function is a component, consider its parameter a props
-        const propsParam = findVariable(context.getScope(), node.params[0]);
+        const propsParam = findVariable(context.sourceCode.getScope(node), node.params[0]);
         if (propsParam) {
           scopeStack.pushProps(propsParam, node);
         }
@@ -674,7 +674,11 @@ export default createRule<Options, MessageIds>({
           // Allow using reactive variables in state setter if the current scope is tracked.
           // ex.  const [state, setState] = createStore({ ... });
           //      setState(() => ({ preferredName: state.firstName, lastName: "Milner" }));
-          const setter = getNthDestructuredVar(node.parent.id, 1, context.getScope());
+          const setter = getNthDestructuredVar(
+            node.parent.id,
+            1,
+            context.sourceCode.getScope(node.parent),
+          );
           if (setter) {
             for (const reference of setter.references) {
               const { identifier } = reference;
@@ -715,14 +719,14 @@ export default createRule<Options, MessageIds>({
       if (init.type === "CallExpression" && init.callee.type === "Identifier") {
         const { callee } = init;
         if (matchImport(["createSignal", "useTransition"], callee.name)) {
-          const signal = id && getNthDestructuredVar(id, 0, context.getScope());
+          const signal = id && getNthDestructuredVar(id, 0, context.sourceCode.getScope(init));
           if (signal) {
             scopeStack.pushSignal(signal, currentScope().node);
           } else {
             warnShouldDestructure(id ?? init, "first");
           }
         } else if (matchImport(["createMemo", "createSelector"], callee.name)) {
-          const memo = id && getReturnedVar(id, context.getScope());
+          const memo = id && getReturnedVar(id, context.sourceCode.getScope(init));
           // memos act like signals
           if (memo) {
             scopeStack.pushSignal(memo, currentScope().node);
@@ -730,7 +734,7 @@ export default createRule<Options, MessageIds>({
             warnShouldAssign(id ?? init);
           }
         } else if (matchImport("createStore", callee.name)) {
-          const store = id && getNthDestructuredVar(id, 0, context.getScope());
+          const store = id && getNthDestructuredVar(id, 0, context.sourceCode.getScope(init));
           // stores act like props
           if (store) {
             scopeStack.pushProps(store, currentScope().node);
@@ -738,7 +742,7 @@ export default createRule<Options, MessageIds>({
             warnShouldDestructure(id ?? init, "first");
           }
         } else if (matchImport("mergeProps", callee.name)) {
-          const merged = id && getReturnedVar(id, context.getScope());
+          const merged = id && getReturnedVar(id, context.sourceCode.getScope(init));
           if (merged) {
             scopeStack.pushProps(merged, currentScope().node);
           } else {
@@ -748,7 +752,7 @@ export default createRule<Options, MessageIds>({
           // splitProps can return an unbounded array of props variables, though it's most often two
           if (id?.type === "ArrayPattern") {
             const vars = id.elements
-              .map((_, i) => getNthDestructuredVar(id, i, context.getScope()))
+              .map((_, i) => getNthDestructuredVar(id, i, context.sourceCode.getScope(init)))
               .filter(Boolean) as Array<Variable>;
             if (vars.length === 0) {
               warnShouldDestructure(id);
@@ -759,19 +763,20 @@ export default createRule<Options, MessageIds>({
             }
           } else {
             // if it's returned as an array, treat that as a props object
-            const vars = id && getReturnedVar(id, context.getScope());
+            const vars = id && getReturnedVar(id, context.sourceCode.getScope(init));
             if (vars) {
               scopeStack.pushProps(vars, currentScope().node);
             }
           }
         } else if (matchImport("createResource", callee.name)) {
           // createResource return value has reactive .loading and .error
-          const resourceReturn = id && getNthDestructuredVar(id, 0, context.getScope());
+          const resourceReturn =
+            id && getNthDestructuredVar(id, 0, context.sourceCode.getScope(init));
           if (resourceReturn) {
             scopeStack.pushProps(resourceReturn, currentScope().node);
           }
         } else if (matchImport("createMutable", callee.name)) {
-          const mutable = id && getReturnedVar(id, context.getScope());
+          const mutable = id && getReturnedVar(id, context.sourceCode.getScope(init));
           if (mutable) {
             scopeStack.pushProps(mutable, currentScope().node);
           }
@@ -782,7 +787,7 @@ export default createRule<Options, MessageIds>({
             arg1.params.length >= 2 &&
             arg1.params[1].type === "Identifier"
           ) {
-            const indexSignal = findVariable(context.getScope(), arg1.params[1]);
+            const indexSignal = findVariable(context.sourceCode.getScope(init), arg1.params[1]);
             if (indexSignal) {
               scopeStack.pushSignal(indexSignal);
             }
@@ -794,7 +799,7 @@ export default createRule<Options, MessageIds>({
             arg1.params.length >= 1 &&
             arg1.params[0].type === "Identifier"
           ) {
-            const valueSignal = findVariable(context.getScope(), arg1.params[0]);
+            const valueSignal = findVariable(context.sourceCode.getScope(init), arg1.params[0]);
             if (valueSignal) {
               scopeStack.pushSignal(valueSignal);
             }
@@ -831,7 +836,7 @@ export default createRule<Options, MessageIds>({
         traverse(node as any, {
           enter(cn) {
             const childNode = cn as T.Node;
-            const traced = trace(childNode, context.getScope());
+            const traced = trace(childNode, context.sourceCode.getScope(node));
             // when referencing a function or something that could be a derived signal, track it
             if (
               isFunctionNode(traced) ||
@@ -1020,7 +1025,8 @@ export default createRule<Options, MessageIds>({
             // can't be done, assume it's a tracked scope.
             if (arg1) {
               let isTrackedScope = true;
-              const owner = arg0.type === "Identifier" && findVariable(context.getScope(), arg0);
+              const owner =
+                arg0.type === "Identifier" && findVariable(context.sourceCode.getScope(node), arg0);
               if (owner) {
                 const decl = owner.defs[0];
                 if (
@@ -1089,7 +1095,7 @@ export default createRule<Options, MessageIds>({
         // track function's references where it's called push a tracked scope.
         if (node.init?.type === "CallExpression" && node.init.callee.type === "Identifier") {
           if (matchImport(["createReactive", "createReaction"], node.init.callee.name)) {
-            const track = getReturnedVar(node.id, context.getScope());
+            const track = getReturnedVar(node.id, context.sourceCode.getScope(node));
             if (track) {
               for (const reference of track.references) {
                 if (
@@ -1134,7 +1140,7 @@ export default createRule<Options, MessageIds>({
             // exception case: add a reactive variable within checkForTrackedScopes when a param is props
             for (const param of expression.params) {
               if (param.type === "Identifier" && isPropsByName(param.name)) {
-                const variable = findVariable(context.getScope(), param);
+                const variable = findVariable(context.sourceCode.getScope(node), param);
                 if (variable) scopeStack.pushProps(variable, currentScope().node);
               }
             }
@@ -1195,7 +1201,7 @@ export default createRule<Options, MessageIds>({
               node.params[1].type === "Identifier"
             ) {
               // Mark `index` in `<For>{(item, index) => <div /></For>` as a signal
-              const index = findVariable(context.getScope(), node.params[1]);
+              const index = findVariable(context.sourceCode.getScope(node), node.params[1]);
               if (index) {
                 scopeStack.pushSignal(index, currentScope().node);
               }
@@ -1205,7 +1211,7 @@ export default createRule<Options, MessageIds>({
               node.params[0].type === "Identifier"
             ) {
               // Mark `item` in `<Index>{(item, index) => <div />}</Index>` as a signal
-              const item = findVariable(context.getScope(), node.params[0]);
+              const item = findVariable(context.sourceCode.getScope(node), node.params[0]);
               if (item) {
                 scopeStack.pushSignal(item, currentScope().node);
               }
