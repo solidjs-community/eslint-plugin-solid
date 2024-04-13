@@ -12,7 +12,7 @@ export default {
     interop: "auto",
     freeze: false,
     sourcemap: true,
-    file: "dist.mjs",
+    file: "dist.js",
   },
   external: ["vs/language/typescript/tsWorker", "typescript"],
   plugins: [

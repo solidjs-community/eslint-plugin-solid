@@ -2,13 +2,14 @@
   "name": "eslint-solid-standalone",
   "version": "0.13.2",
   "description": "A bundle with eslint and eslint-plugin-solid that can be used in the browser.",
+  "type": "module",
   "files": [
-    "dist.mjs",
+    "dist.js",
     "dist.d.ts",
-    "dist.mjs.map",
+    "dist.js.map",
     "README.md"
   ],
-  "main": "dist.mjs",
+  "main": "dist.js",
   "types": "dist.d.ts",
   "repository": "https://github.com/solidjs-community/eslint-plugin-solid",
   "author": "Josh Wilson <joshwilsonvu@gmail.com>",

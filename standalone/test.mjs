@@ -6,7 +6,7 @@ import vm from "node:vm";
 import typescript from "typescript";
 
 /**
- * Test that dist.mjs can be run in a clean environment without Node or browser APIs, that it won't
+ * Test that dist.js can be run in a clean environment without Node or browser APIs, that it won't
  * crash, and that it will produce expected results. Code in, lints/fixes out is all it needs to do.
  */
 
@@ -17,8 +17,8 @@ const context = vm.createContext({
 });
 
 // create a module with the standalone build
-const code = fs.readFileSync(path.resolve("dist.mjs"), "utf-8");
-const dist = new vm.SourceTextModule(code, { identifier: "dist.mjs", context });
+const code = fs.readFileSync(path.resolve("dist.js"), "utf-8");
+const dist = new vm.SourceTextModule(code, { identifier: "dist.js", context });
 
 // create a module reexporting typescript, a peer dependency of the standalone build
 const ts = new vm.SourceTextModule("export default _TYPESCRIPT_GLOBAL", {
@@ -29,7 +29,7 @@ const ts = new vm.SourceTextModule("export default _TYPESCRIPT_GLOBAL", {
 // create a module that tests the build with `assert`
 const test = new vm.SourceTextModule(
   `
-import { plugin, pluginVersion, eslintVersion, verify, verifyAndFix } from "dist.mjs";
+import { plugin, pluginVersion, eslintVersion, verify, verifyAndFix } from "dist.js";
 
 // check no Node APIs are present, except injected 'assert' and '_TYPESCRIPT_GLOBAL'
 assert.equal(Object.keys(globalThis).length, 2);
@@ -72,7 +72,7 @@ assert.deepStrictEqual(verifyAndFix('let el = <div className="red" />'), {
 const linker = (specifier) => {
   const mod = {
     typescript: ts,
-    "dist.mjs": dist,
+    "dist.js": dist,
   }[specifier];
   if (!mod) {
     throw new Error("can't import other modules");
