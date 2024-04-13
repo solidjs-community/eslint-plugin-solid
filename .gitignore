@@ -1,7 +1,6 @@
 # Build directory
 dist
-standalone/dist.mjs
-standalone/dist.mjs.map
+dist.*
 
 # Logs
 logs
