@@ -645,6 +645,10 @@ function createFoo(v) {}
 const [bar, setBar] = createSignal();
 createFoo([bar]);
 
+function createFoo(v) {}
+const [bar, setBar] = createSignal();
+createFoo({ onBar: () => bar() } as object);
+
 const [bar, setBar] = createSignal();
 X.createFoo(() => bar());
 
@@ -811,6 +815,10 @@ const m = createMemo(() => 5)!;
 const m = createMemo(() => 5)! as Accessor<number>;
 
 const m = createMemo(() => 5) satisfies Accessor<number>;
+
+const [s] = createSignal("a" as string);
+
+createFoo("a" as string);
 
 function Component(props) {
   return (

@@ -158,9 +158,12 @@ export const cases = run("reactivity", rule, {
     `function createFoo(v) {}
     const [bar, setBar] = createSignal();
     createFoo([bar]);`,
-    // `function createFoo(v) {}
-    // const [bar, setBar] = createSignal();
-    // createFoo((() => () => bar())());`,
+    {
+      code: `function createFoo(v) {}
+      const [bar, setBar] = createSignal();
+      createFoo({ onBar: () => bar() } as object);`,
+      ...tsOnlyTest,
+    },
     `const [bar, setBar] = createSignal();
     X.createFoo(() => bar());`,
     `const [bar, setBar] = createSignal();
@@ -306,6 +309,14 @@ export const cases = run("reactivity", rule, {
     },
     {
       code: `const m = createMemo(() => 5) satisfies Accessor<number>;`,
+      ...tsOnlyTest,
+    },
+    {
+      code: `const [s] = createSignal('a' as string)`,
+      ...tsOnlyTest,
+    },
+    {
+      code: `createFoo('a' as string)`,
       ...tsOnlyTest,
     },
     // functions in JSXExpressionContainers
