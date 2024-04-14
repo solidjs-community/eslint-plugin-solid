@@ -3,6 +3,9 @@ on:
   push:
     branches-ignore:
       - reactivity-v2
+  pull_request:
+    branches:
+      - main
 jobs:
   build:
     name: Build
