@@ -133,7 +133,7 @@ For TypeScript:
 
 ```js
 import js from "@eslint/js";
-import solid from 'eslint-plugin-solid/configs/typescript';
+import solid from "eslint-plugin-solid/configs/typescript";
 import * as tsParser from "@typescript-eslint/parser";
 
 export default [
@@ -144,11 +144,11 @@ export default [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: 'tsconfig.json',
+        project: "tsconfig.json",
       },
     },
   },
-]
+];
 ```
 
 These configurations do not configure global variables in ESLint. You can do this yourself manually
@@ -158,6 +158,8 @@ as well as at least ES2015.
 
 Note for the ESLint VSCode Extension: Enable the "Use Flat Config" setting for your workspace to
 enable Flat Config support.
+
+Flat configs are also available as `plugin.configs['flat/recommended']` and `plugin.configs['flat/typescript']`, after using `import plugin from 'eslint-plugin-solid'`.
 
 ## Rules
 
