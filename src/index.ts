@@ -33,6 +33,8 @@ const pluginLegacy = {
       },
       rules: typescriptConfig.rules,
     },
+    "flat/recommended": recommendedConfig,
+    "flat/typescript": typescriptConfig,
   },
 };
 
