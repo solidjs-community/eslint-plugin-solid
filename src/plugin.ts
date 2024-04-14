@@ -28,6 +28,11 @@ import styleProp from "./rules/style-prop";
 import noArrayHandlers from "./rules/no-array-handlers";
 // import validateJsxNesting from "./rules/validate-jsx-nesting";
 
+// Use require() so that `package.json` doesn't get copied to `dist`
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { name, version } = require("../package.json");
+const meta = { name, version };
+
 const allRules = {
   "components-return-once": componentsReturnOnce,
   "event-handlers": eventHandlers,
@@ -52,4 +57,4 @@ const allRules = {
   // "validate-jsx-nesting": validateJsxNesting
 };
 
-export const plugin = { rules: allRules };
+export const plugin = { meta, rules: allRules };
