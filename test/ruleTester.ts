@@ -1,45 +1,69 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-expect-error no types yet
 import { RuleTester } from "eslint";
-// @ts-ignore
 import { RuleTester as RuleTester_v6 } from "eslint-v6";
-// @ts-ignore
 import { RuleTester as RuleTester_v7 } from "eslint-v7";
-// @ts-ignore
 import { RuleTester as RuleTester_v8 } from "eslint-v8";
 import type { TSESLint } from "@typescript-eslint/utils";
+import tseslint from "typescript-eslint";
+// @ts-expect-error no types here
+import * as babelEslintParser from "@babel/eslint-parser";
+
+// add `[tsOnly]: true` into a test case to enforce it only runs with a TS parser
+export const tsOnly = Symbol("ts only");
 
 // The default parser
-const jsxTester = new RuleTester({
+const v9Tester = new RuleTester({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: "module",
+    parserOptions: {
+      ecmaFeatures: {
+        jsx: true,
+      },
+    },
+  },
+});
+
+// TypeScript's ESLint parser
+const tsTester = new RuleTester({
+  languageOptions: {
+    parser: tseslint.parser,
+    parserOptions: {
+      ecmaFeatures: {
+        jsx: true,
+      },
+    },
+  },
+});
+
+const tsV8Tester = new RuleTester_v8({
+  parser: require.resolve("@typescript-eslint/parser"),
+  parserOptions: {
     ecmaFeatures: {
       jsx: true,
     },
   },
 });
 
-// spread ...tsOnlyTest into a test case to enforce it always runs with the TS parser
-export const tsOnlyTest = {
-  parser: require.resolve("@typescript-eslint/parser"),
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: "module",
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-};
-
-// TypeScript's ESLint parser
-const tsTester = new RuleTester(tsOnlyTest);
-
 // Babel's ESLint parser
 const babelTester = new RuleTester({
+  languageOptions: {
+    parser: babelEslintParser,
+    parserOptions: {
+      requireConfigFile: false,
+      babelOptions: {
+        parserOpts: {
+          plugins: ["jsx", "typescript"],
+        },
+      },
+    },
+  },
+});
+
+const babelV8Tester = new RuleTester_v8({
   parser: require.resolve("@babel/eslint-parser"),
   parserOptions: {
     sourceType: "module",
-    // @ts-ignore
     requireConfigFile: false,
     babelOptions: {
       parserOpts: {
@@ -80,49 +104,48 @@ const v8Tester = new RuleTester_v8({
 });
 
 interface Tests {
-  valid?: Array<(RuleTester.ValidTestCase & { tsOnly?: boolean }) | string>;
-  invalid?: Array<RuleTester.InvalidTestCase & { tsOnly?: boolean }>;
+  valid?: Array<(TSESLint.ValidTestCase<unknown[]> & { [tsOnly]?: boolean }) | string>;
+  invalid?: Array<TSESLint.InvalidTestCase<never, unknown[]> & { [tsOnly]?: boolean }>;
 }
 export const run = (
   name: string,
   rule: TSESLint.RuleModule<never, Array<unknown>>,
   tests: Tests
 ) => {
-  const jsOnlyPredicate = (test: { tsOnly?: boolean } | string) =>
-    !(typeof test === "object" && test.tsOnly);
+  const jsOnlyPredicate = (test: { [tsOnly]?: boolean } | string) =>
+    !(typeof test === "object" && test[tsOnly]);
   const jsTests = {
     valid: tests.valid?.filter(jsOnlyPredicate) as Array<RuleTester.ValidTestCase | string>,
     invalid: tests.invalid?.filter(jsOnlyPredicate) as Array<RuleTester.InvalidTestCase>,
   };
-  switch (process.env.PARSER) {
-    case "ts":
-      describe("@typescript-eslint/parser", () => tsTester.run(name, rule, tests));
-      break;
-    case "babel":
-      describe("@babel/eslint-parser", () => babelTester.run(name, rule, tests));
-      break;
-    case "v6":
-      describe("eslint v6", () => v6Tester.run(name, rule, jsTests));
-      break;
-    case "v7":
-      describe("eslint v7", () => v7Tester.run(name, rule, jsTests));
-      break;
-    case "v8":
-      describe("eslint v8", () => v8Tester.run(name, rule, jsTests));
-      break;
-    case "all":
-      describe("esprima", () => jsxTester.run(name, rule, jsTests));
-      describe("@typescript-eslint/parser", () => tsTester.run(name, rule, tests));
-      describe("@babel/eslint-parser", () => babelTester.run(name, rule, tests));
-      describe("eslint v6", () => v6Tester.run(name, rule, jsTests));
-      describe("eslint v7", () => v7Tester.run(name, rule, jsTests));
-      describe("eslint v8", () => v8Tester.run(name, rule, jsTests));
-      break;
-    case "none":
-      break;
-    default:
-      describe("esprima", () => jsxTester.run(name, rule, jsTests));
-      break;
+
+  const parser = process.env.PARSER ?? "ts";
+  const all = parser === "all";
+
+  if (all || parser === "ts") {
+    describe("typescript-eslint", () => tsTester.run(name, rule, tests));
   }
+  if (all || parser === "ts_v8") {
+    describe("@typescript-eslint/parser", () => tsV8Tester.run(name, rule as any, tests as any));
+  }
+  if (all || parser === "babel") {
+    describe("@babel/eslint-parser", () => babelTester.run(name, rule, tests));
+  }
+  if (all || parser === "babel_v8") {
+    describe("@babel/eslint-parser v8", () => babelV8Tester.run(name, rule as any, tests as any));
+  }
+  if (all || parser === "v6") {
+    describe("eslint v6", () => v6Tester.run(name, rule as any, jsTests));
+  }
+  if (all || parser === "v7") {
+    describe("eslint v7", () => v7Tester.run(name, rule as any, jsTests));
+  }
+  if (all || parser === "v8") {
+    describe("eslint v8", () => v8Tester.run(name, rule as any, jsTests));
+  }
+  if (all || parser === "v9") {
+    describe("eslint v9", () => v9Tester.run(name, rule, jsTests));
+  }
+
   return tests;
 };

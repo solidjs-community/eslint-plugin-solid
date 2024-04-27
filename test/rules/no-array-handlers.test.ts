@@ -1,4 +1,4 @@
-import { tsOnlyTest, run } from "../ruleTester";
+import { run, tsOnly } from "../ruleTester";
 import rule from "../../src/rules/no-array-handlers";
 
 export const cases = run("no-array-handlers", rule, {
@@ -21,7 +21,7 @@ export const cases = run("no-array-handlers", rule, {
       code: `function Component() {
       return <div onClick={[(n: number) => n*n, 2] as SafeArray<number>} />;
     }`,
-      ...tsOnlyTest,
+      [tsOnly]: true,
     },
   ],
   invalid: [
@@ -32,7 +32,7 @@ export const cases = run("no-array-handlers", rule, {
     {
       code: `let el = <button onClick={[(k: string) => k.toUpperCase(), 'hello']} />`,
       errors: [{ messageId: "noArrayHandlers" }],
-      ...tsOnlyTest,
+      [tsOnly]: true,
     },
     {
       code: `let el = <div onMouseOver={[1,2,3]} />`,
@@ -61,7 +61,7 @@ export const cases = run("no-array-handlers", rule, {
       return <div onClick={arr} />;
     }`,
       errors: [{ messageId: "noArrayHandlers" }],
-      ...tsOnlyTest,
+      [tsOnly]: true,
     },
   ],
 });
