@@ -28,7 +28,7 @@ jobs:
       - name: Run build
         run: pnpm run build
       - name: Lint source code
-        run: pnpm run lint -- --max-warnings=0
+        run: pnpm run lint --max-warnings=0
       - name: Run all tests
         run: pnpm run test:all
       - name: Sanity check standalone build
