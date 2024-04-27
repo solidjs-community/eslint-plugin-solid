@@ -37,9 +37,14 @@ export function findVariable(context: CompatContext, node: TSESTree.Identifier) 
   return ASTUtils.findVariable(getScope(context, node), node);
 }
 
-export function markVariableAsUsed(context: CompatContext, name: string, node: TSESTree.Node) {
+export function markVariableAsUsed(
+  context: CompatContext,
+  name: string,
+  node: TSESTree.Node
+): void {
   if (typeof context.markVariableAsUsed === "function") {
     context.markVariableAsUsed(name);
+  } else {
+    getSourceCode(context).markVariableAsUsed(name, node);
   }
-  getSourceCode(context).markVariableAsUsed(name, node);
 }
