@@ -1,3 +1,5 @@
+import { test, expect } from "vitest";
+
 import path from "path";
 // @ts-expect-error Type definitions not updated to include FlatESLint
 import { ESLint as FlatESLint } from "eslint";

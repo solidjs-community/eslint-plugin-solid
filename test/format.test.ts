@@ -1,3 +1,5 @@
+import { test, expect } from "vitest";
+
 import recommendedConfig from "eslint-plugin-solid/configs/recommended";
 import typescriptConfig from "eslint-plugin-solid/configs/typescript";
 import plugin from "eslint-plugin-solid";
