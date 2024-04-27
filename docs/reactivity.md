@@ -319,11 +319,6 @@ const Component = () => {
 };
  
 const Component = () => {
-  const [signal] = createSignal();
-  return <div>{signal}</div>;
-};
- 
-const Component = () => {
   const [signal] = createSignal("world");
   const memo = createMemo(() => "hello " + signal);
 };

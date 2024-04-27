@@ -5,5 +5,5 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": ["src", "configs", "test", "scripts", "standalone", "jest.setup.js"]
+  "include": ["src", "configs", "test", "scripts", "standalone", "vitest.*"]
 }

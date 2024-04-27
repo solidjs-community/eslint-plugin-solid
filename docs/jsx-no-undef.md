@@ -44,8 +44,6 @@ let el = <div use:X />;
  
 let el = <div use:X={{}} />;
  
-let el = <div use:X />;
- 
 /* eslint solid/jsx-no-undef: ["error", { "allowGlobals": true }] */
 let el = <div use:X />;
  
@@ -160,12 +158,6 @@ let X,
 
 let Component,
   X = <Component use:X />;
-
-/* eslint solid/jsx-no-undef: ["error", { "allowGlobals": true }] */
-let el = <div use:X />;
-
-/* eslint solid/jsx-no-undef: ["error", { "allowGlobals": true }] */
-let el = <div use:X />;
 
 /* eslint solid/jsx-no-undef: ["error", { "typescriptEnabled": true }] */
 let el = <Component />;

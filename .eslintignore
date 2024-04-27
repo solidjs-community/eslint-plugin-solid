@@ -2,5 +2,3 @@ dist
 dist.*
 ./configs
 node_modules
-jest.config.js
-jest.setup.js

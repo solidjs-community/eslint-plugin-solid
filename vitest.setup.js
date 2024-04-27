@@ -1,11 +1,10 @@
-/* eslint-env jest */
-// beforeAll(() => {
+import { vi } from "vitest";
+
 // Don't bother checking for imports for every test
-jest.mock("./src/utils", () => {
+vi.mock("./src/utils", async (importOriginal) => {
   return {
-    ...jest.requireActual("./src/utils"),
+    ...(await importOriginal()),
     trackImports: () => {
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       const handleImportDeclaration = () => {};
       const matchImport = (imports, str) => {
         const importArr = Array.isArray(imports) ? imports : [imports];
