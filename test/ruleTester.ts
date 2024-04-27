@@ -7,6 +7,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 import tseslint from "typescript-eslint";
 // @ts-expect-error no types here
 import * as babelEslintParser from "@babel/eslint-parser";
+import { describe } from "vitest";
 
 // add `[tsOnly]: true` into a test case to enforce it only runs with a TS parser
 export const tsOnly = Symbol("ts only");
@@ -105,11 +106,11 @@ const v8Tester = new RuleTester_v8({
 
 interface Tests {
   valid?: Array<(TSESLint.ValidTestCase<unknown[]> & { [tsOnly]?: boolean }) | string>;
-  invalid?: Array<TSESLint.InvalidTestCase<never, unknown[]> & { [tsOnly]?: boolean }>;
+  invalid?: Array<TSESLint.InvalidTestCase<string, unknown[]> & { [tsOnly]?: boolean }>;
 }
 export const run = (
   name: string,
-  rule: TSESLint.RuleModule<never, Array<unknown>>,
+  rule: TSESLint.RuleModule<string, Array<unknown>>,
   tests: Tests
 ) => {
   const jsOnlyPredicate = (test: { [tsOnly]?: boolean } | string) =>

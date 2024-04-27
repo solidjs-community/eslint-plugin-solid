@@ -11,6 +11,7 @@ import kebabCase from "kebab-case";
 import { all as allCssProperties } from "known-css-properties";
 import parse from "style-to-object";
 import { jsxPropName } from "../utils";
+import { getScope } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getPropertyName, getStaticValue } = ASTUtils;
@@ -103,7 +104,7 @@ export default createRule<Options, MessageIds>({
             (prop) => prop.type === "Property"
           ) as Array<T.Property>;
           properties.forEach((prop) => {
-            const name: string | null = getPropertyName(prop, context.getScope());
+            const name: string | null = getPropertyName(prop, getScope(context, prop));
             if (name && !name.startsWith("--") && !allCssPropertiesSet.has(name)) {
               const kebabName: string = kebabCase(name);
               if (allCssPropertiesSet.has(kebabName)) {

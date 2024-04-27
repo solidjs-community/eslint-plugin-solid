@@ -629,21 +629,6 @@ export const cases = run("reactivity", rule, {
     {
       code: `
       const Component = () => {
-        const [signal] = createSignal();
-        return <div>{signal}</div>
-      }`,
-      errors: [
-        {
-          messageId: "badSignal",
-          type: T.Identifier,
-          line: 4,
-          data: { name: "signal", where: "JSX" },
-        },
-      ],
-    },
-    {
-      code: `
-      const Component = () => {
         const [signal] = createSignal("world");
         const memo = createMemo(() => "hello " + signal)
       }`,

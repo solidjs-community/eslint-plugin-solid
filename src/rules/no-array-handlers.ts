@@ -43,7 +43,7 @@ export default createRule({
         if (
           (isNamespacedHandler || isNormalEventHandler) &&
           node.value?.type === "JSXExpressionContainer" &&
-          trace(node.value.expression, context.getScope()).type === "ArrayExpression"
+          trace(node.value.expression, context).type === "ArrayExpression"
         ) {
           // Warn if passed an array
           context.report({

@@ -7,6 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+import { markVariableAsUsed } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -37,7 +38,7 @@ export default createRule({
           case "JSXNamespacedName": // <Foo:Bar>
             return;
           case "JSXIdentifier": // <Foo>
-            context.markVariableAsUsed(node.name.name);
+            markVariableAsUsed(context, node.name.name, node.name);
             break;
           case "JSXMemberExpression": // <Foo...Bar>
             parent = node.name.object;
@@ -45,7 +46,7 @@ export default createRule({
               parent = parent.object;
             }
             if (parent.type === "JSXIdentifier") {
-              context.markVariableAsUsed(parent.name);
+              markVariableAsUsed(context, parent.name, parent);
             }
             break;
         }
@@ -57,7 +58,7 @@ export default createRule({
           node.namespace.name === "use" &&
           node.name?.type === "JSXIdentifier"
         ) {
-          context.markVariableAsUsed(node.name.name);
+          markVariableAsUsed(context, node.name.name, node.name);
         }
       },
     };

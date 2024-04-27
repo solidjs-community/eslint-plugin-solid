@@ -8,6 +8,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { isDOMElementName, formatList, appendImports, insertImports } from "../utils";
+import { getScope, getSourceCode } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -86,8 +87,8 @@ export default createRule<Options, MessageIds>({
         isCustomDirective,
       }: { isComponent?: boolean; isCustomDirective?: boolean } = {}
     ) {
-      let scope = context.getScope();
-      const sourceCode = context.getSourceCode();
+      let scope = getScope(context, node);
+      const sourceCode = getSourceCode(context);
       const sourceType = sourceCode.ast.sourceType;
       const scopeUpperBound = !allowGlobals && sourceType === "module" ? "module" : "global";
       const variables = [...scope.variables];
@@ -192,7 +193,7 @@ export default createRule<Options, MessageIds>({
                 source: SOURCE_MODULE,
               },
               fix: (fixer) => {
-                return appendImports(fixer, context.getSourceCode(), importNode, missingComponents);
+                return appendImports(fixer, getSourceCode(context), importNode, missingComponents);
               },
             });
           } else {
@@ -205,7 +206,7 @@ export default createRule<Options, MessageIds>({
               },
               fix: (fixer) => {
                 // insert `import { missing, identifiers } from "solid-js"` at top of module
-                return insertImports(fixer, context.getSourceCode(), "solid-js", missingComponents);
+                return insertImports(fixer, getSourceCode(context), "solid-js", missingComponents);
               },
             });
           }

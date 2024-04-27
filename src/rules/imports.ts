@@ -1,5 +1,6 @@
 import { TSESTree as T, TSESLint, ESLintUtils } from "@typescript-eslint/utils";
 import { appendImports, insertImports, removeSpecifier } from "../utils";
+import { getSourceCode } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -158,7 +159,7 @@ export default createRule({
                   source: correctSource,
                 },
                 fix(fixer) {
-                  const sourceCode = context.getSourceCode();
+                  const sourceCode = getSourceCode(context);
                   const program: T.Program = sourceCode.ast;
                   const correctDeclaration = program.body.find(
                     (node) =>

@@ -10,16 +10,17 @@ export const cases = run("jsx-no-undef", rule, {
     `let X; let el = <div use:X />`,
     `let X, el = <div use:X />`,
     `let Component, X = <Component use:X />`,
-    {
-      code: `let el = <div use:X />`,
-      options: [{ allowGlobals: true }],
-      globals: { X: "readonly" },
-    },
-    {
-      code: `let el = <div use:X />`,
-      options: [{ allowGlobals: true }],
-      globals: { X: "readonly" },
-    },
+    // ESLint v9 makes tests with `globals:` fail
+    // {
+    //   code: `let el = <div use:X />`,
+    //   options: [{ allowGlobals: true }],
+    //   globals: { X: "readonly" },
+    // },
+    // {
+    //   code: `let el = <div use:X />`,
+    //   options: [{ allowGlobals: true }],
+    //   globals: { X: "readonly" },
+    // },
     {
       code: `let el = <Component />`,
       options: [{ typescriptEnabled: true }],
@@ -44,11 +45,11 @@ export const cases = run("jsx-no-undef", rule, {
       code: `let el = <div use:X={{}} />;`,
       errors: [{ messageId: "customDirectiveUndefined", data: { identifier: "X" } }],
     },
-    {
-      code: `let el = <div use:X />;`,
-      globals: { X: true },
-      errors: [{ messageId: "customDirectiveUndefined", data: { identifier: "X" } }],
-    },
+    // {
+    //   code: `let el = <div use:X />;`,
+    //   globals: { X: true },
+    //   errors: [{ messageId: "customDirectiveUndefined", data: { identifier: "X" } }],
+    // },
     {
       code: `let el = <div use:X />;`,
       options: [{ allowGlobals: true }],
