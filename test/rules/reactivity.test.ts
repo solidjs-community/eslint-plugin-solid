@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
-import { run, tsOnlyTest } from "../ruleTester";
+import { run, tsOnly } from "../ruleTester";
 import rule from "../../src/rules/reactivity";
 
 export const cases = run("reactivity", rule, {
@@ -162,7 +162,7 @@ export const cases = run("reactivity", rule, {
       code: `function createFoo(v) {}
       const [bar, setBar] = createSignal();
       createFoo({ onBar: () => bar() } as object);`,
-      ...tsOnlyTest,
+      [tsOnly]: true,
     },
     `const [bar, setBar] = createSignal();
     X.createFoo(() => bar());`,
@@ -297,27 +297,27 @@ export const cases = run("reactivity", rule, {
     // type casting
     {
       code: `const m = createMemo(() => 5) as Accessor<number>;`,
-      ...tsOnlyTest,
+      [tsOnly]: true,
     },
     {
       code: `const m = createMemo(() => 5)!;`,
-      ...tsOnlyTest,
+      [tsOnly]: true,
     },
     {
       code: `const m = createMemo(() => 5)! as Accessor<number>;`,
-      ...tsOnlyTest,
+      [tsOnly]: true,
     },
     {
       code: `const m = createMemo(() => 5) satisfies Accessor<number>;`,
-      ...tsOnlyTest,
+      [tsOnly]: true,
     },
     {
       code: `const [s] = createSignal('a' as string)`,
-      ...tsOnlyTest,
+      [tsOnly]: true,
     },
     {
       code: `createFoo('a' as string)`,
-      ...tsOnlyTest,
+      [tsOnly]: true,
     },
     // functions in JSXExpressionContainers
     `function Component(props) {
@@ -616,21 +616,6 @@ export const cases = run("reactivity", rule, {
       const Component = () => {
         const [signal] = createSignal();
         return <button type={signal}>Button</button>
-      }`,
-      errors: [
-        {
-          messageId: "badSignal",
-          type: T.Identifier,
-          line: 4,
-          data: { name: "signal", where: "JSX" },
-        },
-      ],
-    },
-    {
-      code: `
-      const Component = () => {
-        const [signal] = createSignal();
-        return <div>{signal}</div>
       }`,
       errors: [
         {

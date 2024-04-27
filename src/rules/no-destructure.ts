@@ -1,5 +1,6 @@
 import { TSESTree as T, TSESLint, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
 import type { FunctionNode } from "../utils";
+import { getSourceCode } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStringIfConstant } = ASTUtils;
@@ -123,7 +124,7 @@ export default createRule({
         yield fixer.replaceText(props, origProps);
       }
 
-      const sourceCode = context.getSourceCode();
+      const sourceCode = getSourceCode(context);
 
       const defaultsObjectString = () =>
         propertyInfo

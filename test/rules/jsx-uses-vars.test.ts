@@ -1,6 +1,6 @@
-import { builtinRules } from "eslint/use-at-your-own-risk";
+import eslint, { RuleTester } from "eslint-v8";
+import { builtinRules } from "eslint-v8/use-at-your-own-risk";
 import rule from "../../src/rules/jsx-uses-vars";
-import eslint, { RuleTester } from "eslint";
 
 const noUnused = builtinRules.get("no-unused-vars");
 
@@ -14,7 +14,8 @@ const ruleTester = new RuleTester({
     },
   },
 });
-// @ts-expect-error accessing internal property 'linter' for test
+
+// @ts-expect-error need to grab internal properties for this test
 (ruleTester.linter || eslint.linter).defineRule("jsx-uses-vars", rule);
 
 // The bulk of the testing of this rule is done in eslint-plugin-react,

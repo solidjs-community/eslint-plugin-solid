@@ -59,7 +59,7 @@ const buildRulesTable = (rows: Array<string>) => {
 const buildHeader = (filename: string): string => {
   const ruleName = filename.replace(/\.md$/, "");
   if (!rules[ruleName]) return " ";
-  const meta: TSESLint.RuleMetaData<never> = rules[ruleName].meta;
+  const meta: TSESLint.RuleMetaData<string, readonly unknown[]> = rules[ruleName].meta;
   return [
     `# solid/${ruleName}`,
     meta.docs?.description,

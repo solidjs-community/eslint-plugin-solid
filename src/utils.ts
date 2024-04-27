@@ -1,5 +1,5 @@
-import { TSESTree as T, TSESLint, ASTUtils } from "@typescript-eslint/utils";
-const { findVariable } = ASTUtils;
+import { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
+import { CompatContext, findVariable } from "./compat";
 
 const domElementRegex = /^[a-z]/;
 export const isDOMElementName = (name: string): boolean => domElementRegex.test(name);
@@ -44,9 +44,9 @@ export function findParent(node: T.Node, predicate: (node: T.Node) => boolean): 
 }
 
 // Try to resolve a variable to its definition
-export function trace(node: T.Node, initialScope: TSESLint.Scope.Scope): T.Node {
+export function trace(node: T.Node, context: CompatContext): T.Node {
   if (node.type === "Identifier") {
-    const variable = findVariable(initialScope, node);
+    const variable = findVariable(context, node);
     if (!variable) return node;
 
     const def = variable.defs[0];
@@ -64,7 +64,7 @@ export function trace(node: T.Node, initialScope: TSESLint.Scope.Scope): T.Node 
           def.node.id.type === "Identifier" &&
           def.node.init
         ) {
-          return trace(def.node.init, initialScope);
+          return trace(def.node.init, context);
         }
     }
   }

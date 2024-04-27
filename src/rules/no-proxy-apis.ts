@@ -59,7 +59,7 @@ export default createRule({
             node.arguments
               .filter((arg) => {
                 if (arg.type === "SpreadElement") return true;
-                const traced = trace(arg, context.getScope());
+                const traced = trace(arg, context);
                 return (
                   (traced.type === "Identifier" && !isPropsByName(traced.name)) ||
                   isFunctionNode(traced)

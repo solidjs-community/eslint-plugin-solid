@@ -8,6 +8,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { isJSXElementOrFragment } from "../utils";
+import { getSourceCode } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -31,7 +32,7 @@ export default createRule({
   },
   defaultOptions: [],
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = getSourceCode(context);
     const putIntoJSX = (node: T.Node): string => {
       const text = sourceCode.getText(node);
       return isJSXElementOrFragment(node) ? text : `{${text}}`;

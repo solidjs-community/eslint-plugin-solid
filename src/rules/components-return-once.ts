@@ -8,6 +8,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { getFunctionName, type FunctionNode } from "../utils";
+import { getSourceCode } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -53,7 +54,7 @@ export default createRule({
       earlyReturns: Array<T.ReturnStatement>;
     }> = [];
     const putIntoJSX = (node: T.Node): string => {
-      const text = context.getSourceCode().getText(node);
+      const text = getSourceCode(context).getText(node);
       return node.type === "JSXElement" || node.type === "JSXFragment" ? text : `{${text}}`;
     };
     const currentFunction = () => functionStack[functionStack.length - 1];
@@ -92,7 +93,7 @@ export default createRule({
 
         const argument = currentFunction().lastReturn?.argument;
         if (argument?.type === "ConditionalExpression") {
-          const sourceCode = context.getSourceCode();
+          const sourceCode = getSourceCode(context);
           context.report({
             node: argument.parent!,
             messageId: "noConditionalReturn",
@@ -154,7 +155,7 @@ export default createRule({
           });
         } else if (argument?.type === "LogicalExpression")
           if (argument.operator === "&&") {
-            const sourceCode = context.getSourceCode();
+            const sourceCode = getSourceCode(context);
             // we have a `return condition && expression`--put that in a <Show />
             context.report({
               node: argument,

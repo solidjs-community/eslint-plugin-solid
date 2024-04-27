@@ -8,6 +8,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
 import { isDOMElementName } from "../utils";
+import { getScope, getSourceCode } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStaticValue } = ASTUtils;
@@ -155,7 +156,7 @@ export default createRule<Options, MessageIds>({
   },
   defaultOptions: [],
   create(context) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = getSourceCode(context);
 
     return {
       JSXAttribute(node) {
@@ -183,7 +184,7 @@ export default createRule<Options, MessageIds>({
           node.value?.type === "JSXExpressionContainer" &&
           node.value.expression.type !== "JSXEmptyExpression" &&
           node.value.expression.type !== "ArrayExpression" && // array syntax prevents inlining
-          (staticValue = getStaticValue(node.value.expression, context.getScope())) !== null &&
+          (staticValue = getStaticValue(node.value.expression, getScope(context, node))) !== null &&
           (typeof staticValue.value === "string" || typeof staticValue.value === "number")
         ) {
           // One of the first things Solid (actually babel-plugin-dom-expressions) does with an

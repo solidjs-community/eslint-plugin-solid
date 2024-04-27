@@ -7,6 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import { getScope } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStaticValue }: { getStaticValue: any } = ASTUtils;
@@ -45,7 +46,7 @@ export default createRule({
         if (node.name.type === "JSXIdentifier" && node.value) {
           const link: { value: unknown } | null = getStaticValue(
             node.value.type === "JSXExpressionContainer" ? node.value.expression : node.value,
-            context.getScope()
+            getScope(context, node)
           );
           if (link && typeof link.value === "string" && isJavaScriptProtocol.test(link.value)) {
             context.report({

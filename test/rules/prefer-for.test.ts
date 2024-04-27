@@ -1,4 +1,4 @@
-import { run, tsOnlyTest } from "../ruleTester";
+import { run, tsOnly } from "../ruleTester";
 import rule from "../../src/rules/prefer-for";
 
 export const cases = run("prefer-for", rule, {
@@ -48,7 +48,7 @@ export const cases = run("prefer-for", rule, {
       function Component(props) {
         return <ol>{<For each={props.data}>{d => <li>{d.text}</li>}</For>}</ol>;
       }`,
-      ...tsOnlyTest,
+      [tsOnly]: true,
     },
     // deopts
     {

@@ -40,7 +40,7 @@ export default createRule({
           node.arguments.every((arg) => arg.type !== "SpreadElement")
         ) {
           // grab both arguments, tracing any variables to their actual values if possible
-          const [arg0, arg1] = node.arguments.map((arg) => trace(arg, context.getScope()));
+          const [arg0, arg1] = node.arguments.map((arg) => trace(arg, context));
 
           if (isFunctionNode(arg0) && arg0.params.length === 0 && arg1.type === "ArrayExpression") {
             // A second argument that looks like a dependency array was passed to

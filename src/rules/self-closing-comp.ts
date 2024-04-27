@@ -8,6 +8,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { isDOMElementName } from "../utils";
+import { getSourceCode } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -124,8 +125,8 @@ export default createRule<Options, MessageIds>({
               node,
               messageId: "dontSelfClose",
               fix(fixer) {
-                const sourceCode = context.getSourceCode();
-                const tagName = context.getSourceCode().getText(node.name);
+                const sourceCode = getSourceCode(context);
+                const tagName = sourceCode.getText(node.name);
                 // Represents the last character of the JSXOpeningElement, the '>' character
                 const selfCloseEnding = node.range[1];
                 // Replace ' />' or '/>' with '></${tagName}>'
