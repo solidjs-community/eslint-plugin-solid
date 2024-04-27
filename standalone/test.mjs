@@ -12,7 +12,8 @@ import typescript from "typescript";
 
 // inject assert and a hidden _TYPESCRIPT_GLOBAL into global scope
 const context = vm.createContext({
-  assert: assert,
+  assert,
+  structuredClone,
   _TYPESCRIPT_GLOBAL: typescript,
 });
 
@@ -32,7 +33,7 @@ const test = new vm.SourceTextModule(
 import { plugin, pluginVersion, eslintVersion, verify, verifyAndFix } from "dist.js";
 
 // check no Node APIs are present, except injected 'assert' and '_TYPESCRIPT_GLOBAL'
-assert.equal(Object.keys(globalThis).length, 2);
+assert.equal(Object.keys(globalThis).length, 3);
 assert.equal(typeof assert, 'function');
 assert.equal(typeof process, 'undefined');
 assert.equal(typeof __dirname, 'undefined');
@@ -45,10 +46,11 @@ assert.equal(typeof verify, "function");
 assert.equal(typeof verifyAndFix, "function");
 
 // ensure that the standalone runs without crashing and returns results
-assert.deepStrictEqual(verify('let el = <div className="red" />'), [
-  {
+assert.deepStrictEqual(
+  verify('let el = <div className="red" />', { 'solid/no-react-specific-props': 2 }), 
+  [{
     ruleId: "solid/no-react-specific-props",
-    severity: 1,
+    severity: 2,
     message: "Prefer the \`class\` prop over the deprecated \`className\` prop.",
     line: 1,
     column: 15,
@@ -57,8 +59,8 @@ assert.deepStrictEqual(verify('let el = <div className="red" />'), [
     endLine: 1,
     endColumn: 30,
     fix: { range: [14, 23], text: "class" },
-  },
-]);
+  }],
+);
 assert.deepStrictEqual(verifyAndFix('let el = <div className="red" />'), {
   fixed: true,
   messages: [],
