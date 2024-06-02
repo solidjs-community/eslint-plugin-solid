@@ -12,6 +12,7 @@ const typescript = {
   // no files; either apply to all files, or let users spread in this config
   // and specify matching patterns. This is eslint-plugin-react's take.
   plugins: recommended.plugins,
+  languageOptions: recommended.languageOptions,
   // no languageOptions; ESLint's default parser can't parse TypeScript,
   // and parsers are configured in languageOptions, so let the user handle
   // this rather than cause potential conflicts
