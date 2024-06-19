@@ -1,19 +1,18 @@
 import { test, expect } from "vitest";
 
 import path from "path";
-// @ts-expect-error Type definitions not updated to include FlatESLint
 import { ESLint as FlatESLint } from "eslint";
-import { ESLint as ESLint } from "eslint-v8";
+import { ESLint as LegacyESLint } from "eslint-v8";
 
-import * as tsParser from "@typescript-eslint/parser";
-import recommendedConfig from "eslint-plugin-solid/configs/recommended";
-import typescriptConfig from "eslint-plugin-solid/configs/typescript";
+// import * as tsParser from "@typescript-eslint/parser";
+// import recommendedConfig from "eslint-plugin-solid/configs/recommended";
+// import typescriptConfig from "eslint-plugin-solid/configs/typescript";
 
 const cwd = path.resolve("test", "fixture");
 const validDir = path.join(cwd, "valid");
 const jsxUndefPath = path.join(cwd, "invalid", "jsx-undef.jsx");
 
-const checkResult = (result: ESLint.LintResult) => {
+const checkResult = (result: LegacyESLint.LintResult | FlatESLint.LintResult) => {
   if (result.filePath.startsWith(validDir)) {
     expect(result.messages).toEqual([]);
     expect(result.errorCount).toBe(0);
@@ -31,9 +30,18 @@ const checkResult = (result: ESLint.LintResult) => {
   }
 };
 
-test.concurrent("fixture", async () => {
-  const eslint = new ESLint({ cwd });
-  const results = await eslint.lintFiles("**/*.{js,jsx,ts,tsx}");
+test.concurrent("fixture (legacy)", async () => {
+  const eslint = new LegacyESLint({
+    baseConfig: {
+      root: true,
+      parser: "@typescript-eslint/parser",
+      env: { browser: true },
+      plugins: ["solid"],
+      extends: "plugin:solid/recommended",
+    },
+    useEslintrc: false,
+  });
+  const results = await eslint.lintFiles("test/fixture/**/*.{js,jsx,ts,tsx}");
 
   results.forEach(checkResult);
 
@@ -41,28 +49,8 @@ test.concurrent("fixture", async () => {
 });
 
 test.concurrent("fixture (flat)", async () => {
-  const eslint = new FlatESLint({
-    cwd,
-    overrideConfigFile: true,
-    ignore: false,
-    overrideConfig: [
-      {
-        files: ["**/*.{js,jsx}"],
-        ...recommendedConfig,
-      },
-      {
-        files: ["**/*.{ts,tsx}"],
-        ...typescriptConfig,
-        languageOptions: {
-          parser: tsParser,
-          parserOptions: {
-            project: "tsconfig.json",
-          },
-        },
-      },
-    ],
-  });
-  const results: Array<ESLint.LintResult> = await eslint.lintFiles("**/*.{js,jsx,ts,tsx}");
+  const eslint = new FlatESLint();
+  const results = await eslint.lintFiles("test/fixture/**/*.{js,jsx,ts,tsx}");
 
   results.forEach(checkResult);
 

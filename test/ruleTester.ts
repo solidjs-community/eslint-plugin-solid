@@ -1,4 +1,3 @@
-// @ts-expect-error no types yet
 import { RuleTester } from "eslint";
 import { RuleTester as RuleTester_v6 } from "eslint-v6";
 import { RuleTester as RuleTester_v7 } from "eslint-v7";
@@ -124,28 +123,28 @@ export const run = (
   const all = parser === "all";
 
   if (all || parser === "ts") {
-    describe("typescript-eslint", () => tsTester.run(name, rule, tests));
+    describe("typescript-eslint", () => tsTester.run(name, rule as any, tests as any));
   }
   if (all || parser === "ts_v8") {
     describe("@typescript-eslint/parser", () => tsV8Tester.run(name, rule as any, tests as any));
   }
   if (all || parser === "babel") {
-    describe("@babel/eslint-parser", () => babelTester.run(name, rule, tests));
+    describe("@babel/eslint-parser", () => babelTester.run(name, rule as any, tests as any));
   }
   if (all || parser === "babel_v8") {
     describe("@babel/eslint-parser v8", () => babelV8Tester.run(name, rule as any, tests as any));
   }
   if (all || parser === "v6") {
-    describe("eslint v6", () => v6Tester.run(name, rule as any, jsTests));
+    describe("eslint v6", () => v6Tester.run(name, rule as any, jsTests as any));
   }
   if (all || parser === "v7") {
-    describe("eslint v7", () => v7Tester.run(name, rule as any, jsTests));
+    describe("eslint v7", () => v7Tester.run(name, rule as any, jsTests as any));
   }
   if (all || parser === "v8") {
     describe("eslint v8", () => v8Tester.run(name, rule as any, jsTests));
   }
   if (all || parser === "v9") {
-    describe("eslint v9", () => v9Tester.run(name, rule, jsTests));
+    describe("eslint v9", () => v9Tester.run(name, rule as any, jsTests));
   }
 
   return tests;

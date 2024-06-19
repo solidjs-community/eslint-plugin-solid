@@ -23,6 +23,7 @@ export default createRule<Options, MessageIds>({
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/prefer-classlist.md",
     },
     fixable: "code",
+    deprecated: true,
     schema: [
       {
         type: "object",
@@ -45,7 +46,6 @@ export default createRule<Options, MessageIds>({
       preferClasslist:
         "The classlist prop should be used instead of {{ classnames }} to efficiently set classes based on an object.",
     },
-    deprecated: true,
   },
   defaultOptions: [],
   create(context) {

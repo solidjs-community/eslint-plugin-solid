@@ -1,10 +1,5 @@
-/**
- * FIXME: remove this comments and import when below issue is fixed.
- * This import is necessary for type generation due to a bug in the TypeScript compiler.
- * See: https://github.com/microsoft/TypeScript/issues/42873
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
+import { Linter } from "eslint";
 
 import recommended from "./recommended";
 
@@ -17,10 +12,10 @@ const typescript = {
   // this rather than cause potential conflicts
   rules: {
     ...recommended.rules,
-    "solid/jsx-no-undef": [2, { typescriptEnabled: true }],
+    "solid/jsx-no-undef": [2, { typescriptEnabled: true }] satisfies Linter.RuleEntry,
     // namespaces taken care of by TS
     "solid/no-unknown-namespaces": 0,
   },
-};
+} satisfies TSESLint.FlatConfig.Config;
 
 export = typescript;
