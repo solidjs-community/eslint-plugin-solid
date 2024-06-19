@@ -82,7 +82,7 @@
   },
   "lint-staged": {
     "*!(test).{js,jsx,ts,tsx}": [
-      "eslint --ignore-pattern test/fixture/invalid --fix",
+      "pnpm lint --fix",
       "prettier --write"
     ]
   },

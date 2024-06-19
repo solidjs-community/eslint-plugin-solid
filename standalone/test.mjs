@@ -42,6 +42,7 @@ assert.equal(typeof __dirname, 'undefined');
 assert.equal(typeof plugin, "object");
 assert.equal(typeof pluginVersion, "string");
 assert.equal(typeof eslintVersion, "string");
+assert.equal(eslintVersion[0], '8')
 assert.equal(typeof verify, "function");
 assert.equal(typeof verifyAndFix, "function");
 
@@ -77,7 +78,7 @@ const linker = (specifier) => {
     "dist.js": dist,
   }[specifier];
   if (!mod) {
-    throw new Error("can't import other modules");
+    throw new Error(`can't import other modules: ${specifier}`);
   }
   return mod;
 };

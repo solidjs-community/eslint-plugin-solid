@@ -72,7 +72,7 @@ export default tseslint.config(
       globals: globals.browser,
     },
     rules: {
-      ...solid.configs['flat/recommended'].rules,
+      ...solid.configs["flat/recommended"].rules,
       "@typescript-eslint/ban-ts-comment": 0,
       "@typescript-eslint/no-unused-vars": 0,
     },

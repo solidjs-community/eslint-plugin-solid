@@ -1,11 +1,11 @@
-import { Linter } from "eslint";
-import parser from "@typescript-eslint/parser";
-import plugin from "../dist";
+import { Linter } from "eslint/linter";
+import * as parser from "@typescript-eslint/parser";
+import plugin from "../dist/index.js";
 import { version as pluginVersion } from "../package.json";
 import memoizeOne from "memoize-one";
 
 // Create linter instance
-const linter = new Linter();
+const linter = new Linter({ configType: "flat" });
 
 const getConfig = memoizeOne((ruleSeverityOverrides) => {
   const config = [

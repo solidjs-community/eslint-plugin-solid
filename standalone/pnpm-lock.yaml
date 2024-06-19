@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  eslint@8.57.0:
+    hash: iz3kk4siotbk6g36yne27xezji
+    path: patches/eslint@8.57.0.patch
+
 dependencies:
   '@types/eslint':
     specifier: ^8.56.7
@@ -30,7 +35,7 @@ devDependencies:
     version: 6.21.0(eslint@8.57.0)(typescript@5.3.3)
   eslint:
     specifier: ^8.57.0
-    version: 8.57.0
+    version: 8.57.0(patch_hash=iz3kk4siotbk6g36yne27xezji)
   magic-string:
     specifier: ^0.30.8
     version: 0.30.8
@@ -60,7 +65,7 @@ packages:
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
     dependencies:
-      eslint: 8.57.0
+      eslint: 8.57.0(patch_hash=iz3kk4siotbk6g36yne27xezji)
       eslint-visitor-keys: 3.4.3
     dev: true
 
@@ -236,7 +241,7 @@ packages:
       '@typescript-eslint/typescript-estree': 6.21.0(typescript@5.3.3)
       '@typescript-eslint/visitor-keys': 6.21.0
       debug: 4.3.4
-      eslint: 8.57.0
+      eslint: 8.57.0(patch_hash=iz3kk4siotbk6g36yne27xezji)
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
@@ -289,7 +294,7 @@ packages:
       '@typescript-eslint/scope-manager': 6.21.0
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/typescript-estree': 6.21.0(typescript@5.3.3)
-      eslint: 8.57.0
+      eslint: 8.57.0(patch_hash=iz3kk4siotbk6g36yne27xezji)
       semver: 7.6.0
     transitivePeerDependencies:
       - supports-color
@@ -475,7 +480,7 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /eslint@8.57.0:
+  /eslint@8.57.0(patch_hash=iz3kk4siotbk6g36yne27xezji):
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     hasBin: true
@@ -521,6 +526,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+    patched: true
 
   /espree@9.6.1:
     resolution: {integrity: sha512-oruZaFkjorTpF32kDSI5/75ViwGeZginGGy2NoOSg3Q9bnwlnmDm4HLnkl0RE3n+njDXR037aY1+x58Z/zFdwQ==}
