@@ -27,6 +27,7 @@ const recommended = {
     "solid/components-return-once": 1,
     "solid/no-destructure": 2,
     "solid/prefer-for": 2,
+    "solid/boolean-attr": 2,
     "solid/reactivity": 1,
     "solid/event-handlers": 1,
     // these rules are mostly style suggestions

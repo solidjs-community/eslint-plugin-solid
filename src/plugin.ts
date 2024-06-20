@@ -6,6 +6,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
+import booleanAttr from "./rules/boolean-attr";
 import componentsReturnOnce from "./rules/components-return-once";
 import eventHandlers from "./rules/event-handlers";
 import imports from "./rules/imports";
@@ -34,6 +35,7 @@ const { name, version } = require("../package.json");
 const meta = { name, version };
 
 const allRules = {
+  "boolean-attr": booleanAttr,
   "components-return-once": componentsReturnOnce,
   "event-handlers": eventHandlers,
   imports,
