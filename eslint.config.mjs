@@ -74,6 +74,7 @@ export default tseslint.config(
     rules: {
       ...solid.configs["flat/recommended"].rules,
       "@typescript-eslint/ban-ts-comment": 0,
+      "@typescript-eslint/no-unused-expressions": 0,
       "@typescript-eslint/no-unused-vars": 0,
     },
   }
