@@ -186,20 +186,15 @@ const buildTilde = async () => {
   ].join("\n");
 };
 
-async function processReadme() {
-  markdownMagic(path.join(__dirname, "..", "README.md"), {
+async function run() {
+  await markdownMagic(path.join(__dirname, "..", "README.md"), {
     transforms: {
       RULES: () => buildRulesTable(ruleTableRows),
       TILDE: () => buildTilde(),
     },
     failOnMissingTransforms: true,
   });
-}
-
-async function processRuleDocs() {
-  // const docRoot = path.resolve(__dirname, "..", "docs");
-
-  markdownMagic(path.resolve(__dirname, "..", "docs", "*.md"), {
+  await markdownMagic(path.resolve(__dirname, "..", "docs", "*.md"), {
     transforms: {
       HEADER: ({ srcPath }: any) => buildHeader(path.basename(srcPath)),
       OPTIONS: ({ srcPath }: any) => buildOptions(path.basename(srcPath)),
@@ -207,18 +202,5 @@ async function processRuleDocs() {
     },
     failOnMissingTransforms: true,
   });
-
-  // const docFiles = (await fs.readdir(docRoot)).filter((p) => p.endsWith(".md"));
-  // for (const docFile of docFiles) {
-  //   markdownMagic(path.join(docRoot, docFile), {
-  //     transforms: {
-  //       HEADER: ({ content, srcPath }: any) => buildHeader(path.basename(srcPath)),
-  //       OPTIONS: ({ content, srcPath }: any) => buildOptions(path.basename(srcPath)),
-  //       CASES: ({ content, srcPath }: any) => buildCases(content, path.basename(srcPath)),
-  //     },
-  //     failOnMissingTransforms: true,
-  //   });
-  // }
 }
-
-Promise.all([processReadme(), processRuleDocs()]);
+run();
