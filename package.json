@@ -56,7 +56,6 @@
     "@types/eslint__js": "^8.42.3",
     "@types/estraverse": "^5.1.7",
     "@types/is-html": "^2.0.2",
-    "@types/markdown-magic": "^1.0.4",
     "@types/node": "^20",
     "@types/prettier": "^2.7.3",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
@@ -70,11 +69,11 @@
     "globals": "^15.6.0",
     "husky": "^8.0.3",
     "lint-staged": "^13.3.0",
-    "markdown-magic": "^2.6.1",
+    "markdown-magic": "^3.3.0",
     "prettier": "^2.8.8",
     "tsx": "^4.7.3",
-    "typescript": "^5.4.3",
-    "typescript-eslint": "^8.0.0",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.1.0",
     "vitest": "^1.5.2"
   },
   "peerDependencies": {

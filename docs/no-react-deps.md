@@ -1,17 +1,16 @@
-<!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+<!-- doc-gen HEADER -->
 # solid/no-react-deps
 Disallow usage of dependency arrays in `createEffect` and `createMemo`.
 This rule is **a warning** by default.
 
 [View source](../src/rules/no-react-deps.ts) · [View tests](../test/rules/no-react-deps.test.ts)
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- doc-gen OPTIONS -->
 
-<!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
- 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+<!-- doc-gen CASES -->
 ## Tests
 
 ### Invalid Examples
@@ -26,7 +25,7 @@ createEffect(() => {
 createEffect(() => {
   console.log(signal());
 });
- 
+
 createEffect(() => {
   console.log(signal());
 }, [signal]);
@@ -34,31 +33,30 @@ createEffect(() => {
 createEffect(() => {
   console.log(signal());
 });
- 
+
 const deps = [signal];
 createEffect(() => {
   console.log(signal());
 }, deps);
- 
+
 const value = createMemo(() => computeExpensiveValue(a(), b()), [a(), b()]);
 // after eslint --fix:
 const value = createMemo(() => computeExpensiveValue(a(), b()));
- 
+
 const value = createMemo(() => computeExpensiveValue(a(), b()), [a, b]);
 // after eslint --fix:
 const value = createMemo(() => computeExpensiveValue(a(), b()));
- 
+
 const value = createMemo(() => computeExpensiveValue(a(), b()), [a, b()]);
 // after eslint --fix:
 const value = createMemo(() => computeExpensiveValue(a(), b()));
- 
+
 const deps = [a, b];
 const value = createMemo(() => computeExpensiveValue(a(), b()), deps);
- 
+
 const deps = [a, b];
 const memoFn = () => computeExpensiveValue(a(), b());
 const value = createMemo(memoFn, deps);
- 
 ```
 
 ### Valid Examples
@@ -96,6 +94,5 @@ const args = [
   [signal()],
 ];
 createEffect(...args);
-
 ```
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->

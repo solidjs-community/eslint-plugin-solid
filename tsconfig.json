@@ -3,7 +3,9 @@
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "allowJs": true,
+    "resolveJsonModule": true
   },
   "include": ["src", "configs", "test", "scripts", "standalone", "vitest.*"]
 }

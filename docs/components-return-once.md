@@ -1,19 +1,18 @@
-<!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+<!-- doc-gen HEADER -->
 # solid/components-return-once
 Disallow early returns in components. Solid components only run once, and so conditionals should be inside JSX.
 This rule is **a warning** by default.
 
 [View source](../src/rules/components-return-once.ts) · [View tests](../test/rules/components-return-once.test.ts)
-
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->
 
 See [this issue](https://github.com/solidjs-community/eslint-plugin-solid/issues/24) for rationale.
 
-<!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
- 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- doc-gen OPTIONS -->
 
-<!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+<!-- end-doc-gen -->
+
+<!-- doc-gen CASES -->
 ## Tests
 
 ### Invalid Examples
@@ -27,14 +26,14 @@ function Component() {
   }
   return <span />;
 }
- 
+
 const Component = () => {
   if (condition) {
     return <div />;
   }
   return <span />;
 };
- 
+
 function Component() {
   return Math.random() > 0.5 ? <div>Big!</div> : <div>Small!</div>;
 }
@@ -42,7 +41,7 @@ function Component() {
 function Component() {
   return <>{Math.random() > 0.5 ? <div>Big!</div> : <div>Small!</div>}</>;
 }
- 
+
 function Component() {
   return Math.random() > 0.5 ? <div>Big!</div> : "Small!";
 }
@@ -50,13 +49,9 @@ function Component() {
 function Component() {
   return <>{Math.random() > 0.5 ? <div>Big!</div> : "Small!"}</>;
 }
- 
+
 function Component() {
-  return Math.random() > 0.5 ? (
-    <div>Big! No, really big!</div>
-  ) : (
-    <div>Small!</div>
-  );
+  return Math.random() > 0.5 ? <div>Big! No, really big!</div> : <div>Small!</div>;
 }
 // after eslint --fix:
 function Component() {
@@ -66,7 +61,7 @@ function Component() {
     </Show>
   );
 }
- 
+
 function Component(props) {
   return props.cond1 ? (
     <div>Condition 1</div>
@@ -89,7 +84,7 @@ function Component(props) {
     </Switch>
   );
 }
- 
+
 function Component(props) {
   return !!props.cond && <div>Conditional</div>;
 }
@@ -101,18 +96,17 @@ function Component(props) {
     </Show>
   );
 }
- 
+
 function Component(props) {
   return props.primary || <div>{props.secondaryText}</div>;
 }
- 
+
 HOC(() => {
   if (condition) {
     return <div />;
   }
   return <div />;
 });
- 
 ```
 
 ### Valid Examples
@@ -172,6 +166,5 @@ function Component() {
   };
   return <></>;
 }
-
 ```
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->

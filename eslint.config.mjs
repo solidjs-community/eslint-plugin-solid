@@ -10,13 +10,14 @@ export default tseslint.config(
     ignores: ["dist", "**/dist.*", "./configs", "node_modules", "eslint.config.mjs"],
   },
   js.configs.recommended,
+  tseslint.configs.eslintRecommended,
   ...tseslint.configs.recommended,
   {
     languageOptions: {
       sourceType: "module",
       parser: tseslint.parser,
       parserOptions: {
-        project: "tsconfig.json",
+        project: "./tsconfig.json",
       },
       globals: globals.node,
     },
@@ -24,10 +25,10 @@ export default tseslint.config(
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/non-nullable-type-assertion-style": "warn",
-      "no-extra-semi": "off",
-      "no-mixed-spaces-and-tabs": "off",
-      "no-new-native-nonconstructor": 1,
-      "no-new-symbol": "off",
+      // "no-extra-semi": "off",
+      // "no-mixed-spaces-and-tabs": "off",
+      // "no-new-native-nonconstructor": 1,
+      // "no-new-symbol": "off",
       "object-shorthand": "warn",
     },
   },
@@ -55,6 +56,13 @@ export default tseslint.config(
             "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/{{name}}.md",
         },
       ],
+    },
+  },
+  // needed for CommonJS / ESLint <= v8 compatibility
+  {
+    files: ["configs/*"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
     },
   },
   // standalone is designed not to need any Node or browser APIs

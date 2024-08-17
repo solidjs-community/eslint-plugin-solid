@@ -1,17 +1,16 @@
-<!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+<!-- doc-gen HEADER -->
 # solid/prefer-show
 Enforce using Solid's `<Show />` component for conditionally showing content. Solid's compiler covers this case, so it's a stylistic rule only.
 This rule is **off** by default.
 
 [View source](../src/rules/prefer-show.ts) · [View tests](../test/rules/prefer-show.test.ts)
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- doc-gen OPTIONS -->
 
-<!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
- 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+<!-- doc-gen CASES -->
 ## Tests
 
 ### Invalid Examples
@@ -32,7 +31,7 @@ function Component(props) {
     </div>
   );
 }
- 
+
 function Component(props) {
   return <>{props.cond && <span>Content</span>}</>;
 }
@@ -46,7 +45,7 @@ function Component(props) {
     </>
   );
 }
- 
+
 function Component(props) {
   return <div>{props.cond ? <span>Content</span> : <span>Fallback</span>}</div>;
 }
@@ -60,13 +59,9 @@ function Component(props) {
     </div>
   );
 }
- 
+
 function Component(props) {
-  return (
-    <For each={props.someList}>
-      {(listItem) => listItem.cond && <span>Content</span>}
-    </For>
-  );
+  return <For each={props.someList}>{(listItem) => listItem.cond && <span>Content</span>}</For>;
 }
 // after eslint --fix:
 function Component(props) {
@@ -80,13 +75,11 @@ function Component(props) {
     </For>
   );
 }
- 
+
 function Component(props) {
   return (
     <For each={props.someList}>
-      {(listItem) =>
-        listItem.cond ? <span>Content</span> : <span>Fallback</span>
-      }
+      {(listItem) => (listItem.cond ? <span>Content</span> : <span>Fallback</span>)}
     </For>
   );
 }
@@ -102,7 +95,6 @@ function Component(props) {
     </For>
   );
 }
- 
 ```
 
 ### Valid Examples
@@ -121,6 +113,5 @@ function Component(props) {
     </Show>
   );
 }
-
 ```
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->

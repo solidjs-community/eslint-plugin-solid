@@ -1,17 +1,16 @@
-<!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+<!-- doc-gen HEADER -->
 # solid/no-react-specific-props
 Disallow usage of React-specific `className`/`htmlFor` props, which were deprecated in v1.4.0.
 This rule is **a warning** by default.
 
 [View source](../src/rules/no-react-specific-props.ts) · [View tests](../test/rules/no-react-specific-props.test.ts)
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- doc-gen OPTIONS -->
 
-<!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
- 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+<!-- doc-gen CASES -->
 ## Tests
 
 ### Invalid Examples
@@ -22,15 +21,15 @@ These snippets cause lint errors, and all of them can be auto-fixed.
 let el = <div className="greeting">Hello world!</div>;
 // after eslint --fix:
 let el = <div class="greeting">Hello world!</div>;
- 
+
 let el = <div className={"greeting"}>Hello world!</div>;
 // after eslint --fix:
 let el = <div class={"greeting"}>Hello world!</div>;
- 
+
 let el = <div className="greeting" />;
 // after eslint --fix:
 let el = <div class="greeting" />;
- 
+
 let el = (
   <div many other attributes className="greeting">
     Hello world!
@@ -42,19 +41,19 @@ let el = (
     Hello world!
   </div>
 );
- 
+
 let el = <PascalComponent className="greeting">Hello world!</PascalComponent>;
 // after eslint --fix:
 let el = <PascalComponent class="greeting">Hello world!</PascalComponent>;
- 
+
 let el = <label htmlFor="id">Hello world!</label>;
 // after eslint --fix:
 let el = <label for="id">Hello world!</label>;
- 
+
 let el = <label htmlFor={"id"}>Hello world!</label>;
 // after eslint --fix:
 let el = <label for={"id"}>Hello world!</label>;
- 
+
 let el = (
   <label many other attributes htmlFor="id">
     Hello world!
@@ -66,15 +65,14 @@ let el = (
     Hello world!
   </label>
 );
- 
+
 let el = <PascalComponent htmlFor="id">Hello world!</PascalComponent>;
 // after eslint --fix:
 let el = <PascalComponent for="id">Hello world!</PascalComponent>;
- 
+
 let el = <div key={item.id} />;
 // after eslint --fix:
 let el = <div />;
- 
 ```
 
 ### Valid Examples
@@ -109,6 +107,5 @@ let el = (
 let el = <PascalComponent class="greeting" for="id" />;
 
 let el = <PascalComponent key={item.id} />;
-
 ```
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->

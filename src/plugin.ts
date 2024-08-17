@@ -29,8 +29,9 @@ import noArrayHandlers from "./rules/no-array-handlers";
 // import validateJsxNesting from "./rules/validate-jsx-nesting";
 
 // Use require() so that `package.json` doesn't get copied to `dist`
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { name, version } = require("../package.json");
+
+import packageJson from "../package.json";
+const { name, version } = packageJson; // require("../package.json");
 const meta = { name, version };
 
 const allRules = {
