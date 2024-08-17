@@ -1,17 +1,16 @@
-<!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+<!-- doc-gen HEADER -->
 # solid/no-array-handlers
 Disallow usage of type-unsafe event handlers.
 This rule is **off** by default.
 
 [View source](../src/rules/no-array-handlers.ts) · [View tests](../test/rules/no-array-handlers.test.ts)
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- doc-gen OPTIONS -->
 
-<!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
- 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+<!-- doc-gen CASES -->
 ## Tests
 
 ### Invalid Examples
@@ -20,29 +19,28 @@ These snippets cause lint errors.
 
 ```js
 let el = <button onClick={[(n) => console.log(n), "str"]} />;
- 
+
 let el = <button onClick={[(k: string) => k.toUpperCase(), "hello"]} />;
- 
+
 let el = <div onMouseOver={[1, 2, 3]} />;
- 
+
 let el = <div on:click={[handler, i()]} />;
- 
+
 let el = <button type="button" onclick={[handler, i() + 2]} class="btn" />;
- 
+
 let handler = [(x) => x * 2, 54];
 let el = <button style={{ background: "pink" }} onclick={handler} />;
- 
+
 const thing = (props) => (
   <div onclick={[props.callback, props.id]}>
     <button type="button" onclick={handler} class="btn" />
   </div>
 );
- 
+
 function Component() {
   const arr = [(n: number) => n * n, 2];
   return <div onClick={arr} />;
 }
- 
 ```
 
 ### Valid Examples
@@ -79,4 +77,4 @@ function Component() {
 }
 
 ```
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->

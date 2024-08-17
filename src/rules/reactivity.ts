@@ -1100,7 +1100,9 @@ export default createRule<Options, MessageIds>({
                   reference.identifier.parent.callee === reference.identifier
                 ) {
                   const arg0 = reference.identifier.parent.arguments[0];
-                  arg0 && pushTrackedScope(arg0, "function");
+                  if (arg0) {
+                    pushTrackedScope(arg0, "function");
+                  }
                 }
               }
             }

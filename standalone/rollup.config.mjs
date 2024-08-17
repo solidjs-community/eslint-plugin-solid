@@ -49,17 +49,17 @@ export default {
         },
         {
           // assert for web
-          match: /^assert$/u,
+          match: /^(node:)?assert$/u,
           target: "./mock/assert.js",
         },
         {
           // path for web
-          match: /^path$|^path\/posix$/u,
+          match: /^(node:)?path$|^path\/posix$/u,
           target: "./mock/path.js",
         },
         {
           // util for web
-          match: /^util$/u,
+          match: /^(node:)?util$/u,
           target: "./mock/util.js",
         },
         {

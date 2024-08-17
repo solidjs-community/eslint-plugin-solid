@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-solid",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "Solid-specific linting rules for ESLint.",
   "keywords": [
     "eslint",
@@ -38,7 +38,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@typescript-eslint/utils": "^7.13.1",
+    "@typescript-eslint/utils": "^7.13.1 || ^8.0.0",
     "estraverse": "^5.3.0",
     "is-html": "^2.0.0",
     "kebab-case": "^1.0.2",
@@ -56,11 +56,10 @@
     "@types/eslint__js": "^8.42.3",
     "@types/estraverse": "^5.1.7",
     "@types/is-html": "^2.0.2",
-    "@types/markdown-magic": "^1.0.4",
     "@types/node": "^20",
     "@types/prettier": "^2.7.3",
-    "@typescript-eslint/eslint-plugin": "^7.13.1",
-    "@typescript-eslint/parser": "^7.13.1",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.5.0",
     "eslint-plugin-eslint-plugin": "^6.1.0",
     "eslint-plugin-solid": "link:",
@@ -70,11 +69,11 @@
     "globals": "^15.6.0",
     "husky": "^8.0.3",
     "lint-staged": "^13.3.0",
-    "markdown-magic": "^2.6.1",
+    "markdown-magic": "^3.3.0",
     "prettier": "^2.8.8",
     "tsx": "^4.7.3",
-    "typescript": "^5.4.3",
-    "typescript-eslint": "^7.13.1",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.1.0",
     "vitest": "^1.5.2"
   },
   "peerDependencies": {
@@ -82,11 +81,12 @@
   },
   "lint-staged": {
     "*!(test).{js,jsx,ts,tsx}": [
-      "eslint --ignore-pattern test/fixture/invalid --fix",
+      "pnpm lint --fix",
       "prettier --write"
     ]
   },
   "prettier": {
     "printWidth": 100
-  }
+  },
+  "packageManager": "pnpm@9.7.1"
 }

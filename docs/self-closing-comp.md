@@ -1,13 +1,12 @@
-<!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+<!-- doc-gen HEADER -->
 # solid/self-closing-comp
 Disallow extra closing tags for components without children.
 This rule is **a warning** by default.
 
 [View source](../src/rules/self-closing-comp.ts) · [View tests](../test/rules/self-closing-comp.test.ts)
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
-
-<!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
+<!-- doc-gen OPTIONS -->
 ## Rule Options
 
 Options shown here are the defaults. 
@@ -22,10 +21,9 @@ Options shown here are the defaults.
   }]
 }
 ```
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
-
-<!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+<!-- doc-gen CASES -->
 ## Tests
 
 ### Invalid Examples
@@ -36,44 +34,43 @@ These snippets cause lint errors, and all of them can be auto-fixed.
 let el = <div></div>;
 // after eslint --fix:
 let el = <div />;
- 
+
 let el = <img></img>;
 // after eslint --fix:
 let el = <img />;
- 
+
 /* eslint solid/self-closing-comp: ["error", { "html": "void" }] */
 let el = <div />;
 // after eslint --fix:
 let el = <div></div>;
- 
+
 /* eslint solid/self-closing-comp: ["error", { "html": "void" }] */
 let el = <div />;
 // after eslint --fix:
 let el = <div></div>;
- 
+
 /* eslint solid/self-closing-comp: ["error", { "html": "none" }] */
 let el = <img />;
 // after eslint --fix:
 let el = <img></img>;
- 
+
 /* eslint solid/self-closing-comp: ["error", { "html": "none" }] */
 let el = <img />;
 // after eslint --fix:
 let el = <img></img>;
- 
+
 let el = <div></div>;
 // after eslint --fix:
 let el = <div />;
- 
+
 let el = <Component></Component>;
 // after eslint --fix:
 let el = <Component />;
- 
+
 /* eslint solid/self-closing-comp: ["error", { "component": "none" }] */
 let el = <Component />;
 // after eslint --fix:
 let el = <Component></Component>;
- 
 ```
 
 ### Valid Examples
@@ -133,6 +130,5 @@ let el = <div></div>;
 
 /* eslint solid/self-closing-comp: ["error", { "component": "none" }] */
 let el = <Component></Component>;
-
 ```
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->

@@ -1,24 +1,28 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import path from "path";
-import fs from "node:fs/promises";
-import markdownMagic from "markdown-magic";
+// @ts-expect-error no types for v3
+import { markdownMagic } from "markdown-magic";
 import prettier from "prettier";
 import type { TSESLint } from "@typescript-eslint/utils";
-const plugin = require("../src/index");
+import * as plugin from "../src/index";
+import type {
+  JSONSchema4,
+  JSONSchema4ArraySchema,
+  JSONSchema4TypeName,
+} from "@typescript-eslint/utils/json-schema";
 
 const { rules, configs } = plugin;
 
-const ruleTableRows = Object.keys(rules)
-  .sort()
-  .map((id) => {
-    const { fixable, docs } = rules[id].meta;
-    return [
-      configs.recommended.rules[`solid/${id}`] ? "✔" : "",
-      fixable ? "🔧" : "",
-      `[solid/${id}](docs/${id}.md)`,
-      docs.description,
-    ].join(" | ");
-  });
+const ruleTableRows = (Object.keys(rules) as Array<keyof typeof rules>).sort().map((id) => {
+  const { fixable, docs } = rules[id].meta;
+  return [
+    configs.recommended.rules[`solid/${id}`] ? "✔" : "",
+    fixable ? "🔧" : "",
+    `[solid/${id}](docs/${id}.md)`,
+    docs?.description,
+  ]
+    .filter((str): str is NonNullable<typeof str> => str != null)
+    .join(" | ");
+});
 
 type Level = 0 | 1 | 2 | "off" | "warn" | "error";
 type Options = Level | [Level, ...unknown[]];
@@ -44,9 +48,12 @@ const configLevel = (options: Options): Extract<Level, string> => {
     return typeof options === "number" ? (["off", "warn", "error"] as const)[options] : options;
   }
 };
-const getLevelForRule = (ruleName: string, formatter: (options: Options) => string) =>
+const getLevelForRule = (
+  ruleName: `solid/${string}`,
+  formatter: (options: Options) => string
+): string =>
   ruleName in configs.recommended.rules
-    ? formatter(configs.recommended.rules[ruleName])
+    ? formatter(configs.recommended.rules[ruleName as keyof typeof configs.recommended.rules])
     : formatter(0);
 
 const buildRulesTable = (rows: Array<string>) => {
@@ -58,8 +65,9 @@ const buildRulesTable = (rows: Array<string>) => {
 
 const buildHeader = (filename: string): string => {
   const ruleName = filename.replace(/\.md$/, "");
-  if (!rules[ruleName]) return " ";
-  const meta: TSESLint.RuleMetaData<string, readonly unknown[]> = rules[ruleName].meta;
+  if (!(ruleName in rules) || !rules[ruleName as keyof typeof rules]) return " ";
+
+  const meta: TSESLint.RuleMetaData<string, unknown> = rules[ruleName as keyof typeof rules].meta;
   return [
     `# solid/${ruleName}`,
     meta.docs?.description,
@@ -73,9 +81,16 @@ const buildHeader = (filename: string): string => {
 
 const buildOptions = (filename: string): string => {
   const ruleName = filename.replace(/\.md$/, "");
-  if (!rules[ruleName]) return " ";
-  const properties = rules[ruleName].meta.schema?.[0]?.properties;
+  if (!(ruleName in rules) || !rules[ruleName as keyof typeof rules]) return " ";
+
+  const schema = rules[ruleName as keyof typeof rules].meta.schema;
+  // 'length' checks if array, Array.isArray doesn't narrow properly
+  const schema0 = "length" in schema ? schema[0] : schema;
+  if (!schema0) return " ";
+
+  const properties = "properties" in schema0 ? schema0.properties : null;
   if (!properties) return " ";
+
   return [
     "## Rule Options\n",
     `Options shown here are the defaults. ${
@@ -87,12 +102,13 @@ const buildOptions = (filename: string): string => {
     "{",
     `  "solid/${ruleName}": ["${getLevelForRule(`solid/${ruleName}`, configLevel)}", { `,
     ...Object.keys(properties).map((prop) => {
-      let type = properties[prop].type;
+      let type: string | Array<JSONSchema4TypeName> | undefined = properties[prop].type;
       const _default = properties[prop].default;
       if (type === "array") {
-        type = `Array<${properties[prop].items.type}>`;
-      } else if (type === "string" && properties[prop].enum) {
-        type = properties[prop].enum.map((s: string) => JSON.stringify(s)).join(" | ");
+        const itemsSchema = (properties[prop] as JSONSchema4ArraySchema).items as JSONSchema4;
+        type = `Array<${itemsSchema.type}>`;
+      } else if (type === "string" && "enum" in properties[prop]) {
+        type = properties[prop].enum!.map((s) => JSON.stringify(s)).join(" | ");
       }
       return `    // ${properties[prop].description}\n    ${prop}: ${JSON.stringify(_default)}, ${
         type !== "boolean" ? "// " + type : ""
@@ -114,12 +130,12 @@ const options = (options: Array<any>) =>
     )
     .join(", ");
 
-const buildCases = (content: string, filename: string) => {
+const buildCases = async (content: string, filename: string) => {
   const ruleName = filename.replace(/\.md$/, "");
   const testPath = path.resolve(__dirname, "..", "test", "rules", `${ruleName}.test.ts`);
   let cases: any;
   try {
-    cases = require(testPath)?.cases;
+    cases = (await import(testPath))?.cases;
   } catch {
     return content;
   }
@@ -161,8 +177,8 @@ const buildCases = (content: string, filename: string) => {
   return markdown;
 };
 
-const buildTilde = () => {
-  const { version } = require("../package.json");
+const buildTilde = async () => {
+  const { version } = (await import("../package.json")).default;
   return [
     "```diff",
     `- "eslint-plugin-solid": "^${version}"\n+ "eslint-plugin-solid": "~${version}"`,
@@ -171,24 +187,20 @@ const buildTilde = () => {
 };
 
 async function run() {
-  markdownMagic(path.join(__dirname, "..", "README.md"), {
+  await markdownMagic(path.join(__dirname, "..", "README.md"), {
     transforms: {
       RULES: () => buildRulesTable(ruleTableRows),
       TILDE: () => buildTilde(),
     },
+    failOnMissingTransforms: true,
   });
-
-  const docRoot = path.resolve(__dirname, "..", "docs");
-  const docFiles = (await fs.readdir(docRoot)).filter((p) => p.endsWith(".md"));
-  for (const docFile of docFiles) {
-    markdownMagic(path.join(docRoot, docFile), {
-      transforms: {
-        HEADER: () => buildHeader(docFile),
-        OPTIONS: () => buildOptions(docFile),
-        CASES: (content: string) => buildCases(content, docFile),
-      },
-    });
-  }
+  await markdownMagic(path.resolve(__dirname, "..", "docs", "*.md"), {
+    transforms: {
+      HEADER: ({ srcPath }: any) => buildHeader(path.basename(srcPath)),
+      OPTIONS: ({ srcPath }: any) => buildOptions(path.basename(srcPath)),
+      CASES: ({ content, srcPath }: any) => buildCases(content, path.basename(srcPath)),
+    },
+    failOnMissingTransforms: true,
+  });
 }
-
 run();

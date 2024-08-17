@@ -1,6 +1,6 @@
 {
   "name": "eslint-solid-standalone",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "A bundle with eslint and eslint-plugin-solid that can be used in the browser.",
   "type": "module",
   "files": [
@@ -38,5 +38,10 @@
   },
   "dependencies": {
     "@types/eslint": "^8.56.7"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "eslint@8.57.0": "patches/eslint@8.57.0.patch"
+    }
   }
 }

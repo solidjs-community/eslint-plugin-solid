@@ -1,0 +1,22 @@
+diff --git a/package.json b/package.json
+index a51b58b2444f41ead8b445f27003245b451f5728..48820932d33a3671c07e0f909017a2894d3ace06 100644
+--- a/package.json
++++ b/package.json
+@@ -10,7 +10,8 @@
+   "exports": {
+     "./package.json": "./package.json",
+     ".": "./lib/api.js",
+-    "./use-at-your-own-risk": "./lib/unsupported-api.js"
++    "./use-at-your-own-risk": "./lib/unsupported-api.js",
++    "./linter": "./lib/linter/index.js"
+   },
+   "scripts": {
+     "build:docs:update-links": "node tools/fetch-docs-links.js",
+@@ -175,5 +176,6 @@
+   "license": "MIT",
+   "engines": {
+     "node": "^12.22.0 || ^14.17.0 || >=16.0.0"
+-  }
++  },
++  "sideEffects": false
+ }

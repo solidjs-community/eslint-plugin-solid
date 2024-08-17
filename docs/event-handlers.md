@@ -1,15 +1,14 @@
-<!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+<!-- doc-gen HEADER -->
 # solid/event-handlers
 Enforce naming DOM element event handlers consistently and prevent Solid's analysis from misunderstanding whether a prop should be an event handler.
 This rule is **a warning** by default.
 
 [View source](../src/rules/event-handlers.ts) · [View tests](../test/rules/event-handlers.test.ts)
-
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->
 
 See [this issue](https://github.com/solidjs-community/eslint-plugin-solid/issues/23) for rationale.
 
-<!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
+<!-- doc-gen OPTIONS -->
 ## Rule Options
 
 Options shown here are the defaults. 
@@ -24,10 +23,9 @@ Options shown here are the defaults.
   }]
 }
 ```
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
-
-<!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+<!-- doc-gen CASES -->
 ## Tests
 
 ### Invalid Examples
@@ -36,65 +34,64 @@ These snippets cause lint errors, and some can be auto-fixed.
 
 ```js
 let el = <div only />;
- 
+
 let el = <div only={() => {}} />;
- 
+
 let el = <div onclick={() => {}} />;
 // after eslint --fix:
 let el = <div onClick={() => {}} />;
- 
+
 let el = <div onClIcK={() => {}} />;
 // after eslint --fix:
 let el = <div onClick={() => {}} />;
- 
+
 let el = <div oncLICK={() => {}} />;
 // after eslint --fix:
 let el = <div onClick={() => {}} />;
- 
+
 let el = <div onLy />;
- 
+
 let el = <div onLy="string" />;
- 
+
 let el = <div onLy={5} />;
- 
+
 let el = <div onLy={"string"} />;
- 
+
 const string = "string";
 let el = <div onLy={string} />;
- 
+
 let el = <div onDoubleClick={() => {}} />;
 // after eslint --fix:
 let el = <div onDblClick={() => {}} />;
- 
+
 let el = <div ondoubleclick={() => {}} />;
 // after eslint --fix:
 let el = <div onDblClick={() => {}} />;
- 
+
 let el = <div ondblclick={() => {}} />;
 // after eslint --fix:
 let el = <div onDblClick={() => {}} />;
- 
+
 /* eslint solid/event-handlers: ["error", { "warnOnSpread": true }] */
 const handleClick = () => 42;
 let el = <div {...{ onClick: handleClick, foo }} />;
 // after eslint --fix:
 const handleClick = () => 42;
 let el = <div {...{ foo }} onClick={handleClick} />;
- 
+
 /* eslint solid/event-handlers: ["error", { "warnOnSpread": true }] */
 const handleClick = () => 42;
 let el = <div {...{ foo, onClick: handleClick }} />;
 // after eslint --fix:
 const handleClick = () => 42;
 let el = <div {...{ foo }} onClick={handleClick} />;
- 
+
 /* eslint solid/event-handlers: ["error", { "warnOnSpread": true }] */
 const handleClick = () => 42;
 let el = <div {...{ onClick: handleClick }} />;
 // after eslint --fix:
 const handleClick = () => 42;
 let el = <div onClick={handleClick} />;
- 
 ```
 
 ### Valid Examples
@@ -134,6 +131,5 @@ let el = <div onclick={onclick} />;
 
 /* eslint solid/event-handlers: ["error", { "ignoreCase": true }] */
 let el = <div only={only} />;
-
 ```
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->

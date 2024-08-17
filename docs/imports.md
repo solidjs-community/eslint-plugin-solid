@@ -1,17 +1,16 @@
-<!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+<!-- doc-gen HEADER -->
 # solid/imports
 Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store".
 This rule is **a warning** by default.
 
 [View source](../src/rules/imports.ts) · [View tests](../test/rules/imports.test.ts)
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- doc-gen OPTIONS -->
 
-<!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
- 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+<!-- doc-gen CASES -->
 ## Tests
 
 ### Invalid Examples
@@ -22,39 +21,38 @@ These snippets cause lint errors, and all of them can be auto-fixed.
 import { createEffect } from "solid-js/web";
 // after eslint --fix:
 import { createEffect } from "solid-js";
- 
+
 import { createEffect } from "solid-js/web";
 import { createSignal } from "solid-js";
 // after eslint --fix:
 import { createSignal, createEffect } from "solid-js";
- 
+
 import type { Component } from "solid-js/store";
 import { createSignal } from "solid-js";
 console.log("hi");
 // after eslint --fix:
 import { createSignal, Component } from "solid-js";
 console.log("hi");
- 
+
 import { createSignal } from "solid-js/web";
 import "solid-js";
 // after eslint --fix:
 import { createSignal } from "solid-js";
- 
+
 import { createSignal } from "solid-js/web";
 import {} from "solid-js";
 // after eslint --fix:
 import { createSignal } from "solid-js";
- 
+
 import { createEffect } from "solid-js/web";
 import { render } from "solid-js";
 // after eslint --fix:
 import { render, createEffect } from "solid-js";
- 
+
 import { render, createEffect } from "solid-js";
 // after eslint --fix:
 import { render } from "solid-js/web";
 import { createEffect } from "solid-js";
- 
 ```
 
 ### Valid Examples
@@ -80,6 +78,5 @@ Solid.render();
 
 import type { Component, JSX } from "solid-js";
 import type { Store } from "solid-js/store";
-
 ```
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->

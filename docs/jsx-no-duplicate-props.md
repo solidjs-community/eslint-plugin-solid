@@ -1,13 +1,12 @@
-<!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+<!-- doc-gen HEADER -->
 # solid/jsx-no-duplicate-props
 Disallow passing the same prop twice in JSX.
 This rule is **an error** by default.
 
 [View source](../src/rules/jsx-no-duplicate-props.ts) · [View tests](../test/rules/jsx-no-duplicate-props.test.ts)
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
-
-<!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
+<!-- doc-gen OPTIONS -->
 ## Rule Options
 
 Options shown here are the defaults. 
@@ -20,10 +19,9 @@ Options shown here are the defaults.
   }]
 }
 ```
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
-
-<!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+<!-- doc-gen CASES -->
 ## Tests
 
 ### Invalid Examples
@@ -32,25 +30,24 @@ These snippets cause lint errors.
 
 ```js
 let el = <div a="a" a="aaaa" />;
- 
+
 let el = <div a="a" {...{ a: "aaaa" }} />;
- 
+
 let el = <div {...{ a: "aaaa" }} a="a" />;
- 
+
 let el = <div a="a" {...{ a: "aaaa" }} />;
- 
+
 let el = <div class="blue" class="green" />;
- 
+
 let el = <div class="blue" {...{ class: "green" }} />;
- 
+
 let el = (
   <div children={<div />}>
     <div />
   </div>
 );
- 
+
 let el = <div innerHTML="<p></p>" textContent="howdy!" />;
- 
 ```
 
 ### Valid Examples
@@ -77,6 +74,5 @@ let el = (
     <div />
   </div>
 );
-
 ```
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->
