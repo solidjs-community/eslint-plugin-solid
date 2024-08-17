@@ -1,17 +1,16 @@
-<!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+<!-- doc-gen HEADER -->
 # solid/prefer-for
 Enforce using Solid's `<For />` component for mapping an array to JSX elements.
 This rule is **an error** by default.
 
 [View source](../src/rules/prefer-for.ts) · [View tests](../test/rules/prefer-for.test.ts)
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- doc-gen OPTIONS -->
 
-<!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
- 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+<!-- doc-gen CASES -->
 ## Tests
 
 ### Invalid Examples
@@ -32,7 +31,7 @@ let Component = (props) => (
     <For each={props.data}>{(d) => <li>{d.text}</li>}</For>
   </ol>
 );
- 
+
 let Component = (props) => (
   <>
     {props.data.map((d) => (
@@ -46,7 +45,7 @@ let Component = (props) => (
     <For each={props.data}>{(d) => <li>{d.text}</li>}</For>
   </>
 );
- 
+
 let Component = (props) => (
   <ol>
     {props.data.map((d) => (
@@ -60,7 +59,7 @@ let Component = (props) => (
     <For each={props.data}>{(d) => <li key={d.id}>{d.text}</li>}</For>
   </ol>
 );
- 
+
 function Component(props) {
   return (
     <ol>
@@ -78,7 +77,7 @@ function Component(props) {
     </ol>
   );
 }
- 
+
 function Component(props) {
   return (
     <ol>
@@ -92,7 +91,7 @@ function Component(props) {
 function Component(props) {
   return <ol>{<For each={props.data}>{(d) => <li>{d.text}</li>}</For>}</ol>;
 }
- 
+
 let Component = (props) => (
   <ol>
     {props.data.map(() => (
@@ -100,7 +99,7 @@ let Component = (props) => (
     ))}
   </ol>
 );
- 
+
 let Component = (props) => (
   <ol>
     {props.data.map((...args) => (
@@ -108,7 +107,6 @@ let Component = (props) => (
     ))}
   </ol>
 );
- 
 ```
 
 ### Valid Examples
@@ -128,6 +126,5 @@ let Component = (props) => {
   let abc = x.map((y) => y + z);
   return <div>Hello, world!</div>;
 };
-
 ```
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->

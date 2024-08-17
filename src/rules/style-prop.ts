@@ -84,7 +84,9 @@ export default createRule<Options, MessageIds>({
           let objectStyles: Record<string, string> | undefined;
           try {
             objectStyles = parse(style.value) ?? undefined;
-          } catch (e) {} // eslint-disable-line no-empty
+          } catch {
+            // no-op
+          }
 
           context.report({
             node: style,

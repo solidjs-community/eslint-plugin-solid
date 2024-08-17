@@ -33,7 +33,10 @@ export function getScope(context: CompatContext, node: TSESTree.Node): TSESLint.
   return context.sourceCode.getScope(node);
 }
 
-export function findVariable(context: CompatContext, node: TSESTree.Identifier) {
+export function findVariable(
+  context: CompatContext,
+  node: TSESTree.Identifier
+): TSESLint.Scope.Variable | null {
   return ASTUtils.findVariable(getScope(context, node), node);
 }
 

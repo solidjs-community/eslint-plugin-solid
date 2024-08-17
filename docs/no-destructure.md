@@ -1,17 +1,16 @@
-<!-- AUTO-GENERATED-CONTENT:START (HEADER) -->
+<!-- doc-gen HEADER -->
 # solid/no-destructure
 Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list.
 This rule is **an error** by default.
 
 [View source](../src/rules/no-destructure.ts) · [View tests](../test/rules/no-destructure.test.ts)
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- doc-gen OPTIONS -->
 
-<!-- AUTO-GENERATED-CONTENT:START (OPTIONS) -->
- 
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->
 
-<!-- AUTO-GENERATED-CONTENT:START (CASES) -->
+<!-- doc-gen CASES -->
 ## Tests
 
 ### Invalid Examples
@@ -22,73 +21,73 @@ These snippets cause lint errors, and all of them can be auto-fixed.
 let Component = ({}) => <div />;
 // after eslint --fix:
 let Component = (props) => <div />;
- 
+
 let Component = ({ a }) => <div a={a} />;
 // after eslint --fix:
 let Component = (props) => <div a={props.a} />;
- 
+
 let Component = ({ a }) => <div a={a} />;
 // after eslint --fix:
 let Component = (props) => <div a={props.a} />;
- 
+
 let Component = ({ a: A }) => <div a={A} />;
 // after eslint --fix:
 let Component = (props) => <div a={props.a} />;
- 
+
 let Component = ({ a: A }) => <div a={A} />;
 // after eslint --fix:
 let Component = (props) => <div a={props["a"]} />;
- 
+
 let Component = ({ ["a" + ""]: a }) => <div a={a} />;
 // after eslint --fix:
 let Component = (props) => <div a={props["a" + ""]} />;
- 
+
 let Component = ({ ["a" + ""]: a, b }) => <div a={a} b={b} />;
 // after eslint --fix:
 let Component = (props) => <div a={props["a" + ""]} b={props.b} />;
- 
+
 let Component = ({ a = 5 }) => <div a={a} />;
 // after eslint --fix:
 let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
 };
- 
+
 let Component = ({ a = 5 }) => <div a={a} />;
 // after eslint --fix:
 let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
 };
- 
+
 let Component = ({ a: A = 5 }) => <div a={A} />;
 // after eslint --fix:
 let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
 };
- 
+
 let Component = ({ a: A = 5 }) => <div a={A} />;
 // after eslint --fix:
 let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return <div a={props["a"]} />;
 };
- 
+
 let Component = ({ ["a" + ""]: a = 5 }) => <div a={a} />;
 // after eslint --fix:
 let Component = (_props) => {
   const props = mergeProps({ ["a" + ""]: 5 }, _props);
   return <div a={props["a" + ""]} />;
 };
- 
+
 let Component = ({ ["a" + ""]: a = 5, b = 10, c }) => <div a={a} b={b} c={c} />;
 // after eslint --fix:
 let Component = (_props) => {
   const props = mergeProps({ ["a" + ""]: 5, b: 10 }, _props);
   return <div a={props["a" + ""]} b={props.b} c={props.c} />;
 };
- 
+
 let Component = ({ a = 5 }) => {
   return <div a={a} />;
 };
@@ -97,7 +96,7 @@ let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
 };
- 
+
 let Component = ({ a = 5 }) => {
   various();
   statements();
@@ -110,70 +109,70 @@ let Component = (_props) => {
   statements();
   return <div a={props.a} />;
 };
- 
+
 let Component = ({ ...rest }) => <div a={rest.a} />;
 // after eslint --fix:
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, []);
   return <div a={rest.a} />;
 };
- 
+
 let Component = ({ a, ...rest }) => <div a={a} />;
 // after eslint --fix:
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return <div a={props.a} />;
 };
- 
+
 let Component = ({ a, ...rest }) => <div a={a} />;
 // after eslint --fix:
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return <div a={props.a} />;
 };
- 
+
 let Component = ({ a, ...other }) => <div a={a} />;
 // after eslint --fix:
 let Component = (_props) => {
   const [props, other] = splitProps(_props, ["a"]);
   return <div a={props.a} />;
 };
- 
+
 let Component = ({ a, ...rest }) => <div a={a} b={rest.b} />;
 // after eslint --fix:
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return <div a={props.a} b={rest.b} />;
 };
- 
+
 let Component = ({ a: A, ...rest }) => <div a={A} />;
 // after eslint --fix:
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return <div a={props.a} />;
 };
- 
+
 let Component = ({ a: A, ...rest }) => <div a={A} />;
 // after eslint --fix:
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return <div a={props["a"]} />;
 };
- 
+
 let Component = ({ ["a" + ""]: A, ...rest }) => <div a={A} />;
 // after eslint --fix:
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a" + ""]);
   return <div a={props["a" + ""]} />;
 };
- 
+
 let Component = ({ ["a" + ""]: A, ...rest }) => <div a={A} b={rest.b} />;
 // after eslint --fix:
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a" + ""]);
   return <div a={props["a" + ""]} b={rest.b} />;
 };
- 
+
 let Component = ({ a = 5, ...rest }) => {
   return <div a={a} b={rest.b} />;
 };
@@ -182,27 +181,24 @@ let Component = (_props) => {
   const [props, rest] = splitProps(mergeProps({ a: 5 }, _props), ["a"]);
   return <div a={props.a} b={rest.b} />;
 };
- 
+
 let Component = ({ a = 5, ...rest }) => <div a={a} b={rest.b} />;
 // after eslint --fix:
 let Component = (_props) => {
   const [props, rest] = splitProps(mergeProps({ a: 5 }, _props), ["a"]);
   return <div a={props.a} b={rest.b} />;
 };
- 
+
 let Component = ({ ["a" + ""]: A = 5, ...rest }) => <div a={A} b={rest.b} />;
 // after eslint --fix:
 let Component = (_props) => {
-  const [props, rest] = splitProps(mergeProps({ ["a" + ""]: 5 }, _props), [
-    "a" + "",
-  ]);
+  const [props, rest] = splitProps(mergeProps({ ["a" + ""]: 5 }, _props), ["a" + ""]);
   return <div a={props["a" + ""]} b={rest.b} />;
 };
- 
+
 let Component = ({ prop1, prop2 }: Props) => <div p1={prop1} p2={prop2} />;
 // after eslint --fix:
 let Component = (props: Props) => <div p1={props.prop1} p2={props.prop2} />;
- 
 ```
 
 ### Valid Examples
@@ -256,6 +252,5 @@ let Component = (props) => {
 let element = <div />;
 
 let Component = (props: Props) => <div />;
-
 ```
-<!-- AUTO-GENERATED-CONTENT:END -->
+<!-- end-doc-gen -->

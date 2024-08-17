@@ -10,13 +10,14 @@ export default tseslint.config(
     ignores: ["dist", "**/dist.*", "./configs", "node_modules", "eslint.config.mjs"],
   },
   js.configs.recommended,
+  tseslint.configs.eslintRecommended,
   ...tseslint.configs.recommended,
   {
     languageOptions: {
       sourceType: "module",
       parser: tseslint.parser,
       parserOptions: {
-        project: "tsconfig.json",
+        project: "./tsconfig.json",
       },
       globals: globals.node,
     },
@@ -57,6 +58,13 @@ export default tseslint.config(
       ],
     },
   },
+  // needed for CommonJS / ESLint <= v8 compatibility
+  {
+    files: ["configs/*"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
   // standalone is designed not to need any Node or browser APIs
   {
     files: ["standalone/index.js"],
@@ -74,6 +82,7 @@ export default tseslint.config(
     rules: {
       ...solid.configs["flat/recommended"].rules,
       "@typescript-eslint/ban-ts-comment": 0,
+      "@typescript-eslint/no-unused-expressions": 0,
       "@typescript-eslint/no-unused-vars": 0,
     },
   }
