@@ -9,7 +9,7 @@
       "env": ["PARSER"]
     },
     "turbo:docs": {
-      "dependsOn": ["^turbo:build", "^turbo:docs"],
+      "dependsOn": ["^turbo:docs"],
       "env": ["PARSER"]
     },
     "//#turbo:docs": {

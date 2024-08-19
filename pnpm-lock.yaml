@@ -113,9 +113,6 @@ importers:
       eslint:
         specifier: ^9.5.0
         version: 9.5.0
-      eslint-plugin-solid:
-        specifier: 'link:'
-        version: 'link:'
       eslint-v6:
         specifier: npm:eslint@6
         version: eslint@6.8.0
