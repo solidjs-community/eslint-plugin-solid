@@ -1,6 +1,6 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-pnpm docs
+pnpm run docs
 git add README.md packages/eslint-plugin-solid/README.md packages/eslint-plugin-solid/docs/*
 pnpm lint-staged
