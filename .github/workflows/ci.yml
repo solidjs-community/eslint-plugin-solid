@@ -25,15 +25,5 @@ jobs:
           cache: "pnpm"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Run build
-        run: pnpm run build
-      - name: Lint source code
-        run: pnpm run lint --max-warnings=0
-      - name: Run all tests
-        run: pnpm run test:all
-      - name: Sanity check standalone build
-        working-directory: standalone
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm build
-          pnpm test
+      - name: Run CI with turbo
+        run: pnpm run ci

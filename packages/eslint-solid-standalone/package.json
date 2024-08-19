@@ -2,22 +2,26 @@
   "name": "eslint-solid-standalone",
   "version": "0.14.2",
   "description": "A bundle with eslint and eslint-plugin-solid that can be used in the browser.",
+  "repository": "https://github.com/solidjs-community/eslint-plugin-solid",
+  "license": "MIT",
+  "author": "Josh Wilson <joshwilsonvu@gmail.com>",
   "type": "module",
+  "main": "dist.js",
+  "types": "dist.d.ts",
   "files": [
     "dist.js",
     "dist.d.ts",
     "dist.js.map",
     "README.md"
   ],
-  "main": "dist.js",
-  "types": "dist.d.ts",
-  "repository": "https://github.com/solidjs-community/eslint-plugin-solid",
-  "author": "Josh Wilson <joshwilsonvu@gmail.com>",
-  "license": "MIT",
   "scripts": {
     "build": "rollup --config=rollup.config.mjs",
-    "prepublishOnly": "cd .. && pnpm build && cd standalone && pnpm build && pnpm test",
-    "test": "node --experimental-vm-modules ./test.mjs"
+    "test": "node --experimental-vm-modules ./test.mjs",
+    "turbo:build": "rollup --config=rollup.config.mjs",
+    "turbo:test": "node --experimental-vm-modules ./test.mjs"
+  },
+  "dependencies": {
+    "@types/eslint": "^8.56.7"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
@@ -26,7 +30,8 @@
     "@rollup/pluginutils": "^5.1.0",
     "@typescript-eslint/parser": "^6.21.0",
     "@typescript-eslint/utils": "^6.21.0",
-    "eslint": "^8.57.0",
+    "eslint": "8.57.0",
+    "eslint-plugin-solid": "workspace:^",
     "magic-string": "^0.30.8",
     "memoize-one": "^6.0.0",
     "rollup": "^3.29.4",
@@ -35,13 +40,5 @@
   },
   "peerDependencies": {
     "typescript": ">=4.0.0"
-  },
-  "dependencies": {
-    "@types/eslint": "^8.56.7"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "eslint@8.57.0": "patches/eslint@8.57.0.patch"
-    }
   }
 }

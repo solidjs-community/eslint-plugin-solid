@@ -1,0 +1,17 @@
+{
+  "name": "test",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest --run",
+    "turbo:test": "vitest --run"
+  },
+  "devDependencies": {
+    "@types/eslint-v8": "npm:@types/eslint@8",
+    "eslint": "^9.5.0",
+    "eslint-plugin-solid": "workspace:^",
+    "eslint-solid-standalone": "workspace:^",
+    "eslint-v8": "npm:eslint@8",
+    "vitest": "^1.5.2"
+  }
+}

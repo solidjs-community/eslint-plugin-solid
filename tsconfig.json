@@ -5,7 +5,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "allowJs": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true
   },
-  "include": ["src", "configs", "test", "scripts", "standalone", "vitest.*"]
+  "include": ["packages/eslint-plugin-solid", "packages/eslint-solid-standalone", "test"],
+  "exclude": ["**/dist", "**/dist.*"]
 }

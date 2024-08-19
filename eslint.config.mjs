@@ -1,13 +1,15 @@
 // @ts-check
+import path from "node:path";
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import pluginEslintPlugin from "eslint-plugin-eslint-plugin";
-import solid from "./dist/index.js";
+
+const tsconfigPath = path.resolve("tsconfig.json");
 
 export default tseslint.config(
   {
-    ignores: ["dist", "**/dist.*", "./configs", "node_modules", "eslint.config.mjs"],
+    ignores: ["**/dist/", "**/dist.*", "**/.tsup/", "**/eslint.config.mjs", "test/"],
   },
   js.configs.recommended,
   tseslint.configs.eslintRecommended,
@@ -17,7 +19,7 @@ export default tseslint.config(
       sourceType: "module",
       parser: tseslint.parser,
       parserOptions: {
-        project: "./tsconfig.json",
+        project: tsconfigPath,
       },
       globals: globals.node,
     },
@@ -33,7 +35,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["src/rules/*.ts", "configs/*"],
+    files: ["packages/eslint-plugin-solid/src/rules/*.ts"],
     languageOptions: {
       globals: globals.node,
     },
@@ -56,34 +58,6 @@ export default tseslint.config(
             "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/{{name}}.md",
         },
       ],
-    },
-  },
-  // needed for CommonJS / ESLint <= v8 compatibility
-  {
-    files: ["configs/*"],
-    rules: {
-      "@typescript-eslint/no-require-imports": "off",
-    },
-  },
-  // standalone is designed not to need any Node or browser APIs
-  {
-    files: ["standalone/index.js"],
-    languageOptions: {
-      globals: {},
-    },
-  },
-  // fixture gets tested with the plugin
-  {
-    files: ["test/fixture/**/*.{js,jsx,ts,tsx}"],
-    ...solid.configs["flat/recommended"],
-    languageOptions: {
-      globals: globals.browser,
-    },
-    rules: {
-      ...solid.configs["flat/recommended"].rules,
-      "@typescript-eslint/ban-ts-comment": 0,
-      "@typescript-eslint/no-unused-expressions": 0,
-      "@typescript-eslint/no-unused-vars": 0,
     },
   }
 );
