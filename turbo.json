@@ -9,7 +9,6 @@
       "env": ["PARSER"]
     },
     "turbo:docs": {
-      "dependsOn": ["^turbo:docs"],
       "env": ["PARSER"]
     },
     "//#turbo:docs": {
