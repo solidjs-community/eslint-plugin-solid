@@ -18,7 +18,7 @@ const context = vm.createContext({
 });
 
 // create a module with the standalone build
-const code = fs.readFileSync(path.resolve(import.meta.dirname, "dist.js"), "utf-8");
+const code = fs.readFileSync(path.resolve("dist.js"), "utf-8");
 const dist = new vm.SourceTextModule(code, { identifier: "dist.js", context });
 
 // create a module reexporting typescript, a peer dependency of the standalone build
