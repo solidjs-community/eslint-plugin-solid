@@ -170,6 +170,7 @@ Flat configs are also available as `plugin.configs['flat/recommended']` and `plu
 <!-- doc-gen RULES -->
 | ✔ | 🔧 | Rule | Description |
 | :---: | :---: | :--- | :--- |
+| ✔ | 🔧 | [solid/boolean-attr](docs/boolean-attr.md) | Enforce explicit boolean attribute evaluation when the attribute is enumerated |
 | ✔ | 🔧 | [solid/components-return-once](docs/components-return-once.md) | Disallow early returns in components. Solid components only run once, and so conditionals should be inside JSX. |
 | ✔ | 🔧 | [solid/event-handlers](docs/event-handlers.md) | Enforce naming DOM element event handlers consistently and prevent Solid's analysis from misunderstanding whether a prop should be an event handler. |
 | ✔ | 🔧 | [solid/imports](docs/imports.md) | Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store". |
