@@ -1,0 +1,99 @@
+{
+  "name": "eslint-plugin-solid",
+  "version": "0.14.2",
+  "description": "Solid-specific linting rules for ESLint.",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "solid",
+    "solidjs",
+    "reactivity"
+  ],
+  "repository": "https://github.com/solidjs-community/eslint-plugin-solid",
+  "license": "MIT",
+  "author": "Josh Wilson <joshwilsonvu@gmail.com>",
+  "exports": {
+    ".": {
+      "types": {
+        "import": "./dist/index.d.mts",
+        "require": "./dist/index.d.ts"
+      },
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./configs/recommended": {
+      "types": {
+        "import": "./dist/configs/recommended.d.mts",
+        "require": "./dist/configs/recommended.d.ts"
+      },
+      "import": "./dist/configs/recommended.mjs",
+      "require": "./dist/configs/recommended.js"
+    },
+    "./configs/typescript": {
+      "types": {
+        "import": "./dist/configs/typescript.d.mts",
+        "require": "./dist/configs/typescript.d.ts"
+      },
+      "import": "./dist/configs/typescript.mjs",
+      "require": "./dist/configs/typescript.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest --run",
+    "test:all": "PARSER=all vitest --run",
+    "test:babel": "PARSER=babel vitest --run",
+    "test:ts": "PARSER=ts vitest --run",
+    "test:v6": "PARSER=v6 vitest --run",
+    "test:v7": "PARSER=v7 vitest --run",
+    "test:watch": "vitest",
+    "turbo:build": "tsup",
+    "turbo:docs": "PARSER=none tsx scripts/docs.ts",
+    "turbo:test": "vitest --run"
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "^7.13.1 || ^8.0.0",
+    "estraverse": "^5.3.0",
+    "is-html": "^2.0.0",
+    "kebab-case": "^1.0.2",
+    "known-css-properties": "^0.30.0",
+    "style-to-object": "^1.0.6"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.4",
+    "@babel/eslint-parser": "^7.24.7",
+    "@microsoft/api-extractor": "^7.47.6",
+    "@types/eslint": "^8.56.10",
+    "@types/eslint-v6": "npm:@types/eslint@6",
+    "@types/eslint-v7": "npm:@types/eslint@7",
+    "@types/eslint-v8": "npm:@types/eslint@8",
+    "@types/eslint__js": "^8.42.3",
+    "@types/estraverse": "^5.1.7",
+    "@types/is-html": "^2.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.5.0",
+    "eslint-v6": "npm:eslint@6",
+    "eslint-v7": "npm:eslint@7",
+    "eslint-v8": "npm:eslint@8",
+    "markdown-magic": "^3.3.0",
+    "prettier": "^2.8.8",
+    "tsup": "^8.2.4",
+    "tsx": "^4.17.0",
+    "vitest": "^1.5.2"
+  },
+  "peerDependencies": {
+    "eslint": "^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

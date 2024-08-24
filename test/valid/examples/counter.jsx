@@ -5,7 +5,7 @@ const CountingComponent = () => {
   const [count, setCount] = createSignal(0);
   const interval = setInterval(() => setCount((c) => c + 1), 1000);
   onCleanup(function cleanup() {
-     clearInterval(interval + count())
+    clearInterval(interval + count());
   });
   return <div>Count value is {count()}</div>;
 };

@@ -19,11 +19,6 @@ export default {
     replace({
       verbose: true,
       alias: [
-        // import eslint from eslint-plugin-solid deps for consistency with ../dist
-        {
-          match: /^eslint$/,
-          target: "../node_modules/eslint",
-        },
         {
           // those files should be omitted, we do not want them to be exposed to web
           match: [

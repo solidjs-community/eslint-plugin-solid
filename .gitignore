@@ -1,6 +1,7 @@
 # Build directory
 dist
 dist.*
+!packages/eslint-solid-standalone/dist.d.ts
 
 # Logs
 logs
@@ -106,3 +107,6 @@ typings/
 # TernJS port file
 .tern-port
 .DS_Store
+
+# Turbo cache
+.turbo

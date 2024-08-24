@@ -1,0 +1,32 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "turbo:build": {
+      "dependsOn": ["^turbo:build"],
+      "outputs": ["dist/**", "dist.*"]
+    },
+    "turbo:test": {
+      "dependsOn": ["turbo:build"],
+      "env": ["PARSER"]
+    },
+    "turbo:docs": {
+      "env": ["PARSER"]
+    },
+    "//#turbo:docs": {
+      "dependsOn": ["eslint-plugin-solid#turbo:docs"]
+    },
+    "//#turbo:lint": {
+      "dependsOn": ["//#transit"]
+    },
+    "//#turbo:tsc": {
+      "dependsOn": [
+        "eslint-plugin-solid#turbo:build",
+        "eslint-solid-standalone#turbo:build",
+        "//#transit"
+      ]
+    },
+    "//#transit": {
+      "dependsOn": ["^transit"]
+    }
+  }
+}

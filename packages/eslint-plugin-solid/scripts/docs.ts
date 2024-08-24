@@ -3,7 +3,7 @@ import path from "path";
 import { markdownMagic } from "markdown-magic";
 import prettier from "prettier";
 import type { TSESLint } from "@typescript-eslint/utils";
-import * as plugin from "../src/index";
+import * as plugin from "../src/index.ts";
 import type {
   JSONSchema4,
   JSONSchema4ArraySchema,
@@ -12,17 +12,19 @@ import type {
 
 const { rules, configs } = plugin;
 
-const ruleTableRows = (Object.keys(rules) as Array<keyof typeof rules>).sort().map((id) => {
-  const { fixable, docs } = rules[id].meta;
-  return [
-    configs.recommended.rules[`solid/${id}`] ? "✔" : "",
-    fixable ? "🔧" : "",
-    `[solid/${id}](docs/${id}.md)`,
-    docs?.description,
-  ]
-    .filter((str): str is NonNullable<typeof str> => str != null)
-    .join(" | ");
-});
+const ruleTableRows = (Object.keys(rules) as Array<keyof typeof rules & string>)
+  .sort()
+  .map((id) => {
+    const { fixable, docs } = rules[id].meta;
+    return [
+      configs.recommended.rules[`solid/${id}`] ? "✔" : "",
+      fixable ? "🔧" : "",
+      `[solid/${id}](docs/${id}.md)`,
+      docs?.description,
+    ]
+      .filter((str): str is NonNullable<typeof str> => str != null)
+      .join(" | ");
+  });
 
 type Level = 0 | 1 | 2 | "off" | "warn" | "error";
 type Options = Level | [Level, ...unknown[]];
