@@ -2,6 +2,9 @@
   "name": "eslint-plugin-solid-monorepo",
   "private": true,
   "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "build": "turbo run turbo:build",
     "ci": "PARSER=all turbo run turbo:build turbo:test turbo:docs turbo:lint turbo:tsc",
@@ -12,7 +15,8 @@
     "tsc": "turbo run turbo:tsc",
     "turbo:docs": "cp packages/eslint-plugin-solid/README.md README.md",
     "turbo:lint": "eslint --max-warnings=0",
-    "turbo:tsc": "tsc"
+    "turbo:tsc": "tsc",
+    "version": "sh -c 'npm version --workspace=packages/eslint-plugin-solid --workspace=packages/eslint-solid-standalone --workspaces-update=false ${0} && git add packages/*/package.json'"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

@@ -8,6 +8,8 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     strategy:
       matrix:
         node: ["18", "20", "22"]
@@ -39,3 +41,27 @@ jobs:
 
       - name: Run CI with turbo
         run: pnpm run ci
+
+      - name: Publish eslint-plugin-solid to npm if needed
+        if: ${{ github.ref_name }} == "main"
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          package: ./packages/eslint-plugin-solid
+          token: ${{ secrets.NPM_TOKEN }}
+          strategy: upgrade
+          access: public
+          provenance: true
+          # TODO remove
+          dry-run: true
+
+      - name: Publish eslint-solid-standalone to npm if needed
+        if: ${{ github.ref_name }} == "main"
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          package: ./packages/eslint-solid-standalone
+          token: ${{ secrets.NPM_TOKEN }}
+          strategy: upgrade
+          access: public
+          provenance: true
+          # TODO remove
+          dry-run: true

@@ -1,0 +1,39 @@
+name: Version
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Semver version bump"
+        required: true
+        type: choice
+        options: [patch, minor, major]
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Bump version
+        if: ${{ github.event_name }} == "workflow_dispatch" && ${{ github.ref_name }} == "main"
+        run: pnpm run version -- ${{ inputs.version }}
+
+      - name: Create PR with new versions
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: "gh-action-version"
+          delete-branch: true
+          title: "Update package versions"
+          body: "Merging this PR will publish packages to npm at the new version."
