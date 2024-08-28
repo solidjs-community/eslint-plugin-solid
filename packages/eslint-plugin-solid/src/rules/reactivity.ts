@@ -575,7 +575,7 @@ export default createRule<Options, MessageIds>({
             });
           } else if (
             parent.property.type === "Identifier" &&
-            /^(?:initial|default|static)[A-Z]/.test(parent.property.name)
+            /^(?:initial|default|static[A-Z])/.test(parent.property.name)
           ) {
             // We're using a prop with a name that starts with `initial` or
             // `default`, like `props.initialCount`. We'll refrain from warning
