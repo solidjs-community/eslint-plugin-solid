@@ -42,26 +42,8 @@ jobs:
       - name: Run CI with turbo
         run: pnpm run ci
 
-      - name: Publish eslint-plugin-solid to npm if needed
-        if: ${{ github.ref_name }} == "main"
-        uses: JS-DevTools/npm-publish@v3
-        with:
-          package: ./packages/eslint-plugin-solid
-          token: ${{ secrets.NPM_TOKEN }}
-          strategy: upgrade
-          access: public
-          provenance: true
-          # TODO remove
-          dry-run: true
-
-      - name: Publish eslint-solid-standalone to npm if needed
-        if: ${{ github.ref_name }} == "main"
-        uses: JS-DevTools/npm-publish@v3
-        with:
-          package: ./packages/eslint-solid-standalone
-          token: ${{ secrets.NPM_TOKEN }}
-          strategy: upgrade
-          access: public
-          provenance: true
-          # TODO remove
-          dry-run: true
+      - name: Publish to npm if needed
+        if: ${{ github.ref }} == "refs/heads/main"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm publish -r --dry-run
