@@ -26,8 +26,12 @@ pluginPackageJson.version = newVersion;
 standalonePackageJson.version = newVersion;
 
 await Promise.all([
-  fs.writeFile(pluginPackageJsonPath, JSON.stringify(pluginPackageJson, null, 2), "utf-8"),
-  fs.writeFile(standalonePackageJsonPath, JSON.stringify(standalonePackageJson, null, 2), "utf-8"),
+  fs.writeFile(pluginPackageJsonPath, JSON.stringify(pluginPackageJson, null, 2) + "\n", "utf-8"),
+  fs.writeFile(
+    standalonePackageJsonPath,
+    JSON.stringify(standalonePackageJson, null, 2) + "\n",
+    "utf-8"
+  ),
 ]);
 await new Promise((resolve, reject) => {
   exec(
