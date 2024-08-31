@@ -188,21 +188,16 @@ const buildTilde = async () => {
   ].join("\n");
 };
 
-async function run() {
-  await markdownMagic(path.join(__dirname, "..", "README.md"), {
+markdownMagic(
+  [path.join(__dirname, "..", "README.md"), path.join(__dirname, "..", "docs", "*.md")],
+  {
     transforms: {
       RULES: () => buildRulesTable(ruleTableRows),
       TILDE: () => buildTilde(),
-    },
-    failOnMissingTransforms: true,
-  });
-  await markdownMagic(path.resolve(__dirname, "..", "docs", "*.md"), {
-    transforms: {
       HEADER: ({ srcPath }: any) => buildHeader(path.basename(srcPath)),
       OPTIONS: ({ srcPath }: any) => buildOptions(path.basename(srcPath)),
       CASES: ({ content, srcPath }: any) => buildCases(content, path.basename(srcPath)),
     },
     failOnMissingTransforms: true,
-  });
-}
-run();
+  }
+);
