@@ -43,6 +43,9 @@ importers:
       prettier-plugin-packagejson:
         specifier: ^2.5.1
         version: 2.5.1(prettier@2.8.8)
+      semver:
+        specifier: ^7.6.0
+        version: 7.6.3
       turbo:
         specifier: ^2.0.14
         version: 2.0.14

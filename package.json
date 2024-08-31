@@ -2,6 +2,10 @@
   "name": "eslint-plugin-solid-monorepo",
   "private": true,
   "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "build": "turbo run turbo:build",
     "ci": "PARSER=all turbo run turbo:build turbo:test turbo:docs turbo:lint turbo:tsc",
@@ -12,7 +16,8 @@
     "tsc": "turbo run turbo:tsc",
     "turbo:docs": "cp packages/eslint-plugin-solid/README.md README.md",
     "turbo:lint": "eslint --max-warnings=0",
-    "turbo:tsc": "tsc"
+    "turbo:tsc": "tsc",
+    "version": "node scripts/version.js"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -37,6 +42,7 @@
     "lint-staged": "^13.3.0",
     "prettier": "^2.8.8",
     "prettier-plugin-packagejson": "^2.5.1",
+    "semver": "^7.6.0",
     "turbo": "^2.0.14",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.1.0"

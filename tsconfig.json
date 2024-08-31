@@ -8,6 +8,6 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["packages/eslint-plugin-solid", "packages/eslint-solid-standalone", "test"],
+  "include": ["packages/eslint-plugin-solid", "packages/eslint-solid-standalone", "test", "scripts"],
   "exclude": ["**/dist", "**/dist.*"]
 }
