@@ -32,6 +32,8 @@ jobs:
 
       - name: Bump version
         run: |
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
           pnpm run version ${{ inputs.version }}
           git push origin --tags --force
 
