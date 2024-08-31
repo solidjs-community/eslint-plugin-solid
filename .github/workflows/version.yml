@@ -26,8 +26,10 @@ jobs:
           node-version: "22"
           cache: "pnpm"
 
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Bump version
-        if: ${{ github.event_name }} == "workflow_dispatch" && ${{ github.ref_name }} == "main"
         run: pnpm run version -- ${{ inputs.version }}
 
       - name: Create PR with new versions
