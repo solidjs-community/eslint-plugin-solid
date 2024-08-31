@@ -41,7 +41,3 @@ jobs:
           delete-branch: true
           title: "Update package versions"
           body: "Merging this PR will publish packages to npm at the new version."
-      - name: Push tags
-        run: |
-          git switch gh-action-version
-          git push origin --tags
