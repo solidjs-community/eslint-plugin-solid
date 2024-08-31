@@ -32,11 +32,12 @@ await Promise.all([
 await new Promise((resolve, reject) => {
   exec(
     `git commit --all --message="v${newVersion}"; git tag "v${newVersion}";`,
-    (error, stdout) => {
+    (error, stdout, stderr) => {
       if (error) {
         reject(error);
       } else {
         console.log(stdout);
+        console.log(stderr);
         resolve(stdout);
       }
     }
