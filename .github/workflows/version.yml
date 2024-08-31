@@ -31,7 +31,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Bump version
-        run: pnpm run version ${{ inputs.version }}
+        run: |
+          pnpm run version ${{ inputs.version }}
+          git push origin --tags --force
 
       - name: Create PR with new versions
         uses: peter-evans/create-pull-request@v6

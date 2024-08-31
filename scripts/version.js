@@ -37,7 +37,7 @@ await new Promise((resolve, reject) => {
   // it's not ideal to create and push a tag at the time the PR is created, but once the PR is
   // merged main should contain the tag as if it were created there.
   exec(
-    `git commit --all --message="v${newVersion}"; git tag "v${newVersion}"; git push origin --force "v${newVersion}"`,
+    `git commit --all --message="v${newVersion}" && git tag "v${newVersion}"`,
     (error, stdout, stderr) => {
       if (error) {
         reject(error);
