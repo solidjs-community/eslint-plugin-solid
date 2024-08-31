@@ -43,7 +43,7 @@ jobs:
         run: pnpm run ci
 
       - name: Publish to npm if needed
-        if: ${{ github.ref }} == "refs/heads/main"
+        if: github.ref == 'refs/heads/main'
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm publish -r --dry-run
+        run: pnpm publish -r --no-git-checks --dry-run
