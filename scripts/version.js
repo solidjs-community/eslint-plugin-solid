@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import inc from "semver/functions/inc";
+import inc from "semver/functions/inc.js";
 import { exec } from "node:child_process";
 
 const pluginPackageJsonPath = path.resolve("packages", "eslint-plugin-solid", "package.json");
@@ -36,6 +36,7 @@ await new Promise((resolve, reject) => {
       if (error) {
         reject(error);
       } else {
+        console.log(stdout);
         resolve(stdout);
       }
     }
