@@ -34,18 +34,15 @@ await Promise.all([
   ),
 ]);
 await new Promise((resolve, reject) => {
-  // it's not ideal to create and push a tag at the time the PR is created, but once the PR is
-  // merged main should contain the tag as if it were created there.
-  exec(
-    `git commit --all --message="v${newVersion}" && git tag "v${newVersion}"`,
-    (error, stdout, stderr) => {
-      if (error) {
-        reject(error);
-      } else {
-        console.log(stdout);
-        console.log(stderr);
-        resolve(stdout);
-      }
+  // Don't create a tag. It's better to wait until this PR is merged, and a tag can be created from
+  // the GitHub UI (the whole point of versioning + publishing from GitHub).
+  exec(`git commit --all --message="v${newVersion}"`, (error, stdout, stderr) => {
+    if (error) {
+      reject(error);
+    } else {
+      console.log(stdout);
+      console.log(stderr);
+      resolve(stdout);
     }
-  );
+  });
 });

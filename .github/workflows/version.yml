@@ -11,7 +11,7 @@ jobs:
   version:
     name: Version
     runs-on: ubuntu-latest
-    if: github.ref_name == 'main'
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,7 +35,6 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email github-actions[bot]@users.noreply.github.com
           pnpm run version ${{ inputs.version }}
-          git push origin --tags --force
 
       - name: Create PR with new versions
         uses: peter-evans/create-pull-request@v6
