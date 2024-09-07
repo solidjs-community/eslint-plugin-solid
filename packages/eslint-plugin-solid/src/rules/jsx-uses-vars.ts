@@ -23,7 +23,7 @@ export default createRule({
     docs: {
       // eslint-disable-next-line eslint-plugin/require-meta-docs-description
       description: "Prevent variables used in JSX from being marked as unused.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/jsx-uses-vars.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-uses-vars.md",
     },
     schema: [],
     // eslint-disable-next-line eslint-plugin/prefer-message-ids

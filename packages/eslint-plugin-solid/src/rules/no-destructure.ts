@@ -46,7 +46,7 @@ export default createRule({
     docs: {
       description:
         "Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-destructure.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-destructure.md",
     },
     fixable: "code",
     schema: [],

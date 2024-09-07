@@ -22,7 +22,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-innerhtml.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-innerhtml.md",
     },
     fixable: "code",
     hasSuggestions: true,

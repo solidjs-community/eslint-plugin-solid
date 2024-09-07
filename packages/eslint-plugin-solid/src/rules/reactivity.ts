@@ -237,7 +237,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/reactivity.md",
     },
     schema: [
       {

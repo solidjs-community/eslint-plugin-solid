@@ -24,7 +24,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`).",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-unknown-namespaces.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-unknown-namespaces.md",
     },
     hasSuggestions: true,
     schema: [

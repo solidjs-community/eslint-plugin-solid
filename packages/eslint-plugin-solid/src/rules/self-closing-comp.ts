@@ -52,7 +52,7 @@ export default createRule<Options, MessageIds>({
     type: "layout",
     docs: {
       description: "Disallow extra closing tags for components without children.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/self-closing-comp.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/self-closing-comp.md",
     },
     fixable: "code",
     schema: [

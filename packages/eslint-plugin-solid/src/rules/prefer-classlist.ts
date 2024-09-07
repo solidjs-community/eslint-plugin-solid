@@ -20,7 +20,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/prefer-classlist.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/prefer-classlist.md",
     },
     fixable: "code",
     deprecated: true,

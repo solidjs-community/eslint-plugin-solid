@@ -18,7 +18,7 @@ export default createRule({
     docs: {
       description:
         "Enforce using Solid's `<For />` component for mapping an array to JSX elements.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/prefer-for.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/prefer-for.md",
     },
     fixable: "code",
     schema: [],
