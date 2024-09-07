@@ -28,7 +28,7 @@ export default createRule<Options, MessageIds>({
       description:
         "Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, " +
         "and that property values with dimensions are strings, not numbers with implicit 'px' units.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/style-prop.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/style-prop.md",
     },
     fixable: "code",
     schema: [

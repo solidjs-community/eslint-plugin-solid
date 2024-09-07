@@ -16,7 +16,7 @@ export default createRule({
     type: "problem",
     docs: {
       description: "Disallow usage of type-unsafe event handlers.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-array-handlers.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-array-handlers.md",
     },
     schema: [],
     messages: {

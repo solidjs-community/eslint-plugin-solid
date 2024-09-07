@@ -17,7 +17,7 @@ export default createRule({
     docs: {
       description:
         "Disallow usage of APIs that use ES6 Proxies, only to target environments that don't support them.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/no-proxy-apis.md",
+      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-proxy-apis.md",
     },
     schema: [],
     messages: {
