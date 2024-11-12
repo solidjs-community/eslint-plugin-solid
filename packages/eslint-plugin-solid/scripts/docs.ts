@@ -19,7 +19,7 @@ const ruleTableRows = (Object.keys(rules) as Array<keyof typeof rules & string>)
     return [
       configs.recommended.rules[`solid/${id}`] ? "✔" : "",
       fixable ? "🔧" : "",
-      `[solid/${id}](docs/${id}.md)`,
+      `[solid/${id}](/packages/eslint-plugin-solid/docs/${id}.md)`,
       docs?.description,
     ]
       .filter((str): str is NonNullable<typeof str> => str != null)

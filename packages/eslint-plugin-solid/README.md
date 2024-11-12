@@ -170,26 +170,26 @@ Flat configs are also available as `plugin.configs['flat/recommended']` and `plu
 <!-- doc-gen RULES -->
 | ✔ | 🔧 | Rule | Description |
 | :---: | :---: | :--- | :--- |
-| ✔ | 🔧 | [solid/components-return-once](docs/components-return-once.md) | Disallow early returns in components. Solid components only run once, and so conditionals should be inside JSX. |
-| ✔ | 🔧 | [solid/event-handlers](docs/event-handlers.md) | Enforce naming DOM element event handlers consistently and prevent Solid's analysis from misunderstanding whether a prop should be an event handler. |
-| ✔ | 🔧 | [solid/imports](docs/imports.md) | Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store". |
-| ✔ |  | [solid/jsx-no-duplicate-props](docs/jsx-no-duplicate-props.md) | Disallow passing the same prop twice in JSX. |
-| ✔ |  | [solid/jsx-no-script-url](docs/jsx-no-script-url.md) | Disallow javascript: URLs. |
-| ✔ | 🔧 | [solid/jsx-no-undef](docs/jsx-no-undef.md) | Disallow references to undefined variables in JSX. Handles custom directives. |
-| ✔ |  | [solid/jsx-uses-vars](docs/jsx-uses-vars.md) | Prevent variables used in JSX from being marked as unused. |
-|  |  | [solid/no-array-handlers](docs/no-array-handlers.md) | Disallow usage of type-unsafe event handlers. |
-| ✔ | 🔧 | [solid/no-destructure](docs/no-destructure.md) | Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list. |
-| ✔ | 🔧 | [solid/no-innerhtml](docs/no-innerhtml.md) | Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities. |
-|  |  | [solid/no-proxy-apis](docs/no-proxy-apis.md) | Disallow usage of APIs that use ES6 Proxies, only to target environments that don't support them. |
-| ✔ | 🔧 | [solid/no-react-deps](docs/no-react-deps.md) | Disallow usage of dependency arrays in `createEffect` and `createMemo`. |
-| ✔ | 🔧 | [solid/no-react-specific-props](docs/no-react-specific-props.md) | Disallow usage of React-specific `className`/`htmlFor` props, which were deprecated in v1.4.0. |
-| ✔ |  | [solid/no-unknown-namespaces](docs/no-unknown-namespaces.md) | Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`). |
-|  | 🔧 | [solid/prefer-classlist](docs/prefer-classlist.md) | Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames. |
-| ✔ | 🔧 | [solid/prefer-for](docs/prefer-for.md) | Enforce using Solid's `<For />` component for mapping an array to JSX elements. |
-|  | 🔧 | [solid/prefer-show](docs/prefer-show.md) | Enforce using Solid's `<Show />` component for conditionally showing content. Solid's compiler covers this case, so it's a stylistic rule only. |
-| ✔ |  | [solid/reactivity](docs/reactivity.md) | Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected. |
-| ✔ | 🔧 | [solid/self-closing-comp](docs/self-closing-comp.md) | Disallow extra closing tags for components without children. |
-| ✔ | 🔧 | [solid/style-prop](docs/style-prop.md) | Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values with dimensions are strings, not numbers with implicit 'px' units. |
+| ✔ | 🔧 | [solid/components-return-once](/packages/eslint-plugin-solid/docs/components-return-once.md) | Disallow early returns in components. Solid components only run once, and so conditionals should be inside JSX. |
+| ✔ | 🔧 | [solid/event-handlers](/packages/eslint-plugin-solid/docs/event-handlers.md) | Enforce naming DOM element event handlers consistently and prevent Solid's analysis from misunderstanding whether a prop should be an event handler. |
+| ✔ | 🔧 | [solid/imports](/packages/eslint-plugin-solid/docs/imports.md) | Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store". |
+| ✔ |  | [solid/jsx-no-duplicate-props](/packages/eslint-plugin-solid/docs/jsx-no-duplicate-props.md) | Disallow passing the same prop twice in JSX. |
+| ✔ |  | [solid/jsx-no-script-url](/packages/eslint-plugin-solid/docs/jsx-no-script-url.md) | Disallow javascript: URLs. |
+| ✔ | 🔧 | [solid/jsx-no-undef](/packages/eslint-plugin-solid/docs/jsx-no-undef.md) | Disallow references to undefined variables in JSX. Handles custom directives. |
+| ✔ |  | [solid/jsx-uses-vars](/packages/eslint-plugin-solid/docs/jsx-uses-vars.md) | Prevent variables used in JSX from being marked as unused. |
+|  |  | [solid/no-array-handlers](/packages/eslint-plugin-solid/docs/no-array-handlers.md) | Disallow usage of type-unsafe event handlers. |
+| ✔ | 🔧 | [solid/no-destructure](/packages/eslint-plugin-solid/docs/no-destructure.md) | Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list. |
+| ✔ | 🔧 | [solid/no-innerhtml](/packages/eslint-plugin-solid/docs/no-innerhtml.md) | Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities. |
+|  |  | [solid/no-proxy-apis](/packages/eslint-plugin-solid/docs/no-proxy-apis.md) | Disallow usage of APIs that use ES6 Proxies, only to target environments that don't support them. |
+| ✔ | 🔧 | [solid/no-react-deps](/packages/eslint-plugin-solid/docs/no-react-deps.md) | Disallow usage of dependency arrays in `createEffect` and `createMemo`. |
+| ✔ | 🔧 | [solid/no-react-specific-props](/packages/eslint-plugin-solid/docs/no-react-specific-props.md) | Disallow usage of React-specific `className`/`htmlFor` props, which were deprecated in v1.4.0. |
+| ✔ |  | [solid/no-unknown-namespaces](/packages/eslint-plugin-solid/docs/no-unknown-namespaces.md) | Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`). |
+|  | 🔧 | [solid/prefer-classlist](/packages/eslint-plugin-solid/docs/prefer-classlist.md) | Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames. |
+| ✔ | 🔧 | [solid/prefer-for](/packages/eslint-plugin-solid/docs/prefer-for.md) | Enforce using Solid's `<For />` component for mapping an array to JSX elements. |
+|  | 🔧 | [solid/prefer-show](/packages/eslint-plugin-solid/docs/prefer-show.md) | Enforce using Solid's `<Show />` component for conditionally showing content. Solid's compiler covers this case, so it's a stylistic rule only. |
+| ✔ |  | [solid/reactivity](/packages/eslint-plugin-solid/docs/reactivity.md) | Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected. |
+| ✔ | 🔧 | [solid/self-closing-comp](/packages/eslint-plugin-solid/docs/self-closing-comp.md) | Disallow extra closing tags for components without children. |
+| ✔ | 🔧 | [solid/style-prop](/packages/eslint-plugin-solid/docs/style-prop.md) | Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values with dimensions are strings, not numbers with implicit 'px' units. |
 <!-- end-doc-gen -->
 
 ## Troubleshooting
