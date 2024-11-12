@@ -49,6 +49,20 @@ export const cases = run("components-return-once", rule, {
       };
       return <></>;
     }`,
+    `function Component() {
+      return <>{hoisted()}</>;
+      function hoisted() {
+        return 'hoisted';
+      }
+    }`,
+    `function Component() {
+      return <></>;
+      const hoisted = 'hoisted';
+    }`,
+    `function Component() {
+      return <></>;
+      class Hoisted {}
+    }`,
   ],
   invalid: [
     // Early returns
@@ -67,6 +81,16 @@ export const cases = run("components-return-once", rule, {
           return <div />;
         }
         return <span />;
+      }`,
+      errors: [{ messageId: "noEarlyReturn" }],
+    },
+    {
+      code: `const Component = () => {
+        if (condition) {
+          return <div />;
+        }
+        return <span />;
+        function hoisted() {}
       }`,
       errors: [{ messageId: "noEarlyReturn" }],
     },
