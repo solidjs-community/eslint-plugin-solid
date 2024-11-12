@@ -61,8 +61,9 @@ export default createRule({
     const onFunctionEnter = (node: FunctionNode) => {
       let lastReturn: T.ReturnStatement | undefined;
       if (node.body.type === "BlockStatement") {
-        const { length } = node.body.body;
-        const last = length && node.body.body[length - 1];
+        // find last statement, ignoring function/class/variable declarations (hoisting)
+        const last = node.body.body.findLast((node) => !node.type.endsWith("Declaration"));
+        // if it's a return, store it
         if (last && last.type === "ReturnStatement") {
           lastReturn = last;
         }
@@ -153,7 +154,7 @@ export default createRule({
               return fixer.replaceText(argument, `<>${putIntoJSX(argument)}</>`);
             },
           });
-        } else if (argument?.type === "LogicalExpression")
+        } else if (argument?.type === "LogicalExpression") {
           if (argument.operator === "&&") {
             const sourceCode = getSourceCode(context);
             // we have a `return condition && expression`--put that in a <Show />
@@ -175,6 +176,7 @@ export default createRule({
               messageId: "noConditionalReturn",
             });
           }
+        }
       }
 
       // Pop on exit
