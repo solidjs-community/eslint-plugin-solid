@@ -850,12 +850,14 @@ export default createRule<Options, MessageIds>({
       if (node.type === "JSXExpressionContainer") {
         if (
           node.parent?.type === "JSXAttribute" &&
-          /^on[:A-Z]/.test(sourceCode.getText(node.parent.name)) &&
+          sourceCode.getText(node.parent.name).startsWith("on") &&
           node.parent.parent?.type === "JSXOpeningElement" &&
           node.parent.parent.name.type === "JSXIdentifier" &&
           isDOMElementName(node.parent.parent.name.name)
         ) {
-          // Expect a function if the attribute is like onClick={} or on:click={}. From the docs:
+          // Expect a function if the attribute is like onClick={}, onclick={}, on:click={}, or
+          // custom events such as on-click={}.
+          // From the docs:
           // Events are never rebound and the bindings are not reactive, as it is expensive to
           // attach and detach listeners. Since event handlers are called like any other function
           // each time an event fires, there is no need for reactivity; simply shortcut your handler
