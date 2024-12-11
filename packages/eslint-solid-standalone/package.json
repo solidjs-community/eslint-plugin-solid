@@ -34,7 +34,7 @@
     "eslint-plugin-solid": "workspace:^",
     "magic-string": "^0.30.8",
     "memoize-one": "^6.0.0",
-    "rollup": "^3.29.4",
+    "rollup": "^3.29.5",
     "semver": "^7.6.0",
     "typescript": "~5.3.3"
   },
