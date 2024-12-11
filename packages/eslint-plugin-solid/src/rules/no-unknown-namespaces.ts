@@ -11,7 +11,7 @@ import { isDOMElementName } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
-const knownNamespaces = ["on", "oncapture", "use", "prop", "attr"];
+const knownNamespaces = ["on", "oncapture", "use", "prop", "attr", "bool"];
 const styleNamespaces = ["style", "class"];
 const otherNamespaces = ["xmlns", "xlink"];
 
