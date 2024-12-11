@@ -206,7 +206,7 @@ const [editedValue, setEditedValue] = createSignal(props.value);
 
 _Please note_: there may also be times where a rule correctly warns about a subtle problem,
 even if it looks like a false positive at first. With `solid/reactivity`, please look at the
-[reactivity docs](https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md#troubleshooting) before deciding to disable the rule.
+[reactivity docs](https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/reactivity.md#troubleshooting) before deciding to disable the rule.
 
 When in doubt, feel free to [file an
 issue](https://github.com/solidjs-community/eslint-plugin-solid/issues/new/choose).
@@ -219,7 +219,7 @@ If you want to pin a minor version, use a tilde in your `package.json`.
 
 <!-- doc-gen TILDE -->
 ```diff
-- "eslint-plugin-solid": "^0.14.4"
-+ "eslint-plugin-solid": "~0.14.4"
+- "eslint-plugin-solid": "^0.14.5"
++ "eslint-plugin-solid": "~0.14.5"
 ```
 <!-- end-doc-gen -->
