@@ -76,6 +76,9 @@ importers:
       style-to-object:
         specifier: ^1.0.6
         version: 1.0.6
+      typescript:
+        specifier: '>=4.8.4'
+        version: 5.5.4
     devDependencies:
       '@babel/core':
         specifier: ^7.24.4
