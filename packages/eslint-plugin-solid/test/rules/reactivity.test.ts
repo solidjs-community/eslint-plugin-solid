@@ -180,6 +180,16 @@ export const cases = run("reactivity", rule, {
     element.addEventListener("click", () => {
       console.log(signal());
     }, { once: true });`,
+    `const {0: signal, 1: setSignal} = createSignal(1);
+    const element = document.getElementById("id");
+    element.onclick = () => {
+      console.log(signal());
+    };`,
+    `const {'0': signal, '1': setSignal} = createSignal(1);
+    const element = document.getElementById("id");
+    element.onclick = () => {
+      console.log(signal());
+    };`,
     `const [signal, setSignal] = createSignal(1);
     const element = document.getElementById("id");
     element.onclick = () => {
@@ -223,11 +233,22 @@ export const cases = run("reactivity", rule, {
       return <div>{count()}</div>;
     }`,
     `function Component(props) {
+      const {0: count, 1: setCount} = useSignal(props.initialCount);
+      return <div>{count()}</div>;
+    }`,
+    `function Component(props) {
       const [count, setCount] = useSignal(props.defaultCount);
       return <div>{count()}</div>;
     }`,
     // Store getters
     `const [state, setState] = createStore({
+      firstName: 'Will',
+      lastName: 'Smith',
+      get fullName() {
+        return state.firstName + " " + state.lastName;
+      }
+    });`,
+    `const {0: state, 1: setState} = createStore({
       firstName: 'Will',
       lastName: 'Smith',
       get fullName() {
@@ -565,6 +586,19 @@ export const cases = run("reactivity", rule, {
           messageId: "shouldDestructure",
           data: { nth: "first " },
           type: T.ArrayPattern,
+        },
+      ],
+    },
+    {
+      code: `
+      const Component = () => {
+        const {2: signal, 3: setSignal} = createSignal();
+      }`,
+      errors: [
+        {
+          messageId: "shouldDestructure",
+          data: { nth: "first " },
+          type: T.ObjectPattern,
         },
       ],
     },
