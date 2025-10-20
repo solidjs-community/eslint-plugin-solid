@@ -3,7 +3,13 @@
  * @link https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md
  */
 
-import { TSESTree as T, TSESLint, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import {
+  TSESTree as T,
+  TSESLint,
+  ESLintUtils,
+  ASTUtils,
+  AST_NODE_TYPES,
+} from "@typescript-eslint/utils";
 import { traverse } from "estraverse";
 import {
   findParent,
@@ -208,6 +214,19 @@ const getNthDestructuredVar = (id: T.Node, n: number, context: CompatContext): V
     const el = id.elements[n];
     if (el?.type === "Identifier") {
       return findVariable(context, el);
+    }
+  } else if (id?.type === "ObjectPattern") {
+    // {0: a, '1': b, 2: c, ...rest}
+    const el = id.properties.find((p): p is T.Property => {
+      if (p.type !== "Property") return false;
+      if (p.key.type !== "Literal") return false;
+
+      const key = p.key;
+      return key.value === n || (typeof key.value === "string" && key.value === String(n));
+    });
+
+    if (el?.type === "Property" && el.value.type === "Identifier") {
+      return findVariable(context, el.value);
     }
   }
   return null;
