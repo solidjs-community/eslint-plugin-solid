@@ -52,7 +52,7 @@ file.
 ```json
 {
   "editor.codeActionsOnSave": {
-    "source.fixAll": true
+    "source.fixAll.eslint": "explicit"
   }
 }
 ```
