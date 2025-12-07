@@ -7,8 +7,7 @@ import {
   TSESTree as T,
   TSESLint,
   ESLintUtils,
-  ASTUtils,
-  AST_NODE_TYPES,
+  ASTUtils
 } from "@typescript-eslint/utils";
 import { traverse } from "estraverse";
 import {
