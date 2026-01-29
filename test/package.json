@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@types/eslint-v8": "npm:@types/eslint@8",
-    "eslint": "^9.5.0",
+    "eslint": "^9.26.0",
     "eslint-plugin-solid": "workspace:^",
     "eslint-solid-standalone": "workspace:^",
     "eslint-v8": "npm:eslint@8",

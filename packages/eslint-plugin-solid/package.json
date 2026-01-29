@@ -80,7 +80,7 @@
     "@types/is-html": "^2.0.2",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
-    "eslint": "^9.5.0",
+    "eslint": "^9.26.0",
     "eslint-v6": "npm:eslint@6",
     "eslint-v7": "npm:eslint@7",
     "eslint-v8": "npm:eslint@8",
