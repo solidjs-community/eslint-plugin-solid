@@ -1,3 +1,4 @@
+import { Rule } from "eslint";
 import { type TSESLint, type TSESTree, ASTUtils } from "@typescript-eslint/utils";
 
 export type CompatContext =
@@ -40,14 +41,21 @@ export function findVariable(
   return ASTUtils.findVariable(getScope(context, node), node);
 }
 
-export function markVariableAsUsed(
-  context: CompatContext,
-  name: string,
-  node: TSESTree.Node
-): void {
-  if (typeof context.markVariableAsUsed === "function") {
-    context.markVariableAsUsed(name);
-  } else {
-    getSourceCode(context).markVariableAsUsed(name, node);
+export function markVariableAsUsed(context: Rule.RuleContext, name: string, node: any): boolean {
+  const sourceCode = context.sourceCode ?? context.getSourceCode();
+  const scope = sourceCode.getScope(node);
+
+  let current: any = scope;
+
+  while (current) {
+    const variable = current.set?.get(name);
+    if (variable) {
+      // mark as used by adding a fake reference
+      variable.eslintUsed = true;
+      return true;
+    }
+    current = current.upper;
   }
+
+  return false;
 }
