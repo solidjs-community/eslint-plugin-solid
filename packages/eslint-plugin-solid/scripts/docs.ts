@@ -69,7 +69,8 @@ const buildHeader = (filename: string): string => {
   const ruleName = filename.replace(/\.md$/, "");
   if (!(ruleName in rules) || !rules[ruleName as keyof typeof rules]) return " ";
 
-  const meta: TSESLint.RuleMetaData<string, unknown> = rules[ruleName as keyof typeof rules].meta;
+  const meta: TSESLint.RuleMetaData<string, unknown, unknown[]> =
+    rules[ruleName as keyof typeof rules].meta;
   return [
     `# solid/${ruleName}`,
     meta.docs?.description,

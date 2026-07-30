@@ -149,13 +149,18 @@ export default createRule({
           if (specifier.type === "ImportSpecifier") {
             const isType = specifier.importKind === "type" || node.importKind === "type";
             const map = isType ? typeMap : primitiveMap;
-            const correctSource = map.get(specifier.imported.name);
+            // `imported` may be a string literal, as in `import { "a-b" as ab } from "..."`
+            const importedName =
+              specifier.imported.type === "Identifier"
+                ? specifier.imported.name
+                : specifier.imported.value;
+            const correctSource = map.get(importedName);
             if (correctSource != null && correctSource !== source) {
               context.report({
                 node: specifier,
                 messageId: "prefer-source",
                 data: {
-                  name: specifier.imported.name,
+                  name: importedName,
                   source: correctSource,
                 },
                 fix(fixer) {

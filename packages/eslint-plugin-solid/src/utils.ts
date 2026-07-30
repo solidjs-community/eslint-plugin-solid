@@ -152,7 +152,12 @@ export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
     if (fromModule.test(node.source.value)) {
       for (const specifier of node.specifiers) {
         if (specifier.type === "ImportSpecifier") {
-          importMap.set(specifier.imported.name, specifier.local.name);
+          // `imported` may be a string literal, as in `import { "a-b" as ab } from "..."`
+          const importedName =
+            specifier.imported.type === "Identifier"
+              ? specifier.imported.name
+              : specifier.imported.value;
+          importMap.set(importedName, specifier.local.name);
         }
       }
     }

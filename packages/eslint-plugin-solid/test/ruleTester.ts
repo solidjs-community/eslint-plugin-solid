@@ -2,7 +2,7 @@ import { RuleTester } from "eslint";
 import { RuleTester as RuleTester_v6 } from "eslint-v6";
 import { RuleTester as RuleTester_v7 } from "eslint-v7";
 import { RuleTester as RuleTester_v8 } from "eslint-v8";
-import { RuleTester as RuleTester_v10 } from "eslint-v10";
+import { RuleTester as RuleTester_v9 } from "eslint-v9";
 import type { TSESLint } from "@typescript-eslint/utils";
 import tseslint from "typescript-eslint";
 // @ts-expect-error no types here
@@ -13,7 +13,7 @@ import { describe } from "vitest";
 export const tsOnly = Symbol("ts only");
 
 // The default parser
-const v9Tester = new RuleTester({
+const v10Tester = new RuleTester({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: "module",
@@ -47,7 +47,10 @@ const tsV8Tester = new RuleTester_v8({
 });
 
 // Babel's ESLint parser
-const babelTester = new RuleTester({
+// Pinned to ESLint 9: @babel/eslint-parser@7 doesn't support ESLint 10, and the
+// version that does (@babel/eslint-parser@8) requires @babel/core@8. The v10
+// codepath is covered by v10Tester and tsTester.
+const babelTester = new RuleTester_v9({
   languageOptions: {
     parser: babelEslintParser,
     parserOptions: {
@@ -104,7 +107,7 @@ const v8Tester = new RuleTester_v8({
   },
 });
 
-const v10Tester = new RuleTester_v10({
+const v9Tester = new RuleTester_v9({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: "module",
@@ -154,10 +157,10 @@ export const run = (
     describe("eslint v7", () => v7Tester.run(name, rule as any, jsTests as any));
   }
   if (all || parser === "v8") {
-    describe("eslint v8", () => v8Tester.run(name, rule as any, jsTests));
+    describe("eslint v8", () => v8Tester.run(name, rule as any, jsTests as any));
   }
   if (all || parser === "v9") {
-    describe("eslint v9", () => v9Tester.run(name, rule as any, jsTests));
+    describe("eslint v9", () => v9Tester.run(name, rule as any, jsTests as any));
   }
   if (all || parser === "v10") {
     describe("eslint v10", () => v10Tester.run(name, rule as any, jsTests));
