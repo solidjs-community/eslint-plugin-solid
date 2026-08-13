@@ -13,7 +13,7 @@ This package contains [Solid](https://www.solidjs.com/)-specific linting rules f
 ease Solid's learning curve by finding and fixing problems around Solid's reactivity system, and can
 migrate some React patterns to Solid code.
 
-It supports both Solid 1.x and Solid 2.0 APIs, requires ESLint v9 or v10 and Node.js 20+, and also
+It supports both Solid 1.x and Solid 2.0 APIs, requires ESLint v9 or v10 and Node.js 22+, and also
 runs under [Oxlint](#oxlint) as a JS plugin.
 
 <!-- doc-gen TOC -->

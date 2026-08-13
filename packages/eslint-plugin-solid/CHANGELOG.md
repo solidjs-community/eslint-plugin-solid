@@ -14,7 +14,8 @@ The revival release: Solid 2.0 support and a modernized toolchain.
   `eslint-plugin-solid/configs/typescript`, or the configs on the root export
   (`solid.configs.recommended` / `solid.configs.typescript`). The `configs["flat/recommended"]`
   and `configs["flat/typescript"]` names from 0.14.x still work as aliases.
-- **Node.js 20+ required.** The `engines.node` field is now `>=20.0.0`.
+- **Node.js 22+ required.** The `engines.node` field is now `>=22.0.0` (Node 20 reached
+  end-of-life in April 2026).
 
 ### Features
 
@@ -44,7 +45,7 @@ The revival release: Solid 2.0 support and a modernized toolchain.
 - Removed the ESLint v6–v8 test matrix; tests run against typescript-eslint, Babel, and espree
   parsers on ESLint 10.
 - Toolchain updated: pnpm 11, typescript-eslint 8.67, vitest 4, TypeScript 5.9; CI tests
-  Node 20/22/24.
+  Node 22/24/26.
 - CI publishing switched from a stored npm token to npm Trusted Publishing (OIDC).
 
 ## 0.14.5 and earlier

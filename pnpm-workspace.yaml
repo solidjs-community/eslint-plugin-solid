@@ -2,10 +2,7 @@ packages:
   - "packages/*"
   - "test"
 allowBuilds:
-  es5-ext: set this to true or false
-  esbuild: set this to true or false
+  es5-ext: true
+  esbuild: true
 patchedDependencies:
   eslint@8.57.0: patches/eslint@8.57.0.patch
-onlyBuiltDependencies:
-  - esbuild
-  - es5-ext
