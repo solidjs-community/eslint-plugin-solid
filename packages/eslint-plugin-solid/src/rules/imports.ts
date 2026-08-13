@@ -121,6 +121,17 @@ for (const type of ["StoreNode", "Store", "SetStoreFunction"]) {
   typeMap.set(type, "solid-js/store");
 }
 
+// Solid 2.0 moved these exports into core "solid-js" (and removed the old locations in
+// some cases). Don't flag them when imported from the source listed here, so the rule
+// gives correct guidance for both Solid 1.x and 2.0 projects.
+const alternateSourceMap = new Map<string, Source>([
+  ["createStore", "solid-js"],
+  ["reconcile", "solid-js"],
+  ["Store", "solid-js"],
+  ["StoreNode", "solid-js"],
+  ["SetStoreFunction", "solid-js"],
+]);
+
 const sourceRegex = /^solid-js(?:\/web|\/store)?$/;
 const isSource = (source: string): source is Source => sourceRegex.test(source);
 
@@ -149,13 +160,21 @@ export default createRule({
           if (specifier.type === "ImportSpecifier") {
             const isType = specifier.importKind === "type" || node.importKind === "type";
             const map = isType ? typeMap : primitiveMap;
-            const correctSource = map.get(specifier.imported.name);
-            if (correctSource != null && correctSource !== source) {
+            const importedName =
+              specifier.imported.type === "Identifier"
+                ? specifier.imported.name
+                : specifier.imported.value;
+            const correctSource = map.get(importedName);
+            if (
+              correctSource != null &&
+              correctSource !== source &&
+              alternateSourceMap.get(importedName) !== source
+            ) {
               context.report({
                 node: specifier,
                 messageId: "prefer-source",
                 data: {
-                  name: specifier.imported.name,
+                  name: importedName,
                   source: correctSource,
                 },
                 fix(fixer) {

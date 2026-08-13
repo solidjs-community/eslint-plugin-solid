@@ -6,25 +6,26 @@
 
 [![npm version](https://img.shields.io/npm/v/eslint-plugin-solid?style=for-the-badge)](https://npmjs.com/package/eslint-plugin-solid)
 [![GitHub package version](https://img.shields.io/github/package-json/v/solidjs-community/eslint-plugin-solid/main?filename=packages%2Feslint-plugin-solid%2Fpackage.json&style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid)
-![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--9.x-blue?style=for-the-badge)
+![ESLint peer dependency](https://img.shields.io/badge/eslint-9.x--10.x-blue?style=for-the-badge)
 [![CI](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg?style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml)
 
 This package contains [Solid](https://www.solidjs.com/)-specific linting rules for ESLint. It can
 ease Solid's learning curve by finding and fixing problems around Solid's reactivity system, and can
 migrate some React patterns to Solid code.
 
-It's approaching a `1.0.0` release, and it's well tested and should be helpful in Solid projects
-today.
+It supports both Solid 1.x and Solid 2.0 APIs, requires ESLint v9 or v10 and Node.js 20+, and also
+runs under [Oxlint](#oxlint) as a JS plugin.
 
 <!-- doc-gen TOC -->
-- [Installation](#installation)
-- [Configuration](#configuration)
-  - [TypeScript](#typescript)
-  - [Manual Configuration](#manual-configuration)
-  - [Flat Configuration](#flat-configuration)
-- [Rules](#rules)
-- [Troubleshooting](#troubleshooting)
-- [Versioning](#versioning)
+- [Solid ESLint Plugin](#solid-eslint-plugin)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+    - [TypeScript](#typescript)
+    - [Manual Configuration](#manual-configuration)
+    - [Oxlint](#oxlint)
+  - [Rules](#rules)
+  - [Troubleshooting](#troubleshooting)
+  - [Versioning](#versioning)
 <!-- end-doc-gen -->
 
 ## Installation
@@ -66,58 +67,10 @@ useful rules for writing accessible HTML.
 
 ## Configuration
 
-Use the `"plugin:solid/recommended"` configuration to get reasonable defaults as shown [below](#rules).
-
-```json
-{
-  "plugins": ["solid"],
-  "extends": ["eslint:recommended", "plugin:solid/recommended"]
-}
-```
-
-### TypeScript
-
-If you're using TypeScript, use the `"plugin:solid/typescript"` configuration instead.
-This disables some features that overlap with type checking.
-
-```json
-{
-  "parser": "@typescript-eslint/parser",
-  "plugins": ["solid"],
-  "extends": ["eslint:recommended", "plugin:solid/typescript"]
-}
-```
-
-### Manual Configuration
-
-If you don't want to use a preset, you can configure rules individually. Add the `"solid"` plugin,
-enable JSX with the parser options (or use the equivalent options for `@typescript-eslint/parser` or
-`@babel/eslint-parser`), and configure the rules you would like to use. Some rules have additional
-options you can set.
-
-```json
-{
-  "plugins": ["solid"],
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    }
-  },
-  "rules": {
-    "solid/reactivity": "warn",
-    "solid/no-destructure": "warn",
-    "solid/jsx-no-undef": "error"
-  }
-}
-```
-
-### Flat Configuration
-
-ESLint's new configuration system, [Flat
-Configuration](https://eslint.org/docs/latest/use/configure/configuration-files-new#using-configurations-included-in-plugins),
-is available starting in ESLint [v8.23.0](https://github.com/eslint/eslint/releases/tag/v8.23.0). To
-use it, create an `eslint.config.js` file at the root of your project, instead of `.eslintrc.*`
-and/or `.eslintignore`.
+Create an `eslint.config.js` file at the root of your project ([flat
+config](https://eslint.org/docs/latest/use/configure/configuration-files) is the only configuration
+system supported by ESLint v9+, and by this plugin as of v0.15.0), and use the `recommended`
+configuration to get reasonable defaults as shown [below](#rules).
 
 ```js
 import js from "@eslint/js";
@@ -129,7 +82,10 @@ export default [
 ];
 ```
 
-For TypeScript:
+### TypeScript
+
+If you're using TypeScript, use the `typescript` configuration instead.
+This disables some features that overlap with type checking.
 
 ```js
 import js from "@eslint/js";
@@ -151,15 +107,59 @@ export default [
 ];
 ```
 
+Both configs are also available on the plugin's root export, as `solid.configs.recommended` and
+`solid.configs.typescript`, after using `import solid from 'eslint-plugin-solid'`. (The
+`configs["flat/recommended"]` and `configs["flat/typescript"]` names from v0.14.x still work as
+aliases.)
+
 These configurations do not configure global variables in ESLint. You can do this yourself manually
 or with a package like [globals](https://www.npmjs.com/package/globals) by creating a configuration
 with a `languageOptions.globals` object. We recommend setting up global variables for Browser APIs
 as well as at least ES2015.
 
-Note for the ESLint VSCode Extension: Enable the "Use Flat Config" setting for your workspace to
-enable Flat Config support.
+### Manual Configuration
 
-Flat configs are also available as `plugin.configs['flat/recommended']` and `plugin.configs['flat/typescript']`, after using `import plugin from 'eslint-plugin-solid'`.
+If you don't want to use a preset, you can configure rules individually. Add the `solid` plugin,
+enable JSX with the parser options (or use the equivalent options for `@typescript-eslint/parser` or
+`@babel/eslint-parser`), and configure the rules you would like to use. Some rules have additional
+options you can set.
+
+```js
+import solid from "eslint-plugin-solid";
+
+export default [
+  {
+    plugins: { solid },
+    languageOptions: {
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+      },
+    },
+    rules: {
+      "solid/reactivity": "warn",
+      "solid/no-destructure": "warn",
+      "solid/jsx-no-undef": "error",
+    },
+  },
+];
+```
+
+### Oxlint
+
+The plugin's rules are AST-based, so they run under [Oxlint's JS
+plugin support](https://oxc.rs/docs/guide/usage/linter/js-plugins.html) without modification. Add
+the plugin to `jsPlugins` in your `.oxlintrc.json` and enable the rules you want:
+
+```json
+{
+  "jsPlugins": ["eslint-plugin-solid"],
+  "rules": {
+    "solid/reactivity": "warn",
+    "solid/no-destructure": "error",
+    "solid/jsx-no-undef": "error"
+  }
+}
+```
 
 ## Rules
 

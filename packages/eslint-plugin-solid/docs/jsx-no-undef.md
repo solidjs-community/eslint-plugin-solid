@@ -135,6 +135,7 @@ let el = <For each={items}>{(item) => item.name}</For>;
 import { For } from "solid-js";
 import X from "x"; // attached comment
 let el = <For each={items}>{(item) => item.name}</For>;
+
 ```
 
 ### Valid Examples
@@ -158,5 +159,6 @@ let Component,
 
 /* eslint solid/jsx-no-undef: ["error", { "typescriptEnabled": true }] */
 let el = <Component />;
+
 ```
 <!-- end-doc-gen -->

@@ -36,6 +36,7 @@ let merged = mergeProps(maybeSignal);
 
 let func = () => ({});
 let merged = mergeProps(func, props);
+
 ```
 
 ### Valid Examples
@@ -65,5 +66,6 @@ let el = <div {...{ asdf: "asdf" }} />;
 let el = <div {...asdf} />;
 
 let obj = { Proxy: 1 };
+
 ```
 <!-- end-doc-gen -->

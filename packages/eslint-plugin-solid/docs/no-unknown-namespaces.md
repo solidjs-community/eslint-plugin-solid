@@ -44,6 +44,7 @@ let el = <div class:mt-10 />;
 let el = <Box attr:foo="bar" />;
 
 let el = <Box foo:boo={null} />;
+
 ```
 
 ### Valid Examples
@@ -69,11 +70,21 @@ let el = <div prop:scrollTop="0px" />;
 
 let el = <div attr:title="title" />;
 
-let el = <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>;
+let el = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+  ></svg>
+);
 
 /* eslint solid/no-unknown-namespaces: ["error", { "allowedNamespaces": ["foo"] }] */
 let el = (
-  <bar foo="http://www.w3.org/2000/svg" version="1.1" foo:bar="http://www.w3.org/1999/xlink" />
+  <bar
+    foo="http://www.w3.org/2000/svg"
+    version="1.1"
+    foo:bar="http://www.w3.org/1999/xlink"
+  />
 );
+
 ```
 <!-- end-doc-gen -->

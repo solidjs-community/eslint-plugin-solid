@@ -48,6 +48,7 @@ let el = (
 );
 
 let el = <div innerHTML="<p></p>" textContent="howdy!" />;
+
 ```
 
 ### Valid Examples
@@ -74,5 +75,6 @@ let el = (
     <div />
   </div>
 );
+
 ```
 <!-- end-doc-gen -->

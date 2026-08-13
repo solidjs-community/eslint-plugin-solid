@@ -1,4 +1,3 @@
-import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
 import { run } from "../ruleTester";
 import rule from "../../src/rules/no-innerhtml";
 
@@ -52,7 +51,7 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      errors: [{ messageId: "conflict", type: T.JSXElement }],
+      errors: [{ messageId: "conflict" }],
     },
     {
       code: `
@@ -63,7 +62,7 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      errors: [{ messageId: "conflict", type: T.JSXElement }],
+      errors: [{ messageId: "conflict" }],
     },
     {
       code: `
@@ -73,7 +72,7 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      errors: [{ messageId: "conflict", type: T.JSXElement }],
+      errors: [{ messageId: "conflict" }],
     },
     {
       code: `
@@ -83,7 +82,7 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      errors: [{ messageId: "conflict", type: T.JSXElement }],
+      errors: [{ messageId: "conflict" }],
     },
     {
       code: `let el = <div dangerouslySetInnerHTML={{ __html: "<p>Hello</p><p>world!</p>" }} />`,

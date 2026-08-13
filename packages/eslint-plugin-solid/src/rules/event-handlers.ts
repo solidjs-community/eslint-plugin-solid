@@ -179,7 +179,7 @@ export default createRule<Options, MessageIds>({
           return; // bail if Solid doesn't consider the prop name an event handler
         }
 
-        let staticValue: ReturnType<typeof getStaticValue> = null;
+        let staticValue: ReturnType<typeof getStaticValue>;
         if (
           node.value?.type === "JSXExpressionContainer" &&
           node.value.expression.type !== "JSXEmptyExpression" &&

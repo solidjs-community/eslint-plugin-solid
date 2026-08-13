@@ -34,6 +34,7 @@ let el = <a href={link} />;
 
 const link = "javascrip" + "t:alert('hacked!')";
 let el = <a href={link} />;
+
 ```
 
 ### Valid Examples
@@ -49,5 +50,6 @@ let el = <Foo bar="https://example.com" />;
 
 const link = "https://example.com";
 let el = <a href={link} />;
+
 ```
 <!-- end-doc-gen -->

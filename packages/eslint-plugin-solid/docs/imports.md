@@ -53,6 +53,7 @@ import { render, createEffect } from "solid-js";
 // after eslint --fix:
 import { render } from "solid-js/web";
 import { createEffect } from "solid-js";
+
 ```
 
 ### Valid Examples
@@ -78,5 +79,6 @@ Solid.render();
 
 import type { Component, JSX } from "solid-js";
 import type { Store } from "solid-js/store";
+
 ```
 <!-- end-doc-gen -->

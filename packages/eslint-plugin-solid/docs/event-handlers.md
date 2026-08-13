@@ -92,6 +92,7 @@ let el = <div {...{ onClick: handleClick }} />;
 // after eslint --fix:
 const handleClick = () => 42;
 let el = <div onClick={handleClick} />;
+
 ```
 
 ### Valid Examples
@@ -131,5 +132,6 @@ let el = <div onclick={onclick} />;
 
 /* eslint solid/event-handlers: ["error", { "ignoreCase": true }] */
 let el = <div only={only} />;
+
 ```
 <!-- end-doc-gen -->
