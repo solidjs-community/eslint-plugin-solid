@@ -76,6 +76,7 @@ let el = <div style={`font-size: 10px;`}>Hello, world!</div>;
 let el = <div style={{ "font-size": 10 }}>Hello, world!</div>;
 
 let el = <div style={{ "margin-top": -10 }}>Hello, world!</div>;
+
 ```
 
 ### Valid Examples
@@ -85,9 +86,13 @@ These snippets don't cause lint errors.
 ```js
 let el = <div style={{ color: "red" }}>Hello, world!</div>;
 
-let el = <div style={{ color: "red", "background-color": "green" }}>Hello, world!</div>;
+let el = (
+  <div style={{ color: "red", "background-color": "green" }}>Hello, world!</div>
+);
 
-let el = <div style={{ color: "red", "background-color": "green" }}>Hello, world!</div>;
+let el = (
+  <div style={{ color: "red", "background-color": "green" }}>Hello, world!</div>
+);
 
 let el = <div style={{ "-webkit-align-content": "center" }}>Hello, world!</div>;
 
@@ -114,5 +119,6 @@ let el = <div css={{ color: "red" }}>Hello, world</div>;
 
 /* eslint solid/style-prop: ["error", { "styleProps": ["css"] }] */
 let el = <div style={{ fontSize: 10 }}>Hello, world!</div>;
+
 ```
 <!-- end-doc-gen -->

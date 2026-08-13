@@ -10,33 +10,16 @@ import { plugin } from "./plugin";
 import recommendedConfig from "./configs/recommended";
 import typescriptConfig from "./configs/typescript";
 
-const pluginLegacy = {
-  rules: plugin.rules,
+const pluginWithConfigs = {
+  ...plugin,
   configs: {
-    recommended: {
-      plugins: ["solid"],
-      env: {
-        browser: true,
-        es6: true,
-      },
-      parserOptions: recommendedConfig.languageOptions.parserOptions,
-      rules: recommendedConfig.rules,
-    },
-    typescript: {
-      plugins: ["solid"],
-      env: {
-        browser: true,
-        es6: true,
-      },
-      parserOptions: {
-        sourceType: "module",
-      },
-      rules: typescriptConfig.rules,
-    },
+    recommended: recommendedConfig,
+    typescript: typescriptConfig,
+    // aliases kept for compatibility with the 0.14.x flat config names
     "flat/recommended": recommendedConfig,
     "flat/typescript": typescriptConfig,
   },
 };
 
 // Must be `export = ` for eslint to load everything
-export = pluginLegacy;
+export = pluginWithConfigs;

@@ -44,6 +44,9 @@ export default tseslint.config(
     },
     rules: {
       ...pluginEslintPlugin.configs.recommended.rules,
+      // TODO: adopt meta.defaultOptions (ESLint 9+) and remove schema defaults, then re-enable
+      "eslint-plugin/require-meta-default-options": "off",
+      "eslint-plugin/no-meta-schema-default": "off",
       "eslint-plugin/meta-property-ordering": "error",
       "eslint-plugin/report-message-format": ["error", "^[A-Z\\{'].*\\.$"],
       "eslint-plugin/test-case-property-ordering": "error",

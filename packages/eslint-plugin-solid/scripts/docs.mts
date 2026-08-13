@@ -1,14 +1,17 @@
 import path from "path";
+import { fileURLToPath, pathToFileURL } from "url";
 // @ts-expect-error no types for v3
 import { markdownMagic } from "markdown-magic";
 import prettier from "prettier";
 import type { TSESLint } from "@typescript-eslint/utils";
-import * as plugin from "../src/index.ts";
+import plugin from "../src/index.ts";
 import type {
   JSONSchema4,
   JSONSchema4ArraySchema,
   JSONSchema4TypeName,
 } from "@typescript-eslint/utils/json-schema";
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { rules, configs } = plugin;
 
@@ -69,7 +72,10 @@ const buildHeader = (filename: string): string => {
   const ruleName = filename.replace(/\.md$/, "");
   if (!(ruleName in rules) || !rules[ruleName as keyof typeof rules]) return " ";
 
-  const meta: TSESLint.RuleMetaData<string, unknown> = rules[ruleName as keyof typeof rules].meta;
+  const meta = rules[ruleName as keyof typeof rules].meta as TSESLint.RuleMetaData<
+    string,
+    unknown
+  >;
   return [
     `# solid/${ruleName}`,
     meta.docs?.description,
@@ -134,11 +140,12 @@ const options = (options: Array<any>) =>
 
 const buildCases = async (content: string, filename: string) => {
   const ruleName = filename.replace(/\.md$/, "");
-  const testPath = path.resolve(__dirname, "..", "test", "rules", `${ruleName}.test.ts`);
+  const testPath = path.resolve(dirname, "..", "test", "rules", `${ruleName}.test.ts`);
   let cases: any;
   try {
-    cases = (await import(testPath))?.cases;
-  } catch {
+    cases = (await import(pathToFileURL(testPath).href))?.cases;
+  } catch (error) {
+    console.error(`Could not load test cases for ${ruleName}:`, error);
     return content;
   }
   if (!cases) {
@@ -175,7 +182,9 @@ const buildCases = async (content: string, filename: string) => {
   ]
     .flat(3)
     .filter(Boolean)
-    .join("\n");
+    .join("\n")
+    // " " entries act as truthy separators between cases; strip the leftover whitespace
+    .replace(/^ +$/gm, "");
   return markdown;
 };
 
@@ -189,7 +198,7 @@ const buildTilde = async () => {
 };
 
 markdownMagic(
-  [path.join(__dirname, "..", "README.md"), path.join(__dirname, "..", "docs", "*.md")],
+  [path.join(dirname, "..", "README.md"), path.join(dirname, "..", "docs", "*.md")],
   {
     transforms: {
       RULES: () => buildRulesTable(ruleTableRows),

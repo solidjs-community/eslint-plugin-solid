@@ -71,6 +71,7 @@ let el = <Component />;
 let el = <Component />;
 // after eslint --fix:
 let el = <Component></Component>;
+
 ```
 
 ### Valid Examples
@@ -130,5 +131,6 @@ let el = <div></div>;
 
 /* eslint solid/self-closing-comp: ["error", { "component": "none" }] */
 let el = <Component></Component>;
+
 ```
 <!-- end-doc-gen -->

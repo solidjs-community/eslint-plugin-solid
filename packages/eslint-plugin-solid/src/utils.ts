@@ -146,13 +146,21 @@ export const getCommentAfter = (
     .getCommentsAfter(node)
     .find((comment) => comment.loc!.start.line === node.loc!.end.line);
 
-export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
+// Matches "solid-js", its submodules ("solid-js/store", etc.), and the Solid 2.0
+// "@solidjs/signals" package, which re-exports the core reactive primitives.
+export const trackImports = (
+  fromModule = /^(?:solid-js(?:\/?|\b)|@solidjs\/signals(?:\/?|\b))/
+) => {
   const importMap = new Map<string, string>();
   const handleImportDeclaration = (node: T.ImportDeclaration) => {
     if (fromModule.test(node.source.value)) {
       for (const specifier of node.specifiers) {
         if (specifier.type === "ImportSpecifier") {
-          importMap.set(specifier.imported.name, specifier.local.name);
+          const importedName =
+            specifier.imported.type === "Identifier"
+              ? specifier.imported.name
+              : specifier.imported.value;
+          importMap.set(importedName, specifier.local.name);
         }
       }
     }

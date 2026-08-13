@@ -61,7 +61,11 @@ function Component(props) {
 }
 
 function Component(props) {
-  return <For each={props.someList}>{(listItem) => listItem.cond && <span>Content</span>}</For>;
+  return (
+    <For each={props.someList}>
+      {(listItem) => listItem.cond && <span>Content</span>}
+    </For>
+  );
 }
 // after eslint --fix:
 function Component(props) {
@@ -79,7 +83,9 @@ function Component(props) {
 function Component(props) {
   return (
     <For each={props.someList}>
-      {(listItem) => (listItem.cond ? <span>Content</span> : <span>Fallback</span>)}
+      {(listItem) =>
+        listItem.cond ? <span>Content</span> : <span>Fallback</span>
+      }
     </For>
   );
 }
@@ -95,6 +101,7 @@ function Component(props) {
     </For>
   );
 }
+
 ```
 
 ### Valid Examples
@@ -113,5 +120,6 @@ function Component(props) {
     </Show>
   );
 }
+
 ```
 <!-- end-doc-gen -->

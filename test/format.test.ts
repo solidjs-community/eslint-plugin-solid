@@ -12,15 +12,14 @@ test("flat config has meta", () => {
   expect(typescriptConfig.plugins.solid.meta.version).toEqual(expect.any(String));
 });
 
-test('flat configs are also exposed on plugin.configs["flat/*"]', () => {
-  // include flat configs on legacy config object with `flat/` prefix.
-  expect(plugin.configs["flat/recommended"]).toBe(recommendedConfig);
-  expect(plugin.configs["flat/typescript"]).toBe(typescriptConfig);
+test("flat configs are exposed on plugin.configs", () => {
+  expect(plugin.configs.recommended).toBe(recommendedConfig);
+  expect(plugin.configs.typescript).toBe(typescriptConfig);
 });
 
-test("legacy configs use strings, not modules", () => {
-  expect(plugin.configs.recommended.plugins).toStrictEqual(["solid"]);
-  expect(plugin.configs.typescript.plugins).toStrictEqual(["solid"]);
+test('flat configs are also exposed on plugin.configs["flat/*"] for compatibility', () => {
+  expect(plugin.configs["flat/recommended"]).toBe(recommendedConfig);
+  expect(plugin.configs["flat/typescript"]).toBe(typescriptConfig);
 });
 
 test("plugin exposes sane export types", () => {

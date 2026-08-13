@@ -192,13 +192,16 @@ let Component = (_props) => {
 let Component = ({ ["a" + ""]: A = 5, ...rest }) => <div a={A} b={rest.b} />;
 // after eslint --fix:
 let Component = (_props) => {
-  const [props, rest] = splitProps(mergeProps({ ["a" + ""]: 5 }, _props), ["a" + ""]);
+  const [props, rest] = splitProps(mergeProps({ ["a" + ""]: 5 }, _props), [
+    "a" + "",
+  ]);
   return <div a={props["a" + ""]} b={rest.b} />;
 };
 
 let Component = ({ prop1, prop2 }: Props) => <div p1={prop1} p2={prop2} />;
 // after eslint --fix:
 let Component = (props: Props) => <div p1={props.prop1} p2={props.prop2} />;
+
 ```
 
 ### Valid Examples
@@ -252,5 +255,6 @@ let Component = (props) => {
 let element = <div />;
 
 let Component = (props: Props) => <div />;
+
 ```
 <!-- end-doc-gen -->

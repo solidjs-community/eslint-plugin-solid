@@ -1,4 +1,3 @@
-import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
 import { run } from "../ruleTester";
 import rule from "../../src/rules/event-handlers";
 
@@ -30,7 +29,6 @@ export const cases = run("event-handlers", rule, {
       errors: [
         {
           messageId: "detected-attr", // has priority over "naming"/"capitalization"
-          type: T.JSXAttribute,
           data: { name: "only", staticValue: true },
         },
       ],
@@ -40,7 +38,6 @@ export const cases = run("event-handlers", rule, {
       errors: [
         {
           messageId: "naming",
-          type: T.JSXIdentifier,
           suggestions: [
             {
               messageId: "make-handler",
@@ -58,17 +55,17 @@ export const cases = run("event-handlers", rule, {
     },
     {
       code: `let el = <div onclick={() => {}} />`,
-      errors: [{ messageId: "capitalization", type: T.JSXIdentifier }],
+      errors: [{ messageId: "capitalization" }],
       output: `let el = <div onClick={() => {}} />`,
     },
     {
       code: `let el = <div onClIcK={() => {}} />`,
-      errors: [{ messageId: "capitalization", type: T.JSXIdentifier }],
+      errors: [{ messageId: "capitalization" }],
       output: `let el = <div onClick={() => {}} />`,
     },
     {
       code: `let el = <div oncLICK={() => {}} />`,
-      errors: [{ messageId: "capitalization", type: T.JSXIdentifier }],
+      errors: [{ messageId: "capitalization" }],
       output: `let el = <div onClick={() => {}} />`,
     },
     {
@@ -77,7 +74,6 @@ export const cases = run("event-handlers", rule, {
         {
           messageId: "detected-attr",
           data: { name: "onLy", staticValue: true },
-          type: T.JSXAttribute,
         },
       ],
     },
@@ -87,7 +83,6 @@ export const cases = run("event-handlers", rule, {
         {
           messageId: "detected-attr",
           data: { name: "onLy", staticValue: "string" },
-          type: T.JSXAttribute,
         },
       ],
     },
@@ -97,7 +92,6 @@ export const cases = run("event-handlers", rule, {
         {
           messageId: "detected-attr",
           data: { name: "onLy", staticValue: 5 },
-          type: T.JSXAttribute,
         },
       ],
     },
@@ -107,7 +101,6 @@ export const cases = run("event-handlers", rule, {
         {
           messageId: "detected-attr",
           data: { name: "onLy", staticValue: "string" },
-          type: T.JSXAttribute,
         },
       ],
     },
@@ -119,7 +112,6 @@ export const cases = run("event-handlers", rule, {
         {
           messageId: "detected-attr",
           data: { name: "onLy", staticValue: "string" },
-          type: T.JSXAttribute,
         },
       ],
     },

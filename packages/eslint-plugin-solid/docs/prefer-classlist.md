@@ -50,9 +50,14 @@ let el = <div className={cn({ red: true })}>Hello, world!</div>;
 // after eslint --fix:
 let el = <div classlist={{ red: true }}>Hello, world!</div>;
 
-let el = <div class={cn({ red: true, "mx-4": props.size > 2 })}>Hello, world!</div>;
+let el = (
+  <div class={cn({ red: true, "mx-4": props.size > 2 })}>Hello, world!</div>
+);
 // after eslint --fix:
-let el = <div classlist={{ red: true, "mx-4": props.size > 2 }}>Hello, world!</div>;
+let el = (
+  <div classlist={{ red: true, "mx-4": props.size > 2 }}>Hello, world!</div>
+);
+
 ```
 
 ### Valid Examples
@@ -74,7 +79,9 @@ let el = <div something={classnames({ red: true })}>Hello, world!</div>;
 
 let el = <div class={someOtherClassFunction({ red: true })}>Hello, world!</div>;
 
-let el = <div class={cn({ red: true }, condition && "yellow")}>Hello, world!</div>;
+let el = (
+  <div class={cn({ red: true }, condition && "yellow")}>Hello, world!</div>
+);
 
 let el = <div something={cn(condition && "yellow")}>Hello, world!</div>;
 
@@ -86,5 +93,6 @@ let el = (
 
 /* eslint solid/prefer-classlist: ["error", { "classnames": ["x", "y", "z"] }] */
 let el = <div class={clsx({ red: true })}>Hello, world!</div>;
+
 ```
 <!-- end-doc-gen -->

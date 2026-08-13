@@ -34,6 +34,14 @@ const Component = () => {
   return <span />;
 };
 
+const Component = () => {
+  if (condition) {
+    return <div />;
+  }
+  return <span />;
+  function hoisted() {}
+};
+
 function Component() {
   return Math.random() > 0.5 ? <div>Big!</div> : <div>Small!</div>;
 }
@@ -51,7 +59,11 @@ function Component() {
 }
 
 function Component() {
-  return Math.random() > 0.5 ? <div>Big! No, really big!</div> : <div>Small!</div>;
+  return Math.random() > 0.5 ? (
+    <div>Big! No, really big!</div>
+  ) : (
+    <div>Small!</div>
+  );
 }
 // after eslint --fix:
 function Component() {
@@ -107,6 +119,7 @@ HOC(() => {
   }
   return <div />;
 });
+
 ```
 
 ### Valid Examples
@@ -166,5 +179,23 @@ function Component() {
   };
   return <></>;
 }
+
+function Component() {
+  return <>{hoisted()}</>;
+  function hoisted() {
+    return "hoisted";
+  }
+}
+
+function Component() {
+  return <></>;
+  const hoisted = "hoisted";
+}
+
+function Component() {
+  return <></>;
+  class Hoisted {}
+}
+
 ```
 <!-- end-doc-gen -->
