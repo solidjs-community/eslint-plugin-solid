@@ -45,6 +45,16 @@ let el = <Box attr:foo="bar" />;
 
 let el = <Box foo:boo={null} />;
 
+let el = <div on:click={handler} />;
+
+let el = <div use:X={null} />;
+
+let el = <div attr:title="title" />;
+
+let el = <div bool:disabled={cond()} />;
+
+let el = <div oncapture:click={handler} />;
+
 ```
 
 ### Valid Examples
@@ -85,6 +95,21 @@ let el = (
     foo:bar="http://www.w3.org/1999/xlink"
   />
 );
+
+let el = <div foo:boo="literal" />;
+
+let el = <div prop:scrollTop="0px" />;
+
+let el = <div class:mt-10 style:width="100%" />;
+
+let el = (
+  <svg xmlns:xlink="http://www.w3.org/1999/xlink">
+    <use xlink:href="#a" />
+  </svg>
+);
+
+/* eslint solid/no-unknown-namespaces: ["error", { "allowedNamespaces": ["use"] }] */
+let el = <div use:X={null} />;
 
 ```
 <!-- end-doc-gen -->

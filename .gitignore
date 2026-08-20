@@ -110,3 +110,6 @@ typings/
 
 # Turbo cache
 .turbo
+
+# Local pnpm store (created by sandboxed installs)
+.pnpm-store

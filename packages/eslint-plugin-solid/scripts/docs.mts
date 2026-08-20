@@ -15,12 +15,14 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { rules, configs } = plugin;
 
+const recommendedRules: Record<string, unknown> = configs.recommended.rules;
+
 const ruleTableRows = (Object.keys(rules) as Array<keyof typeof rules & string>)
   .sort()
   .map((id) => {
     const { fixable, docs } = rules[id].meta;
     return [
-      configs.recommended.rules[`solid/${id}`] ? "✔" : "",
+      recommendedRules[`solid/${id}`] ? "✔" : "",
       fixable ? "🔧" : "",
       `[solid/${id}](/packages/eslint-plugin-solid/docs/${id}.md)`,
       docs?.description,

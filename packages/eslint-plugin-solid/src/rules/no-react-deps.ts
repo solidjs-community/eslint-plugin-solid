@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { ESLintUtils } from "@typescript-eslint/utils";
-import { isFunctionNode, trace, trackImports } from "../utils";
+import { isFunctionNode, isSolidV2, trace, trackImports } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -27,6 +27,11 @@ export default createRule({
   },
   defaultOptions: [],
   create(context) {
+    // In Solid 2.0 the second argument of createEffect is the (required) effect
+    // function, so a "dependency array" there is a type and runtime error already;
+    // this rule's premise only exists in 1.x.
+    if (isSolidV2(context)) return {};
+
     /** Tracks imports from 'solid-js', handling aliases. */
     const { matchImport, handleImportDeclaration } = trackImports();
 

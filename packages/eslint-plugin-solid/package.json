@@ -37,6 +37,22 @@
       "import": "./dist/configs/typescript.mjs",
       "require": "./dist/configs/typescript.js"
     },
+    "./configs/v2": {
+      "types": {
+        "import": "./dist/configs/v2.d.mts",
+        "require": "./dist/configs/v2.d.ts"
+      },
+      "import": "./dist/configs/v2.mjs",
+      "require": "./dist/configs/v2.js"
+    },
+    "./configs/v2-strict": {
+      "types": {
+        "import": "./dist/configs/v2-strict.d.mts",
+        "require": "./dist/configs/v2-strict.d.ts"
+      },
+      "import": "./dist/configs/v2-strict.mjs",
+      "require": "./dist/configs/v2-strict.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "dist/index.js",

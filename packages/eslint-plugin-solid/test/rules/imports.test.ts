@@ -17,6 +17,21 @@ export const cases = run("imports", rule, {
 import type { Store } from "solid-js/store";`,
       [tsOnly]: true,
     },
+    // Solid 2.0 mode: store/core exports moved into "solid-js" and web moved
+    // to "@solidjs/web"; legacy subpaths are solid/removed-api's territory.
+    {
+      code: `import { createSignal, createStore, reconcile, merge } from "solid-js";`,
+      settings: { solid: { version: 2 } },
+    },
+    {
+      code: `import { render, Portal, Dynamic, isServer } from "@solidjs/web";`,
+      settings: { solid: { version: 2 } },
+    },
+    {
+      // legacy subpaths are ignored here (removed-api reports them)
+      code: `import { createStore } from "solid-js/store";`,
+      settings: { solid: { version: 2 } },
+    },
   ],
   invalid: [
     {
@@ -112,6 +127,31 @@ import { render, createEffect } from "solid-js";`,
       output: `
 import { render } from "solid-js/web";
 import {  createEffect } from "solid-js";`,
+    },
+    // Solid 2.0: web exports live in "@solidjs/web", not core
+    {
+      code: `import { render } from "solid-js";`,
+      settings: { solid: { version: 2 } },
+      errors: [
+        {
+          messageId: "prefer-source",
+          data: { name: "render", source: "@solidjs/web" },
+        },
+      ],
+      output: `import { render } from "@solidjs/web";
+`,
+    },
+    {
+      code: `import { createSignal } from "@solidjs/web";`,
+      settings: { solid: { version: 2 } },
+      errors: [
+        {
+          messageId: "prefer-source",
+          data: { name: "createSignal", source: "solid-js" },
+        },
+      ],
+      output: `import { createSignal } from "solid-js";
+`,
     },
   ],
 });

@@ -174,5 +174,24 @@ import { For } from "solid-js";
 import X from "x"; // attached comment
 let el = <For each={items}>{item => item.name}</For>`,
     },
+    // Solid 2.0: new control-flow components are auto-importable
+    {
+      code: `let el = <Repeat count={5}>{(i) => <div>{i}</div>}</Repeat>;`,
+      settings: { solid: { version: 2 } },
+      errors: [{ messageId: "autoImport", data: { imports: "'Repeat'", source: "solid-js" } }],
+      output: `import { Repeat } from "solid-js";\nlet el = <Repeat count={5}>{(i) => <div>{i}</div>}</Repeat>;`,
+    },
+    {
+      code: `let el = <Loading fallback={spinner}>{content}</Loading>;`,
+      settings: { solid: { version: 2 } },
+      errors: [{ messageId: "autoImport", data: { imports: "'Loading'", source: "solid-js" } }],
+      output: `import { Loading } from "solid-js";\nlet el = <Loading fallback={spinner}>{content}</Loading>;`,
+    },
+    {
+      // Index no longer exists in 2.0, so it isn't auto-imported; plain undefined
+      code: `let el = <Index each={items} />;`,
+      settings: { solid: { version: 2 } },
+      errors: [{ messageId: "undefined", data: { identifier: "Index" } }],
+    },
   ],
 });
