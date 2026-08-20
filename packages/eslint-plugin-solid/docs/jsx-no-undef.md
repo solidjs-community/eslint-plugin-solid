@@ -136,6 +136,18 @@ import { For } from "solid-js";
 import X from "x"; // attached comment
 let el = <For each={items}>{(item) => item.name}</For>;
 
+let el = <Repeat count={5}>{(i) => <div>{i}</div>}</Repeat>;
+// after eslint --fix:
+import { Repeat } from "solid-js";
+let el = <Repeat count={5}>{(i) => <div>{i}</div>}</Repeat>;
+
+let el = <Loading fallback={spinner}>{content}</Loading>;
+// after eslint --fix:
+import { Loading } from "solid-js";
+let el = <Loading fallback={spinner}>{content}</Loading>;
+
+let el = <Index each={items} />;
+
 ```
 
 ### Valid Examples

@@ -4,6 +4,33 @@ import { CompatContext, findVariable } from "./compat";
 const domElementRegex = /^[a-z]/;
 export const isDOMElementName = (name: string): boolean => domElementRegex.test(name);
 
+interface HasSettings {
+  settings?: TSESLint.SharedConfigurationSettings;
+}
+
+/**
+ * Read the targeted Solid version from `settings: { solid: { version: 2 } }`.
+ * Returns the major version number, or `null` when unset — meaning rules should
+ * use permissive dual-version behavior (accept both 1.x and 2.x patterns).
+ */
+export function getSolidVersion(context: HasSettings): number | null {
+  const solidSettings = context.settings?.solid;
+  if (solidSettings && typeof solidSettings === "object" && "version" in solidSettings) {
+    const version = (solidSettings as { version: unknown }).version;
+    if (typeof version === "number" && Number.isInteger(version) && version > 0) {
+      return version;
+    }
+    if (typeof version === "string") {
+      const major = parseInt(version, 10);
+      if (Number.isInteger(major) && major > 0) return major;
+    }
+  }
+  return null;
+}
+
+/** Whether the targeted Solid version is 2.x or later. */
+export const isSolidV2 = (context: HasSettings): boolean => (getSolidVersion(context) ?? 0) >= 2;
+
 const propsRegex = /[pP]rops/;
 export const isPropsByName = (name: string): boolean => propsRegex.test(name);
 

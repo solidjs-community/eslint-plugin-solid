@@ -18,6 +18,7 @@ import {
   ignoreTransparentWrappers,
   getFunctionName,
   isJSXElementOrFragment,
+  isSolidV2,
   trace,
 } from "../utils";
 import { findVariable, CompatContext, getSourceCode } from "../compat";
@@ -299,6 +300,9 @@ export default createRule<Options, MessageIds>({
 
     /** Tracks imports from 'solid-js', handling aliases. */
     const { matchImport, handleImportDeclaration } = trackImports();
+
+    /** Solid 2.0 mode (settings.solid.version >= 2). */
+    const v2 = isSolidV2(context);
 
     /**
      * Async/generator functions that are tracked scopes for Solid 2.0 async computations
@@ -605,7 +609,10 @@ export default createRule<Options, MessageIds>({
               isJSXElementOrFragment(elementOrAttribute) ||
               // We can't say for sure about user components, but we know for a fact that a signal
               // should not be passed to a non-event handler DOM element attribute without calling it.
-              (elementOrAttribute?.type === "JSXAttribute" &&
+              // In v2 mode this case is delegated to solid/no-accessor-as-prop so the same
+              // node never gets two reports.
+              (!v2 &&
+                elementOrAttribute?.type === "JSXAttribute" &&
                 elementOrAttribute.parent?.type === "JSXOpeningElement" &&
                 elementOrAttribute.parent.name.type === "JSXIdentifier" &&
                 isDOMElementName(elementOrAttribute.parent.name.name))

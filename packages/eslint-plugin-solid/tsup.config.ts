@@ -1,7 +1,13 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.ts", "src/configs/recommended.ts", "src/configs/typescript.ts"],
+  entry: [
+    "src/index.ts",
+    "src/configs/recommended.ts",
+    "src/configs/typescript.ts",
+    "src/configs/v2.ts",
+    "src/configs/v2-strict.ts",
+  ],
   format: ["cjs", "esm"],
   dts: true,
   // experimentalDts: true,

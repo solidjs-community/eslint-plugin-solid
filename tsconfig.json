@@ -9,5 +9,5 @@
     "allowImportingTsExtensions": true
   },
   "include": ["packages/eslint-plugin-solid", "packages/eslint-solid-standalone", "test", "scripts"],
-  "exclude": ["**/dist", "**/dist.*"]
+  "exclude": ["**/dist", "**/dist.*", "test/templates-v2"]
 }

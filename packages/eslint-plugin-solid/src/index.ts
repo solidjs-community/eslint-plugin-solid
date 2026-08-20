@@ -9,12 +9,16 @@ import type { TSESLint } from "@typescript-eslint/utils";
 import { plugin } from "./plugin";
 import recommendedConfig from "./configs/recommended";
 import typescriptConfig from "./configs/typescript";
+import v2Config from "./configs/v2";
+import v2StrictConfig from "./configs/v2-strict";
 
 const pluginWithConfigs = {
   ...plugin,
   configs: {
     recommended: recommendedConfig,
     typescript: typescriptConfig,
+    v2: v2Config,
+    "v2-strict": v2StrictConfig,
     // aliases kept for compatibility with the 0.14.x flat config names
     "flat/recommended": recommendedConfig,
     "flat/typescript": typescriptConfig,

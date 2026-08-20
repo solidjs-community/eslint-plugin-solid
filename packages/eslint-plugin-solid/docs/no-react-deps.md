@@ -96,5 +96,7 @@ const args = [
 ];
 createEffect(...args);
 
+createEffect(() => console.log(signal()), [signal]);
+
 ```
 <!-- end-doc-gen -->

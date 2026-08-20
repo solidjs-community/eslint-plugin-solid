@@ -1,6 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
   "jsPlugins": ["eslint-plugin-solid"],
+  "settings": { "solid": { "version": 2 } },
   "rules": {
     "solid/jsx-no-duplicate-props": "error",
     "solid/jsx-no-undef": "error",
@@ -17,6 +18,13 @@
     "solid/style-prop": "warn",
     "solid/no-react-deps": "warn",
     "solid/no-react-specific-props": "warn",
-    "solid/self-closing-comp": "warn"
+    "solid/self-closing-comp": "warn",
+    "solid/removed-api": "error",
+    "solid/no-single-arg-create-effect": "error",
+    "solid/no-accessor-as-prop": "error",
+    "solid/prefer-structured-class": "warn",
+    "solid/no-module-scope-reactive-primitive": "warn",
+    "solid/prefer-onSettled-for-side-effects": "warn",
+    "solid/no-restated-default-options": "warn"
   }
 }
