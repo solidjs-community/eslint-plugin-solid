@@ -10,6 +10,8 @@ Explicitly passing a prop value that is already the default (`<For keyed={true}>
 
 Defaults are verified against the Solid 2.0 source: `<For>` is keyed by default; `<Show>` and `<Match>` are non-keyed by default.
 
+The rule only matches components imported from Solid (aliases included), so a same-named `<For>` or `<Show>` from another library — with its own defaults — is never touched.
+
 This rule is enabled as an error in the `v2-strict` config only.
 
 <!-- doc-gen OPTIONS -->
@@ -23,40 +25,48 @@ This rule is enabled as an error in the `v2-strict` config only.
 These snippets cause lint errors, and all of them can be auto-fixed.
 
 ```js
+import { For } from "solid-js";
 let el = (
   <For each={items()} keyed={true}>
     {(item) => <div />}
   </For>
 );
 // after eslint --fix:
+import { For } from "solid-js";
 let el = <For each={items()}>{(item) => <div />}</For>;
 
+import { For } from "solid-js";
 let el = (
   <For each={items()} keyed>
     {(item) => <div />}
   </For>
 );
 // after eslint --fix:
+import { For } from "solid-js";
 let el = <For each={items()}>{(item) => <div />}</For>;
 
+import { Show } from "solid-js";
 let el = (
   <Show when={user()} keyed={false}>
     <div />
   </Show>
 );
 // after eslint --fix:
+import { Show } from "solid-js";
 let el = (
   <Show when={user()}>
     <div />
   </Show>
 );
 
+import { Match } from "solid-js";
 let el = (
   <Match when={cond()} keyed={false}>
     <div />
   </Match>
 );
 // after eslint --fix:
+import { Match } from "solid-js";
 let el = (
   <Match when={cond()}>
     <div />
@@ -70,26 +80,31 @@ let el = (
 These snippets don't cause lint errors.
 
 ```js
+import { For } from "solid-js";
 let el = (
   <For each={items()} keyed={false}>
     {(item) => <div />}
   </For>
 );
 
+import { Show } from "solid-js";
 let el = (
   <Show when={user()} keyed>
     {(u) => <div />}
   </Show>
 );
 
+import { For } from "solid-js";
 let el = (
   <For each={items()} keyed={rowKey}>
     {(item) => <div />}
   </For>
 );
 
+import { For } from "solid-js";
 let el = <For each={items()}>{(item) => <div />}</For>;
 
+import { Show } from "solid-js";
 let el = (
   <Show when={user()}>
     <div />

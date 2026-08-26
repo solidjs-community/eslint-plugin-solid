@@ -7,6 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+import { trackImports } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -42,14 +43,19 @@ export default createRule<Options, MessageIds>({
   },
   defaultOptions: [],
   create(context) {
+    const { matchImport, handleImportDeclaration } = trackImports();
     return {
+      ImportDeclaration: handleImportDeclaration,
       JSXAttribute(node) {
         if (node.name.type !== "JSXIdentifier") return;
         const element = node.parent as T.JSXOpeningElement;
         if (element.name.type !== "JSXIdentifier") return;
 
-        const defaults = JSX_PROP_DEFAULTS[element.name.name];
-        if (!defaults) return;
+        // Resolve through the import map so a same-named component from another
+        // library never matches, and aliased Solid imports still do.
+        const componentName = matchImport(Object.keys(JSX_PROP_DEFAULTS), element.name.name);
+        if (!componentName) return;
+        const defaults = JSX_PROP_DEFAULTS[componentName];
         const prop = node.name.name;
         if (!(prop in defaults)) return;
         const defaultValue = defaults[prop];

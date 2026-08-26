@@ -35,6 +35,14 @@ export const cases = run("no-destructure", rule, {
       return <div a={a} />;
     }`,
     `let element = <div />`, // parse top level JSX
+    // Data callbacks destructure items, not props — even when they return JSX
+    `let Component = (props) => <ul>{props.items.map(({ id, name }) => <li id={id}>{name}</li>)}</ul>;`,
+    `let rows = items.map(({ id }) => <tr id={id} />);`,
+    `let Component = (props) => <For each={props.items}>{({ id }) => <li id={id} />}</For>;`,
+    // Lowercase-named helpers follow the non-component naming convention
+    `let renderItem = ({ id, name }) => <li id={id}>{name}</li>;`,
+    `function renderRow({ cells }) { return <tr>{cells}</tr>; }`,
+    // ...but PascalCase call arguments (HOC-style wrappers) are still components
     {
       code: `let Component = (props: Props) => <div />;`,
       [tsOnly]: true,
@@ -249,6 +257,12 @@ various();
       errors: [{ messageId: "noDestructure" }],
       output: `let Component = (props: Props) => <div p1={props.prop1} p2={props.prop2} />;`,
       [tsOnly]: true,
+    },
+    // a component passed to a PascalCase wrapper is still a component
+    {
+      code: `let Component = Memoize(({ a }) => <div a={a} />);`,
+      errors: [{ messageId: "noDestructure" }],
+      output: `let Component = Memoize((props) => <div a={props.a} />);`,
     },
   ],
 });

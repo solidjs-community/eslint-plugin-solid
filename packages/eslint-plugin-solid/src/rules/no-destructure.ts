@@ -1,5 +1,5 @@
 import { TSESTree as T, TSESLint, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
-import type { FunctionNode } from "../utils";
+import { getFunctionName, type FunctionNode } from "../utils";
 import { getSourceCode } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -66,14 +66,27 @@ export default createRule({
     const onFunctionEnter = () => {
       functionStack.push({ hasJSX: false });
     };
+    // Matches the component detection in components-return-once: containing JSX
+    // isn't enough on its own, because data callbacks (`items.map(({ id }) => ...)`)
+    // and lowercase-named helpers (`renderItem`) also return JSX; their object
+    // param is a plain data item, not reactive props.
+    const isComponent = (node: FunctionNode) =>
+      !getFunctionName(node)?.match(/^[a-z]/) &&
+      node.parent?.type !== "JSXExpressionContainer" && // "render props" aren't components
+      !(
+        // functions passed as arguments are callbacks, unless the callee is a
+        // component-wrapper (PascalCase, like HOCs)
+        (
+          node.parent?.type === "CallExpression" &&
+          node.parent.arguments.includes(node) &&
+          !(node.parent.callee as T.Identifier).name?.match(/^[A-Z]/)
+        )
+      );
+
     const onFunctionExit = (node: FunctionNode) => {
       if (node.params.length === 1) {
         const props = node.params[0];
-        if (
-          props.type === "ObjectPattern" &&
-          currentFunction().hasJSX &&
-          node.parent?.type !== "JSXExpressionContainer" // "render props" aren't components
-        ) {
+        if (props.type === "ObjectPattern" && currentFunction().hasJSX && isComponent(node)) {
           // Props are destructured in the function params, not the body. We actually don't
           // need to handle the case where props are destructured in the body, because that
           // will be a violation of "solid/reactivity".
