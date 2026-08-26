@@ -481,6 +481,31 @@ export const cases = run("reactivity", rule, {
         </For>
       );
     }`,
+    // Returned accessors are the custom-primitive contract: the caller
+    // decides whether they land in a tracked scope. (#213)
+    `const [items, setItems] = createSignal([]);
+    function useCartTotal() {
+      return () => items().reduce((sum, item) => sum + item.price, 0);
+    }`,
+    `const [count, setCount] = createSignal(0);
+    const useDouble = () => () => count() * 2;`,
+    `const [count, setCount] = createSignal(0);
+    function useCounter() {
+      return function current() { return count(); };
+    }`,
+    // Snapshot capture opted into by naming convention (#213)
+    `const [items, setItems] = createSignal([]);
+    function useTotal() {
+      const initialItems = items();
+      return () => initialItems.length;
+    }`,
+    // Captured value only used at setup, not by a returned function
+    `const [items, setItems] = createSignal([]);
+    function useTotal() {
+      const list = items();
+      console.log(list);
+      return () => items().length;
+    }`,
   ],
   invalid: [
     // Untracked signals
@@ -1049,6 +1074,47 @@ export const cases = run("reactivity", rule, {
         return sum;
       });`,
       errors: [{ messageId: "readAfterAwait", line: 7 }],
+    },
+    // Stale captures: signal read at setup, value captured by a variable a
+    // returned function reads — the capture never updates (#213)
+    {
+      code: `
+      const [items, setItems] = createSignal([]);
+      function useCartTotal() {
+        const list = items();
+        return () => list.reduce((sum, item) => sum + item.price, 0);
+      }`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    // Derived-through-expression capture is just as stale
+    {
+      code: `
+      const [items, setItems] = createSignal([]);
+      function useCount() {
+        const total = items().length;
+        return () => total;
+      }`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    // Functions embedded in returned JSX escape the same way
+    {
+      code: `
+      const [theme, setTheme] = createSignal("dark");
+      function Component() {
+        const current = theme();
+        return <button onClick={() => console.log(current)}>theme</button>;
+      }`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    // Implicit arrow return escapes too
+    {
+      code: `
+      const [count, setCount] = createSignal(0);
+      function useStale() {
+        const value = count();
+        return () => value + 1;
+      }`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
     },
   ],
 });

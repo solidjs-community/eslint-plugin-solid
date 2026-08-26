@@ -230,7 +230,8 @@ type MessageIds =
   | "shouldDestructure"
   | "shouldAssign"
   | "noAsyncTrackedScope"
-  | "readAfterAwait";
+  | "readAfterAwait"
+  | "staleCapture";
 type Options = [{ customReactiveFunctions: string[] }];
 
 export default createRule<Options, MessageIds>({
@@ -276,6 +277,8 @@ export default createRule<Options, MessageIds>({
         "This tracked scope should not be async. Solid's reactivity only tracks synchronously.",
       readAfterAwait:
         "The reactive variable '{{name}}' is read after this computation suspends (at an 'await' or 'yield'), so changes to it won't be tracked. Read it before the first 'await' and store the result in a variable.",
+      staleCapture:
+        "'{{captured}}' captures the value of the reactive variable '{{name}}' at setup, but a returned function reads the capture later — it will never update. Call '{{name}}' inside the returned function instead, or prefix '{{captured}}' with 'initial'/'default'/'static' if a one-time snapshot is intended.",
     },
   },
   defaultOptions: [
@@ -399,6 +402,99 @@ export default createRule<Options, MessageIds>({
       }
     };
 
+    /**
+     * Returns true when `fn` is directly returned by the enclosing function:
+     * either the argument of a `return` statement or the whole body of an
+     * arrow function. Deliberately strict — a function that merely appears
+     * somewhere inside a returned expression (e.g. a runWithOwner callback
+     * in a returned call) is not "returned" for our purposes.
+     */
+    const isDirectlyReturned = (fn: FunctionNode): boolean =>
+      fn.parent?.type === "ReturnStatement" ||
+      (fn.parent?.type === "ArrowFunctionExpression" && fn.parent.body === fn);
+
+    /**
+     * Detects the stale-capture footgun: a signal called at a function's
+     * setup level, its result captured in a variable, and that variable read
+     * by a function the enclosing function *returns*. The returned function
+     * pretends to be live but reads a value frozen at setup. Reports and
+     * returns true when found.
+     */
+    const checkStaleCapture = (identifier: T.Identifier): boolean => {
+      const call = identifier.parent;
+      if (call?.type !== "CallExpression" || call.callee !== identifier) return false;
+      // Find the VariableDeclarator whose init contains this call, walking up
+      // through intermediate expressions (`const t = items().length`) but
+      // never through a statement or another function.
+      let child: T.Node = call;
+      while (
+        child.parent &&
+        child.parent.type !== "VariableDeclarator" &&
+        !isFunctionNode(child.parent) &&
+        !child.parent.type.endsWith("Statement")
+      ) {
+        child = child.parent;
+      }
+      const declarator = child.parent;
+      if (declarator?.type !== "VariableDeclarator" || declarator.init !== child) return false;
+
+      const currentScopeNode = currentScope().node;
+      const capturedVars = sourceCode.scopeManager?.getDeclaredVariables(declarator) ?? [];
+      for (const captured of capturedVars) {
+        // The initial/default/static naming convention opts into a one-time
+        // snapshot, same as for props reads.
+        if (/^(?:initial|default|static[A-Z])/.test(captured.name)) continue;
+        for (const reference of captured.references) {
+          if (reference.init) continue;
+          if (isCapturedInReturnedFunction(reference.identifier, currentScopeNode)) {
+            context.report({
+              node: call,
+              messageId: "staleCapture",
+              data: { name: identifier.name, captured: captured.name },
+            });
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    /**
+     * Returns true when `node` sits inside a nested function that escapes the
+     * `boundary` function through a `return` statement (including functions
+     * embedded in returned JSX or objects).
+     */
+    const isCapturedInReturnedFunction = (
+      node: T.Node,
+      boundary: ProgramOrFunctionNode
+    ): boolean => {
+      // Find the outermost function strictly inside `boundary` containing `node`.
+      let outermost: FunctionNode | null = null;
+      let cursor: T.Node | null = node;
+      while (cursor && cursor !== boundary) {
+        if (isFunctionNode(cursor)) outermost = cursor;
+        cursor = cursor.parent ?? null;
+      }
+      if (!cursor || !outermost) return false; // not under boundary, or not captured by a closure
+      // Walk from that function to `boundary`; only non-function nodes remain
+      // in between, so a ReturnStatement found here belongs to `boundary`.
+      let child: T.Node = outermost;
+      let parent: T.Node | null = child.parent ?? null;
+      while (parent && child !== boundary) {
+        if (parent.type === "ReturnStatement") return true;
+        if (isFunctionNode(parent)) {
+          return (
+            parent === boundary &&
+            parent.type === "ArrowFunctionExpression" &&
+            parent.body === child
+          );
+        }
+        child = parent;
+        parent = parent.parent ?? null;
+      }
+      return false;
+    };
+
     /** Inspects a specific reference of a reactive variable for correct handling. */
     const handleTrackedScopes = (
       identifier: T.Identifier,
@@ -447,6 +543,13 @@ export default createRule<Options, MessageIds>({
             throw new Error("this shouldn't happen!");
           }
 
+          // Signal called at this function's setup level with its value
+          // captured by a variable that a *returned* function reads: the
+          // returned function will read a stale value forever. Report here —
+          // treating the enclosing function as a derived signal (below) is
+          // still correct, but no call-site discipline can fix the capture.
+          checkStaleCapture(identifier);
+
           // If the current function doesn't have an associated variable, that's
           // fine, it's being used inline (i.e. anonymous arrow function). For
           // this to be okay, the arrow function has to be the same node as one
@@ -454,7 +557,14 @@ export default createRule<Options, MessageIds>({
           const pushUnnamedDerivedSignal = () =>
             (parentScope().unnamedDerivedSignals ??= new Set()).add(currentScopeNode);
 
-          if (currentScopeNode.type === "FunctionDeclaration") {
+          if (isDirectlyReturned(currentScopeNode)) {
+            // A function directly returned by its enclosing function is an
+            // accessor handed to the caller — the custom-primitive contract.
+            // The caller decides whether it lands in a tracked scope; there is
+            // nowhere in this file for it to match a tracked scope, so
+            // requiring one only punishes the idiomatic hook shape
+            // (`return () => signal()`). Do nothing.
+          } else if (currentScopeNode.type === "FunctionDeclaration") {
             // get variable representing function, function node only defines one variable
             const functionVariable: Variable | undefined =
               sourceCode.scopeManager?.getDeclaredVariables(currentScopeNode)?.[0];
