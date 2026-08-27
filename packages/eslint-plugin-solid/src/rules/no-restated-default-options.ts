@@ -6,7 +6,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import { trackImports } from "../utils";
+import { getScope } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -42,14 +44,28 @@ export default createRule<Options, MessageIds>({
   },
   defaultOptions: [],
   create(context) {
+    const { matchImport, handleImportDeclaration } = trackImports();
     return {
+      ImportDeclaration: handleImportDeclaration,
       JSXAttribute(node) {
         if (node.name.type !== "JSXIdentifier") return;
         const element = node.parent as T.JSXOpeningElement;
         if (element.name.type !== "JSXIdentifier") return;
 
-        const defaults = JSX_PROP_DEFAULTS[element.name.name];
-        if (!defaults) return;
+        // Resolve through the import map so aliased Solid imports match and a
+        // same-named component from another library (or a local declaration)
+        // never does. An *unbound* <For>/<Show>/<Match> is still Solid's: the
+        // compiler auto-imports the control-flow built-ins.
+        let componentName = matchImport(Object.keys(JSX_PROP_DEFAULTS), element.name.name);
+        if (
+          !componentName &&
+          element.name.name in JSX_PROP_DEFAULTS &&
+          ASTUtils.findVariable(getScope(context, element), element.name.name) == null
+        ) {
+          componentName = element.name.name;
+        }
+        if (!componentName) return;
+        const defaults = JSX_PROP_DEFAULTS[componentName];
         const prop = node.name.name;
         if (!(prop in defaults)) return;
         const defaultValue = defaults[prop];

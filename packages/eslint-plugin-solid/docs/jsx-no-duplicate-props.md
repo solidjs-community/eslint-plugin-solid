@@ -41,6 +41,8 @@ let el = <div class="blue" class="green" />;
 
 let el = <div class="blue" {...{ class: "green" }} />;
 
+let el = <div class="blue" class="green" />;
+
 let el = (
   <div children={<div />}>
     <div />
@@ -48,6 +50,8 @@ let el = (
 );
 
 let el = <div innerHTML="<p></p>" textContent="howdy!" />;
+
+let el = <div innerHTML="<p></p>" textcontent="howdy!" />;
 
 ```
 
