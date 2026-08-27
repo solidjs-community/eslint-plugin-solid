@@ -239,6 +239,40 @@ iteration's `await`. Event handlers, `on*` lifecycle callbacks, and `action` fun
 tracked scopes, so reads after `await` there remain allowed—they intentionally poll current
 values.
 
+### Stale captures in returned functions
+
+A signal called at the setup level of a hook or component, with its value captured in a variable
+that a *returned* function reads, is almost always a bug: the returned function looks live but
+reads a value frozen at setup.
+
+```jsx
+const [items, setItems] = createSignal([]);
+
+function useCartTotal() {
+  const list = items(); // ⚠️ 'list' captures the value of 'items' at setup
+  return () => list.reduce((sum, item) => sum + item.price, 0);
+}
+```
+
+The fix is to call the signal inside the returned function, so every call reads the current
+value:
+
+```jsx
+function useCartTotal() {
+  return () => items().reduce((sum, item) => sum + item.price, 0); // ✅
+}
+```
+
+If a one-time snapshot is genuinely intended, opt in with the same naming convention used for
+props: prefix the variable with `initial`, `default`, or `static` (e.g. `const initialItems =
+items()`), or wrap the read in `untrack`.
+
+Relatedly, functions *directly returned* from another function (`return () => items().length` or
+`const useDouble = () => () => count() * 2`) are not required to match a tracked scope in the
+file that defines them. Returning an accessor is the custom-primitive contract—the caller decides
+whether it lands in JSX, an effect, or an event handler—so the rule no longer warns on the
+idiomatic hook shape.
+
 <!-- doc-gen CASES -->
 ## Tests
 
@@ -549,6 +583,30 @@ const total = createMemo(async () => {
   }
   return sum;
 });
+
+const [items, setItems] = createSignal([]);
+function useCartTotal() {
+  const list = items();
+  return () => list.reduce((sum, item) => sum + item.price, 0);
+}
+
+const [items, setItems] = createSignal([]);
+function useCount() {
+  const total = items().length;
+  return () => total;
+}
+
+const [theme, setTheme] = createSignal("dark");
+function Component() {
+  const current = theme();
+  return <button onClick={() => console.log(current)}>theme</button>;
+}
+
+const [count, setCount] = createSignal(0);
+function useStale() {
+  const value = count();
+  return () => value + 1;
+}
 
 ```
 
@@ -1108,6 +1166,34 @@ function Component(props) {
       {(item, index) => <div data-index={index()}>{item.name}</div>}
     </For>
   );
+}
+
+const [items, setItems] = createSignal([]);
+function useCartTotal() {
+  return () => items().reduce((sum, item) => sum + item.price, 0);
+}
+
+const [count, setCount] = createSignal(0);
+const useDouble = () => () => count() * 2;
+
+const [count, setCount] = createSignal(0);
+function useCounter() {
+  return function current() {
+    return count();
+  };
+}
+
+const [items, setItems] = createSignal([]);
+function useTotal() {
+  const initialItems = items();
+  return () => initialItems.length;
+}
+
+const [items, setItems] = createSignal([]);
+function useTotal() {
+  const list = items();
+  console.log(list);
+  return () => items().length;
 }
 
 ```
