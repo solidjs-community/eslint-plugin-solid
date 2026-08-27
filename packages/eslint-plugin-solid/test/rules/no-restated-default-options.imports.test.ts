@@ -17,10 +17,19 @@ export const cases = run("no-restated-default-options", rule, {
     let el = <For each={items()} keyed={true}>{(item) => <div />}</For>;`,
     `import { Show } from "./show";
     let el = <Show when={user()} keyed={false}><div /></Show>;`,
-    // no solid import at all: nothing to match
-    `let el = <For each={items()} keyed={true}>{(item) => <div />}</For>;`,
+    // locally declared components shadow the built-ins
+    `const For = (props) => <div>{props.children}</div>;
+    let el = <For each={items()} keyed={true}>{(item) => <div />}</For>;`,
   ],
   invalid: [
+    // an unbound <For> is Solid's: the compiler auto-imports control flow
+    {
+      code: `let el = <For each={items()} keyed={true}>{(item) => <div />}</For>;`,
+      errors: [
+        { messageId: "restatedDefault", data: { prop: "keyed", value: "true", component: "For" } },
+      ],
+      output: `let el = <For each={items()} >{(item) => <div />}</For>;`,
+    },
     // aliased Solid imports still resolve to their defaults
     {
       code: `import { For as List } from "solid-js";

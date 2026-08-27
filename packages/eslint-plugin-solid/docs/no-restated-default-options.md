@@ -10,7 +10,7 @@ Explicitly passing a prop value that is already the default (`<For keyed={true}>
 
 Defaults are verified against the Solid 2.0 source: `<For>` is keyed by default; `<Show>` and `<Match>` are non-keyed by default.
 
-The rule only matches components imported from Solid (aliases included), so a same-named `<For>` or `<Show>` from another library — with its own defaults — is never touched.
+The rule matches components imported from Solid (aliases included) and *unbound* names, since the compiler auto-imports the control-flow built-ins. A `<For>` or `<Show>` bound to anything else — an import from another library, a local declaration — has its own defaults and is never touched.
 
 This rule is enabled as an error in the `v2-strict` config only.
 
