@@ -173,6 +173,83 @@ export const cases = run("reactivity", rule, {
       customQuery(() => signal());`,
       options: [{ customReactiveFunctions: ["customQuery"] }], // only needed when not create*/use*
     },
+    // customReactiveFunctions supports '*' wildcards and '/regex/' strings (#176)
+    {
+      code: `function watchQuery(v) {}
+      const [signal, setSignal] = createSignal();
+      watchQuery(() => signal());`,
+      options: [{ customReactiveFunctions: ["watch*"] }],
+    },
+    {
+      code: `function watchQuery(v) {}
+      const [signal, setSignal] = createSignal();
+      watchQuery(() => signal());`,
+      options: [{ customReactiveFunctions: ["/^watch[A-Z]/"] }],
+    },
+    // destructuring props inside a tracked scope re-runs on updates (#191)
+    `function Component(props) {
+      const value = createMemo(() => {
+        const { item } = props;
+        return item;
+      });
+      return <div>{value()}</div>;
+    }`,
+    `function Component(props) {
+      createEffect(() => {
+        const { onChange } = props;
+        onChange();
+      });
+      return <div />;
+    }`,
+    // createResource(fetcher) and createResource(fetcher, options) have no source;
+    // the fetcher is not a tracked scope and may be async (#199)
+    `const [data] = createResource(async () => {
+      const res = await fetch("/api");
+      return res.json();
+    });`,
+    `const [data] = createResource(async () => {
+      const res = await fetch("/api");
+      return res.json();
+    }, { initialValue: [] });`,
+    // createResource(source, fetcher): the fetcher receives the source's value,
+    // is not tracked, and may be async (#195)
+    `function Component(props) {
+      const [data] = createResource(() => props.id, async (id) => {
+        const res = await fetch("/api/" + id);
+        return res.json();
+      });
+      return <div>{data()}</div>;
+    }`,
+    // window/globalThis-prefixed timers behave like the bare globals (#194)
+    `function Component() {
+      const [count, setCount] = createSignal(0);
+      window.setTimeout(() => console.log(count()), 500);
+      globalThis.setInterval(() => console.log(count()), 500);
+      return <div />;
+    }`,
+    // mergeProps wraps function sources in createMemo, so they are tracked (#179)
+    `function Component(props) {
+      const [dynamic, setDynamic] = createSignal({});
+      const merged = mergeProps({ start: 0 }, () => ({ end: props.end, ...dynamic() }));
+      return <div>{merged.end}</div>;
+    }`,
+    // a memo passed to a function is as safe as passing a signal (#182)
+    `const [count, setCount] = createSignal(0);
+    const double = createMemo(() => count() * 2);
+    createCounter(double);`,
+    // directly-returned create* calls hand their result to the caller (#52)
+    `function createDouble(count) {
+      return createMemo(() => count() * 2);
+    }`,
+    `const wrap = (fn) => createMemo(fn);`,
+    // functions passed to unknown calls inside a tracked scope either run
+    // synchronously (still tracked) or poll current values later (#197)
+    `function Component(props) {
+      createEffect(() => {
+        doSomething(() => props.toggle);
+      });
+      return <div />;
+    }`,
     // Event listeners
     `const [signal, setSignal] = createSignal(1);
     const element = document.getElementById("id");
@@ -882,14 +959,14 @@ export const cases = run("reactivity", rule, {
       const Component = props => {
         return <SomeContext.Provider value={props.value}>{props.children}</SomeContext.Provider>;
       }`,
-      errors: [{ messageId: "untrackedReactive", data: { name: "props.value" } }],
+      errors: [{ messageId: "providerValue", data: { name: "props.value" } }],
     },
     {
       code: `
       const Component = props => {
         return <SomeProvider value={props.value}>{props.children}</SomeProvider>;
       }`,
-      errors: [{ messageId: "untrackedReactive", data: { name: "props.value" } }],
+      errors: [{ messageId: "providerValue", data: { name: "props.value" } }],
     },
     {
       code: `
@@ -897,7 +974,16 @@ export const cases = run("reactivity", rule, {
         const [signal] = createSignal();
         return <SomeContext.Provider value={signal()} someOtherProp={props.foo}>{props.children}</SomeContext.Provider>;
       }`,
-      errors: [{ messageId: "untrackedReactive", data: { name: "signal" } }],
+      errors: [{ messageId: "providerValue", data: { name: "signal" } }],
+    },
+    // Solid 2.0: the context object itself is the provider
+    {
+      code: `
+      const MyContext = createContext();
+      const Component = props => {
+        return <MyContext value={props.value}>{props.children}</MyContext>;
+      }`,
+      errors: [{ messageId: "providerValue", data: { name: "props.value" } }],
     },
     // getOwner/runWithOwner
     {
@@ -1148,6 +1234,22 @@ export const cases = run("reactivity", rule, {
         return () => value + 1;
       }`,
       errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    // createResource(source, fetcher): the source is still a sync tracked scope
+    {
+      code: `
+      const [id, setId] = createSignal(1);
+      const [data] = createResource(async () => id(), async (v) => fetch("/api/" + v));`,
+      errors: [{ messageId: "noAsyncTrackedScope", line: 3 }],
+    },
+    // destructuring props outside a tracked scope still snapshots values
+    {
+      code: `
+      function Component(props) {
+        const { item } = props;
+        return <div>{item}</div>;
+      }`,
+      errors: [{ messageId: "untrackedReactive", line: 3 }],
     },
   ],
 });

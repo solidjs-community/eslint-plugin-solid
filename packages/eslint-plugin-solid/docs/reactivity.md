@@ -173,7 +173,7 @@ Options shown here are the defaults. Manually configuring an array will *replace
 ```js
 {
   "solid/reactivity": ["warn", { 
-    // List of function names to consider as reactive functions (allow signals to be safely passed as arguments). In addition, any create* or use* functions are automatically included.
+    // List of function names to consider as reactive functions (allow signals to be safely passed as arguments). Supports exact names, '*' wildcards ('use*Store'), and regexes given as '/pattern/' strings. In addition, any create* or use* functions are automatically included.
     customReactiveFunctions: [], // Array<string>
   }]
 }
@@ -463,6 +463,11 @@ const Component = (props) => {
   );
 };
 
+const MyContext = createContext();
+const Component = (props) => {
+  return <MyContext value={props.value}>{props.children}</MyContext>;
+};
+
 const owner = getOwner();
 const [signal] = createSignal();
 createEffect(() => runWithOwner(owner, () => console.log(signal())));
@@ -610,6 +615,17 @@ const [count, setCount] = createSignal(0);
 function useStale() {
   const value = count();
   return () => value + 1;
+}
+
+const [id, setId] = createSignal(1);
+const [data] = createResource(
+  async () => id(),
+  async (v) => fetch("/api/" + v)
+);
+
+function Component(props) {
+  const { item } = props;
+  return <div>{item}</div>;
 }
 
 ```
@@ -834,6 +850,89 @@ X.Y.createFoo(() => bar());
 function customQuery(v) {}
 const [signal, setSignal] = createSignal();
 customQuery(() => signal());
+
+/* eslint solid/reactivity: ["error", { "customReactiveFunctions": ["watch*"] }] */
+function watchQuery(v) {}
+const [signal, setSignal] = createSignal();
+watchQuery(() => signal());
+
+/* eslint solid/reactivity: ["error", { "customReactiveFunctions": ["/^watch[A-Z]/"] }] */
+function watchQuery(v) {}
+const [signal, setSignal] = createSignal();
+watchQuery(() => signal());
+
+function Component(props) {
+  const value = createMemo(() => {
+    const { item } = props;
+    return item;
+  });
+  return <div>{value()}</div>;
+}
+
+function Component(props) {
+  createEffect(() => {
+    const { onChange } = props;
+    onChange();
+  });
+  return <div />;
+}
+
+const [data] = createResource(async () => {
+  const res = await fetch("/api");
+  return res.json();
+});
+
+const [data] = createResource(
+  async () => {
+    const res = await fetch("/api");
+    return res.json();
+  },
+  { initialValue: [] }
+);
+
+function Component(props) {
+  const [data] = createResource(
+    () => props.id,
+    async (id) => {
+      const res = await fetch("/api/" + id);
+      return res.json();
+    }
+  );
+  return <div>{data()}</div>;
+}
+
+function Component() {
+  const [count, setCount] = createSignal(0);
+  window.setTimeout(() => console.log(count()), 500);
+  globalThis.setInterval(() => console.log(count()), 500);
+  return <div />;
+}
+
+function Component(props) {
+  const [dynamic, setDynamic] = createSignal({});
+  const merged = mergeProps({ start: 0 }, () => ({
+    end: props.end,
+    ...dynamic(),
+  }));
+  return <div>{merged.end}</div>;
+}
+
+const [count, setCount] = createSignal(0);
+const double = createMemo(() => count() * 2);
+createCounter(double);
+
+function createDouble(count) {
+  return createMemo(() => count() * 2);
+}
+
+const wrap = (fn) => createMemo(fn);
+
+function Component(props) {
+  createEffect(() => {
+    doSomething(() => props.toggle);
+  });
+  return <div />;
+}
 
 const [signal, setSignal] = createSignal(1);
 const element = document.getElementById("id");
