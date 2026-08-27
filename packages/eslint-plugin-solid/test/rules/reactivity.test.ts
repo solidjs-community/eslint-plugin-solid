@@ -736,7 +736,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "shouldDestructure",
           data: { nth: "first " },
-          type: T.ObjectPattern,
         },
       ],
     },
