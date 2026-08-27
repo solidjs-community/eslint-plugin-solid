@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
-import { isDOMElementName } from "../utils";
+import { isDOMElementName, isSolidV2 } from "../utils";
 import { getScope, getSourceCode } from "../compat";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -107,7 +107,9 @@ type MessageIds =
   | "make-handler"
   | "make-attr"
   | "detected-attr"
-  | "spread-handler";
+  | "spread-handler"
+  | "lowercase-attribute-v2"
+  | "static-handler-v2";
 type Options = [{ ignoreCase?: boolean; warnOnSpread?: boolean }?];
 
 export default createRule<Options, MessageIds>({
@@ -152,11 +154,16 @@ export default createRule<Options, MessageIds>({
       "make-attr": "Change the {{name}} prop to {{attrName}}.",
       "spread-handler":
         "The {{name}} prop should be added as a JSX attribute, not spread in. Solid doesn't add listeners when spreading into JSX.",
+      "lowercase-attribute-v2":
+        "In Solid 2.0, {{name}} is a literal attribute, not an event handler — this listener will never fire. Rename it to {{fixedName}}.",
+      "static-handler-v2":
+        "In Solid 2.0, {{name}} is an event handler and must be a function, but its value is the static value {{staticValue}}. For a literal attribute, use lowercase {{attrName}}.",
     },
   },
   defaultOptions: [],
   create(context) {
     const sourceCode = getSourceCode(context);
+    const v2 = isSolidV2(context);
 
     return {
       JSXAttribute(node) {
@@ -179,7 +186,87 @@ export default createRule<Options, MessageIds>({
           return; // bail if Solid doesn't consider the prop name an event handler
         }
 
-        let staticValue: ReturnType<typeof getStaticValue> = null;
+        if (v2) {
+          // In Solid 2.0 only the camelCase form (`onClick`) is an event handler;
+          // lowercase names (`onclick`) are literal attributes.
+          const isCamelCase = name[2] === name[2].toUpperCase();
+          const lowercaseName = name.toLowerCase();
+
+          if (isCamelCase) {
+            // Event handler position: a static string/number value is a bug.
+            let camelStaticValue: ReturnType<typeof getStaticValue> = null;
+            if (
+              node.value?.type === "JSXExpressionContainer" &&
+              node.value.expression.type !== "JSXEmptyExpression" &&
+              node.value.expression.type !== "ArrayExpression"
+            ) {
+              camelStaticValue = getStaticValue(node.value.expression, getScope(context, node));
+            }
+            if (node.value === null || node.value?.type === "Literal") {
+              camelStaticValue = { value: node.value !== null ? node.value.value : true };
+            }
+            if (
+              camelStaticValue !== null &&
+              (typeof camelStaticValue.value === "string" ||
+                typeof camelStaticValue.value === "number" ||
+                typeof camelStaticValue.value === "boolean")
+            ) {
+              context.report({
+                node,
+                messageId: "static-handler-v2",
+                data: { name, staticValue: camelStaticValue.value, attrName: lowercaseName },
+              });
+            } else if (isNonstandardEventName(lowercaseName)) {
+              // e.g. onDoubleClick — lowercasing yields no real DOM event, so
+              // the listener would silently never fire.
+              const fixedName = getStandardEventHandlerName(lowercaseName);
+              context.report({
+                node: node.name,
+                messageId: "nonstandard",
+                data: { name, fixedName },
+                fix: (fixer) => fixer.replaceText(node.name, fixedName),
+              });
+            }
+          } else {
+            // Literal attribute position: string values are fine, functions are
+            // a near-certain intended event handler that will never fire.
+            const isStaticAttributeValue =
+              node.value === null ||
+              node.value.type === "Literal" ||
+              (node.value.type === "JSXExpressionContainer" &&
+                node.value.expression.type !== "JSXEmptyExpression" &&
+                node.value.expression.type !== "ArrayExpression" &&
+                getStaticValue(node.value.expression, getScope(context, node)) !== null);
+            if (!isStaticAttributeValue) {
+              const fixedName = isNonstandardEventName(lowercaseName)
+                ? getStandardEventHandlerName(lowercaseName)
+                : isCommonHandlerName(lowercaseName)
+                ? getCommonEventHandlerName(lowercaseName)
+                : `on${name[2].toUpperCase()}${name.slice(3)}`;
+              const known =
+                isNonstandardEventName(lowercaseName) || isCommonHandlerName(lowercaseName);
+              context.report({
+                node: node.name,
+                messageId: "lowercase-attribute-v2",
+                data: { name, fixedName },
+                // Autofix when the event is a known DOM event; suggest otherwise.
+                fix: known ? (fixer) => fixer.replaceText(node.name, fixedName) : undefined,
+                suggest: known
+                  ? undefined
+                  : [
+                      {
+                        messageId: "make-handler",
+                        data: { name, handlerName: fixedName },
+                        fix: (fixer) => fixer.replaceText(node.name, fixedName),
+                      },
+                    ],
+              });
+            }
+          }
+          return;
+        }
+
+        let staticValue: ReturnType<typeof getStaticValue>;
         if (
           node.value?.type === "JSXExpressionContainer" &&
           node.value.expression.type !== "JSXEmptyExpression" &&

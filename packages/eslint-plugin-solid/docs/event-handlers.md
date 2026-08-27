@@ -92,6 +92,23 @@ let el = <div {...{ onClick: handleClick }} />;
 // after eslint --fix:
 const handleClick = () => 42;
 let el = <div onClick={handleClick} />;
+
+let el = <div onclick={() => setCount(1)} />;
+// after eslint --fix:
+let el = <div onClick={() => setCount(1)} />;
+
+let el = <div ondoubleclick={() => {}} />;
+// after eslint --fix:
+let el = <div onDblClick={() => {}} />;
+
+let el = <div onfoobar={() => {}} />;
+
+let el = <div onClick="alert('hi')" />;
+
+let el = <div onDoubleClick={() => {}} />;
+// after eslint --fix:
+let el = <div onDblClick={() => {}} />;
+
 ```
 
 ### Valid Examples
@@ -131,5 +148,12 @@ let el = <div onclick={onclick} />;
 
 /* eslint solid/event-handlers: ["error", { "ignoreCase": true }] */
 let el = <div only={only} />;
+
+let el = <button onClick={() => setCount(count() + 1)} />;
+
+let el = <div onclick="alert('hi')" />;
+
+let el = <div only="static" />;
+
 ```
 <!-- end-doc-gen -->

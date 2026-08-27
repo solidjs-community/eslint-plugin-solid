@@ -23,6 +23,7 @@ import {
   ignoreTransparentWrappers,
   getFunctionName,
   isJSXElementOrFragment,
+  isSolidV2,
   trace,
 } from "../utils";
 import { findVariable, CompatContext, getSourceCode } from "../compat";
@@ -246,7 +247,9 @@ type MessageIds =
   | "badUnnamedDerivedSignal"
   | "shouldDestructure"
   | "shouldAssign"
-  | "noAsyncTrackedScope";
+  | "noAsyncTrackedScope"
+  | "readAfterAwait"
+  | "staleCapture";
 type Options = [{ customReactiveFunctions: string[] }];
 
 export default createRule<Options, MessageIds>({
@@ -290,6 +293,10 @@ export default createRule<Options, MessageIds>({
         "For proper analysis, a variable should be used to capture the result of this function call.",
       noAsyncTrackedScope:
         "This tracked scope should not be async. Solid's reactivity only tracks synchronously.",
+      readAfterAwait:
+        "The reactive variable '{{name}}' is read after this computation suspends (at an 'await' or 'yield'), so changes to it won't be tracked. Read it before the first 'await' and store the result in a variable.",
+      staleCapture:
+        "'{{captured}}' captures the value of the reactive variable '{{name}}' at setup, but a returned function reads the capture later — it will never update. Call '{{name}}' inside the returned function instead, or prefix '{{captured}}' with 'initial'/'default'/'static' if a one-time snapshot is intended.",
     },
   },
   defaultOptions: [
@@ -314,6 +321,62 @@ export default createRule<Options, MessageIds>({
 
     /** Tracks imports from 'solid-js', handling aliases. */
     const { matchImport, handleImportDeclaration } = trackImports();
+
+    /** Solid 2.0 mode (settings.solid.version >= 2). */
+    const v2 = isSolidV2(context);
+
+    /**
+     * Async/generator functions that are tracked scopes for Solid 2.0 async computations
+     * (async createMemo, function-form createSignal/createStore, etc.). Only reads before
+     * the first suspension point (`await`/`yield`) are tracked; later reads are reported.
+     */
+    const asyncTrackedScopes = new Set<FunctionNode>();
+    const suspensionTaintCache = new Map<FunctionNode, number | null>();
+    /**
+     * If `fn` is an async computation, returns the source position after which reactive
+     * reads are no longer tracked, or null if it never suspends. When the first suspension
+     * point is inside a loop, the loop is tainted too, since later iterations read after
+     * the previous iteration's suspension.
+     */
+    const getSuspensionTaint = (fn: ProgramOrFunctionNode): number | null => {
+      if (!isFunctionNode(fn) || !asyncTrackedScopes.has(fn)) return null;
+      const cached = suspensionTaintCache.get(fn);
+      if (cached !== undefined) return cached;
+      let suspension: T.Node | undefined;
+      traverse(fn.body as never, {
+        enter(cn) {
+          const node = cn as T.Node;
+          if (node !== fn.body && isFunctionNode(node)) {
+            this.skip(); // nested functions suspend independently
+          } else if (node.type === "AwaitExpression" || node.type === "YieldExpression") {
+            suspension = node;
+            this.break();
+          }
+        },
+        fallback: "iteration",
+      });
+      let taint: number | null = null;
+      if (suspension) {
+        // the operands of the first suspension point are still evaluated synchronously
+        taint = suspension.range[1];
+        let ancestor: T.Node | undefined = suspension.parent;
+        while (ancestor && ancestor !== fn) {
+          if (
+            ancestor.type === "ForStatement" ||
+            ancestor.type === "WhileStatement" ||
+            ancestor.type === "DoWhileStatement"
+          ) {
+            taint = ancestor.range[0];
+          } else if (ancestor.type === "ForOfStatement" || ancestor.type === "ForInStatement") {
+            // the iterated expression is only evaluated once, before the first suspension
+            taint = ancestor.body.range[0];
+          }
+          ancestor = ancestor.parent;
+        }
+      }
+      suspensionTaintCache.set(fn, taint);
+      return taint;
+    };
 
     /** Workaround for #61 */
     const markPropsOnCondition = (node: FunctionNode, cb: (props: T.Identifier) => boolean) => {
@@ -355,6 +418,99 @@ export default createRule<Options, MessageIds>({
             findInScope(node, currentScope().node, (node) => node === trackedScope.node)
           );
       }
+    };
+
+    /**
+     * Returns true when `fn` is directly returned by the enclosing function:
+     * either the argument of a `return` statement or the whole body of an
+     * arrow function. Deliberately strict — a function that merely appears
+     * somewhere inside a returned expression (e.g. a runWithOwner callback
+     * in a returned call) is not "returned" for our purposes.
+     */
+    const isDirectlyReturned = (fn: FunctionNode): boolean =>
+      fn.parent?.type === "ReturnStatement" ||
+      (fn.parent?.type === "ArrowFunctionExpression" && fn.parent.body === fn);
+
+    /**
+     * Detects the stale-capture footgun: a signal called at a function's
+     * setup level, its result captured in a variable, and that variable read
+     * by a function the enclosing function *returns*. The returned function
+     * pretends to be live but reads a value frozen at setup. Reports and
+     * returns true when found.
+     */
+    const checkStaleCapture = (identifier: T.Identifier): boolean => {
+      const call = identifier.parent;
+      if (call?.type !== "CallExpression" || call.callee !== identifier) return false;
+      // Find the VariableDeclarator whose init contains this call, walking up
+      // through intermediate expressions (`const t = items().length`) but
+      // never through a statement or another function.
+      let child: T.Node = call;
+      while (
+        child.parent &&
+        child.parent.type !== "VariableDeclarator" &&
+        !isFunctionNode(child.parent) &&
+        !child.parent.type.endsWith("Statement")
+      ) {
+        child = child.parent;
+      }
+      const declarator = child.parent;
+      if (declarator?.type !== "VariableDeclarator" || declarator.init !== child) return false;
+
+      const currentScopeNode = currentScope().node;
+      const capturedVars = sourceCode.scopeManager?.getDeclaredVariables(declarator) ?? [];
+      for (const captured of capturedVars) {
+        // The initial/default/static naming convention opts into a one-time
+        // snapshot, same as for props reads.
+        if (/^(?:initial|default|static[A-Z])/.test(captured.name)) continue;
+        for (const reference of captured.references) {
+          if (reference.init) continue;
+          if (isCapturedInReturnedFunction(reference.identifier, currentScopeNode)) {
+            context.report({
+              node: call,
+              messageId: "staleCapture",
+              data: { name: identifier.name, captured: captured.name },
+            });
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    /**
+     * Returns true when `node` sits inside a nested function that escapes the
+     * `boundary` function through a `return` statement (including functions
+     * embedded in returned JSX or objects).
+     */
+    const isCapturedInReturnedFunction = (
+      node: T.Node,
+      boundary: ProgramOrFunctionNode
+    ): boolean => {
+      // Find the outermost function strictly inside `boundary` containing `node`.
+      let outermost: FunctionNode | null = null;
+      let cursor: T.Node | null = node;
+      while (cursor && cursor !== boundary) {
+        if (isFunctionNode(cursor)) outermost = cursor;
+        cursor = cursor.parent ?? null;
+      }
+      if (!cursor || !outermost) return false; // not under boundary, or not captured by a closure
+      // Walk from that function to `boundary`; only non-function nodes remain
+      // in between, so a ReturnStatement found here belongs to `boundary`.
+      let child: T.Node = outermost;
+      let parent: T.Node | null = child.parent ?? null;
+      while (parent && child !== boundary) {
+        if (parent.type === "ReturnStatement") return true;
+        if (isFunctionNode(parent)) {
+          return (
+            parent === boundary &&
+            parent.type === "ArrowFunctionExpression" &&
+            parent.body === child
+          );
+        }
+        child = parent;
+        parent = parent.parent ?? null;
+      }
+      return false;
     };
 
     /** Inspects a specific reference of a reactive variable for correct handling. */
@@ -405,6 +561,13 @@ export default createRule<Options, MessageIds>({
             throw new Error("this shouldn't happen!");
           }
 
+          // Signal called at this function's setup level with its value
+          // captured by a variable that a *returned* function reads: the
+          // returned function will read a stale value forever. Report here —
+          // treating the enclosing function as a derived signal (below) is
+          // still correct, but no call-site discipline can fix the capture.
+          checkStaleCapture(identifier);
+
           // If the current function doesn't have an associated variable, that's
           // fine, it's being used inline (i.e. anonymous arrow function). For
           // this to be okay, the arrow function has to be the same node as one
@@ -412,7 +575,14 @@ export default createRule<Options, MessageIds>({
           const pushUnnamedDerivedSignal = () =>
             (parentScope().unnamedDerivedSignals ??= new Set()).add(currentScopeNode);
 
-          if (currentScopeNode.type === "FunctionDeclaration") {
+          if (isDirectlyReturned(currentScopeNode)) {
+            // A function directly returned by its enclosing function is an
+            // accessor handed to the caller — the custom-primitive contract.
+            // The caller decides whether it lands in a tracked scope; there is
+            // nowhere in this file for it to match a tracked scope, so
+            // requiring one only punishes the idiomatic hook shape
+            // (`return () => signal()`). Do nothing.
+          } else if (currentScopeNode.type === "FunctionDeclaration") {
             // get variable representing function, function node only defines one variable
             const functionVariable: Variable | undefined =
               sourceCode.scopeManager?.getDeclaredVariables(currentScopeNode)?.[0];
@@ -467,6 +637,12 @@ export default createRule<Options, MessageIds>({
         return;
       }
 
+      // If this scope is an async computation (Solid 2.0), reactive reads positioned
+      // after its first suspension point resume outside the tracking window.
+      const suspensionTaint = getSuspensionTaint(currentScopeNode);
+      const isReadAfterSuspension = (identifier: T.Node): boolean =>
+        suspensionTaint != null && identifier.range[0] >= suspensionTaint;
+
       // Iterate through all usages of (derived) signals in the current scope
       for (const { reference, declarationScope } of scopeStack.consumeSignalReferencesInScope()) {
         const identifier = reference.identifier;
@@ -493,8 +669,18 @@ export default createRule<Options, MessageIds>({
             (identifier.parent?.type === "ArrayExpression" &&
               identifier.parent.parent?.type === "CallExpression")
           ) {
-            // This signal is getting called properly, analyze it.
-            handleTrackedScopes(identifier, declarationScope);
+            if (isReadAfterSuspension(identifier)) {
+              // In an async computation, reads after the first suspension point aren't
+              // tracked (and in Solid 2.0 may observe unpredictable state).
+              context.report({
+                node: identifier,
+                messageId: "readAfterAwait",
+                data: { name: identifier.name },
+              });
+            } else {
+              // This signal is getting called properly, analyze it.
+              handleTrackedScopes(identifier, declarationScope);
+            }
           } else if (identifier.parent?.type === "TemplateLiteral") {
             reportBadSignal("template literals");
           } else if (
@@ -551,7 +737,10 @@ export default createRule<Options, MessageIds>({
               isJSXElementOrFragment(elementOrAttribute) ||
               // We can't say for sure about user components, but we know for a fact that a signal
               // should not be passed to a non-event handler DOM element attribute without calling it.
-              (elementOrAttribute?.type === "JSXAttribute" &&
+              // In v2 mode this case is delegated to solid/no-accessor-as-prop so the same
+              // node never gets two reports.
+              (!v2 &&
+                elementOrAttribute?.type === "JSXAttribute" &&
                 elementOrAttribute.parent?.type === "JSXOpeningElement" &&
                 elementOrAttribute.parent.name.type === "JSXIdentifier" &&
                 isDOMElementName(elementOrAttribute.parent.name.name))
@@ -600,6 +789,14 @@ export default createRule<Options, MessageIds>({
             // about untracked usages of these props, because the user has shown
             // that they understand the consequences of using a reactive
             // variable to initialize something else. Do nothing.
+          } else if (isReadAfterSuspension(identifier)) {
+            // In an async computation, reads after the first suspension point aren't
+            // tracked (and in Solid 2.0 may observe unpredictable state).
+            context.report({
+              node: identifier,
+              messageId: "readAfterAwait",
+              data: { name: identifier.name },
+            });
           } else {
             // The props are the object in a property read access, which
             // should be under a tracked scope.
@@ -668,7 +865,7 @@ export default createRule<Options, MessageIds>({
       ) {
         if (
           node.callee.type === "Identifier" &&
-          matchImport(["batch", "produce"], node.callee.name)
+          matchImport(["batch", "produce", "flush"], node.callee.name)
         ) {
           // These Solid APIs take callbacks that run in the current scope
           scopeStack.syncCallbacks.add(node.arguments[0]);
@@ -686,7 +883,10 @@ export default createRule<Options, MessageIds>({
       }
       if (node.callee.type === "Identifier") {
         if (
-          matchImport(["createSignal", "createStore"], node.callee.name) &&
+          matchImport(
+            ["createSignal", "createStore", "createOptimistic", "createOptimisticStore"],
+            node.callee.name
+          ) &&
           node.parent?.type === "VariableDeclarator"
         ) {
           // Allow using reactive variables in state setter if the current scope is tracked.
@@ -709,7 +909,7 @@ export default createRule<Options, MessageIds>({
               }
             }
           }
-        } else if (matchImport(["mapArray", "indexArray"], node.callee.name)) {
+        } else if (matchImport(["mapArray", "indexArray", "repeat"], node.callee.name)) {
           const arg1 = node.arguments[1];
           if (isFunctionNode(arg1)) {
             scopeStack.syncCallbacks.add(arg1);
@@ -732,7 +932,7 @@ export default createRule<Options, MessageIds>({
       // Mark return values of certain functions as reactive
       if (init.type === "CallExpression" && init.callee.type === "Identifier") {
         const { callee } = init;
-        if (matchImport(["createSignal", "useTransition"], callee.name)) {
+        if (matchImport(["createSignal", "useTransition", "createOptimistic"], callee.name)) {
           const signal = id && getNthDestructuredVar(id, 0, context);
           if (signal) {
             scopeStack.pushSignal(signal, currentScope().node);
@@ -747,7 +947,7 @@ export default createRule<Options, MessageIds>({
           } else {
             warnShouldAssign(id ?? init);
           }
-        } else if (matchImport("createStore", callee.name)) {
+        } else if (matchImport(["createStore", "createOptimisticStore"], callee.name)) {
           const store = id && getNthDestructuredVar(id, 0, context);
           // stores act like props
           if (store) {
@@ -755,7 +955,9 @@ export default createRule<Options, MessageIds>({
           } else {
             warnShouldDestructure(id ?? init, "first");
           }
-        } else if (matchImport("mergeProps", callee.name)) {
+        } else if (matchImport(["mergeProps", "merge", "omit"], callee.name)) {
+          // Solid 2.0 renames mergeProps to merge; omit (which replaces splitProps)
+          // also returns a single props object
           const merged = id && getReturnedVar(id, context);
           if (merged) {
             scopeStack.pushProps(merged, currentScope().node);
@@ -788,7 +990,8 @@ export default createRule<Options, MessageIds>({
           if (resourceReturn) {
             scopeStack.pushProps(resourceReturn, currentScope().node);
           }
-        } else if (matchImport("createMutable", callee.name)) {
+        } else if (matchImport(["createMutable", "createProjection"], callee.name)) {
+          // createProjection (Solid 2.0) returns a readonly derived store
           const mutable = id && getReturnedVar(id, context);
           if (mutable) {
             scopeStack.pushProps(mutable, currentScope().node);
@@ -831,16 +1034,32 @@ export default createRule<Options, MessageIds>({
         | T.TaggedTemplateExpression
         | T.NewExpression
     ) => {
-      const pushTrackedScope = (node: T.Node, expect: TrackedScope["expect"]) => {
+      const pushTrackedScope = (
+        node: T.Node,
+        expect: TrackedScope["expect"],
+        allowAsync = false
+      ) => {
         currentScope().trackedScopes.push({ node, expect });
-        if (expect !== "called-function" && isFunctionNode(node) && node.async) {
-          // From the docs: "[Solid's] approach only tracks synchronously. If you
-          // have a setTimeout or use an async function in your Effect the code
-          // that executes async after the fact won't be tracked."
-          context.report({
-            node,
-            messageId: "noAsyncTrackedScope",
-          });
+        if (
+          expect !== "called-function" &&
+          isFunctionNode(node) &&
+          (node.async || node.generator)
+        ) {
+          if (allowAsync) {
+            // Async computations are first-class in Solid 2.0 (async createMemo,
+            // function-form createSignal/createStore, etc.). Reads before the first
+            // suspension point are tracked normally; reads after it get a targeted
+            // readAfterAwait report in onFunctionExit instead of a blanket warning.
+            asyncTrackedScopes.add(node);
+          } else if (node.async) {
+            // From the docs: "[Solid's] approach only tracks synchronously. If you
+            // have a setTimeout or use an async function in your Effect the code
+            // that executes async after the fact won't be tracked."
+            context.report({
+              node,
+              messageId: "noAsyncTrackedScope",
+            });
+          }
         }
       };
       // given some expression, mark any functions within it as tracking scopes, and do not traverse
@@ -982,16 +1201,61 @@ export default createRule<Options, MessageIds>({
                 "mapArray",
                 "indexArray",
                 "observable",
+                // Solid 2.0
+                "createTrackedEffect",
+                "isPending",
+                "latest",
+                "resolve",
+                "deep",
+                "repeat",
+                "createErrorBoundary",
+                "createLoadingBoundary",
+                "createRevealOrder",
               ],
               callee.name
             ) ||
             (matchImport("createResource", callee.name) && node.arguments.length >= 2)
           ) {
             // createEffect, createMemo, etc. fn arg, and createResource optional
-            // `source` first argument may be a signal
-            pushTrackedScope(arg0, "function");
+            // `source` first argument may be a signal. createMemo may take an async
+            // function in Solid 2.0; only reads before its first `await` are tracked.
+            pushTrackedScope(arg0, "function", Boolean(matchImport("createMemo", callee.name)));
+            if (
+              matchImport(["createErrorBoundary", "createLoadingBoundary"], callee.name) &&
+              arg1
+            ) {
+              // Boundary fallbacks (Solid 2.0) are reactive accessors; the error fallback
+              // also receives (err, reset) arguments
+              pushTrackedScope(arg1, "called-function");
+            }
+            if (matchImport("createEffect", callee.name) && isFunctionNode(arg1)) {
+              // Solid 2.0 split effects: createEffect(compute, effect) runs the second
+              // function with the computed value, untracked. In Solid 1.x the second
+              // argument is an initial value, so a function there is safe to treat as a
+              // called function under both semantics.
+              pushTrackedScope(arg1, "called-function");
+            }
           } else if (
-            matchImport(["onMount", "onCleanup", "onError"], callee.name) ||
+            matchImport(
+              [
+                "createSignal",
+                "createStore",
+                "createProjection",
+                "createOptimistic",
+                "createOptimisticStore",
+              ],
+              callee.name
+            ) &&
+            isFunctionNode(arg0)
+          ) {
+            // Solid 2.0 function-form derived primitives: the function argument is a
+            // tracked scope, and may be async (async computations are first-class; only
+            // reads before the first `await` are tracked). In Solid 1.x a function passed
+            // to createSignal is just a stored value, so treating it as a tracked scope
+            // is permissive under both semantics.
+            pushTrackedScope(arg0, "function", true);
+          } else if (
+            matchImport(["onMount", "onCleanup", "onError", "onSettled", "action"], callee.name) ||
             [
               // Timers
               "setInterval",
@@ -1212,15 +1476,45 @@ export default createRule<Options, MessageIds>({
 
           if (element.openingElement.name.type === "JSXIdentifier") {
             const tagName = element.openingElement.name.name;
-            if (
-              matchImport("For", tagName) &&
-              node.params.length === 2 &&
-              node.params[1].type === "Identifier"
-            ) {
-              // Mark `index` in `<For>{(item, index) => <div /></For>` as a signal
-              const index = findVariable(context, node.params[1]);
-              if (index) {
-                scopeStack.pushSignal(index, currentScope().node);
+            if (matchImport("For", tagName)) {
+              // In Solid 2.0, <For> callback params depend on the `keyed` prop:
+              // - absent, bare `keyed`, or `keyed={true}`: (item, index-accessor), same as 1.x
+              // - `keyed={false}`: (item-accessor, index), the old <Index> shape
+              // - `keyed={fn}`: (item-accessor, index-accessor)
+              const keyedAttr = element.openingElement.attributes.find(
+                (attr): attr is T.JSXAttribute =>
+                  attr.type === "JSXAttribute" &&
+                  attr.name.type === "JSXIdentifier" &&
+                  attr.name.name === "keyed"
+              );
+              let itemIsSignal = false;
+              let indexIsSignal = true;
+              if (keyedAttr && keyedAttr.value?.type === "JSXExpressionContainer") {
+                const keyedValue = keyedAttr.value.expression;
+                if (keyedValue.type === "Literal" && keyedValue.value === false) {
+                  itemIsSignal = true;
+                  indexIsSignal = false;
+                } else if (!(keyedValue.type === "Literal" && keyedValue.value === true)) {
+                  // key function: both params are accessors
+                  itemIsSignal = true;
+                }
+              }
+              if (itemIsSignal && node.params.length >= 1 && node.params[0].type === "Identifier") {
+                const item = findVariable(context, node.params[0]);
+                if (item) {
+                  scopeStack.pushSignal(item, currentScope().node);
+                }
+              }
+              if (
+                indexIsSignal &&
+                node.params.length === 2 &&
+                node.params[1].type === "Identifier"
+              ) {
+                // Mark `index` in `<For>{(item, index) => <div /></For>` as a signal
+                const index = findVariable(context, node.params[1]);
+                if (index) {
+                  scopeStack.pushSignal(index, currentScope().node);
+                }
               }
             } else if (
               matchImport("Index", tagName) &&

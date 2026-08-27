@@ -1,4 +1,3 @@
-import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
 import { run } from "../ruleTester";
 import rule from "../../src/rules/no-proxy-apis";
 
@@ -23,7 +22,7 @@ export const cases = run("no-proxy-apis", rule, {
     },
     {
       code: `import {} from 'solid-js/store';`,
-      errors: [{ messageId: "noStore", type: T.ImportDeclaration }],
+      errors: [{ messageId: "noStore" }],
     },
     {
       code: `let el = <div {...maybeSignal()} />`,

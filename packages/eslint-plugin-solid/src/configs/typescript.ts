@@ -1,5 +1,5 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { Linter } from "eslint";
+import type { Linter } from "eslint";
 
 import recommended from "./recommended";
 

@@ -1,4 +1,3 @@
-import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
 import { run } from "../ruleTester";
 import rule from "../../src/rules/event-handlers";
 
@@ -23,6 +22,21 @@ export const cases = run("event-handlers", rule, {
     let el = <div {...{ onClick }} />;`,
     { code: `let el = <div onclick={onclick} />`, options: [{ ignoreCase: true }] },
     { code: `let el = <div only={only} />`, options: [{ ignoreCase: true }] },
+    // Solid 2.0: camelCase handlers with functions are correct
+    {
+      code: `let el = <button onClick={() => setCount(count() + 1)} />;`,
+      settings: { solid: { version: 2 } },
+    },
+    // Solid 2.0: lowercase on* with a static string is a legitimate literal
+    // attribute (e.g. a native inline handler)
+    {
+      code: `let el = <div onclick="alert('hi')" />;`,
+      settings: { solid: { version: 2 } },
+    },
+    {
+      code: `let el = <div only="static" />;`,
+      settings: { solid: { version: 2 } },
+    },
   ],
   invalid: [
     {
@@ -30,7 +44,6 @@ export const cases = run("event-handlers", rule, {
       errors: [
         {
           messageId: "detected-attr", // has priority over "naming"/"capitalization"
-          type: T.JSXAttribute,
           data: { name: "only", staticValue: true },
         },
       ],
@@ -40,7 +53,6 @@ export const cases = run("event-handlers", rule, {
       errors: [
         {
           messageId: "naming",
-          type: T.JSXIdentifier,
           suggestions: [
             {
               messageId: "make-handler",
@@ -58,17 +70,17 @@ export const cases = run("event-handlers", rule, {
     },
     {
       code: `let el = <div onclick={() => {}} />`,
-      errors: [{ messageId: "capitalization", type: T.JSXIdentifier }],
+      errors: [{ messageId: "capitalization" }],
       output: `let el = <div onClick={() => {}} />`,
     },
     {
       code: `let el = <div onClIcK={() => {}} />`,
-      errors: [{ messageId: "capitalization", type: T.JSXIdentifier }],
+      errors: [{ messageId: "capitalization" }],
       output: `let el = <div onClick={() => {}} />`,
     },
     {
       code: `let el = <div oncLICK={() => {}} />`,
-      errors: [{ messageId: "capitalization", type: T.JSXIdentifier }],
+      errors: [{ messageId: "capitalization" }],
       output: `let el = <div onClick={() => {}} />`,
     },
     {
@@ -77,7 +89,6 @@ export const cases = run("event-handlers", rule, {
         {
           messageId: "detected-attr",
           data: { name: "onLy", staticValue: true },
-          type: T.JSXAttribute,
         },
       ],
     },
@@ -87,7 +98,6 @@ export const cases = run("event-handlers", rule, {
         {
           messageId: "detected-attr",
           data: { name: "onLy", staticValue: "string" },
-          type: T.JSXAttribute,
         },
       ],
     },
@@ -97,7 +107,6 @@ export const cases = run("event-handlers", rule, {
         {
           messageId: "detected-attr",
           data: { name: "onLy", staticValue: 5 },
-          type: T.JSXAttribute,
         },
       ],
     },
@@ -107,7 +116,6 @@ export const cases = run("event-handlers", rule, {
         {
           messageId: "detected-attr",
           data: { name: "onLy", staticValue: "string" },
-          type: T.JSXAttribute,
         },
       ],
     },
@@ -119,7 +127,6 @@ export const cases = run("event-handlers", rule, {
         {
           messageId: "detected-attr",
           data: { name: "onLy", staticValue: "string" },
-          type: T.JSXAttribute,
         },
       ],
     },
@@ -167,6 +174,59 @@ export const cases = run("event-handlers", rule, {
       errors: [{ messageId: "spread-handler", data: { name: "onClick" } }],
       output: `const handleClick = () => 42;
       let el = <div  onClick={handleClick} />;`,
+    },
+    // Solid 2.0: lowercase on* with a function value is a listener that never fires
+    {
+      code: `let el = <div onclick={() => setCount(1)} />;`,
+      settings: { solid: { version: 2 } },
+      errors: [
+        { messageId: "lowercase-attribute-v2", data: { name: "onclick", fixedName: "onClick" } },
+      ],
+      output: `let el = <div onClick={() => setCount(1)} />;`,
+    },
+    {
+      code: `let el = <div ondoubleclick={() => {}} />;`,
+      settings: { solid: { version: 2 } },
+      errors: [
+        {
+          messageId: "lowercase-attribute-v2",
+          data: { name: "ondoubleclick", fixedName: "onDblClick" },
+        },
+      ],
+      output: `let el = <div onDblClick={() => {}} />;`,
+    },
+    {
+      // unknown event: suggestion only, since the intent is ambiguous
+      code: `let el = <div onfoobar={() => {}} />;`,
+      settings: { solid: { version: 2 } },
+      errors: [
+        {
+          messageId: "lowercase-attribute-v2",
+          data: { name: "onfoobar", fixedName: "onFoobar" },
+          suggestions: [
+            {
+              messageId: "make-handler",
+              data: { name: "onfoobar", handlerName: "onFoobar" },
+              output: `let el = <div onFoobar={() => {}} />;`,
+            },
+          ],
+        },
+      ],
+    },
+    // Solid 2.0: camelCase handler with a static value can't be a listener
+    {
+      code: `let el = <div onClick="alert('hi')" />;`,
+      settings: { solid: { version: 2 } },
+      errors: [{ messageId: "static-handler-v2" }],
+    },
+    {
+      // onDoubleClick lowercases to a nonexistent DOM event; fix to onDblClick
+      code: `let el = <div onDoubleClick={() => {}} />;`,
+      settings: { solid: { version: 2 } },
+      errors: [
+        { messageId: "nonstandard", data: { name: "onDoubleClick", fixedName: "onDblClick" } },
+      ],
+      output: `let el = <div onDblClick={() => {}} />;`,
     },
   ],
 });

@@ -41,6 +41,7 @@ function Component() {
   const arr = [(n: number) => n * n, 2];
   return <div onClick={arr} />;
 }
+
 ```
 
 ### Valid Examples

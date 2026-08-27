@@ -1,4 +1,3 @@
-import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
 import { run, tsOnly } from "../ruleTester";
 import rule from "../../src/rules/reactivity";
 
@@ -378,6 +377,156 @@ export const cases = run("reactivity", rule, {
       formObject.findIndex((props) => props.field === field);
       formObject.findIndex((props) => props.field === field);
     }`,
+    // === Solid 2.0 APIs ===
+    // createProjection returns a readonly derived store
+    `function Component() {
+      const [todos, setTodos] = createStore([]);
+      const selected = createProjection(draft => {
+        draft.count = todos.length;
+      });
+      createEffect(() => console.log(selected.count));
+    }`,
+    // createOptimistic acts like createSignal
+    `function Component(props) {
+      const [name, setName] = createOptimistic(() => props.name);
+      return <div>{name()}</div>;
+    }`,
+    // createOptimisticStore acts like createStore
+    `function Component() {
+      const [state, setState] = createOptimisticStore({ items: [] });
+      return <div>{state.items.length}</div>;
+    }`,
+    // merge replaces mergeProps
+    `let Component = _props => {
+      const props = merge({ value: "default" }, _props);
+      return <div>{props.value}</div>;
+    };`,
+    // omit replaces splitProps, returning a single props object
+    `let Component = props => {
+      const rest = omit(props, "value");
+      return <div>{rest.other}</div>;
+    };`,
+    // function-form createSignal/createStore (derived, writable)
+    `const [count, setCount] = createSignal(0);
+    const [double, setDouble] = createSignal(() => count() * 2);
+    createEffect(() => console.log(double()));`,
+    `function Component(props) {
+      const [derived, setDerived] = createStore(draft => {
+        draft.name = props.name;
+      });
+      return <div>{derived.name}</div>;
+    }`,
+    // async computations are first-class in 2.0
+    `const [id, setId] = createSignal(1);
+    const user = createMemo(async () => {
+      const response = await fetch(\`/api/users/\${id()}\`);
+      return response.json();
+    });`,
+    // reads before the first await are tracked
+    `const [id, setId] = createSignal(1);
+    const [format, setFormat] = createSignal("json");
+    const user = createMemo(async () => {
+      const fmt = format();
+      const response = await fetch("/api/users/" + id());
+      return fmt === "json" ? response.json() : response.text();
+    });`,
+    // async event handlers may read reactive values after await (polling is fine)
+    `const [count, setCount] = createSignal(0);
+    const el = <button onClick={async () => {
+      await save();
+      console.log(count());
+    }} />;`,
+    // action callbacks are not tracked scopes; post-yield reads poll current values
+    `function Component(props) {
+      const save = action(function* () {
+        yield api.save();
+        console.log(props.value);
+      });
+      return <button onClick={save}>Save</button>;
+    }`,
+    // split effects: createEffect(compute, effect)
+    `const [count, setCount] = createSignal(0);
+    createEffect(() => count(), (value) => {
+      console.log(value);
+    });`,
+    // isPending/latest/resolve take reactive functions
+    `function Component(props) {
+      const pending = isPending(() => props.user);
+      return <div>{latest(() => props.user.name)}</div>;
+    }`,
+    // onSettled replaces onMount
+    `function Component() {
+      const [count, setCount] = createSignal(0);
+      onSettled(() => {
+        console.log(count());
+      });
+    }`,
+    // flush callback runs in the current scope, like batch
+    `function Component() {
+      const [count, setCount] = createSignal(0);
+      createEffect(() => {
+        flush(() => console.log(count()));
+      });
+    }`,
+    // repeat takes a count accessor and a map function
+    `const [count, setCount] = createSignal(5);
+    const items = repeat(() => count(), (index) => index * 2);`,
+    // action callbacks may read reactive values and be async/generators
+    `function Component(props) {
+      const save = action(async () => {
+        await postData(props.data);
+      });
+      return <button onClick={save}>Save</button>;
+    }`,
+    // <For keyed={false}> passes the item as an accessor (old <Index> shape)
+    `function Component(props) {
+      return (
+        <For each={props.items} keyed={false}>
+          {(item, index) => <div data-index={index}>{item()}</div>}
+        </For>
+      );
+    }`,
+    // <For keyed={fn}> passes accessors for both params
+    `function Component(props) {
+      return (
+        <For each={props.items} keyed={item => item.id}>
+          {(item, index) => <div data-index={index()}>{item().name}</div>}
+        </For>
+      );
+    }`,
+    // <For keyed> and <For keyed={true}> behave like 1.x <For>
+    `function Component(props) {
+      return (
+        <For each={props.items} keyed>
+          {(item, index) => <div data-index={index()}>{item.name}</div>}
+        </For>
+      );
+    }`,
+    // Returned accessors are the custom-primitive contract: the caller
+    // decides whether they land in a tracked scope. (#213)
+    `const [items, setItems] = createSignal([]);
+    function useCartTotal() {
+      return () => items().reduce((sum, item) => sum + item.price, 0);
+    }`,
+    `const [count, setCount] = createSignal(0);
+    const useDouble = () => () => count() * 2;`,
+    `const [count, setCount] = createSignal(0);
+    function useCounter() {
+      return function current() { return count(); };
+    }`,
+    // Snapshot capture opted into by naming convention (#213)
+    `const [items, setItems] = createSignal([]);
+    function useTotal() {
+      const initialItems = items();
+      return () => initialItems.length;
+    }`,
+    // Captured value only used at setup, not by a returned function
+    `const [items, setItems] = createSignal([]);
+    function useTotal() {
+      const list = items();
+      console.log(list);
+      return () => items().length;
+    }`,
   ],
   invalid: [
     // Untracked signals
@@ -388,7 +537,7 @@ export const cases = run("reactivity", rule, {
         console.log(signal());
         return null;
       }`,
-      errors: [{ messageId: "untrackedReactive", type: T.CallExpression, line: 4 }],
+      errors: [{ messageId: "untrackedReactive", line: 4 }],
     },
     {
       code: `
@@ -397,7 +546,7 @@ export const cases = run("reactivity", rule, {
         console.log(signal());
         return <div>{signal()}</div>
       }`,
-      errors: [{ messageId: "untrackedReactive", type: T.CallExpression, line: 4 }],
+      errors: [{ messageId: "untrackedReactive", line: 4 }],
     },
     // Untracked property access
     {
@@ -406,7 +555,7 @@ export const cases = run("reactivity", rule, {
         const value = props.value;
         return <div>{value()}</div>;
       }`,
-      errors: [{ messageId: "untrackedReactive", type: T.MemberExpression }],
+      errors: [{ messageId: "untrackedReactive" }],
     },
     {
       code: `
@@ -415,9 +564,7 @@ export const cases = run("reactivity", rule, {
         const value = createMemo(() => valueProp || "default");
         return <div>{value()}</div>;
       };`,
-      errors: [
-        { messageId: "untrackedReactive", type: T.Identifier, line: 3, column: 38, endColumn: 43 },
-      ],
+      errors: [{ messageId: "untrackedReactive", line: 3, column: 38, endColumn: 43 }],
     },
     {
       code: `
@@ -430,7 +577,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "props.value" },
-          type: T.MemberExpression,
         },
       ],
     },
@@ -439,7 +585,7 @@ export const cases = run("reactivity", rule, {
       const Component = props => {
         const [value] = createSignal(props.value);
       }`,
-      errors: [{ messageId: "untrackedReactive", type: T.MemberExpression }],
+      errors: [{ messageId: "untrackedReactive" }],
     },
     // mark `props` as props by name before we've determined if Component is a component in :exit
     {
@@ -453,7 +599,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "derived" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -464,7 +609,7 @@ export const cases = run("reactivity", rule, {
         console.log(something.a);
         return <div />;
       }`,
-      errors: [{ messageId: "untrackedReactive", type: T.MemberExpression }],
+      errors: [{ messageId: "untrackedReactive" }],
     },
     // Derived signals
     {
@@ -480,7 +625,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "d" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -497,7 +641,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "d" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -517,7 +660,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "d" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -538,7 +680,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "e" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -558,7 +699,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "bar" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -572,7 +712,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "shouldDestructure",
           data: { nth: "first " },
-          type: T.CallExpression,
         },
       ],
     },
@@ -585,7 +724,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "shouldDestructure",
           data: { nth: "first " },
-          type: T.ArrayPattern,
         },
       ],
     },
@@ -610,7 +748,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "shouldAssign",
-          type: T.CallExpression,
         },
       ],
     },
@@ -624,7 +761,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "JSX" },
         },
@@ -639,7 +775,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "memo", where: "JSX" },
         },
@@ -654,7 +789,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "JSX" },
         },
@@ -669,7 +803,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "arithmetic or comparisons" },
         },
@@ -684,7 +817,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "template literals" },
         },
@@ -699,7 +831,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "unary expressions" },
         },
@@ -714,7 +845,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "property accesses" },
         },
@@ -729,7 +859,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "expectedFunctionGotExpression",
-          type: T.MemberExpression,
           line: 3,
           data: { name: "props.onClick" },
         },
@@ -743,7 +872,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "expectedFunctionGotExpression",
-          type: T.MemberExpression,
           line: 3,
           data: { name: "props.theEffect" },
         },
@@ -881,6 +1009,146 @@ export const cases = run("reactivity", rule, {
       const [signal] = createSignal(0);
       useExample((() => signal())())`,
       errors: [{ messageId: "expectedFunctionGotExpression" }],
+    },
+    // === Solid 2.0 APIs ===
+    // merge/omit results are reactive like mergeProps/splitProps
+    {
+      code: `
+      const Component = _props => {
+        const props = merge({ value: "default" }, _props);
+        const value = props.value;
+        return <div>{value}</div>;
+      };`,
+      errors: [{ messageId: "untrackedReactive", line: 4 }],
+    },
+    {
+      code: `
+      const Component = props => {
+        const rest = omit(props, "value");
+        console.log(rest.other);
+        return null;
+      };`,
+      errors: [{ messageId: "untrackedReactive", line: 4 }],
+    },
+    // createProjection returns a reactive store
+    {
+      code: `
+      const Component = () => {
+        const projected = createProjection(draft => {});
+        console.log(projected.value);
+        return null;
+      };`,
+      errors: [{ messageId: "untrackedReactive", line: 4 }],
+    },
+    // createOptimistic returns a signal pair
+    {
+      code: `
+      const Component = () => {
+        const [value, setValue] = createOptimistic(0);
+        console.log(value());
+        return null;
+      };`,
+      errors: [{ messageId: "untrackedReactive", line: 4 }],
+    },
+    // createOptimisticStore returns a store pair
+    {
+      code: `
+      const Component = () => {
+        const [state, setState] = createOptimisticStore({});
+        console.log(state.value);
+        return null;
+      };`,
+      errors: [{ messageId: "untrackedReactive", line: 4 }],
+    },
+    // === reads after suspension in async computations ===
+    // signal read after await in an async memo is not tracked
+    {
+      code: `
+      const [id, setId] = createSignal(1);
+      const user = createMemo(async () => {
+        const response = await fetch("/api/users");
+        return response.json() + id();
+      });`,
+      errors: [{ messageId: "readAfterAwait", line: 5 }],
+    },
+    // props read after await is not tracked
+    {
+      code: `
+      function Component(props) {
+        const data = createMemo(async () => {
+          const response = await fetch("/api");
+          return response.json() + props.suffix;
+        });
+        return <div>{data()}</div>;
+      }`,
+      errors: [{ messageId: "readAfterAwait", line: 5 }],
+    },
+    // function-form createSignal with a read after await
+    {
+      code: `
+      const [count, setCount] = createSignal(1);
+      const [derived, setDerived] = createSignal(async () => {
+        await tick();
+        return count() * 2;
+      });`,
+      errors: [{ messageId: "readAfterAwait", line: 5 }],
+    },
+    // a loop containing an await taints the whole loop body (later iterations
+    // read after the previous iteration's suspension), but not the iterated
+    // expression, which is evaluated once up front
+    {
+      code: `
+      const [urls, setUrls] = createSignal([]);
+      const [weight, setWeight] = createSignal(1);
+      const total = createMemo(async () => {
+        let sum = 0;
+        for (const url of urls()) {
+          sum += (await fetch(url)).size * weight();
+        }
+        return sum;
+      });`,
+      errors: [{ messageId: "readAfterAwait", line: 7 }],
+    },
+    // Stale captures: signal read at setup, value captured by a variable a
+    // returned function reads — the capture never updates (#213)
+    {
+      code: `
+      const [items, setItems] = createSignal([]);
+      function useCartTotal() {
+        const list = items();
+        return () => list.reduce((sum, item) => sum + item.price, 0);
+      }`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    // Derived-through-expression capture is just as stale
+    {
+      code: `
+      const [items, setItems] = createSignal([]);
+      function useCount() {
+        const total = items().length;
+        return () => total;
+      }`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    // Functions embedded in returned JSX escape the same way
+    {
+      code: `
+      const [theme, setTheme] = createSignal("dark");
+      function Component() {
+        const current = theme();
+        return <button onClick={() => console.log(current)}>theme</button>;
+      }`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    // Implicit arrow return escapes too
+    {
+      code: `
+      const [count, setCount] = createSignal(0);
+      function useStale() {
+        const value = count();
+        return () => value + 1;
+      }`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
     },
   ],
 });

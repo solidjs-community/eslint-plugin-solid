@@ -180,6 +180,99 @@ Options shown here are the defaults. Manually configuring an array will *replace
 ```
 <!-- end-doc-gen -->
 
+## Solid 2.0 Support
+
+As of v0.15.0, this rule understands both the Solid 1.x and Solid 2.0 API surfaces, including
+imports from `@solidjs/signals`. The Solid 2.0 additions recognized are:
+
+- **Reactive values:** `createProjection` (readonly derived store), `createOptimistic` (signal
+  pair), `createOptimisticStore` (store pair), `merge` and `omit` (props objects, replacing
+  `mergeProps`/`splitProps`).
+- **Tracked scopes:** function arguments to `createTrackedEffect`, `isPending`, `latest`,
+  `resolve`, `deep`, `repeat`, `createErrorBoundary`, `createLoadingBoundary`,
+  `createRevealOrder`, and the function-form derived primitives `createSignal(fn)` /
+  `createStore(fn)` / `createProjection(fn)` / `createOptimistic(fn)` / `createOptimisticStore(fn)`.
+- **Split effects:** in `createEffect(compute, effect)`, the second function runs untracked with
+  the computed value and may read reactive values freely.
+- **Called functions:** `onSettled` (replacing `onMount`) and `action` callbacks.
+- **Sync callbacks:** `flush` (replacing `batch`) and the `repeat` map function.
+- **Control flow:** `<For>`'s `keyed` prop changes the callback parameter shapes—`keyed={false}`
+  passes the item as an accessor (the old `<Index>` shape), and a `keyed` function passes accessors
+  for both the item and index.
+
+Where Solid 1.x and 2.0 assign different meanings to the same call shape (for example, a function
+passed to `createSignal` is a stored value in 1.x but a derived computation in 2.0, and `async`
+functions passed to `createMemo` are the primary data-fetching pattern in 2.0), the rule resolves
+the ambiguity permissively, so that neither interpretation produces a warning. This trades a few
+missed 1.x mistakes for zero new false positives.
+
+### Reads after `await`/`yield` in async computations
+
+Async computations (`createMemo(async () => ...)` and the function-form derived primitives) only
+track reactive reads that happen synchronously, before the computation first suspends at an
+`await` or `yield`. A read placed after the first suspension point is not tracked—in Solid 1.x it
+behaves like a read in an event handler, and in Solid 2.0 it can observe unpredictable,
+mid-transition state. The rule reports these reads specifically:
+
+```jsx
+const [id] = createSignal(1);
+const user = createMemo(async () => {
+  const res = await fetch("/api/users");
+  return res.json() + id(); // ⚠️ 'id' is read after the computation suspends
+});
+```
+
+The fix is to read the reactive value up front and capture the result:
+
+```jsx
+const user = createMemo(async () => {
+  const currentId = id();
+  const res = await fetch("/api/users");
+  return res.json() + currentId; // ✅ tracked
+});
+```
+
+Reads inside the operands of the first `await` are still evaluated synchronously and are allowed
+(`await fetch(\`/api/users/${id()}\`)` is fine). If the first suspension point sits inside a loop,
+the entire loop is treated as after-suspension, since later iterations resume after the previous
+iteration's `await`. Event handlers, `on*` lifecycle callbacks, and `action` functions are not
+tracked scopes, so reads after `await` there remain allowed—they intentionally poll current
+values.
+
+### Stale captures in returned functions
+
+A signal called at the setup level of a hook or component, with its value captured in a variable
+that a *returned* function reads, is almost always a bug: the returned function looks live but
+reads a value frozen at setup.
+
+```jsx
+const [items, setItems] = createSignal([]);
+
+function useCartTotal() {
+  const list = items(); // ⚠️ 'list' captures the value of 'items' at setup
+  return () => list.reduce((sum, item) => sum + item.price, 0);
+}
+```
+
+The fix is to call the signal inside the returned function, so every call reads the current
+value:
+
+```jsx
+function useCartTotal() {
+  return () => items().reduce((sum, item) => sum + item.price, 0); // ✅
+}
+```
+
+If a one-time snapshot is genuinely intended, opt in with the same naming convention used for
+props: prefix the variable with `initial`, `default`, or `static` (e.g. `const initialItems =
+items()`), or wrap the read in `untrack`.
+
+Relatedly, functions *directly returned* from another function (`return () => items().length` or
+`const useDouble = () => () => count() * 2`) are not required to match a tracked scope in the
+file that defines them. Returning an accessor is the custom-primitive contract—the caller decides
+whether it lands in JSX, an effect, or an event handler—so the rule no longer warns on the
+idiomatic hook shape.
+
 <!-- doc-gen CASES -->
 ## Tests
 
@@ -346,7 +439,11 @@ const Component = (props) => {
 };
 
 const Component = (props) => {
-  return <SomeContext.Provider value={props.value}>{props.children}</SomeContext.Provider>;
+  return (
+    <SomeContext.Provider value={props.value}>
+      {props.children}
+    </SomeContext.Provider>
+  );
 };
 
 const Component = (props) => {
@@ -380,7 +477,9 @@ createEffect(async () => {
 
 const [photos, setPhotos] = createSignal([]);
 createEffect(async () => {
-  const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
+  const res = await fetch(
+    "https://jsonplaceholder.typicode.com/photos?_limit=20"
+  );
   setPhotos(await res.json());
 });
 
@@ -424,6 +523,91 @@ useExample({ value: signal() });
 
 const [signal] = createSignal(0);
 useExample((() => signal())());
+
+const Component = (_props) => {
+  const props = merge({ value: "default" }, _props);
+  const value = props.value;
+  return <div>{value}</div>;
+};
+
+const Component = (props) => {
+  const rest = omit(props, "value");
+  console.log(rest.other);
+  return null;
+};
+
+const Component = () => {
+  const projected = createProjection((draft) => {});
+  console.log(projected.value);
+  return null;
+};
+
+const Component = () => {
+  const [value, setValue] = createOptimistic(0);
+  console.log(value());
+  return null;
+};
+
+const Component = () => {
+  const [state, setState] = createOptimisticStore({});
+  console.log(state.value);
+  return null;
+};
+
+const [id, setId] = createSignal(1);
+const user = createMemo(async () => {
+  const response = await fetch("/api/users");
+  return response.json() + id();
+});
+
+function Component(props) {
+  const data = createMemo(async () => {
+    const response = await fetch("/api");
+    return response.json() + props.suffix;
+  });
+  return <div>{data()}</div>;
+}
+
+const [count, setCount] = createSignal(1);
+const [derived, setDerived] = createSignal(async () => {
+  await tick();
+  return count() * 2;
+});
+
+const [urls, setUrls] = createSignal([]);
+const [weight, setWeight] = createSignal(1);
+const total = createMemo(async () => {
+  let sum = 0;
+  for (const url of urls()) {
+    sum += (await fetch(url)).size * weight();
+  }
+  return sum;
+});
+
+const [items, setItems] = createSignal([]);
+function useCartTotal() {
+  const list = items();
+  return () => list.reduce((sum, item) => sum + item.price, 0);
+}
+
+const [items, setItems] = createSignal([]);
+function useCount() {
+  const total = items().length;
+  return () => total;
+}
+
+const [theme, setTheme] = createSignal("dark");
+function Component() {
+  const current = theme();
+  return <button onClick={() => console.log(current)}>theme</button>;
+}
+
+const [count, setCount] = createSignal(0);
+function useStale() {
+  const value = count();
+  return () => value + 1;
+}
+
 ```
 
 ### Valid Examples
@@ -849,6 +1033,169 @@ function formObjectDispatch(formObject, action) {
   formObject.findIndex((props) => props.field === field);
 }
 
+function Component() {
+  const [todos, setTodos] = createStore([]);
+  const selected = createProjection((draft) => {
+    draft.count = todos.length;
+  });
+  createEffect(() => console.log(selected.count));
+}
+
+function Component(props) {
+  const [name, setName] = createOptimistic(() => props.name);
+  return <div>{name()}</div>;
+}
+
+function Component() {
+  const [state, setState] = createOptimisticStore({ items: [] });
+  return <div>{state.items.length}</div>;
+}
+
+let Component = (_props) => {
+  const props = merge({ value: "default" }, _props);
+  return <div>{props.value}</div>;
+};
+
+let Component = (props) => {
+  const rest = omit(props, "value");
+  return <div>{rest.other}</div>;
+};
+
+const [count, setCount] = createSignal(0);
+const [double, setDouble] = createSignal(() => count() * 2);
+createEffect(() => console.log(double()));
+
+function Component(props) {
+  const [derived, setDerived] = createStore((draft) => {
+    draft.name = props.name;
+  });
+  return <div>{derived.name}</div>;
+}
+
+const [id, setId] = createSignal(1);
+const user = createMemo(async () => {
+  const response = await fetch(`/api/users/${id()}`);
+  return response.json();
+});
+
+const [id, setId] = createSignal(1);
+const [format, setFormat] = createSignal("json");
+const user = createMemo(async () => {
+  const fmt = format();
+  const response = await fetch("/api/users/" + id());
+  return fmt === "json" ? response.json() : response.text();
+});
+
+const [count, setCount] = createSignal(0);
+const el = (
+  <button
+    onClick={async () => {
+      await save();
+      console.log(count());
+    }}
+  />
+);
+
+function Component(props) {
+  const save = action(function* () {
+    yield api.save();
+    console.log(props.value);
+  });
+  return <button onClick={save}>Save</button>;
+}
+
+const [count, setCount] = createSignal(0);
+createEffect(
+  () => count(),
+  (value) => {
+    console.log(value);
+  }
+);
+
+function Component(props) {
+  const pending = isPending(() => props.user);
+  return <div>{latest(() => props.user.name)}</div>;
+}
+
+function Component() {
+  const [count, setCount] = createSignal(0);
+  onSettled(() => {
+    console.log(count());
+  });
+}
+
+function Component() {
+  const [count, setCount] = createSignal(0);
+  createEffect(() => {
+    flush(() => console.log(count()));
+  });
+}
+
+const [count, setCount] = createSignal(5);
+const items = repeat(
+  () => count(),
+  (index) => index * 2
+);
+
+function Component(props) {
+  const save = action(async () => {
+    await postData(props.data);
+  });
+  return <button onClick={save}>Save</button>;
+}
+
+function Component(props) {
+  return (
+    <For each={props.items} keyed={false}>
+      {(item, index) => <div data-index={index}>{item()}</div>}
+    </For>
+  );
+}
+
+function Component(props) {
+  return (
+    <For each={props.items} keyed={(item) => item.id}>
+      {(item, index) => <div data-index={index()}>{item().name}</div>}
+    </For>
+  );
+}
+
+function Component(props) {
+  return (
+    <For each={props.items} keyed>
+      {(item, index) => <div data-index={index()}>{item.name}</div>}
+    </For>
+  );
+}
+
+const [items, setItems] = createSignal([]);
+function useCartTotal() {
+  return () => items().reduce((sum, item) => sum + item.price, 0);
+}
+
+const [count, setCount] = createSignal(0);
+const useDouble = () => () => count() * 2;
+
+const [count, setCount] = createSignal(0);
+function useCounter() {
+  return function current() {
+    return count();
+  };
+}
+
+const [items, setItems] = createSignal([]);
+function useTotal() {
+  const initialItems = items();
+  return () => initialItems.length;
+}
+
+const [items, setItems] = createSignal([]);
+function useTotal() {
+  const list = items();
+  console.log(list);
+  return () => items().length;
+}
+
 ```
 <!-- end-doc-gen -->
 
@@ -879,7 +1226,13 @@ Notes:
 - This rule ignores classes. Solid is based on functions/closures only, and
   it's uncommon to see classes with reactivity in Solid code.
 
-## Implementation v2 (in progress)
+## Implementation v2 (abandoned)
+
+> **Note (2026):** This design was explored on the `reactivity-v2` branch but is not being pursued.
+> ESLint's single-file analysis model isn't a good fit for inferring reactivity signatures across
+> modules, and no ecosystem of "reactivity plugin plugins" was likely to emerge. The section below
+> is kept for historical context. The rule remains focused on helping catch common, obvious
+> reactivity mistakes with the architecture described above.
 
 `solid/reactivity` has been public for exactly one year (!) at the time of writing, and after lots
 of feedback, testing, and changes, I've noticed a few problems with its first implementation:
