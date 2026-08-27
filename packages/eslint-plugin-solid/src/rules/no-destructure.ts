@@ -75,10 +75,11 @@ export default createRule({
       node.parent?.type !== "JSXExpressionContainer" && // "render props" aren't components
       !(
         // functions passed as arguments are callbacks, unless the callee is a
-        // component-wrapper (PascalCase, like HOCs)
+        // component-wrapper (PascalCase, like HOCs). A FunctionDeclaration can
+        // never be a call argument, so the cast below is safe.
         (
           node.parent?.type === "CallExpression" &&
-          node.parent.arguments.includes(node) &&
+          node.parent.arguments.includes(node as T.CallExpressionArgument) &&
           !(node.parent.callee as T.Identifier).name?.match(/^[A-Z]/)
         )
       );
