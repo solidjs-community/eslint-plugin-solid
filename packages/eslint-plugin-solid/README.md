@@ -257,7 +257,7 @@ If you want to pin a minor version, use a tilde in your `package.json`.
 
 <!-- doc-gen TILDE -->
 ```diff
-- "eslint-plugin-solid": "^0.16.0"
-+ "eslint-plugin-solid": "~0.16.0"
+- "eslint-plugin-solid": "^0.16.1"
++ "eslint-plugin-solid": "~0.16.1"
 ```
 <!-- end-doc-gen -->

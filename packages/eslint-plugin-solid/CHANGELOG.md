@@ -1,5 +1,48 @@
 # Changelog
 
+## 0.16.1
+
+A precision pass over `solid/reactivity`, driven by the longest-standing false-positive reports
+in the tracker. Every fix landed with a regression test reproducing the original issue, and the
+Solid 2.0 templates still lint clean.
+
+### Fixes
+
+- **Context provider `value` gets a real explanation** (#209). Passing a reactive expression to a
+  provider's `value` prop previously produced the generic "should be used within JSX" message —
+  nonsense for something that *is* in JSX. It now reports a dedicated message explaining that
+  providers read `value` once, untracked, when created (true in both Solid 1.x and 2.0), and to
+  pass the signal, memo, or store itself. Detection also now covers the Solid 2.0 form, where the
+  context object is used directly as the provider (`<MyContext value={...}>`), by resolving JSX
+  names to `createContext()` calls.
+- **`createResource` argument shapes** (#199, #195). `createResource(fetcher, options)` no longer
+  treats the fetcher as a tracked scope (so async fetchers with an options object stop reporting
+  `noAsyncTrackedScope`), and in `createResource(source, fetcher)` the fetcher is now correctly
+  treated as an untracked called function that may be async and read current values. The source
+  remains a synchronous tracked scope.
+- **Destructuring props inside a tracked scope** (#191). `const { item } = props` inside
+  `createMemo`/`createEffect` re-runs on updates and no longer warns. Destructuring at component
+  setup level still does.
+- **`window.setTimeout` and friends** (#194). Timer and scheduling callbacks prefixed with
+  `window.`, `globalThis.`, or `self.` now get the same called-function treatment as the bare
+  globals.
+- **`mergeProps`/`merge` function arguments are tracked scopes** (#179). Both wrap function
+  sources in `createMemo`, so reactive reads inside them no longer warn.
+- **Memos passed to functions are as safe as signals** (#182). Passing a `createMemo` accessor to
+  a `create*`/`use*`/custom reactive function no longer warns, matching the existing allowance
+  for signals.
+- **Directly-returned `create*` calls** (#52). `return createMemo(...)` (or as an arrow body) no
+  longer reports `shouldAssign` — the result is handed to the caller, like a custom primitive.
+- **Functions passed to calls inside tracked scopes** (#197). An inline function passed to an
+  unknown call inside an effect (`doSomething(() => props.toggle)`) no longer warns, matching the
+  existing behavior for named functions: synchronous calls still run tracked, and later calls
+  poll current values.
+
+### Features
+
+- **Patterns in `customReactiveFunctions`** (#176). Entries now support `*` wildcards
+  (`"watch*"`) and regexes written as `"/pattern/"` strings, in addition to exact names.
+
 ## 0.16.0
 
 The complete Solid 2.0 lint surface: version-aware rules, new `v2` / `v2-strict` configs, and a
