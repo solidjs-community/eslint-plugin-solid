@@ -20,6 +20,7 @@ import {
   isJSXElementOrFragment,
   isSolidV2,
   trace,
+  createNameMatcher,
 } from "../utils";
 import { findVariable, getScope, CompatContext, getSourceCode } from "../compat";
 
@@ -325,31 +326,9 @@ export default createRule<Options, MessageIds>({
 
     /**
      * `customReactiveFunctions` entries may be exact names, glob-ish patterns using `*`
-     * wildcards, or regexes written as "/pattern/" strings. Compile them once.
+     * wildcards, or regexes written as "/pattern/" strings.
      */
-    const customReactiveMatchers: (string | RegExp)[] = options.customReactiveFunctions.map(
-      (entry) => {
-        if (entry.length > 2 && entry.startsWith("/") && entry.endsWith("/")) {
-          try {
-            return new RegExp(entry.slice(1, -1));
-          } catch {
-            return entry;
-          }
-        }
-        if (entry.includes("*")) {
-          const escaped = entry
-            .split("*")
-            .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
-            .join("[a-zA-Z0-9_$]*");
-          return new RegExp(`^${escaped}$`);
-        }
-        return entry;
-      }
-    );
-    const matchesCustomReactive = (name: string): boolean =>
-      customReactiveMatchers.some((matcher) =>
-        typeof matcher === "string" ? matcher === name : matcher.test(name)
-      );
+    const matchesCustomReactive = createNameMatcher(options.customReactiveFunctions);
 
     /**
      * JSXExpressionContainers for `value={...}` props on context providers. Providers read
