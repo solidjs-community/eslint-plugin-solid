@@ -113,9 +113,11 @@ export default [
 If your project targets Solid 2.0, use the `v2` configuration. It sets
 `settings: { solid: { version: 2 } }`, which switches the version-aware rules (`reactivity`,
 `imports`, `no-unknown-namespaces`, `event-handlers`, `jsx-no-undef`) to strict 2.0 semantics, and
-enables the 2.0-specific rules: `removed-api`, `no-single-arg-create-effect`, `no-accessor-as-prop`
-as errors and `prefer-structured-class` as a warning. This is the config the official Solid 2.0
-templates ship with.
+enables the 2.0-specific rules: `removed-api`, `no-single-arg-create-effect`, `no-accessor-as-prop`,
+and the server function rules (`valid-use-server`, `require-async-server-function`,
+`no-invalid-server-capture`, `no-browser-globals-in-server-function`) as errors and
+`prefer-structured-class` as a warning. This is the config the official Solid 2.0 templates ship
+with.
 
 ```js
 import js from "@eslint/js";
@@ -190,7 +192,9 @@ the plugin to `jsPlugins` in your `.oxlintrc.json` and enable the rules you want
 For Solid 2.0 projects, add `"settings": { "solid": { "version": 2 } }` to activate the
 version-aware rule behavior, and enable the 2.0 rules (`solid/removed-api`,
 `solid/no-single-arg-create-effect`, `solid/no-accessor-as-prop`,
-`solid/prefer-structured-class`).
+`solid/prefer-structured-class`, and the server function rules `solid/valid-use-server`,
+`solid/require-async-server-function`, `solid/no-invalid-server-capture`, and
+`solid/no-browser-globals-in-server-function`).
 
 ## Rules
 
@@ -210,8 +214,10 @@ version-aware rule behavior, and enable the 2.0 rules (`solid/removed-api`,
 | ✔ |  | [solid/jsx-uses-vars](/packages/eslint-plugin-solid/docs/jsx-uses-vars.md) | Prevent variables used in JSX from being marked as unused. |
 |  |  | [solid/no-accessor-as-prop](/packages/eslint-plugin-solid/docs/no-accessor-as-prop.md) | Disallow passing uncalled signal accessors or other functions as value-typed DOM element attributes. |
 |  |  | [solid/no-array-handlers](/packages/eslint-plugin-solid/docs/no-array-handlers.md) | Disallow usage of type-unsafe event handlers. |
+|  |  | [solid/no-browser-globals-in-server-function](/packages/eslint-plugin-solid/docs/no-browser-globals-in-server-function.md) | Disallow browser-only globals inside server functions, which run exclusively on the server. |
 | ✔ | 🔧 | [solid/no-destructure](/packages/eslint-plugin-solid/docs/no-destructure.md) | Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list. |
 | ✔ | 🔧 | [solid/no-innerhtml](/packages/eslint-plugin-solid/docs/no-innerhtml.md) | Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities. |
+|  |  | [solid/no-invalid-server-capture](/packages/eslint-plugin-solid/docs/no-invalid-server-capture.md) | Disallow server functions from capturing variables in enclosing non-module scopes, mirroring the compiler's build-time validation. |
 |  |  | [solid/no-module-scope-reactive-primitive](/packages/eslint-plugin-solid/docs/no-module-scope-reactive-primitive.md) | Disallow reactive primitives at module scope, where state is shared across SSR requests. |
 |  |  | [solid/no-proxy-apis](/packages/eslint-plugin-solid/docs/no-proxy-apis.md) | Disallow usage of APIs that use ES6 Proxies, only to target environments that don't support them. |
 | ✔ | 🔧 | [solid/no-react-deps](/packages/eslint-plugin-solid/docs/no-react-deps.md) | Disallow usage of dependency arrays in `createEffect` and `createMemo`. |
@@ -226,8 +232,10 @@ version-aware rule behavior, and enable the 2.0 rules (`solid/removed-api`,
 |  |  | [solid/prefer-structured-class](/packages/eslint-plugin-solid/docs/prefer-structured-class.md) | Enforce using the structured array/object forms of the `class` prop over manually-built class strings. |
 | ✔ |  | [solid/reactivity](/packages/eslint-plugin-solid/docs/reactivity.md) | Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected. |
 |  | 🔧 | [solid/removed-api](/packages/eslint-plugin-solid/docs/removed-api.md) | Disallow Solid 1.x APIs that were removed or renamed in Solid 2.0, with migration guidance. |
+|  | 🔧 | [solid/require-async-server-function](/packages/eslint-plugin-solid/docs/require-async-server-function.md) | Require server functions to be async, matching their client-side contract. |
 | ✔ | 🔧 | [solid/self-closing-comp](/packages/eslint-plugin-solid/docs/self-closing-comp.md) | Disallow extra closing tags for components without children. |
 | ✔ | 🔧 | [solid/style-prop](/packages/eslint-plugin-solid/docs/style-prop.md) | Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values with dimensions are strings, not numbers with implicit 'px' units. |
+|  |  | [solid/valid-use-server](/packages/eslint-plugin-solid/docs/valid-use-server.md) | Enforce that "use server" directives are placed where the compiler honors them, and that module-level directive files export working server functions. |
 <!-- end-doc-gen -->
 
 ## Troubleshooting
@@ -257,7 +265,7 @@ If you want to pin a minor version, use a tilde in your `package.json`.
 
 <!-- doc-gen TILDE -->
 ```diff
-- "eslint-plugin-solid": "^0.16.1"
-+ "eslint-plugin-solid": "~0.16.1"
+- "eslint-plugin-solid": "^0.17.0"
++ "eslint-plugin-solid": "~0.17.0"
 ```
 <!-- end-doc-gen -->

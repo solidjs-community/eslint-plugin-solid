@@ -38,6 +38,15 @@ const v2 = {
     "solid/event-handlers": 2,
     // className/htmlFor pass through as literal attributes the DOM ignores
     "solid/no-react-specific-props": 2,
+    // server functions are core in 2.0; misplaced/ignored "use server"
+    // directives and broken module-level directive files are silent failures
+    "solid/valid-use-server": 2,
+    // a sync server function returns T during SSR but Promise<T> on the client
+    "solid/require-async-server-function": 2,
+    // editor-time mirror of the compiler's closure-capture validation
+    "solid/no-invalid-server-capture": 2,
+    // server functions never run where browser globals exist
+    "solid/no-browser-globals-in-server-function": 2,
     // premise no longer exists in 2.0 (rule also self-gates on version)
     "solid/no-react-deps": 0,
     // anti-advice in 2.0: classList was removed in favor of class objects/arrays

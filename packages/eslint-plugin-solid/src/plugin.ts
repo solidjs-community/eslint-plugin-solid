@@ -14,8 +14,10 @@ import jsxNoScriptUrl from "./rules/jsx-no-script-url.js";
 import jsxNoUndef from "./rules/jsx-no-undef.js";
 import jsxUsesVars from "./rules/jsx-uses-vars.js";
 import noAccessorAsProp from "./rules/no-accessor-as-prop.js";
+import noBrowserGlobalsInServerFunction from "./rules/no-browser-globals-in-server-function.js";
 import noDestructure from "./rules/no-destructure.js";
 import noInnerHTML from "./rules/no-innerhtml.js";
+import noInvalidServerCapture from "./rules/no-invalid-server-capture.js";
 import noModuleScopeReactivePrimitive from "./rules/no-module-scope-reactive-primitive.js";
 import noProxyApis from "./rules/no-proxy-apis.js";
 import noReactDeps from "./rules/no-react-deps.js";
@@ -30,10 +32,12 @@ import preferShow from "./rules/prefer-show.js";
 import preferStructuredClass from "./rules/prefer-structured-class.js";
 import reactivity from "./rules/reactivity.js";
 import removedApi from "./rules/removed-api.js";
+import requireAsyncServerFunction from "./rules/require-async-server-function.js";
 import selfClosingComp from "./rules/self-closing-comp.js";
 import styleProp from "./rules/style-prop.js";
+import validUseServer from "./rules/valid-use-server.js";
 import noArrayHandlers from "./rules/no-array-handlers.js";
-// import validateJsxNesting from "./rules/validate-jsx-nesting";
+// import validateJsxNesting from "./rules/validate-jsx-nesting.js";
 
 import packageJson from "../package.json" with { type: "json" };
 
@@ -49,8 +53,10 @@ const allRules = {
   "jsx-no-script-url": jsxNoScriptUrl,
   "jsx-uses-vars": jsxUsesVars,
   "no-accessor-as-prop": noAccessorAsProp,
+  "no-browser-globals-in-server-function": noBrowserGlobalsInServerFunction,
   "no-destructure": noDestructure,
   "no-innerhtml": noInnerHTML,
+  "no-invalid-server-capture": noInvalidServerCapture,
   "no-module-scope-reactive-primitive": noModuleScopeReactivePrimitive,
   "no-proxy-apis": noProxyApis,
   "no-react-deps": noReactDeps,
@@ -65,8 +71,10 @@ const allRules = {
   "prefer-structured-class": preferStructuredClass,
   reactivity,
   "removed-api": removedApi,
+  "require-async-server-function": requireAsyncServerFunction,
   "self-closing-comp": selfClosingComp,
   "style-prop": styleProp,
+  "valid-use-server": validUseServer,
   "no-array-handlers": noArrayHandlers,
   // "validate-jsx-nesting": validateJsxNesting
 };

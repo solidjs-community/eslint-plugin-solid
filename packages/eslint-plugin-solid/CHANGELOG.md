@@ -1,5 +1,48 @@
 # Changelog
 
+## 0.17.0
+
+Server functions are core in Solid 2.0, so the plugin now lints them. Four new rules cover the
+`"use server"` directive's silent failure modes — all enabled as errors in the `v2` and
+`v2-strict` configs, and verified against the official Solid 2.0 templates (zero findings) and
+under Oxlint.
+
+### New Rules
+
+- **`solid/valid-use-server`.** The compiler only honors `"use server"` in specific positions and
+  silently ignores it everywhere else — often shipping database access or secrets to the client
+  without any error. Flags directives that aren't in the directive prologue (after other
+  statements, inside plain blocks), template-literal "directives", and directives in positions
+  the compiler never extracts (object methods, getters/setters, class methods). For module-level
+  directive files, also flags non-function exports (which fail at server boot) and calls to
+  client declaration wrappers (`GET`, `live`, `withMeta` from `@solidjs/web`; `query`, `action`,
+  `liveQuery` from `@solidjs/router`), whose client-side behavior is silently compiled out in
+  such files. A `clientWrappers` option adds project-specific wrapper names, with `*` wildcard
+  and `/regex/` support.
+- **`solid/require-async-server-function`.** On the client every server function call resolves a
+  Promise, but during SSR the function is called in-process and returns synchronously — so a
+  non-async server function observes two different return types, and TypeScript only sees one of
+  them. Covers function-level directives and all exports of module-level directive files
+  (including `export { name }` specifiers). Autofixes by inserting `async`.
+- **`solid/no-invalid-server-capture`.** An editor-time mirror of the compiler's closure-capture
+  validation: server functions cannot capture variables from intermediate scopes (component
+  state, enclosing function parameters), because the extracted function is hoisted to module
+  level on the server and becomes a network proxy on the client. The compiler already rejects
+  this at build time; the rule reports the same captures as you type. Module top-level bindings,
+  imports, globals, own params/locals, named-function-expression self-references, and TS
+  type-only references are all allowed.
+- **`solid/no-browser-globals-in-server-function`.** Flags unambiguous browser-only globals
+  (`window`, `document`, `localStorage`, etc.) inside server functions, which only run on the
+  server. The list is deliberately conservative — server runtimes provide `fetch`, `crypto`,
+  `URL`, and even `navigator`, so those never warn — and shadowing bindings and `typeof window`
+  guards are ignored. In module-level directive files, the whole module is checked.
+
+### Internal
+
+- `customReactiveFunctions`-style pattern matching (exact names, `*` wildcards, `/regex/`
+  strings) was extracted into a shared `createNameMatcher` utility, now used by both
+  `solid/reactivity` and `solid/valid-use-server`.
+
 ## 0.16.1
 
 A precision pass over `solid/reactivity`, driven by the longest-standing false-positive reports
