@@ -1,6 +1,6 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { plugin } from "../plugin";
+import { plugin } from "../plugin.js";
 
 const recommended = {
   plugins: {
@@ -45,4 +45,4 @@ const recommended = {
   },
 } satisfies TSESLint.FlatConfig.Config;
 
-export = recommended;
+export default recommended;

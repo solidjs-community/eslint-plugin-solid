@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { ESLintUtils } from "@typescript-eslint/utils";
-import { trackImports } from "../utils";
+import { trackImports } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 

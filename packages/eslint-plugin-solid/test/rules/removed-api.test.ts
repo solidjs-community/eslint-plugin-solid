@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/removed-api";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/removed-api.js";
 
 export const cases = run("removed-api", rule, {
   valid: [

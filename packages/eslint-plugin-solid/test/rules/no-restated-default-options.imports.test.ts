@@ -7,8 +7,8 @@ import { vi } from "vitest";
 // files by that name to build docs and cannot load files using vitest APIs.
 vi.unmock("../../src/utils");
 
-import { run } from "../ruleTester";
-import rule from "../../src/rules/no-restated-default-options";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/no-restated-default-options.js";
 
 export const cases = run("no-restated-default-options", rule, {
   valid: [

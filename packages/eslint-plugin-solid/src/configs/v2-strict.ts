@@ -1,6 +1,6 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import v2 from "./v2";
+import v2 from "./v2.js";
 
 // Everything in the v2 config, plus opinionated rules that are valid patterns
 // in some apps (e.g. client-only) but hazards in others. Intended for teams
@@ -23,4 +23,4 @@ const v2Strict = {
   },
 } satisfies TSESLint.FlatConfig.Config;
 
-export = v2Strict;
+export default v2Strict;

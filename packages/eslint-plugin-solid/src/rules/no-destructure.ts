@@ -1,6 +1,6 @@
 import { TSESTree as T, TSESLint, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
-import { getFunctionName, type FunctionNode } from "../utils";
-import { getSourceCode } from "../compat";
+import { getFunctionName, type FunctionNode } from "../utils.js";
+import { getSourceCode } from "../compat.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStringIfConstant } = ASTUtils;

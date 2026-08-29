@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/prefer-structured-class";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/prefer-structured-class.js";
 
 export const cases = run("prefer-structured-class", rule, {
   valid: [

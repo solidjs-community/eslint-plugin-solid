@@ -1,6 +1,6 @@
 import { Linter } from "eslint/linter";
 import * as parser from "@typescript-eslint/parser";
-import plugin from "eslint-plugin-solid";
+import * as plugin from "eslint-plugin-solid";
 import { version as pluginVersion } from "eslint-plugin-solid/package.json";
 import memoizeOne from "memoize-one";
 

@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
-import { getScope } from "../compat";
+import { getScope } from "../compat.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStaticValue }: { getStaticValue: any } = ASTUtils;

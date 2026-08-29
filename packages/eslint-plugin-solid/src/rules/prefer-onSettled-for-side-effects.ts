@@ -13,7 +13,7 @@ import {
   isFunctionNode,
   isJSXElementOrFragment,
   type FunctionNode,
-} from "../utils";
+} from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 

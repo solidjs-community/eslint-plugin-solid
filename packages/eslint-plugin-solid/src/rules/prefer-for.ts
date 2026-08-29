@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
-import { isFunctionNode, isJSXElementOrFragment } from "../utils";
+import { isFunctionNode, isJSXElementOrFragment } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getPropertyName } = ASTUtils;

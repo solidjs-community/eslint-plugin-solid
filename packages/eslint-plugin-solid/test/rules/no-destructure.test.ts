@@ -1,5 +1,5 @@
-import { run, tsOnly } from "../ruleTester";
-import rule from "../../src/rules/no-destructure";
+import { run, tsOnly } from "../ruleTester.js";
+import rule from "../../src/rules/no-destructure.js";
 
 export const cases = run("no-destructure", rule, {
   valid: [

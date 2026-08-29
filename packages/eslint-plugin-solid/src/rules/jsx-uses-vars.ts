@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { markVariableAsUsed } from "../compat";
+import { markVariableAsUsed } from "../compat.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 

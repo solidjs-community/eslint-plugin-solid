@@ -2,8 +2,9 @@ import { test, expect } from "vitest";
 
 import path from "path";
 import { ESLint } from "eslint";
+import { fileURLToPath } from "node:url";
 
-const cwd = __dirname;
+const cwd = path.dirname(fileURLToPath(import.meta.url));
 const validDir = path.join(cwd, "valid");
 const jsxUndefPath = path.join(cwd, "invalid", "jsx-undef.jsx");
 

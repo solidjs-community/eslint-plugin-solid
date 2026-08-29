@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/no-accessor-as-prop";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/no-accessor-as-prop.js";
 
 export const cases = run("no-accessor-as-prop", rule, {
   valid: [

@@ -2,6 +2,7 @@
   "name": "eslint-plugin-solid",
   "version": "0.17.0",
   "description": "Solid-specific linting rules for ESLint.",
+  "type": "module",
   "keywords": [
     "eslint",
     "eslintplugin",
@@ -14,44 +15,24 @@
   "author": "Josh Wilson <joshwilsonvu@gmail.com>",
   "exports": {
     ".": {
-      "types": {
-        "import": "./dist/index.d.mts",
-        "require": "./dist/index.d.ts"
-      },
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./configs/recommended": {
-      "types": {
-        "import": "./dist/configs/recommended.d.mts",
-        "require": "./dist/configs/recommended.d.ts"
-      },
-      "import": "./dist/configs/recommended.mjs",
-      "require": "./dist/configs/recommended.js"
+      "types": "./dist/configs/recommended.d.ts",
+      "default": "./dist/configs/recommended.js"
     },
     "./configs/typescript": {
-      "types": {
-        "import": "./dist/configs/typescript.d.mts",
-        "require": "./dist/configs/typescript.d.ts"
-      },
-      "import": "./dist/configs/typescript.mjs",
-      "require": "./dist/configs/typescript.js"
+      "types": "./dist/configs/typescript.d.ts",
+      "default": "./dist/configs/typescript.js"
     },
     "./configs/v2": {
-      "types": {
-        "import": "./dist/configs/v2.d.mts",
-        "require": "./dist/configs/v2.d.ts"
-      },
-      "import": "./dist/configs/v2.mjs",
-      "require": "./dist/configs/v2.js"
+      "types": "./dist/configs/v2.d.ts",
+      "default": "./dist/configs/v2.js"
     },
     "./configs/v2-strict": {
-      "types": {
-        "import": "./dist/configs/v2-strict.d.mts",
-        "require": "./dist/configs/v2-strict.d.ts"
-      },
-      "import": "./dist/configs/v2-strict.mjs",
-      "require": "./dist/configs/v2-strict.js"
+      "types": "./dist/configs/v2-strict.d.ts",
+      "default": "./dist/configs/v2-strict.js"
     },
     "./package.json": "./package.json"
   },
@@ -79,7 +60,7 @@
     "is-html": "^2.0.0",
     "kebab-case": "^1.0.2",
     "known-css-properties": "^0.30.0",
-    "style-to-object": "^1.0.6"
+    "style-to-object": "^2.0.2"
   },
   "devDependencies": {
     "@babel/core": "^8.0.0",
@@ -90,7 +71,7 @@
     "@typescript-eslint/eslint-plugin": "^8.67.0",
     "@typescript-eslint/parser": "^8.67.0",
     "eslint": "^10.0.0",
-    "markdown-magic": "^3.3.0",
+    "markdown-magic": "^4.11.0",
     "prettier": "^2.8.8",
     "tsup": "^8.5.1",
     "tsx": "^4.17.0",

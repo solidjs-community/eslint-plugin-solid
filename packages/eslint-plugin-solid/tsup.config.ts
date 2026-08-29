@@ -8,7 +8,7 @@ export default defineConfig({
     "src/configs/v2.ts",
     "src/configs/v2-strict.ts",
   ],
-  format: ["cjs", "esm"],
+  format: ["esm"],
   dts: true,
   // experimentalDts: true,
   sourcemap: true,

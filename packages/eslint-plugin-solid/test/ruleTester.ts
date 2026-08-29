@@ -1,13 +1,8 @@
 import { RuleTester } from "eslint";
 import type { TSESLint } from "@typescript-eslint/utils";
 import tseslint from "typescript-eslint";
+import { describe } from "vitest";
 import * as babelEslintParser from "@babel/eslint-parser";
-
-// Vitest provides `describe` as a global (globals: true). It can't be imported
-// statically here: vitest is ESM-only, and scripts/docs.mts imports these test
-// files through CJS transpilation to extract their cases for doc generation.
-const describe: (name: string, fn: () => void) => void =
-  (globalThis as any).describe ?? ((_name: string, fn: () => void) => fn());
 
 // add `[tsOnly]: true` into a test case to enforce it only runs with a TS parser
 export const tsOnly = Symbol("ts only");

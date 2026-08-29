@@ -1,6 +1,6 @@
 import { TSESTree as T, TSESLint, ESLintUtils } from "@typescript-eslint/utils";
-import { appendImports, insertImports, isSolidV2, removeSpecifier } from "../utils";
-import { getSourceCode } from "../compat";
+import { appendImports, insertImports, isSolidV2, removeSpecifier } from "../utils.js";
+import { getSourceCode } from "../compat.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 

@@ -1,7 +1,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { plugin } from "../plugin";
-import recommended from "./recommended";
+import { plugin } from "../plugin.js";
+import recommended from "./recommended.js";
 
 // The Solid 2.0 config. Sets `settings.solid.version: 2`, which switches
 // version-aware rules (reactivity, imports, no-unknown-namespaces,
@@ -54,4 +54,4 @@ const v2 = {
   },
 } satisfies TSESLint.FlatConfig.Config;
 
-export = v2;
+export default v2;
