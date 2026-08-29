@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { jsxGetAllProps } from "../utils.js";
+import { isSolidV2, jsxGetAllProps } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -16,7 +16,11 @@ const createRule = ESLintUtils.RuleCreator.withoutDocs;
  * the MIT license, with some enhancements. Thank you for your work!
  */
 
-type MessageIds = "noDuplicateProps" | "noDuplicateClass" | "noDuplicateChildren";
+type MessageIds =
+  | "noDuplicateProps"
+  | "noDuplicateClass"
+  | "noDuplicateClassV2"
+  | "noDuplicateChildren";
 type Options = [{ ignoreCase?: boolean }?];
 
 export default createRule<Options, MessageIds>({
@@ -43,11 +47,14 @@ export default createRule<Options, MessageIds>({
       noDuplicateProps: "Duplicate props are not allowed.",
       noDuplicateClass:
         "Duplicate `class` props are not allowed; while it might seem to work, it can break unexpectedly. Use `classList` instead.",
+      noDuplicateClassV2:
+        "Duplicate `class` props are not allowed; while it might seem to work, it can break unexpectedly. Merge them into one `class` — it accepts arrays and objects: `class={[base, { active: active() }]}`.",
       noDuplicateChildren: "Using {{used}} at the same time is not allowed.",
     },
   },
   defaultOptions: [],
   create(context) {
+    const v2 = isSolidV2(context);
     return {
       JSXOpeningElement(node) {
         const ignoreCase = context.options[0]?.ignoreCase ?? false;
@@ -62,7 +69,13 @@ export default createRule<Options, MessageIds>({
           if (props.has(name)) {
             context.report({
               node,
-              messageId: name === "class" ? "noDuplicateClass" : "noDuplicateProps",
+              messageId:
+                // classList was removed in 2.0; `class` takes arrays/objects itself
+                name === "class"
+                  ? v2
+                    ? "noDuplicateClassV2"
+                    : "noDuplicateClass"
+                  : "noDuplicateProps",
             });
           }
           props.add(name);
@@ -75,7 +88,7 @@ export default createRule<Options, MessageIds>({
         const hasChildrenProp = props.has("children");
         const hasChildren = (node.parent as T.JSXElement | T.JSXFragment).children.length > 0;
         const hasInnerHTML = props.has("innerHTML") || props.has("innerhtml");
-        const hasTextContent = props.has("textContent") || props.has("textContent");
+        const hasTextContent = props.has("textContent") || props.has("textcontent");
         const used = [
           hasChildrenProp && "`props.children`",
           hasChildren && "JSX children",

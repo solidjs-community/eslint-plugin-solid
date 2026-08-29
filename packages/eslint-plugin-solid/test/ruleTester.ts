@@ -1,21 +1,14 @@
 import { RuleTester } from "eslint";
-import { RuleTester as RuleTester_v6 } from "eslint-v6";
-import { RuleTester as RuleTester_v7 } from "eslint-v7";
-import { RuleTester as RuleTester_v8 } from "eslint-v8";
 import type { TSESLint } from "@typescript-eslint/utils";
 import tseslint from "typescript-eslint";
-// @ts-expect-error no types here
-import * as babelEslintParser from "@babel/eslint-parser";
 import { describe } from "vitest";
-import { createRequire } from "node:module";
-
-const requireModule = createRequire(import.meta.url);
+import * as babelEslintParser from "@babel/eslint-parser";
 
 // add `[tsOnly]: true` into a test case to enforce it only runs with a TS parser
 export const tsOnly = Symbol("ts only");
 
 // The default parser
-const v9Tester = new RuleTester({
+const espreeTester = new RuleTester({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: "module",
@@ -39,15 +32,6 @@ const tsTester = new RuleTester({
   },
 });
 
-const tsV8Tester = new RuleTester_v8({
-  parser: requireModule.resolve("@typescript-eslint/parser"),
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-});
-
 // Babel's ESLint parser
 const babelTester = new RuleTester({
   languageOptions: {
@@ -59,49 +43,6 @@ const babelTester = new RuleTester({
           plugins: ["jsx", "typescript"],
         },
       },
-    },
-  },
-});
-
-const babelV8Tester = new RuleTester_v8({
-  parser: requireModule.resolve("@babel/eslint-parser"),
-  parserOptions: {
-    sourceType: "module",
-    requireConfigFile: false,
-    babelOptions: {
-      parserOpts: {
-        plugins: ["jsx", "typescript"],
-      },
-    },
-  },
-});
-
-const v6Tester = new RuleTester_v6({
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: "module",
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-});
-
-const v7Tester = new RuleTester_v7({
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: "module",
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-});
-
-const v8Tester = new RuleTester_v8({
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: "module",
-    ecmaFeatures: {
-      jsx: true,
     },
   },
 });
@@ -128,26 +69,11 @@ export const run = (
   if (all || parser === "ts") {
     describe("typescript-eslint", () => tsTester.run(name, rule as any, tests as any));
   }
-  if (all || parser === "ts_v8") {
-    describe("@typescript-eslint/parser", () => tsV8Tester.run(name, rule as any, tests as any));
-  }
   if (all || parser === "babel") {
     describe("@babel/eslint-parser", () => babelTester.run(name, rule as any, tests as any));
   }
-  if (all || parser === "babel_v8") {
-    describe("@babel/eslint-parser v8", () => babelV8Tester.run(name, rule as any, tests as any));
-  }
-  if (all || parser === "v6") {
-    describe("eslint v6", () => v6Tester.run(name, rule as any, jsTests as any));
-  }
-  if (all || parser === "v7") {
-    describe("eslint v7", () => v7Tester.run(name, rule as any, jsTests as any));
-  }
-  if (all || parser === "v8") {
-    describe("eslint v8", () => v8Tester.run(name, rule as any, jsTests));
-  }
-  if (all || parser === "v9") {
-    describe("eslint v9", () => v9Tester.run(name, rule as any, jsTests));
+  if (all || parser === "espree") {
+    describe("espree (default parser)", () => espreeTester.run(name, rule as any, jsTests));
   }
 
   return tests;

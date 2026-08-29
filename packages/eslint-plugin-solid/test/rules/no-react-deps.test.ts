@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/no-react-deps";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/no-react-deps.js";
 
 export const cases = run("no-react-deps", rule, {
   valid: [
@@ -22,6 +22,12 @@ export const cases = run("no-react-deps", rule, {
     `const sum = createMemo((prev) => input() + prev, 0);`,
     `const args = [() => { console.log(signal()); }, [signal()]];
     createEffect(...args);`,
+    // In Solid 2.0 the rule self-gates off: the second argument is the
+    // required effect function, so the 1.x premise no longer exists.
+    {
+      code: `createEffect(() => console.log(signal()), [signal]);`,
+      settings: { solid: { version: 2 } },
+    },
   ],
   invalid: [
     {

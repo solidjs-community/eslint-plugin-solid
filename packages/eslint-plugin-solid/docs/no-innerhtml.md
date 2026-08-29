@@ -67,13 +67,16 @@ let el = (
   </div>
 );
 
-let el = <div dangerouslySetInnerHTML={{ __html: "<p>Hello</p><p>world!</p>" }} />;
+let el = (
+  <div dangerouslySetInnerHTML={{ __html: "<p>Hello</p><p>world!</p>" }} />
+);
 // after eslint --fix:
 let el = <div innerHTML={"<p>Hello</p><p>world!</p>"} />;
 
 let el = <div dangerouslySetInnerHTML={foo} />;
 
 let el = <div dangerouslySetInnerHTML={{}} />;
+
 ```
 
 ### Valid Examples
@@ -98,5 +101,6 @@ let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>" />;
 let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />;
 
 let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>"></div>;
+
 ```
 <!-- end-doc-gen -->

@@ -1,15 +1,14 @@
 import { test, expect } from "vitest";
 
 import path from "path";
-import { ESLint as FlatESLint } from "eslint";
-import { ESLint as LegacyESLint } from "eslint-v8";
+import { ESLint } from "eslint";
 import { fileURLToPath } from "node:url";
 
 const cwd = path.dirname(fileURLToPath(import.meta.url));
 const validDir = path.join(cwd, "valid");
 const jsxUndefPath = path.join(cwd, "invalid", "jsx-undef.jsx");
 
-const checkResult = (result: LegacyESLint.LintResult | FlatESLint.LintResult) => {
+const checkResult = (result: ESLint.LintResult) => {
   if (result.filePath.startsWith(validDir)) {
     expect(result.messages).toEqual([]);
     expect(result.errorCount).toBe(0);
@@ -27,27 +26,8 @@ const checkResult = (result: LegacyESLint.LintResult | FlatESLint.LintResult) =>
   }
 };
 
-test.concurrent("fixture (legacy)", async () => {
-  const eslint = new LegacyESLint({
-    cwd,
-    baseConfig: {
-      root: true,
-      parser: "@typescript-eslint/parser",
-      env: { browser: true },
-      plugins: ["solid"],
-      extends: "plugin:solid/recommended",
-    },
-    useEslintrc: false,
-  });
-  const results = await eslint.lintFiles("{valid,invalid}/**/*.{js,jsx,ts,tsx}");
-
-  results.forEach(checkResult);
-
-  expect(results.filter((result) => result.filePath === jsxUndefPath).length).toBe(1);
-});
-
 test.concurrent('fixture (.configs["flat/recommended"])', async () => {
-  const eslint = new FlatESLint({
+  const eslint = new ESLint({
     cwd,
     overrideConfigFile: "./eslint.config.prefixed.js",
   } as any);
@@ -59,7 +39,7 @@ test.concurrent('fixture (.configs["flat/recommended"])', async () => {
 });
 
 test.concurrent("fixture (/configs/recommended)", async () => {
-  const eslint = new FlatESLint({
+  const eslint = new ESLint({
     cwd,
     overrideConfigFile: "./eslint.config.js",
     // ignorePatterns: ["eslint.*"],

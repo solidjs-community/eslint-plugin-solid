@@ -7,13 +7,25 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { isDOMElementName, formatList, appendImports, insertImports } from "../utils.js";
+import { isDOMElementName, formatList, appendImports, insertImports, isSolidV2 } from "../utils.js";
 import { getScope, getSourceCode } from "../compat.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 // Currently all of the control flow components are from 'solid-js'.
 const AUTO_COMPONENTS = ["Show", "For", "Index", "Switch", "Match"];
+// Solid 2.0 control flow components; `Index`, `ErrorBoundary`, `Suspense`, and
+// `SuspenseList` no longer exist (see solid/removed-api).
+const AUTO_COMPONENTS_V2 = [
+  "For",
+  "Repeat",
+  "Show",
+  "Switch",
+  "Match",
+  "Errored",
+  "Loading",
+  "Reveal",
+];
 const SOURCE_MODULE = "solid-js";
 
 /*
@@ -72,6 +84,7 @@ export default createRule<Options, MessageIds>({
     const allowGlobals = context.options[0]?.allowGlobals ?? false;
     const autoImport = context.options[0]?.autoImport !== false;
     const isTypeScriptEnabled = context.options[0]?.typescriptEnabled ?? false;
+    const autoComponents = isSolidV2(context) ? AUTO_COMPONENTS_V2 : AUTO_COMPONENTS;
 
     const missingComponentsSet = new Set<string>();
 
@@ -117,7 +130,7 @@ export default createRule<Options, MessageIds>({
       if (
         isComponent &&
         autoImport &&
-        AUTO_COMPONENTS.includes(node.name) &&
+        autoComponents.includes(node.name) &&
         !missingComponentsSet.has(node.name)
       ) {
         // track which names are undefined

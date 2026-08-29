@@ -57,6 +57,7 @@ const value = createMemo(() => computeExpensiveValue(a(), b()), deps);
 const deps = [a, b];
 const memoFn = () => computeExpensiveValue(a(), b());
 const value = createMemo(memoFn, deps);
+
 ```
 
 ### Valid Examples
@@ -94,5 +95,8 @@ const args = [
   [signal()],
 ];
 createEffect(...args);
+
+createEffect(() => console.log(signal()), [signal]);
+
 ```
 <!-- end-doc-gen -->

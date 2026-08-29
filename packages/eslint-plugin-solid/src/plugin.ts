@@ -3,7 +3,7 @@
  * This import is necessary for type generation due to a bug in the TypeScript compiler.
  * See: https://github.com/microsoft/TypeScript/issues/42873
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import componentsReturnOnce from "./rules/components-return-once.js";
@@ -13,16 +13,23 @@ import jsxNoDuplicateProps from "./rules/jsx-no-duplicate-props.js";
 import jsxNoScriptUrl from "./rules/jsx-no-script-url.js";
 import jsxNoUndef from "./rules/jsx-no-undef.js";
 import jsxUsesVars from "./rules/jsx-uses-vars.js";
+import noAccessorAsProp from "./rules/no-accessor-as-prop.js";
 import noDestructure from "./rules/no-destructure.js";
 import noInnerHTML from "./rules/no-innerhtml.js";
+import noModuleScopeReactivePrimitive from "./rules/no-module-scope-reactive-primitive.js";
 import noProxyApis from "./rules/no-proxy-apis.js";
 import noReactDeps from "./rules/no-react-deps.js";
 import noReactSpecificProps from "./rules/no-react-specific-props.js";
+import noRestatedDefaultOptions from "./rules/no-restated-default-options.js";
+import noSingleArgCreateEffect from "./rules/no-single-arg-create-effect.js";
 import noUnknownNamespaces from "./rules/no-unknown-namespaces.js";
 import preferClasslist from "./rules/prefer-classlist.js";
 import preferFor from "./rules/prefer-for.js";
+import preferOnSettledForSideEffects from "./rules/prefer-onSettled-for-side-effects.js";
 import preferShow from "./rules/prefer-show.js";
+import preferStructuredClass from "./rules/prefer-structured-class.js";
 import reactivity from "./rules/reactivity.js";
+import removedApi from "./rules/removed-api.js";
 import selfClosingComp from "./rules/self-closing-comp.js";
 import styleProp from "./rules/style-prop.js";
 import noArrayHandlers from "./rules/no-array-handlers.js";
@@ -45,16 +52,23 @@ const allRules = {
   "jsx-no-undef": jsxNoUndef,
   "jsx-no-script-url": jsxNoScriptUrl,
   "jsx-uses-vars": jsxUsesVars,
+  "no-accessor-as-prop": noAccessorAsProp,
   "no-destructure": noDestructure,
   "no-innerhtml": noInnerHTML,
+  "no-module-scope-reactive-primitive": noModuleScopeReactivePrimitive,
   "no-proxy-apis": noProxyApis,
   "no-react-deps": noReactDeps,
   "no-react-specific-props": noReactSpecificProps,
+  "no-restated-default-options": noRestatedDefaultOptions,
+  "no-single-arg-create-effect": noSingleArgCreateEffect,
   "no-unknown-namespaces": noUnknownNamespaces,
   "prefer-classlist": preferClasslist,
   "prefer-for": preferFor,
+  "prefer-onSettled-for-side-effects": preferOnSettledForSideEffects,
   "prefer-show": preferShow,
+  "prefer-structured-class": preferStructuredClass,
   reactivity,
+  "removed-api": removedApi,
   "self-closing-comp": selfClosingComp,
   "style-prop": styleProp,
   "no-array-handlers": noArrayHandlers,
@@ -64,5 +78,5 @@ const allRules = {
 export const plugin = {
   meta,
   rules: allRules,
-  configs: undefined as Record<string, unknown> | undefined,
+  configs: {} as Record<string, TSESLint.FlatConfig.Config>,
 };

@@ -1,36 +1,21 @@
 import { plugin } from "./plugin.js";
 import recommendedConfig from "./configs/recommended.js";
 import typescriptConfig from "./configs/typescript.js";
+import v2Config from "./configs/v2.js";
+import v2StrictConfig from "./configs/v2-strict.js";
 
+// Do not make a new object here as ESLint compares by reference and will
+// think this is a different plugin to the one inside the configs
 export const configs = {
-  recommended: {
-    plugins: ["solid"],
-    env: {
-      browser: true,
-      es6: true,
-    },
-    parserOptions: recommendedConfig.languageOptions.parserOptions,
-    rules: recommendedConfig.rules,
-  },
-  typescript: {
-    plugins: ["solid"],
-    env: {
-      browser: true,
-      es6: true,
-    },
-    parserOptions: {
-      sourceType: "module",
-    },
-    rules: typescriptConfig.rules,
-  },
+  recommended: recommendedConfig,
+  typescript: typescriptConfig,
+  v2: v2Config,
+  "v2-strict": v2StrictConfig,
+  // aliases kept for compatibility with the 0.14.x flat config names
   "flat/recommended": recommendedConfig,
   "flat/typescript": typescriptConfig,
-};
-export const rules = plugin.rules;
+} as const;
 
-const pluginLegacy = {
-  configs,
-  rules,
-};
+plugin.configs = configs;
 
-export default pluginLegacy;
+export default plugin;

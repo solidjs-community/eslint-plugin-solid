@@ -73,6 +73,7 @@ let el = <PascalComponent for="id">Hello world!</PascalComponent>;
 let el = <div key={item.id} />;
 // after eslint --fix:
 let el = <div />;
+
 ```
 
 ### Valid Examples
@@ -107,5 +108,6 @@ let el = (
 let el = <PascalComponent class="greeting" for="id" />;
 
 let el = <PascalComponent key={item.id} />;
+
 ```
 <!-- end-doc-gen -->

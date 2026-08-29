@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/jsx-no-duplicate-props";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/jsx-no-duplicate-props.js";
 
 export const cases = run("jsx-no-duplicate-props", rule, {
   valid: [
@@ -37,6 +37,12 @@ export const cases = run("jsx-no-duplicate-props", rule, {
       code: `let el = <div class="blue" {...{ class: "green" }} />`,
       errors: [{ messageId: "noDuplicateClass" }],
     },
+    // Solid 2.0: classList no longer exists, so the guidance changes
+    {
+      code: `let el = <div class="blue" class="green" />`,
+      settings: { solid: { version: 2 } },
+      errors: [{ messageId: "noDuplicateClassV2" }],
+    },
     {
       code: `let el = <div children={<div />}><div /></div>`,
       errors: [
@@ -50,6 +56,15 @@ export const cases = run("jsx-no-duplicate-props", rule, {
     },
     {
       code: `let el = <div innerHTML="<p></p>" textContent="howdy!" />`,
+      errors: [
+        {
+          messageId: "noDuplicateChildren",
+          data: { used: "`props.innerHTML`, `props.textContent`" },
+        },
+      ],
+    },
+    {
+      code: `let el = <div innerHTML="<p></p>" textcontent="howdy!" />`,
       errors: [
         {
           messageId: "noDuplicateChildren",

@@ -6,6 +6,13 @@ This rule is **an error** by default.
 [View source](../src/rules/no-destructure.ts) · [View tests](../test/rules/no-destructure.test.ts)
 <!-- end-doc-gen -->
 
+Only functions the rule identifies as _components_ are checked, using the same
+conventions as the rest of the plugin: functions named with a lowercase first
+letter (`renderItem`) and functions passed as call arguments (`items.map(({ id })
+=> <li />)`, where the destructured object is a data item, not props) are not
+components, even when they return JSX. Functions passed to PascalCase wrappers
+(`Memoize((props) => ...)`) still count as components.
+
 <!-- doc-gen OPTIONS -->
 
 <!-- end-doc-gen -->
@@ -192,13 +199,20 @@ let Component = (_props) => {
 let Component = ({ ["a" + ""]: A = 5, ...rest }) => <div a={A} b={rest.b} />;
 // after eslint --fix:
 let Component = (_props) => {
-  const [props, rest] = splitProps(mergeProps({ ["a" + ""]: 5 }, _props), ["a" + ""]);
+  const [props, rest] = splitProps(mergeProps({ ["a" + ""]: 5 }, _props), [
+    "a" + "",
+  ]);
   return <div a={props["a" + ""]} b={rest.b} />;
 };
 
 let Component = ({ prop1, prop2 }: Props) => <div p1={prop1} p2={prop2} />;
 // after eslint --fix:
 let Component = (props: Props) => <div p1={props.prop1} p2={props.prop2} />;
+
+let Component = Memoize(({ a }) => <div a={a} />);
+// after eslint --fix:
+let Component = Memoize((props) => <div a={props.a} />);
+
 ```
 
 ### Valid Examples
@@ -251,6 +265,27 @@ let Component = (props) => {
 
 let element = <div />;
 
+let Component = (props) => (
+  <ul>
+    {props.items.map(({ id, name }) => (
+      <li id={id}>{name}</li>
+    ))}
+  </ul>
+);
+
+let rows = items.map(({ id }) => <tr id={id} />);
+
+let Component = (props) => (
+  <For each={props.items}>{({ id }) => <li id={id} />}</For>
+);
+
+let renderItem = ({ id, name }) => <li id={id}>{name}</li>;
+
+function renderRow({ cells }) {
+  return <tr>{cells}</tr>;
+}
+
 let Component = (props: Props) => <div />;
+
 ```
 <!-- end-doc-gen -->
