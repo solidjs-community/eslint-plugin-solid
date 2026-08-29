@@ -31,6 +31,10 @@ test("v2 configs set the Solid version and enable the 2.0 rules", () => {
   expect(v2Config.rules["solid/no-accessor-as-prop"]).toBe(2);
   expect(v2Config.rules["solid/prefer-structured-class"]).toBe(1);
   expect(v2Config.rules["solid/prefer-classlist"]).toBe(0);
+  expect(v2Config.rules["solid/valid-use-server"]).toBe(2);
+  expect(v2Config.rules["solid/require-async-server-function"]).toBe(2);
+  expect(v2Config.rules["solid/no-invalid-server-capture"]).toBe(2);
+  expect(v2Config.rules["solid/no-browser-globals-in-server-function"]).toBe(2);
   expect(v2StrictConfig.rules["solid/no-module-scope-reactive-primitive"]).toBe(2);
   expect(v2StrictConfig.rules["solid/prefer-onSettled-for-side-effects"]).toBe(1);
   expect(v2StrictConfig.rules["solid/no-restated-default-options"]).toBe(2);

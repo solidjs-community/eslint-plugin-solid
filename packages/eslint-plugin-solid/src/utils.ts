@@ -173,6 +173,102 @@ export const getCommentAfter = (
     .getCommentsAfter(node)
     .find((comment) => comment.loc!.start.line === node.loc!.end.line);
 
+/**
+ * The leading string-literal expression statements of a program or function
+ * body — the directive prologue. Only statements here are directives; a
+ * `"use server"` string anywhere else is an ordinary expression.
+ */
+export const getDirectivePrologue = (body: T.Statement[]): T.ExpressionStatement[] => {
+  const prologue: T.ExpressionStatement[] = [];
+  for (const statement of body) {
+    if (
+      statement.type === "ExpressionStatement" &&
+      statement.expression.type === "Literal" &&
+      typeof statement.expression.value === "string"
+    ) {
+      prologue.push(statement);
+    } else {
+      break;
+    }
+  }
+  return prologue;
+};
+
+const prologueHasDirective = (body: T.Statement[], directive: string): boolean =>
+  getDirectivePrologue(body).some(
+    (statement) => (statement.expression as T.StringLiteral).value === directive
+  );
+
+/** Whether a function has a `"use server"` directive in its body's prologue. */
+export const hasUseServerDirective = (fn: FunctionNode): boolean =>
+  fn.body?.type === "BlockStatement" && prologueHasDirective(fn.body.body, "use server");
+
+/** Whether a program has a module-level `"use server"` directive. */
+export const programHasUseServerDirective = (program: T.Program): boolean =>
+  prologueHasDirective(program.body, "use server");
+
+/**
+ * Whether the `"use server"` transform would extract this function. Mirrors
+ * the compiler: object-literal methods, getters/setters, and class methods
+ * are never extracted, so directives inside them are silently ignored.
+ */
+export type UseServerEligibility = "eligible" | "objectMethod" | "accessor" | "classMethod";
+export const getUseServerEligibility = (fn: FunctionNode): UseServerEligibility => {
+  const parent = fn.parent;
+  if (parent?.type === "Property" && parent.value === fn) {
+    if (parent.kind !== "init") return "accessor";
+    if (parent.method) return "objectMethod";
+  }
+  if (parent?.type === "MethodDefinition") {
+    return parent.kind === "get" || parent.kind === "set" ? "accessor" : "classMethod";
+  }
+  return "eligible";
+};
+
+/**
+ * Whether `fn` is nested inside another function carrying a `"use server"`
+ * directive. The transform extracts the outermost marked function only;
+ * directives inside it are ignored (the code already runs on the server).
+ */
+export const isInsideUseServerFunction = (fn: FunctionNode): boolean => {
+  let parent = findParent(fn, isFunctionNode);
+  while (parent) {
+    if (isFunctionNode(parent) && hasUseServerDirective(parent)) return true;
+    parent = findParent(parent, isFunctionNode);
+  }
+  return false;
+};
+
+/**
+ * Compiles a list of user-provided name patterns into a matcher. Entries may
+ * be exact names, glob-ish patterns using `*` wildcards ("watch*"), or
+ * regexes written as "/pattern/" strings. Invalid regexes fall back to exact
+ * string comparison.
+ */
+export const createNameMatcher = (patterns: string[]): ((name: string) => boolean) => {
+  const matchers: (string | RegExp)[] = patterns.map((entry) => {
+    if (entry.length > 2 && entry.startsWith("/") && entry.endsWith("/")) {
+      try {
+        return new RegExp(entry.slice(1, -1));
+      } catch {
+        return entry;
+      }
+    }
+    if (entry.includes("*")) {
+      const escaped = entry
+        .split("*")
+        .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
+        .join("[a-zA-Z0-9_$]*");
+      return new RegExp(`^${escaped}$`);
+    }
+    return entry;
+  });
+  return (name: string): boolean =>
+    matchers.some((matcher) =>
+      typeof matcher === "string" ? matcher === name : matcher.test(name)
+    );
+};
+
 // Matches "solid-js", its submodules ("solid-js/store", etc.), and the Solid 2.0
 // "@solidjs/signals" package, which re-exports the core reactive primitives.
 export const trackImports = (
