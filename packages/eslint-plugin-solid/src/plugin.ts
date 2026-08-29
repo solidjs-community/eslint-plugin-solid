@@ -35,11 +35,7 @@ import styleProp from "./rules/style-prop.js";
 import noArrayHandlers from "./rules/no-array-handlers.js";
 // import validateJsxNesting from "./rules/validate-jsx-nesting";
 
-import { createRequire } from "node:module";
-
-const requireModule = createRequire(import.meta.url);
-
-const packageJson = requireModule("../package.json");
+import packageJson from "../package.json" with { type: "json" };
 
 const { name, version } = packageJson;
 const meta = { name, version };

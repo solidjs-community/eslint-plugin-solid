@@ -130,7 +130,10 @@ const buildOptions = (filename: string): string => {
   ].join("\n");
 };
 
-const pretty = (code: string) => prettier.format(code, { parser: "typescript" }).trim();
+const pretty = async (code: string) => {
+  const formatted = await prettier.format(code, { parser: "typescript" });
+  return formatted.trim();
+};
 const options = (options: Array<any>) =>
   options
     .map((o) =>
@@ -166,20 +169,20 @@ const buildCases = async (content: string, filename: string) => {
       someFixed ? ", and some can be auto-fixed" : ""
     }.\n`,
     "```js",
-    invalid.map((c: any) => [
+    await Promise.all(invalid.map(async (c: any) => [
       c.options && `/* eslint solid/${ruleName}: ["error", ${options(c.options)}] */`,
-      pretty(c.code),
-      c.output && "// after eslint --fix:\n" + pretty(c.output),
+      (await pretty(c.code)),
+      c.output && "// after eslint --fix:\n" + (await pretty(c.output)),
       " ",
-    ]),
+    ])),
     "```\n",
     "### Valid Examples\n",
     "These snippets don't cause lint errors.\n",
     "```js",
-    valid.map((c: any) => [
+    await Promise.all(valid.map(async (c: any) => [
       c.options && `/* eslint solid/${ruleName}: ["error", ${options(c.options)}] */`,
-      pretty(c.code) + "\n",
-    ]),
+      (await pretty(c.code)) + "\n",
+    ])),
     "```",
   ]
     .flat(3)

@@ -20,10 +20,6 @@ export default {
       verbose: true,
       alias: [
         {
-          match: /^(node:)?module$/,
-          target: "./mock/module.js",
-        },
-        {
           // those files should be omitted, we do not want them to be exposed to web
           match: [
             /\beslint\/lib\/(rule-tester|eslint|cli-engine|init|unsupported-api)\//u,
@@ -80,10 +76,6 @@ export default {
         },
       ],
       replace: [
-        {
-          test: /requireModule\("..\/package.json"\)/,
-          replace: "{\"name\": \"eslint-plugin-solid\", \"version\": \"0.0.0\"}"
-        },
         {
           // we do not want dynamic imports
           match: /eslint\/lib\/linter\/rules\.js$/u,

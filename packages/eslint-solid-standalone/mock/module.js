@@ -1,3 +1,0 @@
-export function createRequire() {
-  return () => {};
-}
