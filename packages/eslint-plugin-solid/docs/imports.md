@@ -96,7 +96,9 @@ import { createSignal, createStore, reconcile, merge } from "solid-js";
 
 import { render, Portal, Dynamic, isServer } from "@solidjs/web";
 
-import type { JSX } from "@solidjs/web";
+import type { JSX, ValidComponent, ComponentProps } from "@solidjs/web";
+
+import type { ValidComponent, ComponentProps } from "solid-js";
 
 import { createStore } from "solid-js/store";
 

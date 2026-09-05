@@ -28,7 +28,12 @@ import type { Store } from "solid-js/store";`,
       settings: { solid: { version: 2 } },
     },
     {
-      code: `import type { JSX } from "@solidjs/web";`,
+      code: `import type { JSX, ValidComponent, ComponentProps } from "@solidjs/web";`,
+      settings: { solid: { version: 2 } },
+      [tsOnly]: true,
+    },
+    {
+      code: `import type { ValidComponent, ComponentProps } from "solid-js";`,
       settings: { solid: { version: 2 } },
       [tsOnly]: true,
     },

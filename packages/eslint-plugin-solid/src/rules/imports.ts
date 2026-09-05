@@ -219,8 +219,6 @@ for (const type of [
   "Accessor",
   "Setter",
   "Component",
-  "ValidComponent",
-  "ComponentProps",
   "Context",
   "ResolvedChildren",
   "Store",
