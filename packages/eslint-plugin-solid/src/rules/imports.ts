@@ -324,7 +324,7 @@ export default createRule({
                       correctSource,
                       [sourceCode.getText(specifier)],
                       firstSolidDeclaration,
-                      isType
+                      node.importKind === "type"
                     ),
                   ];
                 },

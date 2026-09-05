@@ -54,6 +54,10 @@ import { render, createEffect } from "solid-js";
 import { render } from "solid-js/web";
 import { createEffect } from "solid-js";
 
+import { type JSX } from "solid-js";
+// after eslint --fix:
+import { type JSX } from "@solidjs/web";
+
 import type { JSX } from "solid-js";
 // after eslint --fix:
 import type { JSX } from "@solidjs/web";
