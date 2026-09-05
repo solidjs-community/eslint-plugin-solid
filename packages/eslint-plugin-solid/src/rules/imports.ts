@@ -222,7 +222,6 @@ for (const type of [
   "ValidComponent",
   "ComponentProps",
   "Context",
-  "JSX",
   "ResolvedChildren",
   "Store",
   "StoreNode",
@@ -235,6 +234,7 @@ for (const type of [
 ]) {
   typeMapV2.set(type, "solid-js");
 }
+typeMapV2.set("JSX", "@solidjs/web");
 
 const sourceRegex = /^solid-js(?:\/web|\/store)?$/;
 const isSource = (source: string): source is Source => sourceRegex.test(source);
