@@ -33,6 +33,33 @@ When an audit finds a false positive in an error-level rule, the preferred fix
 is **precision, not demotion**: tighten the detection so the rule keeps its
 strength on the cases it is sure about.
 
+### Local-conclusive analysis
+
+ESLint sees one file at a time. Most reactivity claims — "this setter is a
+signal setter", "this store proxy is being mutated", "this accessor is never
+written" — are only provable when the primitive is *created in the same file*
+where it is used. A rule may therefore report as an error only what it can
+conclude from local evidence:
+
+- **Local-conclusive facts may be errors.** When the destructure, the creation
+  call, and the misuse are all visible in one file, the report is a structural
+  fact and error level is justified.
+- **Anything requiring cross-module knowledge stays silent or warns.** A
+  setter imported from another file, options passed through an unresolvable
+  variable, a tuple that escapes into an unknown wrapper — the rule either
+  says nothing (accepting the false negative) or reports at warn level with a
+  documented escape. It never guesses at error level.
+- **The runtime is the cross-module backstop.** What lint cannot see across
+  files, Solid's dev-mode diagnostics observe at runtime with complete
+  information (`REACTIVE_WRITE_IN_OWNED_SCOPE`, the diagnostics channel).
+  Under-reporting in lint is acceptable precisely because the runtime catches
+  the remainder — the two layers are designed as a pair.
+
+The same reasoning governs escapes in the other direction: when a value flows
+somewhere the rule can't follow (assigned onto `this`, passed into a call,
+returned to an unknown caller), the rule treats it as sanctioned rather than
+suspicious. Escaped values are the caller's business.
+
 ## Audit (2026-08)
 
 Every rule enabled in `v2`/`v2-strict`, its level, confidence class, and known
@@ -81,6 +108,19 @@ rule infers intent and has documented escapes.
 `no-react-deps` (premise gone in 2.0), `prefer-classlist` (anti-advice in 2.0),
 `no-array-handlers`, `prefer-show` (style opt-ins), `no-proxy-apis` (niche
 constraint). Off is the correct level for anti-advice and narrow preferences.
+
+### Additions since the audit (0.17.x–0.18.0)
+
+| Rule                                    | Level | Confidence | Notes                                                                                                                                                                                                                                                                                                     |
+| :-------------------------------------- | :---- | :--------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `valid-use-server`                      | error | Certain    | Directive placement and silently-ignored positions are syntactic facts, verified against the 2.0 compiler.                                                                                                                                                                                               |
+| `require-async-server-function`         | error | Certain    | The client-side contract (always `Promise<T>`) is unconditional.                                                                                                                                                                                                                                          |
+| `no-invalid-server-capture`             | error | Certain    | Mirrors the compiler's own closure-capture validation at editor time.                                                                                                                                                                                                                                     |
+| `no-browser-globals-in-server-function` | error | Certain    | Server functions never run where browser globals exist; locals/imports that shadow the global names are exempt.                                                                                                                                                                                           |
+| `no-store-mutation-outside-setter`      | error | Certain    | Local-conclusive: only mutations of a proxy resolving to a same-file `createStore`/`createOptimistic` destructure are flagged. Core silently ignores these writes, so lint is the only guardrail.                                                                                                          |
+| `no-write-in-pure-computation`          | error | Certain    | Local-conclusive setters only; honors the `ownedWrite` opt-in (assumed present when options aren't statically readable, so the rule can only under-report). Extended in 0.18.0 to component bodies, matching core's dev throw; `onSettled`/`createTrackedEffect`/handlers are exempt by function boundary. |
+| `no-unused-signal`                      | warn  | Certain    | Conclusive scope analysis, but "unused" is often work-in-progress code, so warn is friendlier. Extended in 0.18.0 to `createStore`/`createOptimistic` tuples.                                                                                                                                              |
+| `no-boolean-enumerated-attribute`       | error | Certain    | Only provably-misbehaving values are flagged: boolean literals in a broken direction, bare `draggable`, boolean-by-construction expressions. Dynamic values and working boolean forms (empty-string-means-true attributes, default-false ARIA) are left alone.                                             |
 
 ## Maintenance
 

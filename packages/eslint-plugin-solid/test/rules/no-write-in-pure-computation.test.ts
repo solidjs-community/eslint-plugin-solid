@@ -66,6 +66,52 @@ const value = createMemo(() => {
   setCache(compute());
   return cache();
 });`,
+    // writes in a component belong in callbacks — all exempt via the
+    // nearest-enclosing-function discipline, no name-listing needed
+    `import { createSignal, onSettled, createTrackedEffect } from "solid-js";
+function Counter() {
+  const [count, setCount] = createSignal(0);
+  onSettled(() => setCount(1));
+  createTrackedEffect(() => setCount(count() + 1));
+  const onClick = () => setCount(count() + 1);
+  return <button onClick={onClick}>{count()}</button>;
+}`,
+    // effect halves inside components are imperative scopes
+    `import { createSignal, createEffect } from "solid-js";
+function Tracker() {
+  const [pos, setPos] = createSignal(0);
+  const [log, setLog] = createSignal("");
+  createEffect(() => pos(), (value) => setLog(String(value)));
+  return <div>{log()}</div>;
+}`,
+    // lowercase helpers and data callbacks that contain JSX aren't components
+    `import { createSignal } from "solid-js";
+const [flag, setFlag] = createSignal(false);
+function renderReset() {
+  setFlag(false);
+  return <div />;
+}`,
+    `import { createSignal } from "solid-js";
+const [n, setN] = createSignal(0);
+const rows = items.map((item) => {
+  setN(item.id);
+  return <li>{item.name}</li>;
+});`,
+    // ownedWrite signals may be written during setup too
+    `import { createSignal } from "solid-js";
+function Widget() {
+  const [cache, setCache] = createSignal(0, { ownedWrite: true });
+  setCache(1);
+  return <div>{cache()}</div>;
+}`,
+    // functions without JSX are not components; a custom primitive's writes
+    // are its own business (and un-provable here anyway)
+    `import { createSignal } from "solid-js";
+function useCounter() {
+  const [count, setCount] = createSignal(0);
+  setCount(1);
+  return count;
+}`,
   ],
   invalid: [
     {
@@ -144,6 +190,36 @@ const bad = createMemo(() => {
   return store.count;
 });`,
       errors: [{ messageId: "writeInMemo" }],
+    },
+    // setup-scope writes in component bodies throw in 2.0 dev
+    {
+      code: `import { createSignal } from "solid-js";
+function Counter() {
+  const [count, setCount] = createSignal(0);
+  setCount(1);
+  return <div>{count()}</div>;
+}`,
+      errors: [{ messageId: "writeInComponent" }],
+    },
+    // arrow components and module-level signals are the same hazard
+    {
+      code: `import { createSignal } from "solid-js";
+const [theme, setTheme] = createSignal("dark");
+const Header = () => {
+  setTheme("light");
+  return <header>{theme()}</header>;
+};`,
+      errors: [{ messageId: "writeInComponent" }],
+    },
+    // conditional writes still run during setup
+    {
+      code: `import { createSignal, createStore } from "solid-js";
+function App(props) {
+  const [store, setStore] = createStore({ ready: false });
+  if (props.eager) setStore((draft) => { draft.ready = true; });
+  return <div>{String(store.ready)}</div>;
+}`,
+      errors: [{ messageId: "writeInComponent" }],
     },
   ],
 });

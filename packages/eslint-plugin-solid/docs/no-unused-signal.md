@@ -6,7 +6,7 @@ This rule is **off** by default.
 [View source](../src/rules/no-unused-signal.ts) · [View tests](../test/rules/no-unused-signal.test.ts)
 <!-- end-doc-gen -->
 
-A destructured signal tuple is the only handle on the signal, so scope analysis is conclusive: if the setter is never referenced, the value can never change and the signal is really a constant; if the accessor is never referenced, the state can never be observed and every write is dead code. Unused-variable rules miss both cases because the *other* half of the tuple keeps the declaration "used".
+A destructured signal tuple is the only handle on the signal, so scope analysis is conclusive: if the setter is never referenced, the value can never change and the signal is really a constant; if the accessor is never referenced, the state can never be observed and every write is dead code. Unused-variable rules miss both cases because the *other* half of the tuple keeps the declaration "used". The same conclusive analysis applies to `createStore` and `createOptimistic` tuples: a never-written store is a plain object with extra steps, and a never-read one is dead state.
 
 ```js
 // ✗ Never written — this is a constant wearing a signal costume
@@ -63,6 +63,22 @@ import { createSignal } from "solid-js";
 const [, setCount] = createSignal(0);
 setCount(5);
 
+import { createStore } from "solid-js";
+const [config] = createStore({ theme: "dark" });
+console.log(config.theme);
+
+import { createStore } from "solid-js";
+const [state, setState] = createStore({ n: 0 });
+setState((draft) => draft.n++);
+
+import { createOptimistic } from "solid-js";
+const [likes, setLikes] = createOptimistic(0);
+console.log(likes());
+
+import { createSignal } from "my-solid-renderer";
+const [count, setCount] = createSignal(0);
+console.log(count());
+
 ```
 
 ### Valid Examples
@@ -87,6 +103,20 @@ export const [theme, setTheme] = createSignal("light");
 import { createSignal } from "solid-js";
 const tuple = createSignal(0);
 use(tuple);
+
+import { createSignal } from "my-solid-renderer";
+const [count, setCount] = createSignal(0);
+console.log(count());
+
+import { createStore } from "solid-js";
+const [store, setStore] = createStore({ n: 0 });
+console.log(store.n);
+setStore((draft) => draft.n++);
+
+import { createOptimistic } from "solid-js";
+const [likes, setLikes] = createOptimistic(0);
+console.log(likes());
+setLikes(1);
 
 ```
 <!-- end-doc-gen -->

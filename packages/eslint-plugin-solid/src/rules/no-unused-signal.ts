@@ -2,7 +2,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { findVariable, getSourceCode } from "../compat";
-import { findParent, trackImports } from "../utils";
+import { findParent, getSolidSourceRegex, trackImports } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -29,15 +29,15 @@ export default createRule<Options, MessageIds>({
     schema: [],
     messages: {
       neverWritten:
-        "This signal is never written, so its value can never change. Use a plain constant (`const {{accessor}} = () => value`), or `createMemo` if the value is derived from reactive state.",
+        "This {{kind}} is never written, so its value can never change. Use a plain value, or `createMemo` if it should derive from reactive state.",
       neverRead:
-        "This signal is never read, so setting it has no effect. Remove the signal, or read the value where the state should be used.",
+        "This {{kind}} is never read, so setting it has no effect. Remove the {{kind}}, or read the value where the state should be used.",
       replaceWithAccessor: "Replace with a constant accessor.",
     },
   },
   defaultOptions: [],
   create(context) {
-    const { matchImport, handleImportDeclaration } = trackImports();
+    const { matchImport, handleImportDeclaration } = trackImports(getSolidSourceRegex(context));
 
     /** Does this pattern element's variable have any reference besides its initialization? */
     const isUsed = (element: T.Identifier): boolean => {
@@ -53,12 +53,22 @@ export default createRule<Options, MessageIds>({
         if (
           node.init?.type !== "CallExpression" ||
           node.init.callee.type !== "Identifier" ||
-          !matchImport("createSignal", node.init.callee.name) ||
           node.id.type !== "ArrayPattern" ||
           node.id.elements.length > 2
         ) {
           return;
         }
+        const primitive = matchImport(
+          ["createSignal", "createStore", "createOptimistic"],
+          node.init.callee.name
+        );
+        if (!primitive) return;
+        const kind =
+          primitive === "createSignal"
+            ? "signal"
+            : primitive === "createStore"
+            ? "store"
+            : "optimistic value";
         // Only plain `[accessor, setter]` shapes (with possible holes) are conclusive.
         const [accessor = null, setter = null] = node.id.elements;
         if (
@@ -71,16 +81,18 @@ export default createRule<Options, MessageIds>({
         if (findParent(node, (n) => n.type === "ExportNamedDeclaration")) return;
 
         if (!accessor || !isUsed(accessor)) {
-          context.report({ node: accessor ?? node.id, messageId: "neverRead" });
+          context.report({ node: accessor ?? node.id, messageId: "neverRead", data: { kind } });
           return;
         }
         if (!setter || !isUsed(setter)) {
           const init = node.init;
           const initialValue = init.arguments[0];
-          // Only suggest the rewrite when the initial value is a simple literal;
-          // richer expressions may want createMemo or evaluate-once semantics.
+          // Only suggest the rewrite for signals whose initial value is a
+          // simple literal; richer expressions may want createMemo or
+          // evaluate-once semantics, and store/optimistic results aren't
+          // accessor-shaped.
           const suggest =
-            !initialValue || initialValue.type === "Literal"
+            primitive === "createSignal" && (!initialValue || initialValue.type === "Literal")
               ? [
                   {
                     messageId: "replaceWithAccessor" as const,
@@ -97,7 +109,7 @@ export default createRule<Options, MessageIds>({
           context.report({
             node: setter ?? node.id,
             messageId: "neverWritten",
-            data: { accessor: accessor.name },
+            data: { kind },
             suggest,
           });
         }

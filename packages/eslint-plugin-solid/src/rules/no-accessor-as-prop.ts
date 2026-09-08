@@ -8,7 +8,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { findVariable } from "../compat";
-import { isDOMElementName, isFunctionNode, trackImports } from "../utils";
+import { isDOMElementName, isFunctionNode, getSolidSourceRegex, trackImports } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -50,7 +50,7 @@ export default createRule<Options, MessageIds>({
   },
   defaultOptions: [],
   create(context) {
-    const { matchImport, handleImportDeclaration } = trackImports();
+    const { matchImport, handleImportDeclaration } = trackImports(getSolidSourceRegex(context));
 
     /** Is `id` a signal accessor or plain function we can resolve statically? */
     const resolveFunctionKind = (id: T.Identifier): "accessor" | "function" | null => {

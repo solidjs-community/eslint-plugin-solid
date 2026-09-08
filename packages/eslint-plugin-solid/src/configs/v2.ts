@@ -37,6 +37,9 @@ const v2 = {
     "solid/no-unused-signal": 1,
     // uncalled accessors as DOM attributes render stringified functions
     "solid/no-accessor-as-prop": 2,
+    // enumerated attributes (draggable, tristate aria-*) want string tokens;
+    // boolean false removes the attribute, a different state than "false"
+    "solid/no-boolean-enumerated-attribute": 2,
     // manual class-string building works but defeats granular class toggling
     "solid/prefer-structured-class": 1,
     // graduated from style to correctness in 2.0: only camelCase `onClick` is

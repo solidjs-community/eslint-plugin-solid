@@ -14,6 +14,7 @@ import jsxNoScriptUrl from "./rules/jsx-no-script-url";
 import jsxNoUndef from "./rules/jsx-no-undef";
 import jsxUsesVars from "./rules/jsx-uses-vars";
 import noAccessorAsProp from "./rules/no-accessor-as-prop";
+import noBooleanEnumeratedAttribute from "./rules/no-boolean-enumerated-attribute";
 import noBrowserGlobalsInServerFunction from "./rules/no-browser-globals-in-server-function";
 import noDestructure from "./rules/no-destructure";
 import noInnerHTML from "./rules/no-innerhtml";
@@ -56,6 +57,7 @@ const allRules = {
   "jsx-no-script-url": jsxNoScriptUrl,
   "jsx-uses-vars": jsxUsesVars,
   "no-accessor-as-prop": noAccessorAsProp,
+  "no-boolean-enumerated-attribute": noBooleanEnumeratedAttribute,
   "no-browser-globals-in-server-function": noBrowserGlobalsInServerFunction,
   "no-destructure": noDestructure,
   "no-innerhtml": noInnerHTML,

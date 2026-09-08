@@ -8,27 +8,36 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { findVariable } from "../compat";
-import { findParent, isFunctionNode, trackImports } from "../utils";
+import {
+  FunctionNode,
+  findParent,
+  getFunctionName,
+  isFunctionNode,
+  getSolidSourceRegex,
+  trackImports,
+} from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
-type MessageIds = "writeInMemo" | "writeInCompute";
+type MessageIds = "writeInMemo" | "writeInCompute" | "writeInComponent";
 type Options = [];
 
 /*
- * `createMemo` callbacks and the compute half of `createEffect(compute,
- * effect)` are pure tracked computations: writing other reactive state from
- * inside them creates update cycles and throws in Solid 2.0 dev mode. Only
- * setter calls whose nearest enclosing function IS the computation are
- * flagged — a setter inside a nested function (say, an event handler the
- * memo returns) runs later, outside the computation, and is fine.
+ * `createMemo` callbacks, the compute half of `createEffect(compute,
+ * effect)`, and component bodies are pure owned scopes in Solid 2.0:
+ * writing other reactive state from inside them creates update cycles and
+ * throws in dev mode (REACTIVE_WRITE_IN_OWNED_SCOPE). Only setter calls
+ * whose nearest enclosing function IS the pure scope are flagged — a setter
+ * inside a nested function (an event handler, an `onSettled` or
+ * `createTrackedEffect` callback, the effect half) runs later, in an
+ * imperative scope, and is fine.
  */
 export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
     docs: {
       description:
-        "Disallow writing signals or stores inside `createMemo` or the compute half of `createEffect`, which must be pure.",
+        "Disallow writing signals or stores inside `createMemo`, the compute half of `createEffect`, or a component body, which are pure owned scopes.",
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-write-in-pure-computation.md",
     },
     schema: [],
@@ -37,11 +46,13 @@ export default createRule<Options, MessageIds>({
         "Calling the setter '{{name}}' inside createMemo makes the computation impure and creates an update cycle. Derive the value instead of storing it, or move the write to an effect.",
       writeInCompute:
         "Calling the setter '{{name}}' in the compute half of {{api}} — the compute function is tracked and must be pure. Move the write into the effect half (the second argument).",
+      writeInComponent:
+        "Calling the setter '{{name}}' during component setup — the body runs once as a pure owned scope, and Solid 2.0 throws on setup writes in dev. Initialize the state with the right value instead, or move the write into an effect half or event handler.",
     },
   },
   defaultOptions: [],
   create(context) {
-    const { matchImport, handleImportDeclaration } = trackImports();
+    const { matchImport, handleImportDeclaration } = trackImports(getSolidSourceRegex(context));
 
     /** Pure computation functions seen so far, mapped to how to report writes in them. */
     const computations = new Map<T.Node, { messageId: MessageIds; api: string }>();
@@ -122,8 +133,59 @@ export default createRule<Options, MessageIds>({
       return true;
     };
 
+    /**
+     * Setter calls whose nearest enclosing function might be a component.
+     * Whether it IS one (contains JSX, component-shaped) is only known at the
+     * function's :exit, so reports are deferred until then.
+     */
+    const pendingComponentWrites = new Map<FunctionNode, T.CallExpression[]>();
+    const functionStack: Array<{ hasJSX: boolean }> = [];
+
+    /**
+     * Matches the component detection in no-destructure/components-return-once:
+     * containing JSX isn't enough on its own, because data callbacks
+     * (`items.map((item) => <li />)`) and lowercase-named helpers also return
+     * JSX. Component-shaped means: not lowercase-named, not a "render prop",
+     * and not a plain call argument (unless the callee is PascalCase, like a
+     * HOC).
+     */
+    const isComponent = (node: FunctionNode) =>
+      !getFunctionName(node)?.match(/^[a-z]/) &&
+      node.parent?.type !== "JSXExpressionContainer" &&
+      !(
+        node.parent?.type === "CallExpression" &&
+        node.parent.arguments.includes(node as T.CallExpressionArgument) &&
+        !(node.parent.callee as T.Identifier).name?.match(/^[A-Z]/)
+      );
+
     return {
       ImportDeclaration: handleImportDeclaration,
+      ":function"() {
+        functionStack.push({ hasJSX: false });
+      },
+      JSXElement() {
+        if (functionStack.length) functionStack[functionStack.length - 1].hasJSX = true;
+      },
+      JSXFragment() {
+        if (functionStack.length) functionStack[functionStack.length - 1].hasJSX = true;
+      },
+      ":function:exit"(node: T.Node) {
+        const { hasJSX } = functionStack.pop() ?? { hasJSX: false };
+        if (!isFunctionNode(node)) return;
+        const pending = pendingComponentWrites.get(node);
+        if (!pending) return;
+        pendingComponentWrites.delete(node);
+        // A function that is itself a registered computation is reported
+        // through the computation path, never as a component.
+        if (!hasJSX || computations.has(node) || !isComponent(node)) return;
+        for (const call of pending) {
+          context.report({
+            node: call,
+            messageId: "writeInComponent",
+            data: { name: (call.callee as T.Identifier).name },
+          });
+        }
+      },
       CallExpression(node) {
         if (node.callee.type !== "Identifier") return;
 
@@ -145,16 +207,24 @@ export default createRule<Options, MessageIds>({
           return;
         }
 
-        if (computations.size === 0) return;
         const enclosing = findParent(node, isFunctionNode);
-        const computation = enclosing && computations.get(enclosing);
-        if (computation && isSetter(node.callee)) {
-          context.report({
-            node,
-            messageId: computation.messageId,
-            data: { name: node.callee.name, api: computation.api },
-          });
+        if (!enclosing || !isFunctionNode(enclosing)) return;
+        const computation = computations.get(enclosing);
+        if (!computation && !isSetter(node.callee)) return;
+        if (computation) {
+          if (isSetter(node.callee)) {
+            context.report({
+              node,
+              messageId: computation.messageId,
+              data: { name: node.callee.name, api: computation.api },
+            });
+          }
+          return;
         }
+        // Possibly a setup-scope write; decided at the function's :exit.
+        const pending = pendingComponentWrites.get(enclosing);
+        if (pending) pending.push(node);
+        else pendingComponentWrites.set(enclosing, [node]);
       },
     };
   },

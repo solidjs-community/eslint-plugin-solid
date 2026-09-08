@@ -8,7 +8,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { findVariable } from "../compat";
-import { trackImports } from "../utils";
+import { getSolidSourceRegex, trackImports } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -56,7 +56,7 @@ export default createRule<Options, MessageIds>({
   },
   defaultOptions: [],
   create(context) {
-    const { matchImport, handleImportDeclaration } = trackImports();
+    const { matchImport, handleImportDeclaration } = trackImports(getSolidSourceRegex(context));
 
     type Target = { kind: "store"; setter: string | null } | { kind: "projection" };
 

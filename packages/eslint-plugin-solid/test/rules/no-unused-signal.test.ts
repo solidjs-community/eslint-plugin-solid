@@ -20,6 +20,20 @@ export const [theme, setTheme] = createSignal("light");`,
     `import { createSignal } from "solid-js";
 const tuple = createSignal(0);
 use(tuple);`,
+    // imports from unknown modules aren't Solid's primitives unless
+    // registered via settings.solid.moduleSources (#183)
+    `import { createSignal } from "my-solid-renderer";
+const [count, setCount] = createSignal(0);
+console.log(count());`,
+    // stores and optimistic tuples get the same conclusive treatment
+    `import { createStore } from "solid-js";
+const [store, setStore] = createStore({ n: 0 });
+console.log(store.n);
+setStore((draft) => draft.n++);`,
+    `import { createOptimistic } from "solid-js";
+const [likes, setLikes] = createOptimistic(0);
+console.log(likes());
+setLikes(1);`,
   ],
   invalid: [
     {
@@ -76,6 +90,51 @@ setCount(5);`,
 const [, setCount] = createSignal(0);
 setCount(5);`,
       errors: [{ messageId: "neverRead" }],
+    },
+    // a never-written store is a plain object with extra steps; no accessor
+    // rewrite suggestion, since a store proxy isn't accessor-shaped
+    {
+      code: `import { createStore } from "solid-js";
+const [config] = createStore({ theme: "dark" });
+console.log(config.theme);`,
+      errors: [{ messageId: "neverWritten" }],
+    },
+    {
+      code: `import { createStore } from "solid-js";
+const [state, setState] = createStore({ n: 0 });
+setState((draft) => draft.n++);`,
+      errors: [{ messageId: "neverRead" }],
+    },
+    {
+      code: `import { createOptimistic } from "solid-js";
+const [likes, setLikes] = createOptimistic(0);
+console.log(likes());`,
+      errors: [
+        {
+          messageId: "neverWritten",
+        },
+      ],
+    },
+    // settings.solid.moduleSources registers custom renderers/re-export
+    // wrappers as Solid primitive sources (#183)
+    {
+      code: `import { createSignal } from "my-solid-renderer";
+const [count, setCount] = createSignal(0);
+console.log(count());`,
+      settings: { solid: { moduleSources: ["my-solid-renderer"] } },
+      errors: [
+        {
+          messageId: "neverWritten",
+          suggestions: [
+            {
+              messageId: "replaceWithAccessor",
+              output: `import { createSignal } from "my-solid-renderer";
+const count = () => 0;
+console.log(count());`,
+            },
+          ],
+        },
+      ],
     },
   ],
 });
