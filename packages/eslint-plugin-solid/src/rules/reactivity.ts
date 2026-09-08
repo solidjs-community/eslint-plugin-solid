@@ -13,6 +13,7 @@ import {
   isFunctionNode,
   ProgramOrFunctionNode,
   isProgramOrFunctionNode,
+  getSolidSourceRegex,
   trackImports,
   isDOMElementName,
   ignoreTransparentWrappers,
@@ -319,7 +320,7 @@ export default createRule<Options, MessageIds>({
     const { currentScope, parentScope } = scopeStack;
 
     /** Tracks imports from 'solid-js', handling aliases. */
-    const { matchImport, handleImportDeclaration } = trackImports();
+    const { matchImport, handleImportDeclaration } = trackImports(getSolidSourceRegex(context));
 
     /** Solid 2.0 mode (settings.solid.version >= 2). */
     const v2 = isSolidV2(context);
@@ -863,10 +864,22 @@ export default createRule<Options, MessageIds>({
           (identifier.parent?.type === "AssignmentExpression" ||
             identifier.parent?.type === "VariableDeclarator")
         ) {
-          // `... = props` is usually destructuring, which snapshots values instead of
-          // staying reactive. Inside a tracked scope (or a function passed to one) the
-          // destructuring re-runs on updates, so defer to the same analysis as reads.
-          handleTrackedScopes(identifier, declarationScope);
+          if (
+            identifier.parent.type === "AssignmentExpression" &&
+            identifier.parent.right === identifier &&
+            identifier.parent.left.type === "MemberExpression"
+          ) {
+            // `this.state = state` stores a *reference* to the proxy, not a
+            // snapshot: property reads through it are still reactive at read
+            // time. The alias escapes local analysis exactly like passing the
+            // proxy as a call argument, which is already permitted (#184).
+            // Do nothing.
+          } else {
+            // `... = props` is usually destructuring, which snapshots values instead of
+            // staying reactive. Inside a tracked scope (or a function passed to one) the
+            // destructuring re-runs on updates, so defer to the same analysis as reads.
+            handleTrackedScopes(identifier, declarationScope);
+          }
         }
         // The props are being read, but not in a MemberExpression. Since
         // there's a lot of possibilities here and they're generally fine,
@@ -1255,7 +1268,6 @@ export default createRule<Options, MessageIds>({
                 "createDeferred",
                 "createComputed",
                 "createSelector",
-                "untrack",
                 "mapArray",
                 "indexArray",
                 "observable",
@@ -1291,6 +1303,12 @@ export default createRule<Options, MessageIds>({
               // called function under both semantics.
               pushTrackedScope(arg1, "called-function");
             }
+          } else if (matchImport("untrack", callee.name) && arg0) {
+            // untrack's callback is called synchronously but explicitly NOT
+            // tracked: reads inside are sanctioned, and an async callback is
+            // harmless (there's no subscription to lose), so it must not get
+            // the async-tracked-scope or read-after-await treatment (#188).
+            pushTrackedScope(arg0, "called-function");
           } else if (matchImport("createResource", callee.name)) {
             // createResource(fetcher), createResource(fetcher, options),
             // createResource(source, fetcher), or createResource(source, fetcher, options).
@@ -1563,7 +1581,34 @@ export default createRule<Options, MessageIds>({
           parent?.type !== "ReturnStatement" &&
           !(parent?.type === "ArrowFunctionExpression" && parent.body === node)
         ) {
-          checkForReactiveAssignment(null, node);
+          if (parent?.type === "CallExpression" && parent.arguments.includes(node)) {
+            // A primitive call passed to a wrapper, like
+            // `const [state, setState] = makePersisted(createSignal(false))`
+            // (#190). The dominant ecosystem contract passes the tuple through,
+            // so if the outermost wrapper's result is captured, analyze the
+            // primitive as if assigned there directly. If the result isn't
+            // captured, the tuple escaped into the wrapper — nothing can be
+            // concluded, so stay silent rather than warn.
+            let outer: T.Node = parent;
+            let outerParent = outer.parent && ignoreTransparentWrappers(outer.parent, true);
+            while (
+              outerParent?.type === "CallExpression" &&
+              outerParent.arguments.includes(outer as T.CallExpressionArgument)
+            ) {
+              outer = outerParent;
+              outerParent = outer.parent && ignoreTransparentWrappers(outer.parent, true);
+            }
+            if (outerParent?.type === "VariableDeclarator") {
+              checkForReactiveAssignment(outerParent.id, node);
+            } else if (
+              outerParent?.type === "AssignmentExpression" &&
+              outerParent.left.type !== "MemberExpression"
+            ) {
+              checkForReactiveAssignment(outerParent.left, node);
+            }
+          } else {
+            checkForReactiveAssignment(null, node);
+          }
         }
       },
       NewExpression(node: T.NewExpression) {

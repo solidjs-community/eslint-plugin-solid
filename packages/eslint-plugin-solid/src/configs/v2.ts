@@ -29,8 +29,17 @@ const v2 = {
     "solid/removed-api": 2,
     // 2.0 requires the split createEffect(compute, effect) form
     "solid/no-single-arg-create-effect": 2,
+    // the store read proxy is read-only; mutations go through the setter's draft
+    "solid/no-store-mutation-outside-setter": 2,
+    // writes inside memos/compute halves create cycles and throw in 2.0 dev
+    "solid/no-write-in-pure-computation": 2,
+    // signals that are never written (or never read) aren't being used as signals
+    "solid/no-unused-signal": 1,
     // uncalled accessors as DOM attributes render stringified functions
     "solid/no-accessor-as-prop": 2,
+    // enumerated attributes (draggable, tristate aria-*) want string tokens;
+    // boolean false removes the attribute, a different state than "false"
+    "solid/no-boolean-enumerated-attribute": 2,
     // manual class-string building works but defeats granular class toggling
     "solid/prefer-structured-class": 1,
     // graduated from style to correctness in 2.0: only camelCase `onClick` is

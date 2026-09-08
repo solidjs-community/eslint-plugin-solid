@@ -14,6 +14,7 @@ import jsxNoScriptUrl from "./rules/jsx-no-script-url";
 import jsxNoUndef from "./rules/jsx-no-undef";
 import jsxUsesVars from "./rules/jsx-uses-vars";
 import noAccessorAsProp from "./rules/no-accessor-as-prop";
+import noBooleanEnumeratedAttribute from "./rules/no-boolean-enumerated-attribute";
 import noBrowserGlobalsInServerFunction from "./rules/no-browser-globals-in-server-function";
 import noDestructure from "./rules/no-destructure";
 import noInnerHTML from "./rules/no-innerhtml";
@@ -24,7 +25,10 @@ import noReactDeps from "./rules/no-react-deps";
 import noReactSpecificProps from "./rules/no-react-specific-props";
 import noRestatedDefaultOptions from "./rules/no-restated-default-options";
 import noSingleArgCreateEffect from "./rules/no-single-arg-create-effect";
+import noStoreMutationOutsideSetter from "./rules/no-store-mutation-outside-setter";
 import noUnknownNamespaces from "./rules/no-unknown-namespaces";
+import noUnusedSignal from "./rules/no-unused-signal";
+import noWriteInPureComputation from "./rules/no-write-in-pure-computation";
 import preferClasslist from "./rules/prefer-classlist";
 import preferFor from "./rules/prefer-for";
 import preferOnSettledForSideEffects from "./rules/prefer-onSettled-for-side-effects";
@@ -53,6 +57,7 @@ const allRules = {
   "jsx-no-script-url": jsxNoScriptUrl,
   "jsx-uses-vars": jsxUsesVars,
   "no-accessor-as-prop": noAccessorAsProp,
+  "no-boolean-enumerated-attribute": noBooleanEnumeratedAttribute,
   "no-browser-globals-in-server-function": noBrowserGlobalsInServerFunction,
   "no-destructure": noDestructure,
   "no-innerhtml": noInnerHTML,
@@ -63,7 +68,10 @@ const allRules = {
   "no-react-specific-props": noReactSpecificProps,
   "no-restated-default-options": noRestatedDefaultOptions,
   "no-single-arg-create-effect": noSingleArgCreateEffect,
+  "no-store-mutation-outside-setter": noStoreMutationOutsideSetter,
   "no-unknown-namespaces": noUnknownNamespaces,
+  "no-unused-signal": noUnusedSignal,
+  "no-write-in-pure-computation": noWriteInPureComputation,
   "prefer-classlist": preferClasslist,
   "prefer-for": preferFor,
   "prefer-onSettled-for-side-effects": preferOnSettledForSideEffects,

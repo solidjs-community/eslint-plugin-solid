@@ -1,5 +1,68 @@
 # Changelog
 
+## 0.18.0
+
+Four new correctness rules (from #219, thanks @brenelz), a revived community rule, extensions to
+existing rules, and a batch of reactivity false-positive fixes. Everything is verified against the
+official Solid 2.0 templates (zero findings).
+
+### New Rules (all enabled in `v2`/`v2-strict`)
+
+- **`solid/no-write-in-pure-computation`** (error). Setter calls inside `createMemo` callbacks,
+  the compute half of `createEffect(compute, effect)`, and — new in this release — component
+  bodies, all of which are pure owned scopes that throw on writes in Solid 2.0 dev mode
+  (`REACTIVE_WRITE_IN_OWNED_SCOPE`). Honors the `ownedWrite: true` signal option, including
+  through one level of `const` indirection, and assumes the opt-in when options aren't statically
+  readable, so it can only under-report. Writes inside `onSettled`, `createTrackedEffect`, event
+  handlers, and effect halves are exempt by function boundary — the same shape as core's own
+  guard. Closes #79, which asked for exactly the component-body case in 2019.
+- **`solid/no-store-mutation-outside-setter`** (error). Mutating a store's read proxy
+  (`store.count++`, `store.items.push(x)`) is *silently ignored* — no error, no update, the write
+  just vanishes — which makes lint the only guardrail today. Only proxies resolving to a same-file
+  `createStore`/`createOptimistic` destructure are flagged.
+- **`solid/no-unused-signal`** (warn). A destructured reactive tuple is the only handle on the
+  state, so scope analysis is conclusive: never-written state is a constant wearing a signal
+  costume; never-read state is dead code that unused-variable rules miss. Covers `createSignal`,
+  `createStore`, and `createOptimistic` tuples.
+- **`solid/no-boolean-enumerated-attribute`** (error). Enumerated attributes (`draggable`,
+  `spellcheck`, `contenteditable`, `translate`, and the tristate ARIA states like
+  `aria-expanded`) take string tokens, not booleans: a boolean `false` removes the attribute —
+  a different state than `"false"` — and `true` writes an empty value that `draggable` treats as
+  invalid. Only provably-misbehaving values are flagged; boolean literals autofix to the matching
+  token, provably-boolean expressions get a ternary suggestion, and working boolean forms
+  (`contenteditable={true}`, default-false ARIA attributes) are left alone. Revives #144/#145 —
+  credit @SarguelUnda.
+
+(PR #219 also proposed `no-async-effect-half`; it was dropped because TypeScript already
+hard-errors on async effect halves with a clear message.)
+
+### Reactivity false-positive fixes
+
+- **Async `untrack` callbacks** (#188). `untrack(async () => ...)` was reported as an async
+  tracked scope, but untrack's callback is *deliberately* untracked — there is no subscription to
+  lose. It's now classified as a called function: reads inside are sanctioned and async is fine.
+- **Storing a store proxy on an object** (#184). `this.state = state` in a class constructor was
+  treated like a destructuring snapshot. It stores a *reference* — property reads through it are
+  reactive at read time — so it's now recognized as an escape, like passing the proxy to a
+  function.
+- **Signal wrappers** (#190). `const [state, setState] = makePersisted(createSignal(false))`
+  warned "array destructuring should be used" even though it is. Primitive calls passed through
+  wrapper functions are now analyzed as if assigned to the wrapper's captured result, so wrapped
+  signals both stop false-positive warnings and keep real reactivity analysis. Uncaptured wrapper
+  results stay silent.
+
+### New setting
+
+- **`settings.solid.moduleSources`** (#183). Projects using custom renderers or re-exporting
+  wrapper modules can register their module names so import-gated rules recognize
+  `import { createSignal } from "my-custom-renderer"`.
+
+### Docs
+
+- `docs/rule-confidence.md` now documents the **local-conclusive analysis policy**: errors are
+  reserved for facts provable within one file; anything needing cross-module knowledge stays
+  silent or warns, with Solid's dev-mode runtime diagnostics as the cross-module backstop.
+
 ## 0.17.1
 
 Bug fixes only. Thanks to @jynxio and @brenelz for the reports and PRs.

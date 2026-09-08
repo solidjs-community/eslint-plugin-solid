@@ -298,6 +298,13 @@ const Component = (props) => {
   return <div>{value()}</div>;
 };
 
+import { createSignal } from "my-solid-renderer";
+const Component = () => {
+  const [count] = createSignal(0);
+  const doubled = count() * 2;
+  return <div>{doubled}</div>;
+};
+
 const Component = (props) => {
   const { value: valueProp } = props;
   const value = createMemo(() => valueProp || "default");
@@ -1037,6 +1044,28 @@ const [signal] = createSignal(5);
 untrack(() => {
   console.log(signal());
 });
+
+const [value, setValue] = createSignal();
+untrack(async () => {
+  const result = await loadData();
+  setValue(result);
+  console.log(value());
+});
+
+class UIStore {
+  constructor() {
+    const [state, setState] = createStore({ init: false });
+    this.state = state;
+    this.setState = setState;
+  }
+}
+
+const Component = () => {
+  const [state, setState] = makePersisted(createSignal(false));
+  return <div onClick={() => setState(!state())}>{String(state())}</div>;
+};
+
+registerSignal(makePersisted(createSignal(false)));
 
 function notAComponent(something) {
   console.log(something.a);

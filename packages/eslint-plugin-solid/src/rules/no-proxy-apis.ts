@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { isFunctionNode, trackImports, isPropsByName, trace } from "../utils";
+import { isFunctionNode, getSolidSourceRegex, trackImports, isPropsByName, trace } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -33,7 +33,7 @@ export default createRule({
   },
   defaultOptions: [],
   create(context) {
-    const { matchImport, handleImportDeclaration } = trackImports();
+    const { matchImport, handleImportDeclaration } = trackImports(getSolidSourceRegex(context));
 
     return {
       ImportDeclaration(node) {

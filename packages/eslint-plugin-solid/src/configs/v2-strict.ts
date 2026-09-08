@@ -20,6 +20,8 @@ const v2Strict = {
     "solid/no-restated-default-options": 2,
     // graduate the class-string heuristic to an error
     "solid/prefer-structured-class": 2,
+    // graduate the half-unused signal check to an error
+    "solid/no-unused-signal": 2,
   },
 } satisfies TSESLint.FlatConfig.Config;
 

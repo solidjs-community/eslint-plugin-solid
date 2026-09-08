@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { ESLintUtils } from "@typescript-eslint/utils";
-import { trackImports } from "../utils";
+import { getSolidSourceRegex, trackImports } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -39,7 +39,7 @@ export default createRule<Options, MessageIds>({
   },
   defaultOptions: [],
   create(context) {
-    const { matchImport, handleImportDeclaration } = trackImports();
+    const { matchImport, handleImportDeclaration } = trackImports(getSolidSourceRegex(context));
 
     return {
       ImportDeclaration: handleImportDeclaration,

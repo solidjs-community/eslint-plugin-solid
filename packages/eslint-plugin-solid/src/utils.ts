@@ -31,6 +31,30 @@ export function getSolidVersion(context: HasSettings): number | null {
 /** Whether the targeted Solid version is 2.x or later. */
 export const isSolidV2 = (context: HasSettings): boolean => (getSolidVersion(context) ?? 0) >= 2;
 
+// Matches "solid-js", its submodules ("solid-js/store", etc.), and the Solid 2.0
+// "@solidjs/signals" package, which re-exports the core reactive primitives.
+const DEFAULT_SOURCE_REGEX = /^(?:solid-js(?:\/?|\b)|@solidjs\/signals(?:\/?|\b))/;
+
+/**
+ * The module sources whose exports are treated as Solid's primitives. Custom
+ * renderers and re-exporting wrappers can register their own module names via
+ * `settings.solid.moduleSources` (exact names, matched whole) so import-gated
+ * rules recognize `import { createSignal } from "my-renderer"` (#183).
+ */
+export const getSolidSourceRegex = (context: HasSettings): RegExp => {
+  const solidSettings = context.settings?.solid;
+  const raw =
+    solidSettings && typeof solidSettings === "object" && "moduleSources" in solidSettings
+      ? (solidSettings as { moduleSources: unknown }).moduleSources
+      : undefined;
+  if (!Array.isArray(raw)) return DEFAULT_SOURCE_REGEX;
+  const escaped = raw
+    .filter((source): source is string => typeof source === "string")
+    .map((source) => source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  if (!escaped.length) return DEFAULT_SOURCE_REGEX;
+  return new RegExp(`${DEFAULT_SOURCE_REGEX.source}|^(?:${escaped.join("|")})$`);
+};
+
 const propsRegex = /[pP]rops/;
 export const isPropsByName = (name: string): boolean => propsRegex.test(name);
 
@@ -269,11 +293,12 @@ export const createNameMatcher = (patterns: string[]): ((name: string) => boolea
     );
 };
 
-// Matches "solid-js", its submodules ("solid-js/store", etc.), and the Solid 2.0
-// "@solidjs/signals" package, which re-exports the core reactive primitives.
-export const trackImports = (
-  fromModule = /^(?:solid-js(?:\/?|\b)|@solidjs\/signals(?:\/?|\b))/
-) => {
+/**
+ * Tracks imports from Solid's module sources (see DEFAULT_SOURCE_REGEX /
+ * getSolidSourceRegex), handling aliases. Pass `getSolidSourceRegex(context)`
+ * to honor the `settings.solid.moduleSources` escape.
+ */
+export const trackImports = (fromModule: RegExp = DEFAULT_SOURCE_REGEX) => {
   const importMap = new Map<string, string>();
   const handleImportDeclaration = (node: T.ImportDeclaration) => {
     if (fromModule.test(node.source.value)) {

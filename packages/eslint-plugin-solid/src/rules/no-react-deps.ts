@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { ESLintUtils } from "@typescript-eslint/utils";
-import { isFunctionNode, isSolidV2, trace, trackImports } from "../utils";
+import { isFunctionNode, isSolidV2, trace, getSolidSourceRegex, trackImports } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -33,7 +33,7 @@ export default createRule({
     if (isSolidV2(context)) return {};
 
     /** Tracks imports from 'solid-js', handling aliases. */
-    const { matchImport, handleImportDeclaration } = trackImports();
+    const { matchImport, handleImportDeclaration } = trackImports(getSolidSourceRegex(context));
 
     return {
       ImportDeclaration: handleImportDeclaration,
