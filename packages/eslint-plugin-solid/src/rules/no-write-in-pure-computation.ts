@@ -49,13 +49,43 @@ export default createRule<Options, MessageIds>({
     /**
      * Does this signal opt into owned-scope writes? Core skips its dev guard
      * for signals created with `ownedWrite: true`, and its error message
-     * steers users to that option — so the lint must honor it too. When the
-     * options argument isn't a statically readable object literal, assume the
-     * opt-in is possible rather than risk contradicting core.
+     * steers users to that option — so the lint must honor it too. The check
+     * only says "no" when it can *prove* the opt-in is absent: a missing
+     * options argument, or an object literal (followed through one level of
+     * const indirection) that is fully readable and lacks `ownedWrite`.
+     * Everything else — spreads, casts, unresolvable or reassigned
+     * variables — is assumed to opt in, so the rule can only under-report,
+     * never contradict core.
      */
     const allowsOwnedWrite = (init: T.CallExpression): boolean => {
-      const options = init.arguments[1];
+      let options: T.Node | undefined = init.arguments[1];
       if (!options) return false;
+      if (options.type === "Identifier") {
+        const variable = findVariable(context, options);
+        const def = variable?.defs[0];
+        if (
+          variable?.defs.length !== 1 ||
+          def?.type !== "Variable" ||
+          def.node.parent?.kind !== "const" ||
+          !def.node.init ||
+          // A const holding an object can still be given properties later
+          // (`opts.ownedWrite = true`); any reference that mutates the object
+          // or escapes it (passed elsewhere, aliased) makes the literal read
+          // inconclusive. Only references that ARE the options argument of a
+          // signal creation keep it conclusive.
+          variable.references.some(
+            (ref) =>
+              ref.identifier !== def.node.id &&
+              !(
+                ref.identifier.parent?.type === "CallExpression" &&
+                ref.identifier.parent.arguments[1] === ref.identifier
+              )
+          )
+        ) {
+          return true;
+        }
+        options = def.node.init;
+      }
       if (options.type !== "ObjectExpression") return true;
       return options.properties.some(
         (property) =>

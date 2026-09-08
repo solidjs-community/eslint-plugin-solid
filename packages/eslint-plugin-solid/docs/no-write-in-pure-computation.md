@@ -32,7 +32,7 @@ createEffect(() => query(), (value) => setLog(value));
 
 Only setter calls whose nearest enclosing function *is* the computation are flagged. A setter inside a nested function — say, an event handler the memo returns — runs later, outside the computation, and is fine. Setters are recognized by resolving to the second element of a `createSignal`, `createStore`, or `createOptimistic` destructure.
 
-Signals created with the `ownedWrite: true` option are exempt: that option is core's own opt-in for intentional owned-scope writes (its runtime error message suggests it), so the linter honors it rather than contradicting it. If the options argument isn't a statically readable object literal, the rule stays quiet. The opt-in applies to signals only — store setters have no such exemption in core.
+Signals created with the `ownedWrite: true` option are exempt: that option is core's own opt-in for intentional owned-scope writes (its runtime error message suggests it), so the linter honors it rather than contradicting it. The options argument is read when it's an object literal, following one level of `const` indirection when the variable is provably untouched otherwise. Anything the rule can't read conclusively — a spread, a cast, a variable that's mutated or escapes — is assumed to opt in, so the rule only ever under-reports; it never contradicts core. The opt-in applies to signals only — store setters have no such exemption in core.
 
 This rule is enabled as an error in the `v2` and `v2-strict` configs.
 
@@ -83,6 +83,14 @@ const bad = createMemo(() => {
 
 import { createSignal, createMemo } from "solid-js";
 const [count, setCount] = createSignal(0, { name: "count" });
+const bad = createMemo(() => {
+  setCount(count() + 1);
+  return count();
+});
+
+import { createSignal, createMemo } from "solid-js";
+const opts = { name: "count" };
+const [count, setCount] = createSignal(0, opts);
 const bad = createMemo(() => {
   setCount(count() + 1);
   return count();
@@ -150,7 +158,24 @@ createEffect(
 );
 
 import { createSignal, createMemo } from "solid-js";
+const opts = { ownedWrite: true };
+const [cache, setCache] = createSignal(0, opts);
+const value = createMemo(() => {
+  setCache(compute());
+  return cache();
+});
+
+import { createSignal, createMemo } from "solid-js";
 const [cache, setCache] = createSignal(0, signalOptions);
+const value = createMemo(() => {
+  setCache(compute());
+  return cache();
+});
+
+import { createSignal, createMemo } from "solid-js";
+const opts = { name: "cache" };
+opts.ownedWrite = true;
+const [cache, setCache] = createSignal(0, opts);
 const value = createMemo(() => {
   setCache(compute());
   return cache();

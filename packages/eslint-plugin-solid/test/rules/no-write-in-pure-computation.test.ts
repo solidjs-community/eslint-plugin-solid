@@ -36,9 +36,26 @@ createEffect(() => {
   setLast(query());
   return query();
 }, (value) => console.log(value));`,
+    // the opt-in resolves through one level of const indirection
+    `import { createSignal, createMemo } from "solid-js";
+const opts = { ownedWrite: true };
+const [cache, setCache] = createSignal(0, opts);
+const value = createMemo(() => {
+  setCache(compute());
+  return cache();
+});`,
     // options we can't read statically may contain the opt-in; stay quiet
     `import { createSignal, createMemo } from "solid-js";
 const [cache, setCache] = createSignal(0, signalOptions);
+const value = createMemo(() => {
+  setCache(compute());
+  return cache();
+});`,
+    // a later property write makes the literal read inconclusive; stay quiet
+    `import { createSignal, createMemo } from "solid-js";
+const opts = { name: "cache" };
+opts.ownedWrite = true;
+const [cache, setCache] = createSignal(0, opts);
 const value = createMemo(() => {
   setCache(compute());
   return cache();
@@ -92,6 +109,17 @@ const bad = createMemo(() => {
     {
       code: `import { createSignal, createMemo } from "solid-js";
 const [count, setCount] = createSignal(0, { name: "count" });
+const bad = createMemo(() => {
+  setCount(count() + 1);
+  return count();
+});`,
+      errors: [{ messageId: "writeInMemo" }],
+    },
+    // ...including through const indirection
+    {
+      code: `import { createSignal, createMemo } from "solid-js";
+const opts = { name: "count" };
+const [count, setCount] = createSignal(0, opts);
 const bad = createMemo(() => {
   setCount(count() + 1);
   return count();
