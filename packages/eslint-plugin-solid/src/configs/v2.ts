@@ -29,8 +29,6 @@ const v2 = {
     "solid/removed-api": 2,
     // 2.0 requires the split createEffect(compute, effect) form
     "solid/no-single-arg-create-effect": 2,
-    // an async effect half discards its cleanup return and outlives the effect
-    "solid/no-async-effect-half": 2,
     // the store read proxy is read-only; mutations go through the setter's draft
     "solid/no-store-mutation-outside-setter": 2,
     // writes inside memos/compute halves create cycles and throw in 2.0 dev

@@ -54,6 +54,10 @@ const REMOVED = new Map<string, string>([
     "splitProps",
     'Use `omit` from "solid-js" to exclude props, and pass the original props object along',
   ],
+  [
+    "renderToStringAsync",
+    "`renderToString` awaits async content in Solid 2.0; use it (or `renderToStream`) instead",
+  ],
   ["createMutable", "Use `createStore`; store setters mutate directly in Solid 2.0"],
   ["modifyMutable", "Use `createStore`; store setters mutate directly in Solid 2.0"],
   [
@@ -70,7 +74,9 @@ const REMOVED = new Map<string, string>([
 // Exports that moved from "solid-js/store" into core "solid-js" unchanged.
 const STORE_MOVED = new Set(["createStore", "reconcile", "Store", "StoreNode"]);
 
-const SOLID_SOURCE_REGEX = /^solid-js(?:\/web|\/store)?$/;
+// Includes "@solidjs/web" so 1.x APIs that survived a mechanical source
+// rewrite (e.g. renderToStringAsync) are still reported as removed.
+const SOLID_SOURCE_REGEX = /^(?:solid-js(?:\/web|\/store)?|@solidjs\/web)$/;
 
 type MessageIds = "renamed" | "removed" | "webMoved" | "storeMoved" | "classList";
 type Options = [];

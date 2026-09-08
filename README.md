@@ -114,7 +114,7 @@ If your project targets Solid 2.0, use the `v2` configuration. It sets
 `settings: { solid: { version: 2 } }`, which switches the version-aware rules (`reactivity`,
 `imports`, `no-unknown-namespaces`, `event-handlers`, `jsx-no-undef`) to strict 2.0 semantics, and
 enables the 2.0-specific rules: `removed-api`, `no-single-arg-create-effect`,
-`no-async-effect-half`, `no-accessor-as-prop`, `no-store-mutation-outside-setter`,
+`no-accessor-as-prop`, `no-store-mutation-outside-setter`,
 `no-write-in-pure-computation`, and the server function rules (`valid-use-server`,
 `require-async-server-function`, `no-invalid-server-capture`,
 `no-browser-globals-in-server-function`) as errors, with `prefer-structured-class` and
@@ -193,7 +193,7 @@ the plugin to `jsPlugins` in your `.oxlintrc.json` and enable the rules you want
 
 For Solid 2.0 projects, add `"settings": { "solid": { "version": 2 } }` to activate the
 version-aware rule behavior, and enable the 2.0 rules (`solid/removed-api`,
-`solid/no-single-arg-create-effect`, `solid/no-async-effect-half`, `solid/no-accessor-as-prop`,
+`solid/no-single-arg-create-effect`, `solid/no-accessor-as-prop`,
 `solid/no-store-mutation-outside-setter`, `solid/no-write-in-pure-computation`,
 `solid/no-unused-signal`, `solid/prefer-structured-class`, and the server function rules `solid/valid-use-server`,
 `solid/require-async-server-function`, `solid/no-invalid-server-capture`, and
@@ -217,7 +217,6 @@ version-aware rule behavior, and enable the 2.0 rules (`solid/removed-api`,
 | ✔ |  | [solid/jsx-uses-vars](/packages/eslint-plugin-solid/docs/jsx-uses-vars.md) | Prevent variables used in JSX from being marked as unused. |
 |  |  | [solid/no-accessor-as-prop](/packages/eslint-plugin-solid/docs/no-accessor-as-prop.md) | Disallow passing uncalled signal accessors or other functions as value-typed DOM element attributes. |
 |  |  | [solid/no-array-handlers](/packages/eslint-plugin-solid/docs/no-array-handlers.md) | Disallow usage of type-unsafe event handlers. |
-|  |  | [solid/no-async-effect-half](/packages/eslint-plugin-solid/docs/no-async-effect-half.md) | Disallow async functions as the effect half of `createEffect(compute, effect)`, where a returned cleanup function would be silently discarded. |
 |  |  | [solid/no-browser-globals-in-server-function](/packages/eslint-plugin-solid/docs/no-browser-globals-in-server-function.md) | Disallow browser-only globals inside server functions, which run exclusively on the server. |
 | ✔ | 🔧 | [solid/no-destructure](/packages/eslint-plugin-solid/docs/no-destructure.md) | Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list. |
 | ✔ | 🔧 | [solid/no-innerhtml](/packages/eslint-plugin-solid/docs/no-innerhtml.md) | Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities. |
@@ -272,7 +271,7 @@ If you want to pin a minor version, use a tilde in your `package.json`.
 
 <!-- doc-gen TILDE -->
 ```diff
-- "eslint-plugin-solid": "^0.17.0"
-+ "eslint-plugin-solid": "~0.17.0"
+- "eslint-plugin-solid": "^0.17.1"
++ "eslint-plugin-solid": "~0.17.1"
 ```
 <!-- end-doc-gen -->

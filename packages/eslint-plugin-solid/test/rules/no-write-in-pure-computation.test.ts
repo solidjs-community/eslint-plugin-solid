@@ -22,6 +22,33 @@ const double = createMemo(() => count() * 2);`,
     // functions that aren't tuple setters are not writes
     `import { createMemo } from "solid-js";
 const result = createMemo(() => transform(input()));`,
+    // `ownedWrite: true` opts a signal into owned-scope writes; core skips its
+    // dev guard for these, and its error message steers users to the option
+    `import { createSignal, createMemo } from "solid-js";
+const [cache, setCache] = createSignal(0, { ownedWrite: true });
+const value = createMemo(() => {
+  setCache(compute());
+  return cache();
+});`,
+    `import { createSignal, createEffect } from "solid-js";
+const [last, setLast] = createSignal("", { name: "last", ownedWrite: true });
+createEffect(() => {
+  setLast(query());
+  return query();
+}, (value) => console.log(value));`,
+    // options we can't read statically may contain the opt-in; stay quiet
+    `import { createSignal, createMemo } from "solid-js";
+const [cache, setCache] = createSignal(0, signalOptions);
+const value = createMemo(() => {
+  setCache(compute());
+  return cache();
+});`,
+    `import { createSignal, createMemo } from "solid-js";
+const [cache, setCache] = createSignal(0, { ...baseOptions });
+const value = createMemo(() => {
+  setCache(compute());
+  return cache();
+});`,
   ],
   invalid: [
     {
@@ -55,6 +82,35 @@ createRenderEffect(() => {
     {
       code: `import { createStore, createMemo } from "solid-js";
 const [store, setStore] = createStore({ count: 0 });
+const bad = createMemo(() => {
+  setStore((draft) => draft.count++);
+  return store.count;
+});`,
+      errors: [{ messageId: "writeInMemo" }],
+    },
+    // an options literal without the opt-in doesn't exempt anything
+    {
+      code: `import { createSignal, createMemo } from "solid-js";
+const [count, setCount] = createSignal(0, { name: "count" });
+const bad = createMemo(() => {
+  setCount(count() + 1);
+  return count();
+});`,
+      errors: [{ messageId: "writeInMemo" }],
+    },
+    {
+      code: `import { createSignal, createMemo } from "solid-js";
+const [count, setCount] = createSignal(0, { ownedWrite: false });
+const bad = createMemo(() => {
+  setCount(count() + 1);
+  return count();
+});`,
+      errors: [{ messageId: "writeInMemo" }],
+    },
+    // ownedWrite is a SignalOptions flag; core has no such exemption for store setters
+    {
+      code: `import { createStore, createMemo } from "solid-js";
+const [store, setStore] = createStore({ count: 0 }, { ownedWrite: true });
 const bad = createMemo(() => {
   setStore((draft) => draft.count++);
   return store.count;

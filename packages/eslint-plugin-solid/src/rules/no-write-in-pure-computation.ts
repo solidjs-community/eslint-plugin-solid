@@ -46,19 +46,50 @@ export default createRule<Options, MessageIds>({
     /** Pure computation functions seen so far, mapped to how to report writes in them. */
     const computations = new Map<T.Node, { messageId: MessageIds; api: string }>();
 
+    /**
+     * Does this signal opt into owned-scope writes? Core skips its dev guard
+     * for signals created with `ownedWrite: true`, and its error message
+     * steers users to that option — so the lint must honor it too. When the
+     * options argument isn't a statically readable object literal, assume the
+     * opt-in is possible rather than risk contradicting core.
+     */
+    const allowsOwnedWrite = (init: T.CallExpression): boolean => {
+      const options = init.arguments[1];
+      if (!options) return false;
+      if (options.type !== "ObjectExpression") return true;
+      return options.properties.some(
+        (property) =>
+          property.type === "SpreadElement" ||
+          ((property.key.type === "Identifier"
+            ? property.key.name === "ownedWrite"
+            : property.key.type === "Literal" && property.key.value === "ownedWrite") &&
+            !(property.value.type === "Literal" && property.value.value === false))
+      );
+    };
+
     /** Is `id` the setter half of a signal/store/optimistic tuple? */
     const isSetter = (id: T.Identifier): boolean => {
       const def = findVariable(context, id)?.defs[0];
       if (!def || def.type !== "Variable" || !def.node.init) return false;
       const { id: declId, init } = def.node;
-      return (
-        declId.type === "ArrayPattern" &&
-        declId.elements[1]?.type === "Identifier" &&
-        declId.elements[1].name === id.name &&
-        init.type === "CallExpression" &&
-        init.callee.type === "Identifier" &&
-        !!matchImport(["createSignal", "createStore", "createOptimistic"], init.callee.name)
+      if (
+        declId.type !== "ArrayPattern" ||
+        declId.elements[1]?.type !== "Identifier" ||
+        declId.elements[1].name !== id.name ||
+        init.type !== "CallExpression" ||
+        init.callee.type !== "Identifier"
+      ) {
+        return false;
+      }
+      const primitive = matchImport(
+        ["createSignal", "createStore", "createOptimistic"],
+        init.callee.name
       );
+      if (!primitive) return false;
+      // `ownedWrite` is a SignalOptions flag; store setters have no such
+      // exemption in core, so only signal-shaped primitives honor it.
+      if (primitive !== "createStore" && allowsOwnedWrite(init)) return false;
+      return true;
     };
 
     return {

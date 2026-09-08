@@ -54,6 +54,19 @@ import { render, createEffect } from "solid-js";
 import { render } from "solid-js/web";
 import { createEffect } from "solid-js";
 
+import { type JSX } from "solid-js";
+// after eslint --fix:
+import { type JSX } from "@solidjs/web";
+
+import type { JSX } from "solid-js";
+// after eslint --fix:
+import type { JSX } from "@solidjs/web";
+
+import type { JSX, Component } from "solid-js";
+// after eslint --fix:
+import type { JSX } from "@solidjs/web";
+import type { Component } from "solid-js";
+
 import { render } from "solid-js";
 // after eslint --fix:
 import { render } from "@solidjs/web";
@@ -91,6 +104,10 @@ import type { Store } from "solid-js/store";
 import { createSignal, createStore, reconcile, merge } from "solid-js";
 
 import { render, Portal, Dynamic, isServer } from "@solidjs/web";
+
+import type { JSX, ValidComponent, ComponentProps } from "@solidjs/web";
+
+import type { ValidComponent, ComponentProps } from "solid-js";
 
 import { createStore } from "solid-js/store";
 

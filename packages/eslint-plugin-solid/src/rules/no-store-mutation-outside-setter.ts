@@ -31,11 +31,12 @@ type Options = [];
 /*
  * Store setters receive a mutable draft in Solid 2.0 (`produce` semantics by
  * default), which makes mutating the read proxy directly — `store.count++`,
- * `store.items.push(x)` — look plausible. It isn't: the read proxy is
- * read-only, so the mutation throws in dev and silently fails to trigger
- * updates otherwise. Draft mutations inside the setter are written through the
- * draft parameter, a different variable, so they never resolve to the store
- * and are naturally exempt.
+ * `store.items.push(x)` — look plausible. It isn't: the proxy's write traps
+ * silently ignore writes outside a draft scope, with no error or dev warning
+ * of any kind — the mutation just vanishes. That silence is exactly why this
+ * rule matters: lint is currently the only guardrail. Draft mutations inside
+ * the setter are written through the draft parameter, a different variable,
+ * so they never resolve to the store and are naturally exempt.
  */
 export default createRule<Options, MessageIds>({
   meta: {
@@ -48,7 +49,7 @@ export default createRule<Options, MessageIds>({
     schema: [],
     messages: {
       mutateStore:
-        "'{{name}}' is a store's read proxy, which is read-only; this mutation throws in dev and never triggers updates. Mutate the draft inside the setter instead: `{{setter}}(draft => { ... })`.",
+        "'{{name}}' is a store's read proxy, which is read-only; this mutation is silently ignored — no error, no update, the write just vanishes. Mutate the draft inside the setter instead: `{{setter}}(draft => { ... })`.",
       mutateProjection:
         "'{{name}}' is a projection, a read-only derived store. Derive this value inside the projection function instead of mutating the result.",
     },

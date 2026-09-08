@@ -6,7 +6,7 @@ This rule is **off** by default.
 [View source](../src/rules/no-store-mutation-outside-setter.ts) · [View tests](../test/rules/no-store-mutation-outside-setter.test.ts)
 <!-- end-doc-gen -->
 
-Store setters receive a mutable draft in Solid 2.0 (`produce` semantics by default), which makes mutating the read proxy directly look plausible — especially for code migrating from `createMutable`. It isn't: the read proxy is read-only, so the mutation throws in dev mode and silently fails to trigger updates otherwise.
+Store setters receive a mutable draft in Solid 2.0 (`produce` semantics by default), which makes mutating the read proxy directly look plausible — especially for code migrating from `createMutable`. It isn't: the proxy's write traps silently ignore writes outside a draft scope. There is no error and no dev warning — the mutation just vanishes, and the UI never updates. That silence is exactly why this rule matters: the linter is the only thing that will tell you.
 
 ```js
 const [store, setStore] = createStore({ count: 0, items: [] });
