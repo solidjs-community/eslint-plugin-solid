@@ -222,7 +222,6 @@ for (const type of [
   "ValidComponent",
   "ComponentProps",
   "Context",
-  "JSX",
   "ResolvedChildren",
   "Store",
   "StoreNode",
@@ -234,6 +233,10 @@ for (const type of [
   "Owner",
 ]) {
   typeMapV2.set(type, "solid-js");
+}
+// The JSX namespace moved out of core: in Solid 2.0 it is only exported by "@solidjs/web".
+for (const type of ["JSX"]) {
+  typeMapV2.set(type, "@solidjs/web");
 }
 
 const sourceRegex = /^solid-js(?:\/web|\/store)?$/;

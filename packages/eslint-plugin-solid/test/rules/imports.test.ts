@@ -32,6 +32,13 @@ import type { Store } from "solid-js/store";`,
       code: `import { createStore } from "solid-js/store";`,
       settings: { solid: { version: 2 } },
     },
+    {
+      // Solid 2.0: the JSX namespace is only exported by "@solidjs/web"
+      code: `import type { Component } from "solid-js";
+import type { JSX } from "@solidjs/web";`,
+      settings: { solid: { version: 2 } },
+      [tsOnly]: true,
+    },
   ],
   invalid: [
     {
@@ -152,6 +159,33 @@ import {  createEffect } from "solid-js";`,
       ],
       output: `import { createSignal } from "solid-js";
 `,
+    },
+    // Solid 2.0: the JSX namespace is only exported by "@solidjs/web", not core
+    {
+      code: `import type { JSX } from "solid-js";`,
+      settings: { solid: { version: 2 } },
+      [tsOnly]: true,
+      errors: [
+        {
+          messageId: "prefer-source",
+          data: { name: "JSX", source: "@solidjs/web" },
+        },
+      ],
+      output: `import type { JSX } from "@solidjs/web";
+`,
+    },
+    {
+      code: `import type { JSX, Component } from "solid-js";`,
+      settings: { solid: { version: 2 } },
+      [tsOnly]: true,
+      errors: [
+        {
+          messageId: "prefer-source",
+          data: { name: "JSX", source: "@solidjs/web" },
+        },
+      ],
+      output: `import type { JSX } from "@solidjs/web";
+import type {  Component } from "solid-js";`,
     },
   ],
 });

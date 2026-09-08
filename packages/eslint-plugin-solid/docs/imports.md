@@ -62,6 +62,15 @@ import { createSignal } from "@solidjs/web";
 // after eslint --fix:
 import { createSignal } from "solid-js";
 
+import type { JSX } from "solid-js";
+// after eslint --fix:
+import type { JSX } from "@solidjs/web";
+
+import type { JSX, Component } from "solid-js";
+// after eslint --fix:
+import type { JSX } from "@solidjs/web";
+import type { Component } from "solid-js";
+
 ```
 
 ### Valid Examples
@@ -93,6 +102,9 @@ import { createSignal, createStore, reconcile, merge } from "solid-js";
 import { render, Portal, Dynamic, isServer } from "@solidjs/web";
 
 import { createStore } from "solid-js/store";
+
+import type { Component } from "solid-js";
+import type { JSX } from "@solidjs/web";
 
 ```
 <!-- end-doc-gen -->
