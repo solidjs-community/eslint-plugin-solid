@@ -165,6 +165,20 @@ import {  createEffect } from "solid-js";`,
       output: `import type { JSX } from "@solidjs/web";
 `,
     },
+    // JSX moves out while Component stays on solid-js
+    {
+      code: `import type { JSX, Component } from "solid-js";`,
+      settings: { solid: { version: 2 } },
+      [tsOnly]: true,
+      errors: [
+        {
+          messageId: "prefer-source",
+          data: { name: "JSX", source: "@solidjs/web" },
+        },
+      ],
+      output: `import type { JSX } from "@solidjs/web";
+import type {  Component } from "solid-js";`,
+    },
     {
       code: `import { render } from "solid-js";`,
       settings: { solid: { version: 2 } },

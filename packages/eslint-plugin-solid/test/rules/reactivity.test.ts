@@ -604,6 +604,33 @@ export const cases = run("reactivity", rule, {
       console.log(list);
       return () => items().length;
     }`,
+    // A capture read by a synchronous array-method callback runs during the
+    // computation, where it is fresh — the callback doesn't escape through
+    // the return; only the call's result does (#223)
+    `const ITEMS = ["alpha", "beta", "gamma"];
+    function Filtered() {
+      const [query, setQuery] = createSignal("");
+      const matches = createMemo(() => {
+        const q = query().toUpperCase();
+        return ITEMS.filter((item) => item.toUpperCase().includes(q));
+      });
+      return <div>{matches().length}</div>;
+    }`,
+    `const ITEMS = ["alpha", "beta"];
+    function Component() {
+      const [query, setQuery] = createSignal("");
+      createEffect(() => {
+        const q = query();
+        console.log(ITEMS.some((item) => item === q));
+      });
+      return <div />;
+    }`,
+    // IIFEs run during the computation too
+    `const [count, setCount] = createSignal(0);
+    function useLabel() {
+      const value = count();
+      return (() => "count: " + value)();
+    }`,
   ],
   invalid: [
     // Untracked signals

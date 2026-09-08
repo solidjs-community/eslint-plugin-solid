@@ -206,7 +206,7 @@ for (const primitive of [
   "isServer",
   "renderToString",
   "renderToStream",
-  "renderToStringAsync",
+  // renderToStringAsync no longer exists in 2.0 (removed-api reports it)
   "generateHydrationScript",
   "HydrationScript",
 ]) {
