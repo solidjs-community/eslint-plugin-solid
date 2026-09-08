@@ -1,6 +1,6 @@
 {
   "name": "eslint-solid-standalone",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "A bundle with eslint and eslint-plugin-solid that can be used in the browser.",
   "repository": "https://github.com/solidjs-community/eslint-plugin-solid",
   "license": "MIT",

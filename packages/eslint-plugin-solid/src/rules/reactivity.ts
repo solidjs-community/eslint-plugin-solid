@@ -541,6 +541,12 @@ export default createRule<Options, MessageIds>({
       let parent: T.Node | null = child.parent ?? null;
       while (parent && child !== boundary) {
         if (parent.type === "ReturnStatement") return true;
+        // A function passed as a call argument doesn't escape through a
+        // `return` below it — only the call's *result* does. Synchronous
+        // callbacks (`return items.filter((item) => item.includes(q))`) run
+        // during the computation, where the capture is fresh (#223). The
+        // same goes for a called function itself (IIFEs).
+        if (parent.type === "CallExpression" || parent.type === "NewExpression") return false;
         if (isFunctionNode(parent)) {
           return (
             parent === boundary &&

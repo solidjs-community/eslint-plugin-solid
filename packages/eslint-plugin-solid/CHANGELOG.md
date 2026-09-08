@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.17.1
+
+Bug fixes only. Thanks to @jynxio and @brenelz for the reports and PRs.
+
+### Fixes
+
+- **`solid/reactivity` regression from 0.16.1** (#223). The `staleCapture` check flagged captures
+  read inside synchronous array-method callbacks (`items.filter((item) => item.includes(q))`)
+  within `createMemo`/`createEffect` bodies. A function passed as a call argument doesn't escape
+  through a `return` below it — only the call's result does — so these callbacks run during the
+  computation, where the capture is fresh. IIFEs are exempt for the same reason.
+- **`solid/imports` type mappings for Solid 2.0** (#220, #221, #222). The `JSX` namespace only
+  exists in `@solidjs/web` in 2.0; the rule was autofixing correct imports into a module that
+  doesn't export it. `ValidComponent`/`ComponentProps` are now accepted from both `solid-js`
+  (DOM-independent) and `@solidjs/web` (DOM-aware) since the two packages export genuinely
+  different types. The fixer also no longer produces a duplicate `type` modifier
+  (`import type { type JSX }`) when moving inline type specifiers.
+- **`renderToStringAsync` is a removed API, not a misplaced one** (#222 follow-up). It no longer
+  exists in Solid 2.0 (`renderToString` awaits async content). Dropped from the v2 imports map —
+  which was autofixing imports into a dead end — and added to `solid/removed-api` with migration
+  guidance. `solid/removed-api` now also scans `@solidjs/web` imports, so a mechanically
+  source-rewritten import of a removed API is still reported.
+
+Also verified fixed and closed: #193 (signals passed as `create*` arguments stopped warning with
+the 0.16.1 accessor-passing work).
+
 ## 0.17.0
 
 Server functions are core in Solid 2.0, so the plugin now lints them. Four new rules cover the

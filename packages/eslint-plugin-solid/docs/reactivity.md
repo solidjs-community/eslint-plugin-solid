@@ -1324,6 +1324,32 @@ function useTotal() {
   return () => items().length;
 }
 
+const ITEMS = ["alpha", "beta", "gamma"];
+function Filtered() {
+  const [query, setQuery] = createSignal("");
+  const matches = createMemo(() => {
+    const q = query().toUpperCase();
+    return ITEMS.filter((item) => item.toUpperCase().includes(q));
+  });
+  return <div>{matches().length}</div>;
+}
+
+const ITEMS = ["alpha", "beta"];
+function Component() {
+  const [query, setQuery] = createSignal("");
+  createEffect(() => {
+    const q = query();
+    console.log(ITEMS.some((item) => item === q));
+  });
+  return <div />;
+}
+
+const [count, setCount] = createSignal(0);
+function useLabel() {
+  const value = count();
+  return (() => "count: " + value)();
+}
+
 ```
 <!-- end-doc-gen -->
 
