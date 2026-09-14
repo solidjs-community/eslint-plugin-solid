@@ -41,7 +41,7 @@ import selfClosingComp from "./rules/self-closing-comp";
 import styleProp from "./rules/style-prop";
 import validUseServer from "./rules/valid-use-server";
 import noArrayHandlers from "./rules/no-array-handlers";
-// import validateJsxNesting from "./rules/validate-jsx-nesting";
+import validateJsxNesting from "./rules/validate-jsx-nesting";
 
 // Use require() so that `package.json` doesn't get copied to `dist`
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -84,7 +84,7 @@ const allRules = {
   "style-prop": styleProp,
   "valid-use-server": validUseServer,
   "no-array-handlers": noArrayHandlers,
-  // "validate-jsx-nesting": validateJsxNesting
+  "validate-jsx-nesting": validateJsxNesting,
 };
 
 export const plugin = { meta, rules: allRules };

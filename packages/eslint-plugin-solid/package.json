@@ -79,7 +79,9 @@
     "is-html": "^2.0.0",
     "kebab-case": "^1.0.2",
     "known-css-properties": "^0.30.0",
-    "style-to-object": "^1.0.6"
+    "parse5": "^8.0.1",
+    "style-to-object": "^1.0.6",
+    "validate-html-nesting": "^1.2.4"
   },
   "devDependencies": {
     "@babel/core": "^8.0.0",
