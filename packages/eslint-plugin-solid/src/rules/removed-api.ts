@@ -54,6 +54,10 @@ const REMOVED = new Map<string, string>([
     "splitProps",
     'Use `omit` from "solid-js" to exclude props, and pass the original props object along',
   ],
+  [
+    "renderToStringAsync",
+    "`renderToString` awaits async content in Solid 2.0; use it (or `renderToStream`) instead",
+  ],
   ["createMutable", "Use `createStore`; store setters mutate directly in Solid 2.0"],
   ["modifyMutable", "Use `createStore`; store setters mutate directly in Solid 2.0"],
   [
@@ -70,7 +74,9 @@ const REMOVED = new Map<string, string>([
 // Exports that moved from "solid-js/store" into core "solid-js" unchanged.
 const STORE_MOVED = new Set(["createStore", "reconcile", "Store", "StoreNode"]);
 
-const SOLID_SOURCE_REGEX = /^solid-js(?:\/web|\/store)?$/;
+// Includes "@solidjs/web" so 1.x APIs that survived a mechanical source
+// rewrite (e.g. renderToStringAsync) are still reported as removed.
+const SOLID_SOURCE_REGEX = /^(?:solid-js(?:\/web|\/store)?|@solidjs\/web)$/;
 
 type MessageIds = "renamed" | "removed" | "webMoved" | "storeMoved" | "classList";
 type Options = [];
@@ -101,7 +107,7 @@ export default createRule<Options, MessageIds>({
     const renameFix = (
       fixer: TSESLint.RuleFixer,
       specifier: T.ImportSpecifier,
-      replacement: string
+      replacement: string,
     ): Array<TSESLint.RuleFix> => {
       const fixes: Array<TSESLint.RuleFix> = [];
       const aliased = specifier.local.range[0] !== specifier.imported.range[0];
@@ -131,7 +137,7 @@ export default createRule<Options, MessageIds>({
             fix: (fixer) =>
               fixer.replaceText(
                 node.source,
-                node.source.raw.replace("solid-js/web", "@solidjs/web")
+                node.source.raw.replace("solid-js/web", "@solidjs/web"),
               ),
           });
         }
@@ -176,13 +182,13 @@ export default createRule<Options, MessageIds>({
                 (s) =>
                   s.type === "ImportSpecifier" &&
                   STORE_MOVED.has(
-                    s.imported.type === "Identifier" ? s.imported.name : s.imported.value
-                  )
+                    s.imported.type === "Identifier" ? s.imported.name : s.imported.value,
+                  ),
               )
                 ? (fixer) =>
                     fixer.replaceText(
                       node.source,
-                      node.source.raw.replace("solid-js/store", "solid-js")
+                      node.source.raw.replace("solid-js/store", "solid-js"),
                     )
                 : undefined,
             });

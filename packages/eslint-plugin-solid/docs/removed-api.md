@@ -53,6 +53,12 @@ import { on, useTransition } from "solid-js";
 
 import { Index, Suspense, ErrorBoundary } from "solid-js";
 
+import { renderToStringAsync } from "@solidjs/web";
+
+import { renderToStringAsync } from "solid-js/web";
+// after eslint --fix:
+import { renderToStringAsync } from "@solidjs/web";
+
 import { render } from "solid-js/web";
 // after eslint --fix:
 import { render } from "@solidjs/web";

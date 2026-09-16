@@ -298,6 +298,13 @@ const Component = (props) => {
   return <div>{value()}</div>;
 };
 
+import { createSignal } from "my-solid-renderer";
+const Component = () => {
+  const [count] = createSignal(0);
+  const doubled = count() * 2;
+  return <div>{doubled}</div>;
+};
+
 const Component = (props) => {
   const { value: valueProp } = props;
   const value = createMemo(() => valueProp || "default");
@@ -1038,6 +1045,28 @@ untrack(() => {
   console.log(signal());
 });
 
+const [value, setValue] = createSignal();
+untrack(async () => {
+  const result = await loadData();
+  setValue(result);
+  console.log(value());
+});
+
+class UIStore {
+  constructor() {
+    const [state, setState] = createStore({ init: false });
+    this.state = state;
+    this.setState = setState;
+  }
+}
+
+const Component = () => {
+  const [state, setState] = makePersisted(createSignal(false));
+  return <div onClick={() => setState(!state())}>{String(state())}</div>;
+};
+
+registerSignal(makePersisted(createSignal(false)));
+
 function notAComponent(something) {
   console.log(something.a);
   return <div />;
@@ -1322,6 +1351,32 @@ function useTotal() {
   const list = items();
   console.log(list);
   return () => items().length;
+}
+
+const ITEMS = ["alpha", "beta", "gamma"];
+function Filtered() {
+  const [query, setQuery] = createSignal("");
+  const matches = createMemo(() => {
+    const q = query().toUpperCase();
+    return ITEMS.filter((item) => item.toUpperCase().includes(q));
+  });
+  return <div>{matches().length}</div>;
+}
+
+const ITEMS = ["alpha", "beta"];
+function Component() {
+  const [query, setQuery] = createSignal("");
+  createEffect(() => {
+    const q = query();
+    console.log(ITEMS.some((item) => item === q));
+  });
+  return <div />;
+}
+
+const [count, setCount] = createSignal(0);
+function useLabel() {
+  const value = count();
+  return (() => "count: " + value)();
 }
 
 ```

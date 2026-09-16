@@ -56,6 +56,17 @@ om(() => {});`,
       code: `import { Index, Suspense, ErrorBoundary } from "solid-js";`,
       errors: [{ messageId: "removed" }, { messageId: "removed" }, { messageId: "removed" }],
     },
+    // removed APIs are reported from "@solidjs/web" too, so a mechanical
+    // source rewrite doesn't hide them (#222)
+    {
+      code: `import { renderToStringAsync } from "@solidjs/web";`,
+      errors: [{ messageId: "removed" }],
+    },
+    {
+      code: `import { renderToStringAsync } from "solid-js/web";`,
+      errors: [{ messageId: "removed" }, { messageId: "webMoved" }],
+      output: `import { renderToStringAsync } from "@solidjs/web";`,
+    },
     // module moves
     {
       code: `import { render } from "solid-js/web";`,

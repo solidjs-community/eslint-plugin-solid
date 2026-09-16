@@ -336,6 +336,31 @@ export const cases = run("reactivity", rule, {
     untrack(() => {
       console.log(signal());
     });`,
+    // untrack's callback is explicitly NOT tracked, so async is harmless and
+    // reads after await lose nothing (#188)
+    `const [value, setValue] = createSignal();
+    untrack(async () => {
+      const result = await loadData();
+      setValue(result);
+      console.log(value());
+    });`,
+    // stashing a store proxy on an object stores a reference, not a snapshot;
+    // reads through it are reactive at read time (#184)
+    `class UIStore {
+      constructor() {
+        const [state, setState] = createStore({ init: false });
+        this.state = state;
+        this.setState = setState;
+      }
+    }`,
+    // wrappers pass the tuple through: analyze the primitive as if assigned to
+    // the wrapper's result (#190)
+    `const Component = () => {
+      const [state, setState] = makePersisted(createSignal(false));
+      return <div onClick={() => setState(!state())}>{String(state())}</div>;
+    };`,
+    // when the wrapper's result escapes uncaptured, nothing is conclusive
+    `registerSignal(makePersisted(createSignal(false)));`,
     // has JSX, but lowercase function and not named props => don't treat first parameter as props
     `function notAComponent(something) {
       console.log(something.a);
@@ -604,6 +629,33 @@ export const cases = run("reactivity", rule, {
       console.log(list);
       return () => items().length;
     }`,
+    // A capture read by a synchronous array-method callback runs during the
+    // computation, where it is fresh — the callback doesn't escape through
+    // the return; only the call's result does (#223)
+    `const ITEMS = ["alpha", "beta", "gamma"];
+    function Filtered() {
+      const [query, setQuery] = createSignal("");
+      const matches = createMemo(() => {
+        const q = query().toUpperCase();
+        return ITEMS.filter((item) => item.toUpperCase().includes(q));
+      });
+      return <div>{matches().length}</div>;
+    }`,
+    `const ITEMS = ["alpha", "beta"];
+    function Component() {
+      const [query, setQuery] = createSignal("");
+      createEffect(() => {
+        const q = query();
+        console.log(ITEMS.some((item) => item === q));
+      });
+      return <div />;
+    }`,
+    // IIFEs run during the computation too
+    `const [count, setCount] = createSignal(0);
+    function useLabel() {
+      const value = count();
+      return (() => "count: " + value)();
+    }`,
   ],
   invalid: [
     // Untracked signals
@@ -632,6 +684,19 @@ export const cases = run("reactivity", rule, {
         const value = props.value;
         return <div>{value()}</div>;
       }`,
+      errors: [{ messageId: "untrackedReactive" }],
+    },
+    // settings.solid.moduleSources registers custom renderers/re-export
+    // wrappers as Solid primitive sources (#183)
+    {
+      code: `
+      import { createSignal } from "my-solid-renderer";
+      const Component = () => {
+        const [count] = createSignal(0);
+        const doubled = count() * 2;
+        return <div>{doubled}</div>;
+      };`,
+      settings: { solid: { moduleSources: ["my-solid-renderer"] } },
       errors: [{ messageId: "untrackedReactive" }],
     },
     {

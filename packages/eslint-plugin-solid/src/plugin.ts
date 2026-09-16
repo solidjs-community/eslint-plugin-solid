@@ -14,6 +14,7 @@ import jsxNoScriptUrl from "./rules/jsx-no-script-url.js";
 import jsxNoUndef from "./rules/jsx-no-undef.js";
 import jsxUsesVars from "./rules/jsx-uses-vars.js";
 import noAccessorAsProp from "./rules/no-accessor-as-prop.js";
+import noBooleanEnumeratedAttribute from "./rules/no-boolean-enumerated-attribute.js";
 import noBrowserGlobalsInServerFunction from "./rules/no-browser-globals-in-server-function.js";
 import noDestructure from "./rules/no-destructure.js";
 import noInnerHTML from "./rules/no-innerhtml.js";
@@ -24,7 +25,10 @@ import noReactDeps from "./rules/no-react-deps.js";
 import noReactSpecificProps from "./rules/no-react-specific-props.js";
 import noRestatedDefaultOptions from "./rules/no-restated-default-options.js";
 import noSingleArgCreateEffect from "./rules/no-single-arg-create-effect.js";
+import noStoreMutationOutsideSetter from "./rules/no-store-mutation-outside-setter.js";
 import noUnknownNamespaces from "./rules/no-unknown-namespaces.js";
+import noUnusedSignal from "./rules/no-unused-signal.js";
+import noWriteInPureComputation from "./rules/no-write-in-pure-computation.js";
 import preferClasslist from "./rules/prefer-classlist.js";
 import preferFor from "./rules/prefer-for.js";
 import preferOnSettledForSideEffects from "./rules/prefer-onSettled-for-side-effects.js";
@@ -53,6 +57,7 @@ const allRules = {
   "jsx-no-script-url": jsxNoScriptUrl,
   "jsx-uses-vars": jsxUsesVars,
   "no-accessor-as-prop": noAccessorAsProp,
+  "no-boolean-enumerated-attribute": noBooleanEnumeratedAttribute,
   "no-browser-globals-in-server-function": noBrowserGlobalsInServerFunction,
   "no-destructure": noDestructure,
   "no-innerhtml": noInnerHTML,
@@ -63,7 +68,10 @@ const allRules = {
   "no-react-specific-props": noReactSpecificProps,
   "no-restated-default-options": noRestatedDefaultOptions,
   "no-single-arg-create-effect": noSingleArgCreateEffect,
+  "no-store-mutation-outside-setter": noStoreMutationOutsideSetter,
   "no-unknown-namespaces": noUnknownNamespaces,
+  "no-unused-signal": noUnusedSignal,
+  "no-write-in-pure-computation": noWriteInPureComputation,
   "prefer-classlist": preferClasslist,
   "prefer-for": preferFor,
   "prefer-onSettled-for-side-effects": preferOnSettledForSideEffects,
