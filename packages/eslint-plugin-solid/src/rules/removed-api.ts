@@ -1,7 +1,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { findVariable } from "../compat";
-import { jsxGetProp } from "../utils";
+import { findVariable } from "../compat.js";
+import { jsxGetProp } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -107,7 +107,7 @@ export default createRule<Options, MessageIds>({
     const renameFix = (
       fixer: TSESLint.RuleFixer,
       specifier: T.ImportSpecifier,
-      replacement: string
+      replacement: string,
     ): Array<TSESLint.RuleFix> => {
       const fixes: Array<TSESLint.RuleFix> = [];
       const aliased = specifier.local.range[0] !== specifier.imported.range[0];
@@ -137,7 +137,7 @@ export default createRule<Options, MessageIds>({
             fix: (fixer) =>
               fixer.replaceText(
                 node.source,
-                node.source.raw.replace("solid-js/web", "@solidjs/web")
+                node.source.raw.replace("solid-js/web", "@solidjs/web"),
               ),
           });
         }
@@ -182,13 +182,13 @@ export default createRule<Options, MessageIds>({
                 (s) =>
                   s.type === "ImportSpecifier" &&
                   STORE_MOVED.has(
-                    s.imported.type === "Identifier" ? s.imported.name : s.imported.value
-                  )
+                    s.imported.type === "Identifier" ? s.imported.name : s.imported.value,
+                  ),
               )
                 ? (fixer) =>
                     fixer.replaceText(
                       node.source,
-                      node.source.raw.replace("solid-js/store", "solid-js")
+                      node.source.raw.replace("solid-js/store", "solid-js"),
                     )
                 : undefined,
             });

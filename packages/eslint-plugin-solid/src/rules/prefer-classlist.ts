@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
-import { jsxHasProp, jsxPropName } from "../utils";
+import { jsxHasProp, jsxPropName } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 

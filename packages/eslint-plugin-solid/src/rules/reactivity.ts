@@ -22,8 +22,8 @@ import {
   isSolidV2,
   trace,
   createNameMatcher,
-} from "../utils";
-import { findVariable, getScope, CompatContext, getSourceCode } from "../compat";
+} from "../utils.js";
+import { findVariable, getScope, CompatContext, getSourceCode } from "../compat.js";
 
 const { getFunctionHeadLocation } = ASTUtils;
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -93,7 +93,7 @@ class ScopeStack extends Array<ScopeStackItem> {
   /** Add references to a signal, memo, derived signal, etc. */
   pushSignal(
     variable: Variable,
-    declarationScope: ProgramOrFunctionNode = this.currentScope().node
+    declarationScope: ProgramOrFunctionNode = this.currentScope().node,
   ) {
     this.signals.push({
       references: variable.references.filter((reference) => !reference.init),
@@ -115,7 +115,7 @@ class ScopeStack extends Array<ScopeStackItem> {
     } else {
       foundSignal.declarationScope = this.findDeepestDeclarationScope(
         foundSignal.declarationScope,
-        declarationScope
+        declarationScope,
       );
     }
   }
@@ -123,7 +123,7 @@ class ScopeStack extends Array<ScopeStackItem> {
   /** Add references to a props or store. */
   pushProps(
     variable: Variable,
-    declarationScope: ProgramOrFunctionNode = this.currentScope().node
+    declarationScope: ProgramOrFunctionNode = this.currentScope().node,
   ) {
     this.props.push({
       references: variable.references.filter((reference) => !reference.init),
@@ -151,7 +151,7 @@ class ScopeStack extends Array<ScopeStackItem> {
   }
 
   private *consumeReferencesInScope(
-    variables: Array<ReactiveVariable>
+    variables: Array<ReactiveVariable>,
   ): Iterable<{ reference: Reference; declarationScope: ProgramOrFunctionNode }> {
     for (const variable of variables) {
       const { references } = variable;
@@ -176,7 +176,7 @@ class ScopeStack extends Array<ScopeStackItem> {
   /** Returns the function node deepest in the tree. Assumes a === b, a is inside b, or b is inside a. */
   private findDeepestDeclarationScope = (
     a: ProgramOrFunctionNode,
-    b: ProgramOrFunctionNode
+    b: ProgramOrFunctionNode,
   ): ProgramOrFunctionNode => {
     if (a === b) return a;
     for (let i = this.length - 1; i >= 0; i -= 1) {
@@ -345,10 +345,10 @@ export default createRule<Options, MessageIds>({
       const def = variable?.defs[0];
       return Boolean(
         def &&
-          def.node.type === "VariableDeclarator" &&
-          def.node.init?.type === "CallExpression" &&
-          def.node.init.callee.type === "Identifier" &&
-          matchImport("createContext", def.node.init.callee.name)
+        def.node.type === "VariableDeclarator" &&
+        def.node.init?.type === "CallExpression" &&
+        def.node.init.callee.type === "Identifier" &&
+        matchImport("createContext", def.node.init.callee.name),
       );
     };
 
@@ -457,7 +457,7 @@ export default createRule<Options, MessageIds>({
           return node === trackedScope.node;
         case "expression":
           return Boolean(
-            findInScope(node, currentScope().node, (node) => node === trackedScope.node)
+            findInScope(node, currentScope().node, (node) => node === trackedScope.node),
           );
       }
     };
@@ -526,7 +526,7 @@ export default createRule<Options, MessageIds>({
      */
     const isCapturedInReturnedFunction = (
       node: T.Node,
-      boundary: ProgramOrFunctionNode
+      boundary: ProgramOrFunctionNode,
     ): boolean => {
       // Find the outermost function strictly inside `boundary` containing `node`.
       let outermost: FunctionNode | null = null;
@@ -564,17 +564,17 @@ export default createRule<Options, MessageIds>({
     /** Inspects a specific reference of a reactive variable for correct handling. */
     const handleTrackedScopes = (
       identifier: T.Identifier,
-      declarationScope: ProgramOrFunctionNode
+      declarationScope: ProgramOrFunctionNode,
     ) => {
       const currentScopeNode = currentScope().node;
       // Check if the call falls outside any tracked scopes in the current scope
       if (
         !currentScope().trackedScopes.find((trackedScope) =>
-          matchTrackedScope(trackedScope, identifier)
+          matchTrackedScope(trackedScope, identifier),
         )
       ) {
         const matchedExpression = currentScope().trackedScopes.find((trackedScope) =>
-          matchTrackedScope({ ...trackedScope, expect: "expression" }, identifier)
+          matchTrackedScope({ ...trackedScope, expect: "expression" }, identifier),
         );
         if (declarationScope === currentScopeNode) {
           // If the reactivity is not contained in a tracked scope, and any of
@@ -594,15 +594,15 @@ export default createRule<Options, MessageIds>({
           // Reads inside a context provider's `value={...}` get a specific message; the
           // value is read once, untracked, when the provider is created.
           const inProviderValue = Boolean(
-            findParent(identifier, (n) => providerValueContainers.has(n))
+            findParent(identifier, (n) => providerValueContainers.has(n)),
           );
           context.report({
             node: parentMemberExpression ?? parentCallExpression ?? identifier,
             messageId: inProviderValue
               ? "providerValue"
               : matchedExpression
-              ? "expectedFunctionGotExpression"
-              : "untrackedReactive",
+                ? "expectedFunctionGotExpression"
+                : "untrackedReactive",
             data: {
               name: parentMemberExpression
                 ? sourceCode.getText(parentMemberExpression)
@@ -646,7 +646,7 @@ export default createRule<Options, MessageIds>({
             if (functionVariable) {
               scopeStack.pushUniqueSignal(
                 functionVariable,
-                declarationScope // use declaration scope of a signal contained in this function
+                declarationScope, // use declaration scope of a signal contained in this function
               );
             } else {
               pushUnnamedDerivedSignal();
@@ -782,7 +782,7 @@ export default createRule<Options, MessageIds>({
             !currentScope().trackedScopes.find(
               (trackedScope) =>
                 trackedScope.node === identifier &&
-                (trackedScope.expect === "function" || trackedScope.expect === "called-function")
+                (trackedScope.expect === "function" || trackedScope.expect === "called-function"),
             )
           ) {
             // If the signal is in a JSXExpressionContainer that's also marked as a "function" or "called-function" tracked scope,
@@ -894,7 +894,7 @@ export default createRule<Options, MessageIds>({
         for (const node of unnamedDerivedSignals) {
           if (
             !currentScope().trackedScopes.find((trackedScope) =>
-              matchTrackedScope(trackedScope, node)
+              matchTrackedScope(trackedScope, node),
             )
           ) {
             context.report({
@@ -942,7 +942,7 @@ export default createRule<Options, MessageIds>({
           !node.callee.computed &&
           node.callee.object.type !== "ObjectExpression" &&
           /^(?:forEach|map|flatMap|reduce|reduceRight|find|findIndex|filter|every|some)$/.test(
-            node.callee.property.name
+            node.callee.property.name,
           )
         ) {
           // These common array methods (or likely array methods) take synchronous callbacks
@@ -953,7 +953,7 @@ export default createRule<Options, MessageIds>({
         if (
           matchImport(
             ["createSignal", "createStore", "createOptimistic", "createOptimisticStore"],
-            node.callee.name
+            node.callee.name,
           ) &&
           node.parent?.type === "VariableDeclarator"
         ) {
@@ -993,7 +993,7 @@ export default createRule<Options, MessageIds>({
     /** Checks VariableDeclarators, AssignmentExpressions, and CallExpressions for reactivity. */
     const checkForReactiveAssignment = (
       id: T.BindingName | T.AssignmentExpression["left"] | null,
-      init: T.Node
+      init: T.Node,
     ) => {
       init = ignoreTransparentWrappers(init);
 
@@ -1100,12 +1100,12 @@ export default createRule<Options, MessageIds>({
         | T.VariableDeclarator
         | T.AssignmentExpression
         | T.TaggedTemplateExpression
-        | T.NewExpression
+        | T.NewExpression,
     ) => {
       const pushTrackedScope = (
         node: T.Node,
         expect: TrackedScope["expect"],
-        allowAsync = false
+        allowAsync = false,
       ) => {
         currentScope().trackedScopes.push({ node, expect });
         if (
@@ -1149,7 +1149,7 @@ export default createRule<Options, MessageIds>({
                 traced.callee.type === "Identifier" &&
                 matchImport(
                   ["createMemo", "createSelector", "children", "createProjection"],
-                  traced.callee.name
+                  traced.callee.name,
                 ))
             ) {
               pushTrackedScope(childNode, "called-function");
@@ -1282,7 +1282,7 @@ export default createRule<Options, MessageIds>({
                 "createLoadingBoundary",
                 "createRevealOrder",
               ],
-              callee.name
+              callee.name,
             )
           ) {
             // createEffect, createMemo, etc. fn arg. createMemo may take an async
@@ -1340,7 +1340,7 @@ export default createRule<Options, MessageIds>({
                 "createOptimistic",
                 "createOptimisticStore",
               ],
-              callee.name
+              callee.name,
             ) &&
             isFunctionNode(arg0)
           ) {
@@ -1415,13 +1415,13 @@ export default createRule<Options, MessageIds>({
                   // has moved on from that scope already, assume it's tracked, since that's less intrusive.
                   const ownerFunction = findParent(decl.node, isProgramOrFunctionNode);
                   const scopeStackIndex = scopeStack.findIndex(
-                    ({ node }) => ownerFunction === node
+                    ({ node }) => ownerFunction === node,
                   );
                   if (
                     (scopeStackIndex >= 1 &&
                       !scopeStack[scopeStackIndex - 1].trackedScopes.some(
                         (trackedScope) =>
-                          trackedScope.expect === "function" && trackedScope.node === ownerFunction
+                          trackedScope.expect === "function" && trackedScope.node === ownerFunction,
                       )) ||
                     scopeStackIndex === 0
                   ) {
@@ -1447,7 +1447,7 @@ export default createRule<Options, MessageIds>({
             parentScope()?.trackedScopes.some(
               (trackedScope) =>
                 (trackedScope.expect === "function" || trackedScope.expect === "called-function") &&
-                trackedScope.node === currentScope().node
+                trackedScope.node === currentScope().node,
             )
           ) {
             // An unknown call inside a tracked scope (e.g. a helper called in an effect
@@ -1648,7 +1648,7 @@ export default createRule<Options, MessageIds>({
                 (attr): attr is T.JSXAttribute =>
                   attr.type === "JSXAttribute" &&
                   attr.name.type === "JSXIdentifier" &&
-                  attr.name.name === "keyed"
+                  attr.name.name === "keyed",
               );
               let itemIsSignal = false;
               let indexIsSignal = true;

@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/style-prop";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/style-prop.js";
 
 export const cases = run("style-prop", rule, {
   valid: [

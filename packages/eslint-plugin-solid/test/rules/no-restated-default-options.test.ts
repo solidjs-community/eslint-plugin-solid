@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/no-restated-default-options";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/no-restated-default-options.js";
 
 // The global vitest setup mocks trackImports with bare name matching, so these
 // cases behave identically with or without the mock. The import-gating cases

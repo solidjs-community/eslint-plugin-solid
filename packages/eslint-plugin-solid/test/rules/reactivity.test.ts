@@ -1,5 +1,5 @@
-import { run, tsOnly } from "../ruleTester";
-import rule from "../../src/rules/reactivity";
+import { run, tsOnly } from "../ruleTester.js";
+import rule from "../../src/rules/reactivity.js";
 
 export const cases = run("reactivity", rule, {
   valid: [

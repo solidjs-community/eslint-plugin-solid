@@ -7,8 +7,8 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { isJSXElementOrFragment } from "../utils";
-import { getSourceCode } from "../compat";
+import { isJSXElementOrFragment } from "../utils.js";
+import { getSourceCode } from "../compat.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 

@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/no-module-scope-reactive-primitive";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/no-module-scope-reactive-primitive.js";
 
 export const cases = run("no-module-scope-reactive-primitive", rule, {
   valid: [

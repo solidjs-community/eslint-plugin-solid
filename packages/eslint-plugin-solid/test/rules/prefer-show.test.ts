@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/prefer-show";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/prefer-show.js";
 
 export const cases = run("prefer-show", rule, {
   valid: [

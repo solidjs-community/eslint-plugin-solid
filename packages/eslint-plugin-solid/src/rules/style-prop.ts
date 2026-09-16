@@ -10,8 +10,8 @@ import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
 import kebabCase from "kebab-case";
 import { all as allCssProperties } from "known-css-properties";
 import parse from "style-to-object";
-import { jsxPropName } from "../utils";
-import { getScope } from "../compat";
+import { jsxPropName } from "../utils.js";
+import { getScope } from "../compat.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getPropertyName, getStaticValue } = ASTUtils;

@@ -7,7 +7,13 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { isFunctionNode, getSolidSourceRegex, trackImports, isPropsByName, trace } from "../utils";
+import {
+  isFunctionNode,
+  getSolidSourceRegex,
+  trackImports,
+  isPropsByName,
+  trace,
+} from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 

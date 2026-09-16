@@ -27,7 +27,7 @@ vi.mock("./src/utils", async (importOriginal) => {
       const matchImport = (imports, str) => {
         const importArr = Array.isArray(imports) ? imports : [imports];
         return importArr.find((i) =>
-          aliases.has(i) ? aliases.get(i) === str : !blocked.has(i) && i === str
+          aliases.has(i) ? aliases.get(i) === str : !blocked.has(i) && i === str,
         );
       };
       return { matchImport, handleImportDeclaration };

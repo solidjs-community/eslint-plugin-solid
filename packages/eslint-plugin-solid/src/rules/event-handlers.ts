@@ -7,8 +7,8 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
-import { isDOMElementName, isSolidV2 } from "../utils";
-import { getScope, getSourceCode } from "../compat";
+import { isDOMElementName, isSolidV2 } from "../utils.js";
+import { getScope, getSourceCode } from "../compat.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStaticValue } = ASTUtils;

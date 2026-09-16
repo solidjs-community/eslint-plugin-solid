@@ -8,7 +8,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import { ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
 import isHtml from "is-html";
-import { jsxPropName } from "../utils";
+import { jsxPropName } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStringIfConstant } = ASTUtils;

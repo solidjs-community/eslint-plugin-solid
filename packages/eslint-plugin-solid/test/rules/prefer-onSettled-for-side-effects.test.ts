@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/prefer-onSettled-for-side-effects";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/prefer-onSettled-for-side-effects.js";
 
 export const cases = run("prefer-onSettled-for-side-effects", rule, {
   valid: [

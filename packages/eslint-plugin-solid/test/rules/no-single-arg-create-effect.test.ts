@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/no-single-arg-create-effect";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/no-single-arg-create-effect.js";
 
 export const cases = run("no-single-arg-create-effect", rule, {
   valid: [

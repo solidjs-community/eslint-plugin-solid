@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { ESLintUtils } from "@typescript-eslint/utils";
-import { findParent, isFunctionNode, getSolidSourceRegex, trackImports } from "../utils";
+import { findParent, isFunctionNode, getSolidSourceRegex, trackImports } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 

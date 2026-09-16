@@ -1,6 +1,6 @@
 import { TSESTree as T, TSESLint, ESLintUtils } from "@typescript-eslint/utils";
-import { appendImports, insertImports, isSolidV2, removeSpecifier } from "../utils";
-import { getSourceCode } from "../compat";
+import { appendImports, insertImports, isSolidV2, removeSpecifier } from "../utils.js";
+import { getSourceCode } from "../compat.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -275,8 +275,8 @@ export default createRule({
                 ? typeMapV2
                 : primitiveMapV2
               : isType
-              ? typeMap
-              : primitiveMap;
+                ? typeMap
+                : primitiveMap;
             const importedName =
               specifier.imported.type === "Identifier"
                 ? specifier.imported.name
@@ -299,7 +299,7 @@ export default createRule({
                   const program: T.Program = sourceCode.ast;
                   const correctDeclaration = program.body.find(
                     (node) =>
-                      node.type === "ImportDeclaration" && node.source.value === correctSource
+                      node.type === "ImportDeclaration" && node.source.value === correctSource,
                   ) as T.ImportDeclaration | undefined;
 
                   if (correctDeclaration) {
@@ -314,7 +314,7 @@ export default createRule({
                   const firstSolidDeclaration = program.body.find(
                     (node) =>
                       node.type === "ImportDeclaration" &&
-                      (v2 ? isSourceV2(node.source.value) : isSource(node.source.value))
+                      (v2 ? isSourceV2(node.source.value) : isSource(node.source.value)),
                   ) as T.ImportDeclaration | undefined;
                   return [
                     removeSpecifier(fixer, sourceCode, specifier),
@@ -324,7 +324,7 @@ export default createRule({
                       correctSource,
                       [sourceCode.getText(specifier)],
                       firstSolidDeclaration,
-                      node.importKind === "type"
+                      node.importKind === "type",
                     ),
                   ];
                 },

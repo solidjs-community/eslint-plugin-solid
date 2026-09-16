@@ -90,7 +90,7 @@ export default createRule<Options, MessageIds>({
               !(
                 ref.identifier.parent?.type === "CallExpression" &&
                 ref.identifier.parent.arguments[1] === ref.identifier
-              )
+              ),
           )
         ) {
           return true;
@@ -104,7 +104,7 @@ export default createRule<Options, MessageIds>({
           ((property.key.type === "Identifier"
             ? property.key.name === "ownedWrite"
             : property.key.type === "Literal" && property.key.value === "ownedWrite") &&
-            !(property.value.type === "Literal" && property.value.value === false))
+            !(property.value.type === "Literal" && property.value.value === false)),
       );
     };
 
@@ -124,7 +124,7 @@ export default createRule<Options, MessageIds>({
       }
       const primitive = matchImport(
         ["createSignal", "createStore", "createOptimistic"],
-        init.callee.name
+        init.callee.name,
       );
       if (!primitive) return false;
       // `ownedWrite` is a SignalOptions flag; store setters have no such

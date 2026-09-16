@@ -60,15 +60,15 @@ export default createRule<Options, MessageIds>({
         }
         const primitive = matchImport(
           ["createSignal", "createStore", "createOptimistic"],
-          node.init.callee.name
+          node.init.callee.name,
         );
         if (!primitive) return;
         const kind =
           primitive === "createSignal"
             ? "signal"
             : primitive === "createStore"
-            ? "store"
-            : "optimistic value";
+              ? "store"
+              : "optimistic value";
         // Only plain `[accessor, setter]` shapes (with possible holes) are conclusive.
         const [accessor = null, setter = null] = node.id.elements;
         if (
@@ -101,7 +101,7 @@ export default createRule<Options, MessageIds>({
                         node,
                         `${accessor.name} = () => ${
                           initialValue ? getSourceCode(context).getText(initialValue) : "undefined"
-                        }`
+                        }`,
                       ),
                   },
                 ]

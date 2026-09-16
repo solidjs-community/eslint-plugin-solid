@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/jsx-no-undef";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/jsx-no-undef.js";
 
 // The bulk of the testing of this rule is done in eslint-plugin-react,
 // so we just test the custom directives part of it here.

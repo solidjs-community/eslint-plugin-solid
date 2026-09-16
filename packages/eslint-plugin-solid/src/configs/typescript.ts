@@ -1,7 +1,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import type { Linter } from "eslint";
 
-import recommended from "./recommended";
+import recommended from "./recommended.js";
 
 const typescript = {
   // no files; either apply to all files, or let users spread in this config
@@ -18,4 +18,4 @@ const typescript = {
   },
 } satisfies TSESLint.FlatConfig.Config;
 
-export = typescript;
+export default typescript;

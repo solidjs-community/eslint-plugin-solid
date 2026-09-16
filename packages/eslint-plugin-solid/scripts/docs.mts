@@ -15,14 +15,14 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { rules, configs } = plugin;
 
-const recommendedRules: Record<string, unknown> = configs.recommended.rules;
+const recommendedRules = configs.recommended.rules;
 
 const ruleTableRows = (Object.keys(rules) as Array<keyof typeof rules & string>)
   .sort()
   .map((id) => {
     const { fixable, docs } = rules[id].meta;
     return [
-      recommendedRules[`solid/${id}`] ? "✔" : "",
+      recommendedRules![`solid/${id}`] ? "✔" : "",
       fixable ? "🔧" : "",
       `[solid/${id}](/packages/eslint-plugin-solid/docs/${id}.md)`,
       docs?.description,
@@ -59,8 +59,8 @@ const getLevelForRule = (
   ruleName: `solid/${string}`,
   formatter: (options: Options) => string
 ): string =>
-  ruleName in configs.recommended.rules
-    ? formatter(configs.recommended.rules[ruleName as keyof typeof configs.recommended.rules])
+  ruleName in configs.recommended.rules!
+    ? formatter(configs.recommended.rules![ruleName as keyof typeof configs.recommended.rules]!)
     : formatter(0);
 
 const buildRulesTable = (rows: Array<string>) => {
@@ -130,7 +130,10 @@ const buildOptions = (filename: string): string => {
   ].join("\n");
 };
 
-const pretty = (code: string) => prettier.format(code, { parser: "typescript" }).trim();
+const pretty = async (code: string) => {
+  const formatted = await prettier.format(code, { parser: "typescript" });
+  return formatted.trim();
+};
 const options = (options: Array<any>) =>
   options
     .map((o) =>
@@ -166,20 +169,20 @@ const buildCases = async (content: string, filename: string) => {
       someFixed ? ", and some can be auto-fixed" : ""
     }.\n`,
     "```js",
-    invalid.map((c: any) => [
+    await Promise.all(invalid.map(async (c: any) => [
       c.options && `/* eslint solid/${ruleName}: ["error", ${options(c.options)}] */`,
-      pretty(c.code),
-      c.output && "// after eslint --fix:\n" + pretty(c.output),
+      (await pretty(c.code)),
+      c.output && "// after eslint --fix:\n" + (await pretty(c.output)),
       " ",
-    ]),
+    ])),
     "```\n",
     "### Valid Examples\n",
     "These snippets don't cause lint errors.\n",
     "```js",
-    valid.map((c: any) => [
+    await Promise.all(valid.map(async (c: any) => [
       c.options && `/* eslint solid/${ruleName}: ["error", ${options(c.options)}] */`,
-      pretty(c.code) + "\n",
-    ]),
+      (await pretty(c.code)) + "\n",
+    ])),
     "```",
   ]
     .flat(3)

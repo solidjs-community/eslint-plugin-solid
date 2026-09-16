@@ -7,7 +7,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { isSolidV2, jsxGetAllProps } from "../utils";
+import { isSolidV2, jsxGetAllProps } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 

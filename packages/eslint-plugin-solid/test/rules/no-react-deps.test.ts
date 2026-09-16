@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/no-react-deps";
+import { run } from "../ruleTester.js";
+import rule from "../../src/rules/no-react-deps.js";
 
 export const cases = run("no-react-deps", rule, {
   valid: [

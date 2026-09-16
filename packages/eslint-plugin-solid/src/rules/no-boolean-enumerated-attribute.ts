@@ -197,7 +197,7 @@ export default createRule<Options, MessageIds>({
                 fix: (fixer) =>
                   fixer.replaceText(
                     node.value!,
-                    `{${sourceCode.getText(expression)} ? "${trueToken}" : "${falseToken}"}`
+                    `{${sourceCode.getText(expression)} ? "${trueToken}" : "${falseToken}"}`,
                   ),
               },
             ],
