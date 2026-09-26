@@ -208,11 +208,11 @@ missed 1.x mistakes for zero new false positives.
 
 ### Reads after `await`/`yield` in async computations
 
-Async computations (`createMemo(async () => ...)` and the function-form derived primitives) only
-track reactive reads that happen synchronously, before the computation first suspends at an
-`await` or `yield`. A read placed after the first suspension point is not tracked—in Solid 1.x it
-behaves like a read in an event handler, and in Solid 2.0 it can observe unpredictable,
-mid-transition state. The rule reports these reads specifically:
+Async computations (`createMemo(async () => ...)`, `dynamic(async () => ...)`, and the function-form
+derived primitives) only track reactive reads that happen synchronously, before the computation
+first suspends at an `await` or `yield`. A read placed after the first suspension point is not
+tracked—in Solid 1.x it behaves like a read in an event handler, and in Solid 2.0 it can observe
+unpredictable, mid-transition state. The rule reports these reads specifically:
 
 ```jsx
 const [id] = createSignal(1);
@@ -591,6 +591,14 @@ function Component(props) {
   });
   return <div>{data()}</div>;
 }
+
+import { createSignal } from "solid-js";
+import { dynamic } from "@solidjs/web";
+const [count, setCount] = createSignal(1);
+const Test = dynamic(async () => {
+  await tick();
+  return test(count());
+});
 
 const [count, setCount] = createSignal(1);
 const [derived, setDerived] = createSignal(async () => {
@@ -1301,6 +1309,14 @@ import { dynamic } from "@solidjs/web";
 function Component() {
   const [count, setCount] = createSignal(0);
   const Test = dynamic(() => test(count()));
+  return <Test />;
+}
+
+import { createSignal } from "solid-js";
+import { dynamic } from "@solidjs/web";
+function Component() {
+  const [count, setCount] = createSignal(0);
+  const Test = dynamic(async () => test(count()));
   return <Test />;
 }
 

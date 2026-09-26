@@ -1286,9 +1286,13 @@ export default createRule<Options, MessageIds>({
               callee.name
             )
           ) {
-            // createEffect, createMemo, etc. fn arg. createMemo may take an async
-            // function in Solid 2.0; only reads before its first `await` are tracked.
-            pushTrackedScope(arg0, "function", Boolean(matchImport("createMemo", callee.name)));
+            // createEffect, createMemo, etc. fn arg. createMemo and dynamic may take an
+            // async function in Solid 2.0; only reads before its first `await` are tracked.
+            pushTrackedScope(
+              arg0,
+              "function",
+              Boolean(matchImport(["createMemo", "dynamic"], callee.name))
+            );
             if (
               matchImport(["createErrorBoundary", "createLoadingBoundary"], callee.name) &&
               arg1

@@ -578,6 +578,14 @@ export const cases = run("reactivity", rule, {
       const Test = dynamic(() => test(count()));
       return <Test />;
     }`,
+    // dynamic accepts an async source; reads before the first await are tracked
+    `import { createSignal } from "solid-js";
+    import { dynamic } from "@solidjs/web";
+    function Component() {
+      const [count, setCount] = createSignal(0);
+      const Test = dynamic(async () => test(count()));
+      return <Test />;
+    }`,
     // repeat takes a count accessor and a map function
     `const [count, setCount] = createSignal(5);
     const items = repeat(() => count(), (index) => index * 2);`,
@@ -1252,6 +1260,18 @@ export const cases = run("reactivity", rule, {
         return <div>{data()}</div>;
       }`,
       errors: [{ messageId: "readAfterAwait", line: 5 }],
+    },
+    // dynamic's async source does not track reads after await
+    {
+      code: `
+      import { createSignal } from "solid-js";
+      import { dynamic } from "@solidjs/web";
+      const [count, setCount] = createSignal(1);
+      const Test = dynamic(async () => {
+        await tick();
+        return test(count());
+      });`,
+      errors: [{ messageId: "readAfterAwait", line: 7 }],
     },
     // function-form createSignal with a read after await
     {
