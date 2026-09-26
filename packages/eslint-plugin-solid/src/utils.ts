@@ -31,9 +31,11 @@ export function getSolidVersion(context: HasSettings): number | null {
 /** Whether the targeted Solid version is 2.x or later. */
 export const isSolidV2 = (context: HasSettings): boolean => (getSolidVersion(context) ?? 0) >= 2;
 
-// Matches "solid-js", its submodules ("solid-js/store", etc.), and the Solid 2.0
-// "@solidjs/signals" package, which re-exports the core reactive primitives.
-const DEFAULT_SOURCE_REGEX = /^(?:solid-js(?:\/?|\b)|@solidjs\/signals(?:\/?|\b))/;
+// Matches "solid-js", its submodules ("solid-js/store", etc.), the Solid 2.0
+// "@solidjs/signals" package, which re-exports the core reactive primitives, and
+// "@solidjs/web", which replaces "solid-js/web".
+const DEFAULT_SOURCE_REGEX =
+  /^(?:solid-js(?:\/?|\b)|@solidjs\/signals(?:\/?|\b)|@solidjs\/web(?:\/?|\b))/;
 
 /**
  * The module sources whose exports are treated as Solid's primitives. Custom

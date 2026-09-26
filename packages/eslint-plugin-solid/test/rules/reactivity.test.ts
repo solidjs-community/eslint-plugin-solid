@@ -570,6 +570,14 @@ export const cases = run("reactivity", rule, {
         flush(() => console.log(count()));
       });
     }`,
+    // dynamic tracks its source function
+    `import { createSignal } from "solid-js";
+    import { dynamic } from "@solidjs/web";
+    function Component() {
+      const [count, setCount] = createSignal(0);
+      const Test = dynamic(() => test(count()));
+      return <Test />;
+    }`,
     // repeat takes a count accessor and a map function
     `const [count, setCount] = createSignal(5);
     const items = repeat(() => count(), (index) => index * 2);`,
@@ -1066,6 +1074,18 @@ export const cases = run("reactivity", rule, {
         createEffect(() => runWithOwner(owner, () => console.log(signal())));
       }`,
       errors: [{ messageId: "badUnnamedDerivedSignal", line: 5 }],
+    },
+    // a `dynamic` not imported from Solid is not a tracked scope
+    {
+      code: `
+      import { createSignal } from "solid-js";
+      import { dynamic } from "some-lib";
+      function Component() {
+        const [count, setCount] = createSignal(0);
+        const Test = dynamic(() => test(count()));
+        return <Test />;
+      }`,
+      errors: [{ messageId: "badUnnamedDerivedSignal", line: 6 }],
     },
     // Async tracking scopes
     {

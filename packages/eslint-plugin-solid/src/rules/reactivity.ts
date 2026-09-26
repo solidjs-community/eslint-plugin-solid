@@ -1281,6 +1281,7 @@ export default createRule<Options, MessageIds>({
                 "createErrorBoundary",
                 "createLoadingBoundary",
                 "createRevealOrder",
+                "dynamic",
               ],
               callee.name
             )
