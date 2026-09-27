@@ -19,6 +19,9 @@ const recommended = {
     "solid/jsx-no-duplicate-props": 2,
     "solid/jsx-no-undef": 2,
     "solid/jsx-uses-vars": 2,
+    // replaces the core rule, which can't see the compiler's `ref={el}` assignment
+    "no-unassigned-vars": 0,
+    "solid/no-unassigned-vars": 2,
     "solid/no-unknown-namespaces": 2,
     // security problems
     "solid/no-innerhtml": 2,
