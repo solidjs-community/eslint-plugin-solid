@@ -218,6 +218,7 @@ version-aware rule behavior, and enable the 2.0 rules (`solid/removed-api`,
 <!-- doc-gen RULES -->
 | ✔ | 🔧 | Rule | Description |
 | :---: | :---: | :--- | :--- |
+|  | 🔧 | [solid/action-yield-after-await](/packages/eslint-plugin-solid/docs/action-yield-after-await.md) | Require a bare yield after await in Solid action generators. |
 | ✔ | 🔧 | [solid/components-return-once](/packages/eslint-plugin-solid/docs/components-return-once.md) | Disallow early returns in components. Solid components only run once, and so conditionals should be inside JSX. |
 | ✔ | 🔧 | [solid/event-handlers](/packages/eslint-plugin-solid/docs/event-handlers.md) | Enforce naming DOM element event handlers consistently and prevent Solid's analysis from misunderstanding whether a prop should be an event handler. |
 | ✔ | 🔧 | [solid/imports](/packages/eslint-plugin-solid/docs/imports.md) | Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store". |
