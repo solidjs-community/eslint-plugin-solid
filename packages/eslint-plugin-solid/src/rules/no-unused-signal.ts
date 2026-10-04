@@ -2,7 +2,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { findVariable, getSourceCode } from "../compat";
-import { findParent, getSolidSourceRegex, trackImports } from "../utils";
+import { getSolidSourceRegex, isFunctionNode, trace, trackImports } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -77,13 +77,31 @@ export default createRule<Options, MessageIds>({
         ) {
           return;
         }
-        // Exported signals can be read or written by other modules.
-        if (findParent(node, (n) => n.type === "ExportNamedDeclaration")) return;
+        // Exported signals can be read or written by other modules. Only the
+        // directly-exported declaration (`export const [a, setA] = ...`) is
+        // exempt; a tuple declared *inside* an exported function can't be
+        // reached from other modules, so it's still conclusively analyzable.
+        if (
+          node.parent?.type === "VariableDeclaration" &&
+          node.parent.parent?.type === "ExportNamedDeclaration"
+        ) {
+          return;
+        }
 
         if (!accessor || !isUsed(accessor)) {
           context.report({ node: accessor ?? node.id, messageId: "neverRead", data: { kind } });
           return;
         }
+        // Function-form derived primitives (`createSignal(fn)`, `createStore(fn,
+        // seed)`) change through their source function — Solid 2.0 re-runs it as
+        // a tracked computation — so "never written" is not evidence of dead
+        // state. Skip the neverWritten check whenever the first argument is a
+        // function node or an identifier that provably resolves to one
+        // (`trace` only looks through const bindings, so an unresolvable or
+        // reassigned identifier conservatively keeps the check). neverRead
+        // still applies: an unread derived primitive is dead state either way.
+        const firstArg = node.init.arguments[0];
+        if (firstArg && isFunctionNode(trace(firstArg, context))) return;
         if (!setter || !isUsed(setter)) {
           const init = node.init;
           const initialValue = init.arguments[0];

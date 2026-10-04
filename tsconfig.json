@@ -9,5 +9,11 @@
     "allowImportingTsExtensions": true
   },
   "include": ["packages/eslint-plugin-solid", "packages/eslint-solid-standalone", "test", "scripts"],
-  "exclude": ["**/dist", "**/dist.*", "test/templates-v2"]
+  "exclude": [
+    "**/dist",
+    "**/dist.*",
+    "test/templates-v2",
+    // checked by its own tsconfig against the built dist (see CI)
+    "packages/eslint-plugin-solid/test/types"
+  ]
 }
