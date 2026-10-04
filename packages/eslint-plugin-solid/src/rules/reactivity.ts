@@ -474,6 +474,31 @@ export default createRule<Options, MessageIds>({
       (fn.parent?.type === "ArrowFunctionExpression" && fn.parent.body === fn);
 
     /**
+     * Returns the parent of `fn` for the object-property exemption, looking
+     * through conditional/logical wrappers that only decide *whether* the
+     * function is used, not *where* it lands. The usual way to set an optional
+     * callback property only when one exists is
+     * `{ onDrag: props.onDrag ? (e) => props.onDrag(e) : undefined }` or
+     * `{ onDrag: props.onDrag && ((e) => props.onDrag(e)) }` — the function is
+     * the same property value as the unconditional form, so it must classify
+     * the same way (#235). Functions in a conditional's *test* are actually
+     * called to decide, so they are not looked through.
+     */
+    const getEffectivePropertyParent = (fn: FunctionNode): T.Node | null => {
+      let child: T.Node = fn;
+      let parent: T.Node | null = fn.parent ?? null;
+      while (
+        parent &&
+        ((parent.type === "ConditionalExpression" && child !== parent.test) ||
+          (parent.type === "LogicalExpression" && child === parent.right))
+      ) {
+        child = parent;
+        parent = parent.parent ?? null;
+      }
+      return parent;
+    };
+
+    /**
      * Detects the stale-capture footgun: a signal called at a function's
      * setup level, its result captured in a variable, and that variable read
      * by a function the enclosing function *returns*. The returned function
@@ -661,7 +686,7 @@ export default createRule<Options, MessageIds>({
             } else {
               pushUnnamedDerivedSignal();
             }
-          } else if (currentScopeNode.parent?.type === "Property") {
+          } else if (getEffectivePropertyParent(currentScopeNode)?.type === "Property") {
             // todo make this a unique props or something--for now, just ignore (unsafe)
           } else {
             pushUnnamedDerivedSignal();
@@ -1491,6 +1516,20 @@ export default createRule<Options, MessageIds>({
             // callbacks are called functions, free to poll current reactive values.
             if (node.arguments[0]) {
               pushTrackedScope(node.arguments[0], "called-function");
+            }
+          } else if (
+            property.type === "Identifier" &&
+            ["then", "catch", "finally"].includes(property.name)
+          ) {
+            // Promise callbacks run after the current tick, like timer callbacks:
+            // they poll current values rather than subscribing, exactly as the same
+            // code would after an `await`. Whatever the receiver is — reads inside
+            // the callback are no more wrong there than in a setTimeout — so mark
+            // every callback argument as a called function (#235).
+            for (const arg of node.arguments) {
+              if (arg.type !== "SpreadElement") {
+                pushTrackedScope(arg, "called-function");
+              }
             }
           } else if (
             property.type === "Identifier" &&
