@@ -227,6 +227,43 @@ export const cases = run("reactivity", rule, {
       globalThis.setInterval(() => console.log(count()), 500);
       return <div />;
     }`,
+    // promise callbacks run later and poll current values, like timer
+    // callbacks or code after an await (#235)
+    `function Saver(props) {
+      const commit = () => props.onSaved && props.onSaved();
+      const saveThen = () => {
+        save().then(() => commit());
+      };
+      const saveCatch = () => {
+        save().catch(() => commit());
+      };
+      const saveFinally = () => {
+        save().finally(() => commit());
+      };
+      return <>
+        <button onClick={saveThen}>then</button>
+        <button onClick={saveCatch}>catch</button>
+        <button onClick={saveFinally}>finally</button>
+      </>;
+    }`,
+    // named callbacks and two-argument then get the same treatment (#235)
+    `function Component(props) {
+      const commit = () => props.onDone && props.onDone();
+      const start = () => {
+        load().then(commit, commit);
+      };
+      return <button onClick={start} />;
+    }`,
+    // optional callback properties wrapped in a conditional or logical
+    // expression classify like the unconditional property form (#235)
+    `function Draggable(props) {
+      const options = createMemo(() => ({
+        onDrag: props.onDrag ? (e) => props.onDrag(e) : undefined,
+        onDragEnd: props.onDragEnd && ((e) => props.onDragEnd(e)),
+        onDragStart: (e) => props.onDragStart(e),
+      }));
+      return <div data-draggable={!!options().onDrag} />;
+    }`,
     // mergeProps wraps function sources in createMemo, so they are tracked (#179)
     `function Component(props) {
       const [dynamic, setDynamic] = createSignal({});
@@ -1082,6 +1119,20 @@ export const cases = run("reactivity", rule, {
         createEffect(() => runWithOwner(owner, () => console.log(signal())));
       }`,
       errors: [{ messageId: "badUnnamedDerivedSignal", line: 5 }],
+    },
+    // the conditional look-through (#235) only applies to object property
+    // values; a conditionally-assigned variable is still an unnamed derived
+    // signal, and the condition itself is still an untracked read
+    {
+      code: `
+      function Component(props) {
+        const style = props.big ? () => ({ fontSize: props.size }) : undefined;
+        return <div style={style && style()} />;
+      }`,
+      errors: [
+        { messageId: "untrackedReactive", line: 3 },
+        { messageId: "badUnnamedDerivedSignal", line: 3 },
+      ],
     },
     // a `dynamic` not imported from Solid is not a tracked scope
     {

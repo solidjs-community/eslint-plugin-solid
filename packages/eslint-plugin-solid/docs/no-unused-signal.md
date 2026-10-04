@@ -75,6 +75,19 @@ import { createOptimistic } from "solid-js";
 const [likes, setLikes] = createOptimistic(0);
 console.log(likes());
 
+import { createSignal } from "solid-js";
+export function Exported() {
+  const [unused] = createSignal(0);
+  return <p>{unused()}</p>;
+}
+
+import { createStore } from "solid-js";
+const [data] = createStore(() => api.load(), { items: [] });
+
+import { createSignal } from "solid-js";
+const [count] = createSignal(someValue);
+console.log(count());
+
 import { createSignal } from "my-solid-renderer";
 const [count, setCount] = createSignal(0);
 console.log(count());
@@ -117,6 +130,28 @@ import { createOptimistic } from "solid-js";
 const [likes, setLikes] = createOptimistic(0);
 console.log(likes());
 setLikes(1);
+
+import { createStore } from "solid-js";
+const [data] = createStore(() => api.load(), { items: [] });
+console.log(data.items.length);
+
+import { createSignal } from "solid-js";
+const [count, setCount] = createSignal(0);
+const [doubled] = createSignal(() => count() * 2);
+console.log(doubled());
+setCount(1);
+
+import { createSignal } from "solid-js";
+const compute = () => 2;
+const [doubled] = createSignal(compute);
+console.log(doubled());
+
+import { createSignal } from "solid-js";
+function compute() {
+  return 2;
+}
+const [doubled] = createSignal(compute);
+console.log(doubled());
 
 ```
 <!-- end-doc-gen -->

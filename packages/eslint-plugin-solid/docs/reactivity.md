@@ -485,6 +485,11 @@ function Component() {
   createEffect(() => runWithOwner(owner, () => console.log(signal())));
 }
 
+function Component(props) {
+  const style = props.big ? () => ({ fontSize: props.size }) : undefined;
+  return <div style={style && style()} />;
+}
+
 import { createSignal } from "solid-js";
 import { dynamic } from "some-lib";
 function Component() {
@@ -929,6 +934,43 @@ function Component() {
   window.setTimeout(() => console.log(count()), 500);
   globalThis.setInterval(() => console.log(count()), 500);
   return <div />;
+}
+
+function Saver(props) {
+  const commit = () => props.onSaved && props.onSaved();
+  const saveThen = () => {
+    save().then(() => commit());
+  };
+  const saveCatch = () => {
+    save().catch(() => commit());
+  };
+  const saveFinally = () => {
+    save().finally(() => commit());
+  };
+  return (
+    <>
+      <button onClick={saveThen}>then</button>
+      <button onClick={saveCatch}>catch</button>
+      <button onClick={saveFinally}>finally</button>
+    </>
+  );
+}
+
+function Component(props) {
+  const commit = () => props.onDone && props.onDone();
+  const start = () => {
+    load().then(commit, commit);
+  };
+  return <button onClick={start} />;
+}
+
+function Draggable(props) {
+  const options = createMemo(() => ({
+    onDrag: props.onDrag ? (e) => props.onDrag(e) : undefined,
+    onDragEnd: props.onDragEnd && ((e) => props.onDragEnd(e)),
+    onDragStart: (e) => props.onDragStart(e),
+  }));
+  return <div data-draggable={!!options().onDrag} />;
 }
 
 function Component(props) {
