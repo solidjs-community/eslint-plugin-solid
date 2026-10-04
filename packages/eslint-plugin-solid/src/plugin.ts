@@ -48,7 +48,7 @@ import noArrayHandlers from "./rules/no-array-handlers";
 const { name, version } = require("../package.json");
 const meta = { name, version };
 
-const allRules = {
+export const allRules = {
   "components-return-once": componentsReturnOnce,
   "event-handlers": eventHandlers,
   imports,
@@ -87,4 +87,24 @@ const allRules = {
   // "validate-jsx-nesting": validateJsxNesting
 };
 
-export const plugin = { meta, rules: allRules };
+/*
+ * ESLint's `defineConfig()` / `Plugin` types (from `@eslint/core`) reject
+ * `TSESLint.RuleModule`: its `create` context still declares legacy methods
+ * (`getScope`, `getAncestors`, ...) that ESLint's `RuleContext` dropped, so
+ * the precise types are not assignable (typescript-eslint#11543) even though
+ * the rules work fine at runtime. Until typescript-eslint ships structurally
+ * compatible rule types, declare the *public* rules with a loose structural
+ * type — the same workaround typescript-eslint applies to its own exports
+ * (typescript-eslint#11475), tightened so it is accepted by both ESLint's
+ * `RuleDefinition` and TSESLint's rule types. Rule implementations keep the
+ * precise TSESLint types internally; only the declared type of this export
+ * changes (#233). `allRules` stays exported with precise types for internal
+ * tooling (e.g. docs generation).
+ */
+export interface PublicRuleDefinition {
+  create: (context: any) => Record<string, ((...args: any[]) => void) | undefined>;
+  meta?: object | undefined;
+}
+export type PublicRules = { [K in keyof typeof allRules]: PublicRuleDefinition };
+
+export const plugin = { meta, rules: allRules as PublicRules };

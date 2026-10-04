@@ -1,4 +1,4 @@
-import type { TSESLint } from "@typescript-eslint/utils";
+import type { Linter } from "eslint";
 
 import { plugin } from "../plugin";
 
@@ -43,6 +43,8 @@ const recommended = {
     // deprecated
     "solid/prefer-classlist": 0,
   },
-} satisfies TSESLint.FlatConfig.Config;
+  // Validate against ESLint's own config type so the export stays assignable
+  // to `defineConfig()` (#233); `satisfies` keeps the precise literal type.
+} satisfies Linter.Config;
 
 export = recommended;
