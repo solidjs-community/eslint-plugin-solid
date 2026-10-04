@@ -6,6 +6,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
+import actionYieldAfterAwait from "./rules/action-yield-after-await";
 import componentsReturnOnce from "./rules/components-return-once";
 import eventHandlers from "./rules/event-handlers";
 import imports from "./rules/imports";
@@ -49,6 +50,7 @@ const { name, version } = require("../package.json");
 const meta = { name, version };
 
 export const allRules = {
+  "action-yield-after-await": actionYieldAfterAwait,
   "components-return-once": componentsReturnOnce,
   "event-handlers": eventHandlers,
   imports,
