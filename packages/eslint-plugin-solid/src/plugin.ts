@@ -26,6 +26,7 @@ import noReactSpecificProps from "./rules/no-react-specific-props";
 import noRestatedDefaultOptions from "./rules/no-restated-default-options";
 import noSingleArgCreateEffect from "./rules/no-single-arg-create-effect";
 import noStoreMutationOutsideSetter from "./rules/no-store-mutation-outside-setter";
+import noUnassignedVars from "./rules/no-unassigned-vars";
 import noUnknownNamespaces from "./rules/no-unknown-namespaces";
 import noUnusedSignal from "./rules/no-unused-signal";
 import noWriteInPureComputation from "./rules/no-write-in-pure-computation";
@@ -69,6 +70,7 @@ const allRules = {
   "no-restated-default-options": noRestatedDefaultOptions,
   "no-single-arg-create-effect": noSingleArgCreateEffect,
   "no-store-mutation-outside-setter": noStoreMutationOutsideSetter,
+  "no-unassigned-vars": noUnassignedVars,
   "no-unknown-namespaces": noUnknownNamespaces,
   "no-unused-signal": noUnusedSignal,
   "no-write-in-pure-computation": noWriteInPureComputation,
