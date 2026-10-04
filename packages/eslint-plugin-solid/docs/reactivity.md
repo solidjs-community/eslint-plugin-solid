@@ -183,14 +183,14 @@ Options shown here are the defaults. Manually configuring an array will *replace
 ## Solid 2.0 Support
 
 As of v0.15.0, this rule understands both the Solid 1.x and Solid 2.0 API surfaces, including
-imports from `@solidjs/signals`. The Solid 2.0 additions recognized are:
+imports from `@solidjs/signals` and `@solidjs/web`. The Solid 2.0 additions recognized are:
 
 - **Reactive values:** `createProjection` (readonly derived store), `createOptimistic` (signal
   pair), `createOptimisticStore` (store pair), `merge` and `omit` (props objects, replacing
   `mergeProps`/`splitProps`).
 - **Tracked scopes:** function arguments to `createTrackedEffect`, `isPending`, `latest`,
   `resolve`, `deep`, `repeat`, `createErrorBoundary`, `createLoadingBoundary`,
-  `createRevealOrder`, and the function-form derived primitives `createSignal(fn)` /
+  `createRevealOrder`, `dynamic`, and the function-form derived primitives `createSignal(fn)` /
   `createStore(fn)` / `createProjection(fn)` / `createOptimistic(fn)` / `createOptimisticStore(fn)`.
 - **Split effects:** in `createEffect(compute, effect)`, the second function runs untracked with
   the computed value and may read reactive values freely.
@@ -208,11 +208,11 @@ missed 1.x mistakes for zero new false positives.
 
 ### Reads after `await`/`yield` in async computations
 
-Async computations (`createMemo(async () => ...)` and the function-form derived primitives) only
-track reactive reads that happen synchronously, before the computation first suspends at an
-`await` or `yield`. A read placed after the first suspension point is not tracked—in Solid 1.x it
-behaves like a read in an event handler, and in Solid 2.0 it can observe unpredictable,
-mid-transition state. The rule reports these reads specifically:
+Async computations (`createMemo(async () => ...)`, `dynamic(async () => ...)`, and the function-form
+derived primitives) only track reactive reads that happen synchronously, before the computation
+first suspends at an `await` or `yield`. A read placed after the first suspension point is not
+tracked—in Solid 1.x it behaves like a read in an event handler, and in Solid 2.0 it can observe
+unpredictable, mid-transition state. The rule reports these reads specifically:
 
 ```jsx
 const [id] = createSignal(1);
@@ -485,6 +485,14 @@ function Component() {
   createEffect(() => runWithOwner(owner, () => console.log(signal())));
 }
 
+import { createSignal } from "solid-js";
+import { dynamic } from "some-lib";
+function Component() {
+  const [count, setCount] = createSignal(0);
+  const Test = dynamic(() => test(count()));
+  return <Test />;
+}
+
 const [count, setCount] = createSignal(0);
 createEffect(async () => {
   await Promise.resolve();
@@ -583,6 +591,14 @@ function Component(props) {
   });
   return <div>{data()}</div>;
 }
+
+import { createSignal } from "solid-js";
+import { dynamic } from "@solidjs/web";
+const [count, setCount] = createSignal(1);
+const Test = dynamic(async () => {
+  await tick();
+  return test(count());
+});
 
 const [count, setCount] = createSignal(1);
 const [derived, setDerived] = createSignal(async () => {
@@ -1286,6 +1302,22 @@ function Component() {
   createEffect(() => {
     flush(() => console.log(count()));
   });
+}
+
+import { createSignal } from "solid-js";
+import { dynamic } from "@solidjs/web";
+function Component() {
+  const [count, setCount] = createSignal(0);
+  const Test = dynamic(() => test(count()));
+  return <Test />;
+}
+
+import { createSignal } from "solid-js";
+import { dynamic } from "@solidjs/web";
+function Component() {
+  const [count, setCount] = createSignal(0);
+  const Test = dynamic(async () => test(count()));
+  return <Test />;
 }
 
 const [count, setCount] = createSignal(5);
