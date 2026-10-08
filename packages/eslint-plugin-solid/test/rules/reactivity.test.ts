@@ -623,6 +623,47 @@ export const cases = run("reactivity", rule, {
       const Test = dynamic(async () => test(count()));
       return <Test />;
     }`,
+    // dynamicComponent tracks signal and prop reads in its source
+    `import { createSignal } from "solid-js";
+    import { dynamicComponent } from "@solidjs/web";
+    function Component(props) {
+      const [count, setCount] = createSignal(0);
+      const Test = dynamicComponent(() => test(count(), props.view));
+      return <Test />;
+    }`,
+    // named import aliases retain the tracked source
+    `import { createSignal } from "solid-js";
+    import { dynamicComponent as choose } from "@solidjs/web";
+    function Component() {
+      const [count, setCount] = createSignal(0);
+      const Test = choose(() => test(count()));
+      return <Test />;
+    }`,
+    // dynamicComponent accepts async sources with reads before suspension
+    `import { createSignal } from "solid-js";
+    import { dynamicComponent } from "@solidjs/web";
+    function Component(props) {
+      const [count, setCount] = createSignal(0);
+      const Test = dynamicComponent(async () => {
+        const value = count();
+        const view = props.view;
+        await tick();
+        return test(value, view);
+      });
+      return <Test />;
+    }`,
+    // custom renderer sources use the same import matching
+    {
+      code: `// Requires settings.solid.moduleSources: ["my-solid-renderer"].
+      import { createSignal } from "solid-js";
+      import { dynamicComponent } from "my-solid-renderer";
+      function Component() {
+        const [count, setCount] = createSignal(0);
+        const Test = dynamicComponent(() => test(count()));
+        return <Test />;
+      }`,
+      settings: { solid: { moduleSources: ["my-solid-renderer"] } },
+    },
     // repeat takes a count accessor and a map function
     `const [count, setCount] = createSignal(5);
     const items = repeat(() => count(), (index) => index * 2);`,
@@ -1146,6 +1187,18 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [{ messageId: "badUnnamedDerivedSignal", line: 6 }],
     },
+    // dynamicComponent from an unrelated module is not a tracked scope
+    {
+      code: `
+      import { createSignal } from "solid-js";
+      import { dynamicComponent } from "some-lib";
+      function Component() {
+        const [count, setCount] = createSignal(0);
+        const Test = dynamicComponent(() => test(count()));
+        return <Test />;
+      }`,
+      errors: [{ messageId: "badUnnamedDerivedSignal", line: 6 }],
+    },
     // Async tracking scopes
     {
       code: `
@@ -1323,6 +1376,31 @@ export const cases = run("reactivity", rule, {
         return test(count());
       });`,
       errors: [{ messageId: "readAfterAwait", line: 7 }],
+    },
+    // dynamicComponent's async source does not track reads after await
+    {
+      code: `
+      import { createSignal } from "solid-js";
+      import { dynamicComponent } from "@solidjs/web";
+      const [count, setCount] = createSignal(1);
+      const Test = dynamicComponent(async () => {
+        await tick();
+        return test(count());
+      });`,
+      errors: [{ messageId: "readAfterAwait", line: 7 }],
+    },
+    // aliases preserve the async prop-read diagnostic
+    {
+      code: `
+      import { dynamicComponent as choose } from "@solidjs/web";
+      function Component(props) {
+        const Test = choose(async () => {
+          await tick();
+          return props.view;
+        });
+        return <Test />;
+      }`,
+      errors: [{ messageId: "readAfterAwait", line: 6 }],
     },
     // function-form createSignal with a read after await
     {
