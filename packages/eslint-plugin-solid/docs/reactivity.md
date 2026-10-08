@@ -182,7 +182,7 @@ Options shown here are the defaults. Manually configuring an array will *replace
 
 ## Solid 2.0 Support
 
-As of v0.15.0, this rule understands both the Solid 1.x and Solid 2.0 API surfaces, including
+This rule understands both the Solid 1.x and Solid 2.0 API surfaces, including
 imports from `@solidjs/signals` and `@solidjs/web`. The Solid 2.0 additions recognized are:
 
 - **Reactive values:** `createProjection` (readonly derived store), `createOptimistic` (signal
@@ -1418,6 +1418,7 @@ function Component(props) {
   return <Test />;
 }
 
+// Requires settings.solid.moduleSources: ["my-solid-renderer"].
 import { createSignal } from "solid-js";
 import { dynamicComponent } from "my-solid-renderer";
 function Component() {

@@ -654,7 +654,8 @@ export const cases = run("reactivity", rule, {
     }`,
     // custom renderer sources use the same import matching
     {
-      code: `import { createSignal } from "solid-js";
+      code: `// Requires settings.solid.moduleSources: ["my-solid-renderer"].
+      import { createSignal } from "solid-js";
       import { dynamicComponent } from "my-solid-renderer";
       function Component() {
         const [count, setCount] = createSignal(0);
