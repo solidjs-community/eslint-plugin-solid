@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-solid",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "description": "Solid-specific linting rules for ESLint.",
   "keywords": [
     "eslint",
@@ -71,7 +71,8 @@
     "test:watch": "vitest",
     "turbo:build": "tsup",
     "turbo:docs": "PARSER=none tsx scripts/docs.mts",
-    "turbo:test": "vitest --run"
+    "turbo:test": "vitest --run",
+    "turbo:tsc": "tsc -p test/types"
   },
   "dependencies": {
     "@typescript-eslint/utils": "^8.0.0",
@@ -96,7 +97,7 @@
     "prettier": "^2.8.8",
     "tsup": "^8.5.1",
     "tsx": "^4.17.0",
-    "vitest": "^4.0.0"
+    "vitest": "^4.1.11"
   },
   "peerDependencies": {
     "eslint": "^9.0.0 || ^10.0.0",
