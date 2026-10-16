@@ -15,8 +15,22 @@ export const cases = run("validate-jsx-nesting", rule, {
     `let el = <h1><div>Hello world!</div></h1>;`,
     `let el = <div><figcaption>Hello world!</figcaption></div>;`,
     `let el = <div><summary>Hello world!</summary></div>;`,
+    `let el = <html><body><figcaption>Caption</figcaption></body></html>;`,
+    `let el = <body><dd>Definition</dd></body>;`,
+    `let el = <body><dt>Term</dt></body>;`,
+    `let el = <body><summary>More</summary></body>;`,
+    `let el = <body><area shape="rect" coords="0,0,1,1" href="/" /></body>;`,
+    `let el = <html><head><basefont /></head></html>;`,
     `let el = <table><script>{"1"}</script></table>;`,
     `let el = <table><style>{"td{}"}</style></table>;`,
+    `let el = <table><tbody><tr><td><figcaption>Caption</figcaption></td></tr></tbody></table>;`,
+    `let el = <table><tbody><tr><th><dd>Definition</dd></th></tr></tbody></table>;`,
+    `let el = <table><tbody><tr><template /></tr></tbody></table>;`,
+    `let el = <table><tbody><script>{"1"}</script></tbody></table>;`,
+    `let el = <table><thead><template /></thead></table>;`,
+    `let el = <table><tfoot><template /></tfoot></table>;`,
+    `let el = <table><colgroup><template /></colgroup></table>;`,
+    `let el = <table><caption><figcaption>Caption</figcaption></caption></table>;`,
     // MathML and SVG are not HTML content models
     `let el = <math><mi>x</mi><mo>=</mo><mn>1</mn></math>;`,
     `let el = <math><mfrac><mi>a</mi><mi>b</mi></mfrac></math>;`,
@@ -55,6 +69,14 @@ export const cases = run("validate-jsx-nesting", rule, {
   ],
   invalid: [
     {
+      code: `let el = <head><div /></head>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "head", child: "div" } }],
+    },
+    {
+      code: `let el = <body><tr /></body>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "body", child: "tr" } }],
+    },
+    {
       code: `let el = <p><div>Hello world!</div></p>;`,
       errors: [{ messageId: "invalidNesting", data: { parent: "p", child: "div" } }],
     },
@@ -73,6 +95,10 @@ export const cases = run("validate-jsx-nesting", rule, {
     {
       code: `let el = <tr><div>Hello world!</div></tr>;`,
       errors: [{ messageId: "invalidNesting", data: { parent: "tr", child: "div" } }],
+    },
+    {
+      code: `let el = <table><tbody><tr><td><tr /></td></tr></tbody></table>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "td", child: "tr" } }],
     },
     {
       code: `let el = <a href="/one"><a href="/two">Hello world!</a></a>;`,

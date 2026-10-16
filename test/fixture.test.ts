@@ -1,11 +1,26 @@
 import { test, expect } from "vitest";
 
 import path from "path";
+import { spawnSync } from "node:child_process";
 import { ESLint } from "eslint";
 
 const cwd = __dirname;
 const validDir = path.join(cwd, "valid");
 const jsxUndefPath = path.join(cwd, "invalid", "jsx-undef.jsx");
+
+test("loads the CommonJS plugin without require(esm) support", () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      "--no-experimental-require-module",
+      "-e",
+      "const plugin = require('eslint-plugin-solid'); console.log(typeof plugin.rules['validate-jsx-nesting'].create);",
+    ],
+    { cwd, encoding: "utf8" }
+  );
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.stdout.trim()).toBe("function");
+});
 
 const checkResult = (result: ESLint.LintResult) => {
   if (result.filePath.startsWith(validDir)) {

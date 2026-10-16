@@ -58,6 +58,18 @@ These snippets cause lint errors.
 
 ```js
 let el = (
+  <head>
+    <div />
+  </head>
+);
+
+let el = (
+  <body>
+    <tr />
+  </body>
+);
+
+let el = (
   <p>
     <div>Hello world!</div>
   </p>
@@ -85,6 +97,18 @@ let el = (
   <tr>
     <div>Hello world!</div>
   </tr>
+);
+
+let el = (
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <tr />
+        </td>
+      </tr>
+    </tbody>
+  </table>
 );
 
 let el = (
@@ -261,6 +285,46 @@ let el = (
 );
 
 let el = (
+  <html>
+    <body>
+      <figcaption>Caption</figcaption>
+    </body>
+  </html>
+);
+
+let el = (
+  <body>
+    <dd>Definition</dd>
+  </body>
+);
+
+let el = (
+  <body>
+    <dt>Term</dt>
+  </body>
+);
+
+let el = (
+  <body>
+    <summary>More</summary>
+  </body>
+);
+
+let el = (
+  <body>
+    <area shape="rect" coords="0,0,1,1" href="/" />
+  </body>
+);
+
+let el = (
+  <html>
+    <head>
+      <basefont />
+    </head>
+  </html>
+);
+
+let el = (
   <table>
     <script>{"1"}</script>
   </table>
@@ -269,6 +333,80 @@ let el = (
 let el = (
   <table>
     <style>{"td{}"}</style>
+  </table>
+);
+
+let el = (
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <figcaption>Caption</figcaption>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+);
+
+let el = (
+  <table>
+    <tbody>
+      <tr>
+        <th>
+          <dd>Definition</dd>
+        </th>
+      </tr>
+    </tbody>
+  </table>
+);
+
+let el = (
+  <table>
+    <tbody>
+      <tr>
+        <template />
+      </tr>
+    </tbody>
+  </table>
+);
+
+let el = (
+  <table>
+    <tbody>
+      <script>{"1"}</script>
+    </tbody>
+  </table>
+);
+
+let el = (
+  <table>
+    <thead>
+      <template />
+    </thead>
+  </table>
+);
+
+let el = (
+  <table>
+    <tfoot>
+      <template />
+    </tfoot>
+  </table>
+);
+
+let el = (
+  <table>
+    <colgroup>
+      <template />
+    </colgroup>
+  </table>
+);
+
+let el = (
+  <table>
+    <caption>
+      <figcaption>Caption</figcaption>
+    </caption>
   </table>
 );
 

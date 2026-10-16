@@ -29,6 +29,16 @@ const htmlElement = parse("<!DOCTYPE html><html><head></head><body></body></html
 const bodyContext = htmlElement.childNodes[1] as ParentNode;
 
 const rewriteCache = new Map<string, boolean>();
+const tableWrappers: Record<string, string[]> = {
+  caption: ["table"],
+  colgroup: ["table"],
+  tbody: ["table"],
+  thead: ["table"],
+  tfoot: ["table"],
+  tr: ["table", "tbody"],
+  td: ["table", "tbody", "tr"],
+  th: ["table", "tbody", "tr"],
+};
 
 /**
  * Does the HTML parser refuse to keep `child` as a direct child of `parent`?
@@ -51,9 +61,25 @@ const parserRewrites = (parent: string, child: string): boolean => {
   const cached = rewriteCache.get(key);
   if (cached !== undefined) return cached;
 
-  const fragment = parseFragment(bodyContext, `<${parent}><${child}></${child}></${parent}>`, {});
-  const roots = fragment.childNodes.filter((n) => n.nodeName !== "#text");
-  const root = roots.length === 1 && roots[0].nodeName === parent ? roots[0] : undefined;
+  // A body fragment discards table-section tags without their table ancestors.
+  const wrappers = tableWrappers[parent] ?? [];
+  const documentParent = parent === "head" || parent === "body";
+  const markup = wrappers.reduceRight(
+    (content, tag) => `<${tag}>${content}</${tag}>`,
+    `<${parent}><${child}></${child}></${parent}>`
+  );
+  let fragment: ParentNode | undefined = documentParent
+    ? (parse(markup).childNodes.find((node) => node.nodeName === "html") as ParentNode | undefined)
+    : parseFragment(bodyContext, markup, {});
+  for (const tag of wrappers) {
+    fragment = fragment?.childNodes.find((node) => node.nodeName === tag) as ParentNode | undefined;
+  }
+  const roots = (fragment?.childNodes ?? []).filter((n) => n.nodeName !== "#text");
+  const root = documentParent
+    ? roots.find((node) => node.nodeName === parent)
+    : roots.length === 1 && roots[0].nodeName === parent
+    ? roots[0]
+    : undefined;
   // `<template>` parks its children in `content`, not `childNodes`.
   const container =
     root && "content" in root ? (root.content as ParentNode) : (root as ParentNode | undefined);
