@@ -9,6 +9,9 @@ export const cases = run("removed-api", rule, {
     `import { createStore, reconcile } from "solid-js";`,
     `import { render, Portal, Dynamic } from "@solidjs/web";`,
     `import { something } from "somewhere/else";`,
+    // restored in Solid 2.0 (createDeferred in rc.16, from in solidjs/solid#4218)
+    `import { createDeferred, from } from "solid-js";`,
+    `import { createDeferred as defer, from as fromSource } from "solid-js";`,
     `let el = <div class={{ active: true }} />;`,
     `let el = <div class="btn" />;`,
   ],
@@ -47,6 +50,14 @@ om(() => {});`,
     {
       code: `import { createResource } from "solid-js";`,
       errors: [{ messageId: "removed" }],
+    },
+    {
+      // a restored API in the same declaration doesn't mask a removed one
+      code: `import { createDeferred, createResource, from, observable } from "solid-js";`,
+      errors: [
+        { messageId: "removed", column: 26 }, // createResource
+        { messageId: "removed", column: 48 }, // observable
+      ],
     },
     {
       code: `import { on, useTransition } from "solid-js";`,

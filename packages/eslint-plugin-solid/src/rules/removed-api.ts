@@ -17,7 +17,9 @@ const RENAMED = new Map<string, string>([
 ]);
 
 // Removed APIs whose replacement requires a structural rewrite; the message is
-// prescriptive but no autofix is offered.
+// prescriptive but no autofix is offered. `createDeferred` (restored in rc.16)
+// and `from` (restored in solidjs/solid#4218) still exist in 2.0, so they are
+// deliberately absent.
 const REMOVED = new Map<string, string>([
   [
     "createResource",
@@ -27,7 +29,6 @@ const REMOVED = new Map<string, string>([
     "createComputed",
     "Use `createMemo` for derived values or the two-argument `createEffect(compute, effect)` for side effects",
   ],
-  ["createDeferred", "There is no direct replacement; move the deferral out of the reactive graph"],
   ["createSelector", "Use `createProjection` to derive per-key reactive state"],
   [
     "on",
@@ -47,8 +48,10 @@ const REMOVED = new Map<string, string>([
     "useTransition",
     "Transitions are built in. Read pending state with `isPending(...)` and previous values with `latest(...)`",
   ],
-  ["from", "Signals interop with async iterables directly in Solid 2.0"],
-  ["observable", "Signals interop with async iterables directly in Solid 2.0"],
+  [
+    "observable",
+    "To consume an Observable or async iterable, adapt it with `from`; to publish a signal, push values out from a `createEffect`",
+  ],
   ["indexArray", "Use `mapArray`, which handles index-mode mapping in Solid 2.0"],
   [
     "splitProps",
