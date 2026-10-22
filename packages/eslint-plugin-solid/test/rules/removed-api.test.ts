@@ -1,6 +1,9 @@
 import { run } from "../ruleTester";
 import rule from "../../src/rules/removed-api";
 
+const ERROR_GUIDANCE =
+  "Use `<Errored>` for error UI, or the `error` option of `createEffect(compute, { effect, error })` to handle errors programmatically";
+
 export const cases = run("removed-api", rule, {
   valid: [
     `import { createSignal, createMemo, createEffect } from "solid-js";`,
@@ -66,6 +69,30 @@ om(() => {});`,
     {
       code: `import { Index, Suspense, ErrorBoundary } from "solid-js";`,
       errors: [{ messageId: "removed" }, { messageId: "removed" }, { messageId: "removed" }],
+    },
+    // error/reveal guidance points to the public components, not the
+    // @internal createErrorBoundary/createRevealOrder primitives
+    {
+      code: `import { onError, catchError, ErrorBoundary, SuspenseList } from "solid-js";`,
+      errors: [
+        { messageId: "removed", data: { name: "onError", guidance: ERROR_GUIDANCE } },
+        { messageId: "removed", data: { name: "catchError", guidance: ERROR_GUIDANCE } },
+        {
+          messageId: "removed",
+          data: {
+            name: "ErrorBoundary",
+            guidance: "Use `<Errored>` to render a fallback when a child throws",
+          },
+        },
+        {
+          messageId: "removed",
+          data: {
+            name: "SuspenseList",
+            guidance:
+              "Use `<Reveal>` to coordinate the reveal order of sibling `<Loading>` boundaries",
+          },
+        },
+      ],
     },
     // removed APIs are reported from "@solidjs/web" too, so a mechanical
     // source rewrite doesn't hide them (#222)

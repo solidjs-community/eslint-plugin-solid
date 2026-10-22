@@ -34,8 +34,14 @@ const REMOVED = new Map<string, string>([
     "on",
     "Explicit dependencies are built in: use the two-argument `createEffect(compute, effect)` form, where `compute` reads the dependencies",
   ],
-  ["onError", "Use `createErrorBoundary` (or the `<Errored>` component) to handle errors"],
-  ["catchError", "Use `createErrorBoundary` (or the `<Errored>` component) to handle errors"],
+  [
+    "onError",
+    "Use `<Errored>` for error UI, or the `error` option of `createEffect(compute, { effect, error })` to handle errors programmatically",
+  ],
+  [
+    "catchError",
+    "Use `<Errored>` for error UI, or the `error` option of `createEffect(compute, { effect, error })` to handle errors programmatically",
+  ],
   [
     "resetErrorBoundaries",
     "Error boundaries heal automatically in Solid 2.0 when their sources update",
@@ -69,9 +75,12 @@ const REMOVED = new Map<string, string>([
   ],
   // Components
   ["Index", "Use `<For keyed={false}>`, which passes item accessors like `<Index>` did"],
-  ["ErrorBoundary", "Use `<Errored>` (or `createErrorBoundary`)"],
+  ["ErrorBoundary", "Use `<Errored>` to render a fallback when a child throws"],
   ["Suspense", "Use `<Loading>` to render a fallback while content is pending"],
-  ["SuspenseList", "Use `<Reveal>` with `createRevealOrder` to coordinate reveal order"],
+  [
+    "SuspenseList",
+    "Use `<Reveal>` to coordinate the reveal order of sibling `<Loading>` boundaries",
+  ],
 ]);
 
 // Exports that moved from "solid-js/store" into core "solid-js" unchanged.
