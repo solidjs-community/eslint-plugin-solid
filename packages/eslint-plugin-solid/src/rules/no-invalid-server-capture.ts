@@ -6,7 +6,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+import type { TSESTree as T } from "@typescript-eslint/utils";
 import {
   isFunctionNode,
   hasUseServerDirective,
@@ -14,9 +14,7 @@ import {
   isInsideUseServerFunction,
   programHasUseServerDirective,
 } from "../utils";
-import { getSourceCode } from "../compat";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
+import { createRule, getSourceCode } from "../compat";
 
 type MessageIds = "invalidCapture";
 type Options = [];

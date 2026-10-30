@@ -1,10 +1,8 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { findVariable, getSourceCode } from "../compat";
+import type { TSESTree as T } from "@typescript-eslint/utils";
+import { createRule, findVariable, getSourceCode } from "../compat";
 import { getSolidSourceRegex, isFunctionNode, trace, trackImports } from "../utils";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 type MessageIds = "neverWritten" | "neverRead" | "replaceWithAccessor";
 type Options = [];

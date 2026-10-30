@@ -6,12 +6,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import { createRule, getStringIfConstant } from "../compat";
 import isHtml from "is-html";
 import { jsxPropName } from "../utils";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
-const { getStringIfConstant } = ASTUtils;
 
 type MessageIds = "dangerous" | "conflict" | "notHtml" | "useInnerText" | "dangerouslySetInnerHTML";
 type Options = [{ allowStatic?: boolean }?];

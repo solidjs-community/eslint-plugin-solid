@@ -14,9 +14,8 @@ import type {
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// The plugin's public `rules` are deliberately loosely typed (#233); use the
-// precisely-typed internal rule map for doc generation.
-const rules = allRules;
+// Rules are exported with ESLint's types; read their metadata with typescript-eslint's.
+const rules = allRules as unknown as Record<keyof typeof allRules, TSESLint.RuleModule<string>>;
 const { configs } = plugin;
 
 const recommendedRules: Record<string, unknown> = configs.recommended.rules;

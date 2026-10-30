@@ -6,10 +6,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { markVariableAsUsed } from "../compat";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
+import type { TSESTree as T } from "@typescript-eslint/utils";
+import { createRule, markVariableAsUsed } from "../compat";
 
 /*
  * This rule is lifted almost verbatim from eslint-plugin-react's

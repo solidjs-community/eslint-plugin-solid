@@ -6,11 +6,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
-import { getScope } from "../compat";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
-const { getStaticValue }: { getStaticValue: any } = ASTUtils;
+import { createRule, getStaticValue, getScope } from "../compat";
 
 // A javascript: URL can contain leading C0 control or \u0020 SPACE,
 // and any newline or tab are filtered out as if they're not part of the URL.

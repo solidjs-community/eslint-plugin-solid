@@ -6,10 +6,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { ESLintUtils } from "@typescript-eslint/utils";
+import { createRule } from "../compat";
 import { findParent, isFunctionNode, getSolidSourceRegex, trackImports } from "../utils";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 type MessageIds = "moduleScopePrimitive";
 type Options = [];

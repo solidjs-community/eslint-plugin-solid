@@ -6,7 +6,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import type { TSESTree as T } from "@typescript-eslint/utils";
 import {
   FunctionNode,
   isFunctionNode,
@@ -15,10 +15,7 @@ import {
   isInsideUseServerFunction,
   programHasUseServerDirective,
 } from "../utils";
-import { findVariable, getSourceCode } from "../compat";
-
-const { getFunctionHeadLocation } = ASTUtils;
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
+import { createRule, getFunctionHeadLocation, findVariable, getSourceCode } from "../compat";
 
 type MessageIds = "asyncServerFunction";
 type Options = [];

@@ -1,9 +1,6 @@
-import { TSESTree as T, TSESLint, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
 import { getFunctionName, type FunctionNode } from "../utils";
-import { getSourceCode } from "../compat";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
-const { getStringIfConstant } = ASTUtils;
+import { createRule, getStringIfConstant, getSourceCode } from "../compat";
 
 const getName = (node: T.Node): string | null => {
   switch (node.type) {

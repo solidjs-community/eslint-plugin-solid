@@ -1,4 +1,4 @@
-import { RuleTester } from "eslint";
+import { RuleTester, type Rule } from "eslint";
 import type { TSESLint } from "@typescript-eslint/utils";
 import tseslint from "typescript-eslint";
 import * as babelEslintParser from "@babel/eslint-parser";
@@ -56,11 +56,7 @@ interface Tests {
   valid?: Array<(TSESLint.ValidTestCase<unknown[]> & { [tsOnly]?: boolean }) | string>;
   invalid?: Array<TSESLint.InvalidTestCase<string, unknown[]> & { [tsOnly]?: boolean }>;
 }
-export const run = (
-  name: string,
-  rule: TSESLint.RuleModule<string, Array<unknown>>,
-  tests: Tests
-) => {
+export const run = (name: string, rule: Rule.RuleModule, tests: Tests) => {
   const jsOnlyPredicate = (test: { [tsOnly]?: boolean } | string) =>
     !(typeof test === "object" && test[tsOnly]);
   const jsTests = {

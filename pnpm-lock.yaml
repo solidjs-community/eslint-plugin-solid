@@ -59,9 +59,9 @@ importers:
 
   packages/eslint-plugin-solid:
     dependencies:
-      '@typescript-eslint/utils':
-        specifier: ^8.0.0
-        version: 8.67.0(eslint@10.8.1(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
+      '@eslint-community/eslint-utils':
+        specifier: ^4.8.0
+        version: 4.10.1(eslint@10.8.1(supports-color@8.1.1))
       estraverse:
         specifier: ^5.3.0
         version: 5.3.0
@@ -77,9 +77,6 @@ importers:
       style-to-object:
         specifier: ^1.0.6
         version: 1.0.14
-      typescript:
-        specifier: '>=4.8.4'
-        version: 5.9.3
     devDependencies:
       '@babel/core':
         specifier: ^8.0.0
@@ -100,6 +97,9 @@ importers:
         specifier: ^8.67.0
         version: 8.67.0(@typescript-eslint/parser@8.67.0(eslint@10.8.1(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3))(eslint@10.8.1(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
       '@typescript-eslint/parser':
+        specifier: ^8.67.0
+        version: 8.67.0(eslint@10.8.1(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
+      '@typescript-eslint/utils':
         specifier: ^8.67.0
         version: 8.67.0(eslint@10.8.1(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
       eslint:
