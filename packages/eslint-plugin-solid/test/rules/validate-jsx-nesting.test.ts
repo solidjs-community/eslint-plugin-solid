@@ -130,6 +130,11 @@ export const cases = run("validate-jsx-nesting", rule, {
       code: `let el = <math><mi><a href="/one"><a href="/two">x</a></a></mi></math>;`,
       errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
     },
+    // so do HTML tags that make the parser leave foreign content
+    {
+      code: `let el = <svg><g><p><a href="/one"><a href="/two" /></a></p></g></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
     {
       code: `let el = <table><thead><th>1</th></thead></table>;`,
       errors: [{ messageId: "invalidNesting", data: { parent: "thead", child: "th" } }],

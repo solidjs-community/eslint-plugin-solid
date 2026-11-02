@@ -45,7 +45,10 @@ keeps `<svg><a href="/"><a href="/" /></a></svg>` and
 `<svg><title><b /></title></svg>` as written, so they aren't reported.
 `<foreignObject>`, `<desc>`, `<title>` and MathML's text elements (`<mi>`,
 `<mo>`, `<mn>`, `<ms>`, `<mtext>`) hand their children back to HTML, so
-`<svg><foreignObject><p><div /></p></foreignObject></svg>` still is.
+`<svg><foreignObject><p><div /></p></foreignObject></svg>` still is. So do the
+HTML tags that make the parser leave foreign content, like `<p>`, `<div>` or
+`<span>`: the inner `<a>` in
+`<svg><g><p><a href="/"><a href="/" /></a></p></g></svg>` is reported.
 
 The check is between an element and its direct parent, which is a real limit:
 the parser also closes `p`, `a`, `button`, `form` and `li` by scope, and pushes
@@ -171,6 +174,18 @@ let el = (
       </a>
     </mi>
   </math>
+);
+
+let el = (
+  <svg>
+    <g>
+      <p>
+        <a href="/one">
+          <a href="/two" />
+        </a>
+      </p>
+    </g>
+  </svg>
 );
 
 let el = (

@@ -196,20 +196,72 @@ const htmlIntegrationPoints = new Set([
 ]);
 
 /**
+ * HTML tags that make the parser leave SVG or MathML wherever they appear in it.
+ * `<font>` only does with `color`, `face` or `size`, so it's left out.
+ */
+const foreignContentExits = new Set([
+  "b",
+  "big",
+  "blockquote",
+  "body",
+  "br",
+  "center",
+  "code",
+  "dd",
+  "div",
+  "dl",
+  "dt",
+  "em",
+  "embed",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "head",
+  "hr",
+  "i",
+  "img",
+  "li",
+  "listing",
+  "menu",
+  "meta",
+  "nobr",
+  "ol",
+  "p",
+  "pre",
+  "ruby",
+  "s",
+  "small",
+  "span",
+  "strike",
+  "strong",
+  "sub",
+  "sup",
+  "table",
+  "tt",
+  "u",
+  "ul",
+  "var",
+]);
+
+/**
  * The namespace the parser is in when it reaches this element's start tag: SVG or
  * MathML below the nearest `<svg>` or `<math>`, HTML again below an integration
- * point like `<foreignObject>`. Inside `<svg>`, `<a><a /></a>` and `<title><b /></title>`
- * are kept as written, so judging them as HTML would report markup that is fine.
+ * point like `<foreignObject>` or a tag that leaves foreign content like `<p>`.
+ * Inside `<svg>`, `<a><a /></a>` and `<title><b /></title>` are kept as written, so
+ * judging them as HTML would report markup that is fine.
  *
- * The walk crosses expressions and components alike. A wrong guess here can only
- * hide a report, never add one.
+ * The walk crosses expressions and components alike, although the compiler starts
+ * a new template there. A wrong guess here can only hide a report, never add one.
  */
 const getParsingNamespace = (node: T.JSXElement): Namespace => {
   for (let ancestor: T.Node | undefined = node.parent; ancestor; ancestor = ancestor.parent) {
     if (ancestor.type !== "JSXElement") continue;
     const tag = getDOMTagName(ancestor);
     if (tag === "svg" || tag === "math") return tag;
-    if (tag && htmlIntegrationPoints.has(tag)) return "html";
+    if (tag && (htmlIntegrationPoints.has(tag) || foreignContentExits.has(tag))) return "html";
   }
   return "html";
 };
