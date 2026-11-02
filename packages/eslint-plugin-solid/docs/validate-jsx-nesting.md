@@ -50,6 +50,12 @@ HTML tags that make the parser leave foreign content, like `<p>`, `<div>` or
 `<span>`: the inner `<a>` in
 `<svg><g><p><a href="/"><a href="/" /></a></p></g></svg>` is reported.
 
+The namespace is read from the nearest `<svg>` or `<math>` in the JSX, even
+across an expression or a component. The compiler builds that part as a
+separate template, which stays in SVG only when its root is an SVG-only
+element, so `<svg>{ok && <a href="/"><a href="/" /></a>}</svg>` goes unreported
+even though the compiler rejects it when generating DOM code.
+
 The check is between an element and its direct parent, which is a real limit:
 the parser also closes `p`, `a`, `button`, `form` and `li` by scope, and pushes
 HTML out of `<svg>` from any depth. `<p><a href="/"><div /></a></p>` is invalid
