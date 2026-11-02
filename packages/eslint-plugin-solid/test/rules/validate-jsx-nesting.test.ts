@@ -36,6 +36,9 @@ export const cases = run("validate-jsx-nesting", rule, {
     `let el = <math><mfrac><mi>a</mi><mi>b</mi></mfrac></math>;`,
     `let el = <math><semantics><mi>x</mi></semantics></math>;`,
     `let el = <svg><a href="/"><path d="" /></a></svg>;`,
+    // the parser keeps these inside <svg>, even though it rewrites them in HTML
+    `let el = <svg><a href="/one"><a href="/two" /></a></svg>;`,
+    `let el = <svg><title><b>Hello world!</b></title></svg>;`,
     // content-model restrictions the parser doesn't enforce by moving anything
     `let el = <figure><a href="/x"><img src="a.png" /><figcaption>Caption</figcaption></a></figure>;`,
     `let el = <figure><div><figcaption>Caption</figcaption></div></figure>;`,
@@ -115,6 +118,15 @@ export const cases = run("validate-jsx-nesting", rule, {
     {
       code: `let el = <svg><div>Hello world!</div></svg>;`,
       errors: [{ messageId: "invalidNesting", data: { parent: "svg", child: "div" } }],
+    },
+    // integration points hand their children back to the HTML parser
+    {
+      code: `let el = <svg><foreignObject><p><div>Hello world!</div></p></foreignObject></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "p", child: "div" } }],
+    },
+    {
+      code: `let el = <math><mi><a href="/one"><a href="/two">x</a></a></mi></math>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
     },
     {
       code: `let el = <table><thead><th>1</th></thead></table>;`,

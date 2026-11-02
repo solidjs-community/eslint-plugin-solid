@@ -29,6 +29,14 @@ it. That's why `<div><figcaption /></div>`, `<table><script /></table>` and
 `<math><mi /></math>` are left alone — the spec frowns at some of them, but
 every browser keeps the tree exactly as written.
 
+Inside `<svg>` and `<math>` the pair is parsed a second time in that namespace,
+and it is reported only if the parser restructures it there too. The parser
+keeps `<svg><a href="/"><a href="/" /></a></svg>` and
+`<svg><title><b /></title></svg>` as written, so they aren't reported.
+`<foreignObject>`, `<desc>`, `<title>` and MathML's text elements (`<mi>`,
+`<mo>`, `<mn>`, `<ms>`, `<mtext>`) hand their children back to HTML, so
+`<svg><foreignObject><p><div /></p></foreignObject></svg>` still is.
+
 The check is between an element and its direct parent, which is a real limit:
 the parser also closes `p`, `a`, `button`, `form` and `li` by scope, and pushes
 HTML out of `<svg>` from any depth. `<p><a href="/"><div /></a></p>` is invalid
@@ -133,6 +141,26 @@ let el = (
   <svg>
     <div>Hello world!</div>
   </svg>
+);
+
+let el = (
+  <svg>
+    <foreignObject>
+      <p>
+        <div>Hello world!</div>
+      </p>
+    </foreignObject>
+  </svg>
+);
+
+let el = (
+  <math>
+    <mi>
+      <a href="/one">
+        <a href="/two">x</a>
+      </a>
+    </mi>
+  </math>
 );
 
 let el = (
@@ -440,6 +468,22 @@ let el = (
     <a href="/">
       <path d="" />
     </a>
+  </svg>
+);
+
+let el = (
+  <svg>
+    <a href="/one">
+      <a href="/two" />
+    </a>
+  </svg>
+);
+
+let el = (
+  <svg>
+    <title>
+      <b>Hello world!</b>
+    </title>
   </svg>
 );
 

@@ -28,6 +28,8 @@ const htmlElement = parse("<!DOCTYPE html><html><head></head><body></body></html
   .childNodes[1] as ParentNode;
 const bodyContext = htmlElement.childNodes[1] as ParentNode;
 
+type Namespace = "html" | "svg" | "math";
+
 const rewriteCache = new Map<string, boolean>();
 const tableWrappers: Record<string, string[]> = {
   caption: ["table"],
@@ -56,14 +58,16 @@ const tableWrappers: Record<string, string[]> = {
  * validate templates, fails to give back the same parent/child relationship.
  * The library stays as the cheap pre-filter that decides when to ask.
  */
-const parserRewrites = (parent: string, child: string): boolean => {
-  const key = `${parent}>${child}`;
+const parserRewrites = (parent: string, child: string, namespace: Namespace): boolean => {
+  const key = `${namespace}:${parent}>${child}`;
   const cached = rewriteCache.get(key);
   if (cached !== undefined) return cached;
 
-  // A body fragment discards table-section tags without their table ancestors.
-  const wrappers = tableWrappers[parent] ?? [];
-  const documentParent = parent === "head" || parent === "body";
+  // A body fragment discards table-section tags without their table ancestors. Foreign
+  // content is parsed inside its `<svg>` or `<math>`, where those are plain elements.
+  const foreign = namespace !== "html";
+  const wrappers = foreign ? [namespace] : tableWrappers[parent] ?? [];
+  const documentParent = !foreign && (parent === "head" || parent === "body");
   const markup = wrappers.reduceRight(
     (content, tag) => `<${tag}>${content}</${tag}>`,
     `<${parent}><${child}></${child}></${parent}>`
@@ -85,7 +89,11 @@ const parserRewrites = (parent: string, child: string): boolean => {
     root && "content" in root ? (root.content as ParentNode) : (root as ParentNode | undefined);
   const kids: ChildNode[] = (container?.childNodes ?? []).filter((n) => n.nodeName !== "#text");
 
-  const rewritten = !root || kids.length !== 1 || kids[0].nodeName !== child;
+  // Foreign content can only clear a report the HTML reading makes, since `<svg>` keeps
+  // `<a><a />` as written. Tags breaking out of it are a scope rule, unreported like the rest.
+  const rewritten =
+    (!root || kids.length !== 1 || kids[0].nodeName !== child) &&
+    (!foreign || parserRewrites(parent, child, "html"));
   rewriteCache.set(key, rewritten);
   return rewritten;
 };
@@ -161,6 +169,37 @@ const getDOMParent = (node: T.JSXElement): T.JSXElement | null => {
   return null;
 };
 
+/** SVG and MathML elements whose children the parser reads as HTML again. */
+const htmlIntegrationPoints = new Set([
+  "foreignObject",
+  "desc",
+  "title",
+  "mi",
+  "mo",
+  "mn",
+  "ms",
+  "mtext",
+]);
+
+/**
+ * The namespace the parser is in when it reaches this element's start tag: SVG or
+ * MathML below the nearest `<svg>` or `<math>`, HTML again below an integration
+ * point like `<foreignObject>`. Inside `<svg>`, `<a><a /></a>` and `<title><b /></title>`
+ * are kept as written, so judging them as HTML would report markup that is fine.
+ *
+ * The walk crosses expressions and components alike. A wrong guess here can only
+ * hide a report, never add one.
+ */
+const getParsingNamespace = (node: T.JSXElement): Namespace => {
+  for (let ancestor: T.Node | undefined = node.parent; ancestor; ancestor = ancestor.parent) {
+    if (ancestor.type !== "JSXElement") continue;
+    const tag = getDOMTagName(ancestor);
+    if (tag === "svg" || tag === "math") return tag;
+    if (tag && htmlIntegrationPoints.has(tag)) return "html";
+  }
+  return "html";
+};
+
 export default createRule<Options, MessageIds>({
   meta: {
     type: "problem",
@@ -181,7 +220,7 @@ export default createRule<Options, MessageIds>({
       const parent = getDOMTagName(parentNode);
       if (!parent) return;
       if (isValidHTMLNesting(parent, child)) return;
-      if (!parserRewrites(parent, child)) return;
+      if (!parserRewrites(parent, child, getParsingNamespace(parentNode))) return;
 
       context.report({
         node: node.openingElement.name,
