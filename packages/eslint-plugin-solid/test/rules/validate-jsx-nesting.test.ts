@@ -157,29 +157,30 @@ export const cases = run("validate-jsx-nesting", rule, {
       code: `let el = <x-row><td>1</td></x-row>;`,
       errors: [{ messageId: "invalidNesting", data: { parent: "x-row", child: "td" } }],
     },
-    // these all compile to the same insert() into the same parent
+    // these all compile to the same insert() into the same parent, which only
+    // server-rendered HTML sends back through the parser
     {
       code: `let el = <p>{<hr />}</p>;`,
-      errors: [{ messageId: "invalidNesting", data: { parent: "p", child: "hr" } }],
+      errors: [{ messageId: "invalidNestingInserted", data: { parent: "p", child: "hr" } }],
     },
     {
       code: `let el = <p>{condition && <hr />}</p>;`,
-      errors: [{ messageId: "invalidNesting", data: { parent: "p", child: "hr" } }],
+      errors: [{ messageId: "invalidNestingInserted", data: { parent: "p", child: "hr" } }],
     },
     {
       code: `let el = <p>{condition ? <hr /> : <div />}</p>;`,
       errors: [
-        { messageId: "invalidNesting", data: { parent: "p", child: "hr" } },
-        { messageId: "invalidNesting", data: { parent: "p", child: "div" } },
+        { messageId: "invalidNestingInserted", data: { parent: "p", child: "hr" } },
+        { messageId: "invalidNestingInserted", data: { parent: "p", child: "div" } },
       ],
     },
     {
       code: `let el = <p>{[<hr />]}</p>;`,
-      errors: [{ messageId: "invalidNesting", data: { parent: "p", child: "hr" } }],
+      errors: [{ messageId: "invalidNestingInserted", data: { parent: "p", child: "hr" } }],
     },
     {
       code: `let el = <p children={<hr />} />;`,
-      errors: [{ messageId: "invalidNesting", data: { parent: "p", child: "hr" } }],
+      errors: [{ messageId: "invalidNestingInserted", data: { parent: "p", child: "hr" } }],
     },
     // each level is reported on its own
     {

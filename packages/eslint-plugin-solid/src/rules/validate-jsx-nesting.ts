@@ -14,7 +14,7 @@ import { isDOMElementName } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
-type MessageIds = "invalidNesting";
+type MessageIds = "invalidNesting" | "invalidNestingInserted";
 type Options = [];
 
 /**
@@ -169,6 +169,20 @@ const getDOMParent = (node: T.JSXElement): T.JSXElement | null => {
   return null;
 };
 
+/**
+ * Does `node` reach `parent` through an expression container or a `children`
+ * prop? Those compile to an `insert()`, which the client performs as written;
+ * only server-rendered HTML goes back through the parser.
+ */
+const isInserted = (node: T.JSXElement, parent: T.JSXElement): boolean => {
+  let current: T.Node | undefined = node.parent;
+  while (current && current !== parent) {
+    if (current.type === "JSXExpressionContainer" || current.type === "JSXAttribute") return true;
+    current = current.parent;
+  }
+  return false;
+};
+
 /** SVG and MathML elements whose children the parser reads as HTML again. */
 const htmlIntegrationPoints = new Set([
   "foreignObject",
@@ -212,6 +226,8 @@ export default createRule<Options, MessageIds>({
     messages: {
       invalidNesting:
         "Invalid HTML nesting: `<{{child}}>` cannot be a child of `<{{parent}}>`. The HTML parser restructures this, so the rendered DOM won't match this markup.",
+      invalidNestingInserted:
+        "Invalid HTML nesting: `<{{child}}>` cannot be a child of `<{{parent}}>`. The client inserts it as written, but the HTML parser restructures it in server-rendered HTML, so hydration won't match this markup.",
     },
   },
   defaultOptions: [],
@@ -224,7 +240,7 @@ export default createRule<Options, MessageIds>({
 
       context.report({
         node: node.openingElement.name,
-        messageId: "invalidNesting",
+        messageId: isInserted(node, parentNode) ? "invalidNestingInserted" : "invalidNesting",
         data: { parent, child },
       });
     };

@@ -21,6 +21,16 @@ is an `appendChild`, which builds the invalid tree happily; under SSR the same
 JSX is serialized, reparsed by the browser, and hydration walks a DOM that no
 longer matches.
 
+Inserted children get their own message, since the client renders them as
+written and only server-rendered HTML is restructured. They are still reported
+as errors. A component can't tell whether it will be server-rendered, and the
+nesting is the one the compiler rejects in a static template, so the
+[confidence policy](./rule-confidence.md) classes these reports as certain in
+context, like `no-module-scope-reactive-primitive`. That rule only runs in
+`v2-strict`; this one stays in `recommended` because severity is set per rule,
+not per message, and the repair (nesting the parser keeps) is right in both
+modes, so it never pushes a client-only app into a worse shape.
+
 Two questions decide a report, and both must say yes. `validate-html-nesting`
 is consulted first, as a cheap filter. Because its tables encode the spec's
 content model rather than parser behavior, a second check settles it: the pair
