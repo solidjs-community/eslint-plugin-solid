@@ -317,6 +317,12 @@ let el = (
 );
 
 let el = (
+  <ul>
+    <figcaption>Hello world!</figcaption>
+  </ul>
+);
+
+let el = (
   <div>
     <summary>Hello world!</summary>
   </div>
@@ -478,6 +484,12 @@ let el = (
     <a href="/">
       <path d="" />
     </a>
+  </svg>
+);
+
+let el = (
+  <svg>
+    <tr />
   </svg>
 );
 

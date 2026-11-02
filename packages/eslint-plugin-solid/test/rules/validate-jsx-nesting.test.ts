@@ -14,6 +14,7 @@ export const cases = run("validate-jsx-nesting", rule, {
     // the spec's content model disallows them
     `let el = <h1><div>Hello world!</div></h1>;`,
     `let el = <div><figcaption>Hello world!</figcaption></div>;`,
+    `let el = <ul><figcaption>Hello world!</figcaption></ul>;`,
     `let el = <div><summary>Hello world!</summary></div>;`,
     `let el = <html><body><figcaption>Caption</figcaption></body></html>;`,
     `let el = <body><dd>Definition</dd></body>;`,
@@ -36,6 +37,7 @@ export const cases = run("validate-jsx-nesting", rule, {
     `let el = <math><mfrac><mi>a</mi><mi>b</mi></mfrac></math>;`,
     `let el = <math><semantics><mi>x</mi></semantics></math>;`,
     `let el = <svg><a href="/"><path d="" /></a></svg>;`,
+    `let el = <svg><tr /></svg>;`,
     // the parser keeps these inside <svg>, even though it rewrites them in HTML
     `let el = <svg><a href="/one"><a href="/two" /></a></svg>;`,
     `let el = <svg><title><b>Hello world!</b></title></svg>;`,
