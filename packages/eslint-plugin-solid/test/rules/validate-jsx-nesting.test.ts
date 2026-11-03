@@ -56,6 +56,11 @@ export const cases = run("validate-jsx-nesting", rule, {
     `let el = <svg><math><mi><a href="/one"><a href="/two" /></a></mi></math></svg>;`,
     `let el = <svg><g><math><title><b>Hello world!</b></title></math></g></svg>;`,
     `let el = <math><svg><title><a href="/one"><a href="/two" /></a></title></svg></math>;`,
+    // behind an expression they are the root of a separate template and start their own namespace
+    `let el = <math>{ok && <svg><title><b>Hello world!</b></title></svg>}</math>;`,
+    // <mglyph> and <malignmark> right inside <mi> and the like stay MathML, children included
+    `let el = <math><mi><mglyph><caption /></mglyph></mi></math>;`,
+    `let el = <math><mtext><malignmark><caption /></malignmark></mtext></math>;`,
     // content-model restrictions the parser doesn't enforce by moving anything
     `let el = <figure><a href="/x"><img src="a.png" /><figcaption>Caption</figcaption></a></figure>;`,
     `let el = <figure><div><figcaption>Caption</figcaption></div></figure>;`,
@@ -145,6 +150,20 @@ export const cases = run("validate-jsx-nesting", rule, {
       code: `let el = <math><mi><a href="/one"><a href="/two">x</a></a></mi></math>;`,
       errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
     },
+    // the parser lowercases tag and attribute names first
+    {
+      code: `let el = <svg><foreignobject><a href="/one"><a href="/two" /></a></foreignobject></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    {
+      code: `let el = <math><annotation-xml Encoding="text/html"><a href="/one"><a href="/two" /></a></annotation-xml></math>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    // one level down, <mglyph> is HTML like the rest
+    {
+      code: `let el = <math><mi><span><mglyph><caption /></mglyph></span></mi></math>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "mglyph", child: "caption" } }],
+    },
     // so do HTML tags that make the parser leave foreign content
     {
       code: `let el = <svg><g><p><a href="/one"><a href="/two" /></a></p></g></svg>;`,
@@ -165,6 +184,10 @@ export const cases = run("validate-jsx-nesting", rule, {
     },
     {
       code: `let el = <svg><math><title><a href="/one"><a href="/two" /></a></title></math></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    {
+      code: `let el = <svg>{ok && <math><mi><a href="/one"><a href="/two" /></a></mi></math>}</svg>;`,
       errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
     },
     // only <svg> right inside <annotation-xml> starts SVG within MathML

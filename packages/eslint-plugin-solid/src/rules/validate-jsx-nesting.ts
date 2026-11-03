@@ -10,7 +10,7 @@ import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { parse, parseFragment } from "parse5";
 import type { DefaultTreeAdapterMap } from "parse5";
 import { isValidHTMLNesting } from "validate-html-nesting";
-import { isDOMElementName, jsxGetProp, jsxPropName } from "../utils";
+import { isDOMElementName, jsxPropName } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -206,11 +206,14 @@ const isInserted = (node: T.JSXElement, parent: T.JSXElement): boolean => {
   return false;
 };
 
-/** SVG elements whose children the parser reads as HTML again. */
-const svgIntegrationPoints = new Set(["foreignObject", "desc", "title"]);
+/** SVG elements whose children the parser reads as HTML again, by lowercase name. */
+const svgIntegrationPoints = new Set(["foreignobject", "desc", "title"]);
 
 /** MathML elements whose children the parser reads as HTML again. */
 const mathIntegrationPoints = new Set(["mi", "mo", "mn", "ms", "mtext"]);
+
+/** MathML tags that stay MathML right inside those, children included. */
+const mathTextLeaves = new Set(["mglyph", "malignmark"]);
 
 /**
  * HTML tags that make the parser leave SVG or MathML wherever they appear in it.
@@ -289,7 +292,11 @@ const switchesToHTML = (
   }
   if (namespace === "svg") return svgIntegrationPoints.has(tag);
   if (tag === "annotation-xml") {
-    const encoding = jsxGetProp(attributes, "encoding")?.value;
+    // The parser lowercases attribute names and keeps the first of a repeated one.
+    const encoding = attributes.find(
+      (attr): attr is T.JSXAttribute =>
+        attr.type === "JSXAttribute" && jsxPropName(attr).toLowerCase() === "encoding"
+    )?.value;
     return (
       encoding?.type === "Literal" &&
       typeof encoding.value === "string" &&
@@ -321,25 +328,32 @@ const startsNamespace = (tag: string, namespace: Namespace, parentTag: string): 
  * its own namespace.
  */
 const getParsingNamespace = (node: T.JSXElement): Namespace => {
-  const ancestors: Array<[T.JSXElement, string]> = [];
-  for (let ancestor: T.Node | undefined = node.parent; ancestor; ancestor = ancestor.parent) {
-    if (ancestor.type !== "JSXElement") continue;
-    const tag = getDOMTagName(ancestor);
-    if (tag) ancestors.push([ancestor, tag]);
+  // The element itself comes along, since `<mglyph>` can set its own namespace.
+  const elements: Array<[T.JSXElement, string]> = [];
+  for (let current: T.Node | undefined = node; current; current = current.parent) {
+    if (current.type !== "JSXElement") continue;
+    const tag = getDOMTagName(current);
+    // The tokenizer lowercases tag names before any of the checks below.
+    if (tag) elements.push([current, tag.toLowerCase()]);
   }
   // Outermost first, since whether an element switches depends on the namespace it is in.
   let namespace: Namespace = "html";
-  let parent: [T.JSXElement, string] | undefined;
-  for (const [element, tag] of ancestors.reverse()) {
+  let parent: [T.JSXElement, string, Namespace] | undefined;
+  for (const [element, tag] of elements.reverse()) {
+    // Anything between two elements, like an expression or a component, is a boundary.
+    const outer = parent && element.parent === parent[0] ? parent : undefined;
+    // The namespace this element's own start tag is parsed in.
+    const own: Namespace =
+      outer && outer[2] === "math" && mathIntegrationPoints.has(outer[1]) && mathTextLeaves.has(tag)
+        ? "math"
+        : namespace;
+    if (element === node) return own;
     if (tag === "svg" || tag === "math") {
-      // Anything between the two elements, like an expression or a component, is a boundary.
-      if (!parent || element.parent !== parent[0] || startsNamespace(tag, namespace, parent[1])) {
-        namespace = tag;
-      }
-    } else if (namespace !== "html" && switchesToHTML(element, tag, namespace)) {
-      namespace = "html";
+      namespace = !outer || startsNamespace(tag, own, outer[1]) ? tag : own;
+    } else {
+      namespace = own !== "html" && switchesToHTML(element, tag, own) ? "html" : own;
     }
-    parent = [element, tag];
+    parent = [element, tag, own];
   }
   return namespace;
 };

@@ -192,6 +192,38 @@ let el = (
 
 let el = (
   <svg>
+    <foreignobject>
+      <a href="/one">
+        <a href="/two" />
+      </a>
+    </foreignobject>
+  </svg>
+);
+
+let el = (
+  <math>
+    <annotation-xml Encoding="text/html">
+      <a href="/one">
+        <a href="/two" />
+      </a>
+    </annotation-xml>
+  </math>
+);
+
+let el = (
+  <math>
+    <mi>
+      <span>
+        <mglyph>
+          <caption />
+        </mglyph>
+      </span>
+    </mi>
+  </math>
+);
+
+let el = (
+  <svg>
     <g>
       <p>
         <a href="/one">
@@ -241,6 +273,20 @@ let el = (
         </a>
       </title>
     </math>
+  </svg>
+);
+
+let el = (
+  <svg>
+    {ok && (
+      <math>
+        <mi>
+          <a href="/one">
+            <a href="/two" />
+          </a>
+        </mi>
+      </math>
+    )}
   </svg>
 );
 
@@ -695,6 +741,38 @@ let el = (
         </a>
       </title>
     </svg>
+  </math>
+);
+
+let el = (
+  <math>
+    {ok && (
+      <svg>
+        <title>
+          <b>Hello world!</b>
+        </title>
+      </svg>
+    )}
+  </math>
+);
+
+let el = (
+  <math>
+    <mi>
+      <mglyph>
+        <caption />
+      </mglyph>
+    </mi>
+  </math>
+);
+
+let el = (
+  <math>
+    <mtext>
+      <malignmark>
+        <caption />
+      </malignmark>
+    </mtext>
   </math>
 );
 
