@@ -43,8 +43,9 @@ Inside `<svg>` and `<math>` the pair is parsed a second time in that namespace,
 and it is reported only if the parser restructures it there too. The parser
 keeps `<svg><a href="/"><a href="/" /></a></svg>` and
 `<svg><title><b /></title></svg>` as written, so they aren't reported.
-`<foreignObject>`, `<desc>`, `<title>` and MathML's text elements (`<mi>`,
-`<mo>`, `<mn>`, `<ms>`, `<mtext>`) hand their children back to HTML, so
+SVG's `<foreignObject>`, `<desc>` and `<title>` and MathML's text elements
+(`<mi>`, `<mo>`, `<mn>`, `<ms>`, `<mtext>`) hand their children back to HTML,
+each only in its own namespace, so
 `<svg><foreignObject><p><div /></p></foreignObject></svg>` still is. So do the
 HTML tags that make the parser leave foreign content, like `<p>`, `<div>` or
 `<span>`: the inner `<a>` in
@@ -599,6 +600,26 @@ let el = (
   <math>
     <clipPath />
   </math>
+);
+
+let el = (
+  <math>
+    <title>
+      <a href="/one">
+        <a href="/two" />
+      </a>
+    </title>
+  </math>
+);
+
+let el = (
+  <svg>
+    <mi>
+      <a href="/one">
+        <a href="/two" />
+      </a>
+    </mi>
+  </svg>
 );
 
 let el = (

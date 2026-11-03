@@ -206,17 +206,11 @@ const isInserted = (node: T.JSXElement, parent: T.JSXElement): boolean => {
   return false;
 };
 
-/** SVG and MathML elements whose children the parser reads as HTML again. */
-const htmlIntegrationPoints = new Set([
-  "foreignObject",
-  "desc",
-  "title",
-  "mi",
-  "mo",
-  "mn",
-  "ms",
-  "mtext",
-]);
+/** SVG elements whose children the parser reads as HTML again. */
+const svgIntegrationPoints = new Set(["foreignObject", "desc", "title"]);
+
+/** MathML elements whose children the parser reads as HTML again. */
+const mathIntegrationPoints = new Set(["mi", "mo", "mn", "ms", "mtext"]);
 
 /**
  * HTML tags that make the parser leave SVG or MathML wherever they appear in it.
@@ -275,8 +269,17 @@ const fontExitAttributes = new Set(["color", "face", "size"]);
 /** `<annotation-xml>` hands its children back to HTML with one of these encodings. */
 const htmlAnnotationEncodings = new Set(["text/html", "application/xhtml+xml"]);
 
-/** Does the parser read this element's children as HTML, even inside SVG or MathML? */
-const switchesToHTML = (element: T.JSXElement, tag: string): boolean => {
+/**
+ * Does the parser read this element's children as HTML, although the element sits in
+ * SVG or MathML? Integration points only count in their own namespace: `<title>` is
+ * one in SVG and a plain element in MathML, and `<mi>` the other way around.
+ */
+const switchesToHTML = (
+  element: T.JSXElement,
+  tag: string,
+  namespace: Exclude<Namespace, "html">
+): boolean => {
+  if (foreignContentExits.has(tag)) return true;
   const { attributes } = element.openingElement;
   if (tag === "font") {
     return attributes.some(
@@ -284,6 +287,7 @@ const switchesToHTML = (element: T.JSXElement, tag: string): boolean => {
         attr.type === "JSXAttribute" && fontExitAttributes.has(jsxPropName(attr).toLowerCase())
     );
   }
+  if (namespace === "svg") return svgIntegrationPoints.has(tag);
   if (tag === "annotation-xml") {
     const encoding = jsxGetProp(attributes, "encoding")?.value;
     return (
@@ -292,7 +296,7 @@ const switchesToHTML = (element: T.JSXElement, tag: string): boolean => {
       htmlAnnotationEncodings.has(encoding.value.toLowerCase())
     );
   }
-  return htmlIntegrationPoints.has(tag) || foreignContentExits.has(tag);
+  return mathIntegrationPoints.has(tag);
 };
 
 /**
@@ -306,13 +310,19 @@ const switchesToHTML = (element: T.JSXElement, tag: string): boolean => {
  * a new template there. A wrong guess here can only hide a report, never add one.
  */
 const getParsingNamespace = (node: T.JSXElement): Namespace => {
+  const ancestors: Array<[T.JSXElement, string]> = [];
   for (let ancestor: T.Node | undefined = node.parent; ancestor; ancestor = ancestor.parent) {
     if (ancestor.type !== "JSXElement") continue;
     const tag = getDOMTagName(ancestor);
-    if (tag === "svg" || tag === "math") return tag;
-    if (tag && switchesToHTML(ancestor, tag)) return "html";
+    if (tag) ancestors.push([ancestor, tag]);
   }
-  return "html";
+  // Outermost first, since whether an element switches back depends on the namespace it is in.
+  let namespace: Namespace = "html";
+  for (const [element, tag] of ancestors.reverse()) {
+    if (tag === "svg" || tag === "math") namespace = tag;
+    else if (namespace !== "html" && switchesToHTML(element, tag, namespace)) namespace = "html";
+  }
+  return namespace;
 };
 
 export default createRule<Options, MessageIds>({

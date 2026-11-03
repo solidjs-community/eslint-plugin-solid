@@ -49,6 +49,9 @@ export const cases = run("validate-jsx-nesting", rule, {
     // outside <svg> the parser lowercases tags like foreignObject, which is still the same tag
     `let el = <foreignObject><figcaption>Caption</figcaption></foreignObject>;`,
     `let el = <math><clipPath /></math>;`,
+    // <title> hands its children back to HTML only in SVG, and <mi> only in MathML
+    `let el = <math><title><a href="/one"><a href="/two" /></a></title></math>;`,
+    `let el = <svg><mi><a href="/one"><a href="/two" /></a></mi></svg>;`,
     // content-model restrictions the parser doesn't enforce by moving anything
     `let el = <figure><a href="/x"><img src="a.png" /><figcaption>Caption</figcaption></a></figure>;`,
     `let el = <figure><div><figcaption>Caption</figcaption></div></figure>;`,
