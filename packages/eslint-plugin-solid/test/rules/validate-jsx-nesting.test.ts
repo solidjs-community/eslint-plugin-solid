@@ -52,6 +52,10 @@ export const cases = run("validate-jsx-nesting", rule, {
     // <title> hands its children back to HTML only in SVG, and <mi> only in MathML
     `let el = <math><title><a href="/one"><a href="/two" /></a></title></math>;`,
     `let el = <svg><mi><a href="/one"><a href="/two" /></a></mi></svg>;`,
+    // nested in foreign content, <svg> and <math> are plain elements of the namespace around them
+    `let el = <svg><math><mi><a href="/one"><a href="/two" /></a></mi></math></svg>;`,
+    `let el = <svg><g><math><title><b>Hello world!</b></title></math></g></svg>;`,
+    `let el = <math><svg><title><a href="/one"><a href="/two" /></a></title></svg></math>;`,
     // content-model restrictions the parser doesn't enforce by moving anything
     `let el = <figure><a href="/x"><img src="a.png" /><figcaption>Caption</figcaption></a></figure>;`,
     `let el = <figure><div><figcaption>Caption</figcaption></div></figure>;`,
@@ -152,6 +156,20 @@ export const cases = run("validate-jsx-nesting", rule, {
     },
     {
       code: `let el = <math><annotation-xml encoding="text/html"><a href="/one"><a href="/two" /></a></annotation-xml></math>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    // below a nested <svg> or <math>, integration points are those of the namespace around it
+    {
+      code: `let el = <math><svg><title><b>Hello world!</b></title></svg></math>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "title", child: "b" } }],
+    },
+    {
+      code: `let el = <svg><math><title><a href="/one"><a href="/two" /></a></title></math></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    // only <svg> right inside <annotation-xml> starts SVG within MathML
+    {
+      code: `let el = <math><annotation-xml><svg><title><a href="/one"><a href="/two" /></a></title></svg></annotation-xml></math>;`,
       errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
     },
     {

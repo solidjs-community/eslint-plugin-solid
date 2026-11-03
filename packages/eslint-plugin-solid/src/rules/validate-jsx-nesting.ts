@@ -300,14 +300,25 @@ const switchesToHTML = (
 };
 
 /**
+ * Does the parser start SVG or MathML at this `<svg>` or `<math>`, written right inside
+ * `parentTag`? It does coming from HTML, and for `<svg>` in MathML's `<annotation-xml>`.
+ * Anywhere else in foreign content the tag is a plain element of the namespace around
+ * it, so the `<mi>` in `<svg><math><mi>` is an SVG element and keeps its children.
+ */
+const startsNamespace = (tag: string, namespace: Namespace, parentTag: string): boolean =>
+  namespace === "html" || (tag === "svg" && namespace === "math" && parentTag === "annotation-xml");
+
+/**
  * The namespace the parser is in when it reaches this element's start tag: SVG or
- * MathML below the nearest `<svg>` or `<math>`, HTML again below an integration
+ * MathML below an `<svg>` or `<math>` that starts it, HTML again below an integration
  * point like `<foreignObject>` or a tag that leaves foreign content like `<p>`.
  * Inside `<svg>`, `<a><a /></a>` and `<title><b /></title>` are kept as written, so
  * judging them as HTML would report markup that is fine.
  *
  * The walk crosses expressions and components alike, although the compiler starts
  * a new template there. A wrong guess here can only hide a report, never add one.
+ * An `<svg>` or `<math>` right behind one is the root of that template, which starts
+ * its own namespace.
  */
 const getParsingNamespace = (node: T.JSXElement): Namespace => {
   const ancestors: Array<[T.JSXElement, string]> = [];
@@ -316,11 +327,19 @@ const getParsingNamespace = (node: T.JSXElement): Namespace => {
     const tag = getDOMTagName(ancestor);
     if (tag) ancestors.push([ancestor, tag]);
   }
-  // Outermost first, since whether an element switches back depends on the namespace it is in.
+  // Outermost first, since whether an element switches depends on the namespace it is in.
   let namespace: Namespace = "html";
+  let parent: [T.JSXElement, string] | undefined;
   for (const [element, tag] of ancestors.reverse()) {
-    if (tag === "svg" || tag === "math") namespace = tag;
-    else if (namespace !== "html" && switchesToHTML(element, tag, namespace)) namespace = "html";
+    if (tag === "svg" || tag === "math") {
+      // Anything between the two elements, like an expression or a component, is a boundary.
+      if (!parent || element.parent !== parent[0] || startsNamespace(tag, namespace, parent[1])) {
+        namespace = tag;
+      }
+    } else if (namespace !== "html" && switchesToHTML(element, tag, namespace)) {
+      namespace = "html";
+    }
+    parent = [element, tag];
   }
   return namespace;
 };

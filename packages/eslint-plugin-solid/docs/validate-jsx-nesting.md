@@ -52,13 +52,17 @@ HTML tags that make the parser leave foreign content, like `<p>`, `<div>` or
 `<svg><g><p><a href="/"><a href="/" /></a></p></g></svg>` is reported.
 `<font>` leaves foreign content only with a `color`, `face` or `size`
 attribute, and MathML's `<annotation-xml>` hands its children back to HTML only
-with `encoding="text/html"` or `encoding="application/xhtml+xml"`.
+with `encoding="text/html"` or `encoding="application/xhtml+xml"`. A `<math>`
+nested in SVG markup is a plain SVG element, and an `<svg>` nested in MathML
+markup is a plain MathML element unless its parent is `<annotation-xml>`, so
+`<svg><math><mi><a href="/"><a href="/" /></a></mi></math></svg>` isn't
+reported.
 
-The namespace is read from the nearest `<svg>` or `<math>` in the JSX, even
-across an expression or a component. The compiler builds that part as a
-separate template, which stays in SVG only when its root is an SVG-only
-element, so `<svg>{ok && <a href="/"><a href="/" /></a>}</svg>` goes unreported
-even though the compiler rejects it when generating DOM code.
+The namespace is read from the JSX even across an expression or a component,
+where an `<svg>` or `<math>` always starts its own. The compiler builds that
+part as a separate template, which stays in SVG only when its root is an
+SVG-only element, so `<svg>{ok && <a href="/"><a href="/" /></a>}</svg>` goes
+unreported even though the compiler rejects it when generating DOM code.
 
 The check is between an element and its direct parent, which is a real limit:
 the parser also closes `p`, `a`, `button`, `form` and `li` by scope, and pushes
@@ -214,6 +218,42 @@ let el = (
       <a href="/one">
         <a href="/two" />
       </a>
+    </annotation-xml>
+  </math>
+);
+
+let el = (
+  <math>
+    <svg>
+      <title>
+        <b>Hello world!</b>
+      </title>
+    </svg>
+  </math>
+);
+
+let el = (
+  <svg>
+    <math>
+      <title>
+        <a href="/one">
+          <a href="/two" />
+        </a>
+      </title>
+    </math>
+  </svg>
+);
+
+let el = (
+  <math>
+    <annotation-xml>
+      <svg>
+        <title>
+          <a href="/one">
+            <a href="/two" />
+          </a>
+        </title>
+      </svg>
     </annotation-xml>
   </math>
 );
@@ -620,6 +660,42 @@ let el = (
       </a>
     </mi>
   </svg>
+);
+
+let el = (
+  <svg>
+    <math>
+      <mi>
+        <a href="/one">
+          <a href="/two" />
+        </a>
+      </mi>
+    </math>
+  </svg>
+);
+
+let el = (
+  <svg>
+    <g>
+      <math>
+        <title>
+          <b>Hello world!</b>
+        </title>
+      </math>
+    </g>
+  </svg>
+);
+
+let el = (
+  <math>
+    <svg>
+      <title>
+        <a href="/one">
+          <a href="/two" />
+        </a>
+      </title>
+    </svg>
+  </math>
 );
 
 let el = (
