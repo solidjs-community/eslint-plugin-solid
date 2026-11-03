@@ -574,6 +574,34 @@ let el = (
 );
 
 let el = (
+  <svg>
+    <title>
+      one
+      <br />
+      two
+    </title>
+  </svg>
+);
+
+let el = (
+  <optgroup label="Group">
+    <br />
+  </optgroup>
+);
+
+let el = (
+  <foreignObject>
+    <figcaption>Caption</figcaption>
+  </foreignObject>
+);
+
+let el = (
+  <math>
+    <clipPath />
+  </math>
+);
+
+let el = (
   <figure>
     <a href="/x">
       <img src="a.png" />

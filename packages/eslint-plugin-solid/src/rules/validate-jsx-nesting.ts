@@ -42,6 +42,28 @@ const tableWrappers: Record<string, string[]> = {
   th: ["table", "tbody", "tr"],
 };
 
+/** Written without an end tag, as the compiler does: the parser reads `</br>` as another `<br>`. */
+const voidElements = new Set([
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr",
+]);
+
+/** parse5 lowercases tag names outside SVG, so `<foreignObject>` comes back as `foreignobject`. */
+const isTag = (node: ChildNode, tag: string): boolean =>
+  node.nodeName.toLowerCase() === tag.toLowerCase();
+
 /**
  * Does the HTML parser refuse to keep `child` as a direct child of `parent`?
  *
@@ -68,9 +90,10 @@ const parserRewrites = (parent: string, child: string, namespace: Namespace): bo
   const foreign = namespace !== "html";
   const wrappers = foreign ? [namespace] : tableWrappers[parent] ?? [];
   const documentParent = !foreign && (parent === "head" || parent === "body");
+  const childMarkup = voidElements.has(child) ? `<${child}>` : `<${child}></${child}>`;
   const markup = wrappers.reduceRight(
     (content, tag) => `<${tag}>${content}</${tag}>`,
-    `<${parent}><${child}></${child}></${parent}>`
+    `<${parent}>${childMarkup}</${parent}>`
   );
   let fragment: ParentNode | undefined = documentParent
     ? (parse(markup).childNodes.find((node) => node.nodeName === "html") as ParentNode | undefined)
@@ -81,7 +104,7 @@ const parserRewrites = (parent: string, child: string, namespace: Namespace): bo
   const roots = (fragment?.childNodes ?? []).filter((n) => n.nodeName !== "#text");
   const root = documentParent
     ? roots.find((node) => node.nodeName === parent)
-    : roots.length === 1 && roots[0].nodeName === parent
+    : roots.length === 1 && isTag(roots[0], parent)
     ? roots[0]
     : undefined;
   // `<template>` parks its children in `content`, not `childNodes`.
@@ -92,7 +115,7 @@ const parserRewrites = (parent: string, child: string, namespace: Namespace): bo
   // Foreign content can only clear a report the HTML reading makes, since `<svg>` keeps
   // `<a><a />` as written. Tags breaking out of it are a scope rule, unreported like the rest.
   const rewritten =
-    (!root || kids.length !== 1 || kids[0].nodeName !== child) &&
+    (!root || kids.length !== 1 || !isTag(kids[0], child)) &&
     (!foreign || parserRewrites(parent, child, "html"));
   rewriteCache.set(key, rewritten);
   return rewritten;
