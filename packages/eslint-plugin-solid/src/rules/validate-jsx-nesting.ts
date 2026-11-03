@@ -42,7 +42,7 @@ const tableWrappers: Record<string, string[]> = {
   th: ["table", "tbody", "tr"],
 };
 
-/** Written without an end tag, as the compiler does: the parser reads `</br>` as another `<br>`. */
+/** Void elements take no end tag, and the parser would read `</br>` as another `<br>`. */
 const voidElements = new Set([
   "area",
   "base",
