@@ -10,7 +10,7 @@ import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
 import { parse, parseFragment } from "parse5";
 import type { DefaultTreeAdapterMap } from "parse5";
 import { isValidHTMLNesting } from "validate-html-nesting";
-import { isDOMElementName } from "../utils";
+import { isDOMElementName, jsxGetProp, jsxPropName } from "../utils";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -197,7 +197,7 @@ const htmlIntegrationPoints = new Set([
 
 /**
  * HTML tags that make the parser leave SVG or MathML wherever they appear in it.
- * `<font>` only does with `color`, `face` or `size`, so it's left out.
+ * `<font>` only does with some attributes, so it's checked on its own below.
  */
 const foreignContentExits = new Set([
   "b",
@@ -246,6 +246,32 @@ const foreignContentExits = new Set([
   "var",
 ]);
 
+/** `<font>` leaves foreign content when it has one of these attributes. */
+const fontExitAttributes = new Set(["color", "face", "size"]);
+
+/** `<annotation-xml>` hands its children back to HTML with one of these encodings. */
+const htmlAnnotationEncodings = new Set(["text/html", "application/xhtml+xml"]);
+
+/** Does the parser read this element's children as HTML, even inside SVG or MathML? */
+const switchesToHTML = (element: T.JSXElement, tag: string): boolean => {
+  const { attributes } = element.openingElement;
+  if (tag === "font") {
+    return attributes.some(
+      (attr) =>
+        attr.type === "JSXAttribute" && fontExitAttributes.has(jsxPropName(attr).toLowerCase())
+    );
+  }
+  if (tag === "annotation-xml") {
+    const encoding = jsxGetProp(attributes, "encoding")?.value;
+    return (
+      encoding?.type === "Literal" &&
+      typeof encoding.value === "string" &&
+      htmlAnnotationEncodings.has(encoding.value.toLowerCase())
+    );
+  }
+  return htmlIntegrationPoints.has(tag) || foreignContentExits.has(tag);
+};
+
 /**
  * The namespace the parser is in when it reaches this element's start tag: SVG or
  * MathML below the nearest `<svg>` or `<math>`, HTML again below an integration
@@ -261,7 +287,7 @@ const getParsingNamespace = (node: T.JSXElement): Namespace => {
     if (ancestor.type !== "JSXElement") continue;
     const tag = getDOMTagName(ancestor);
     if (tag === "svg" || tag === "math") return tag;
-    if (tag && (htmlIntegrationPoints.has(tag) || foreignContentExits.has(tag))) return "html";
+    if (tag && switchesToHTML(ancestor, tag)) return "html";
   }
   return "html";
 };

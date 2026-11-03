@@ -41,6 +41,8 @@ export const cases = run("validate-jsx-nesting", rule, {
     // the parser keeps these inside <svg>, even though it rewrites them in HTML
     `let el = <svg><a href="/one"><a href="/two" /></a></svg>;`,
     `let el = <svg><title><b>Hello world!</b></title></svg>;`,
+    `let el = <svg><font><a href="/one"><a href="/two" /></a></font></svg>;`,
+    `let el = <math><annotation-xml><a href="/one"><a href="/two" /></a></annotation-xml></math>;`,
     // content-model restrictions the parser doesn't enforce by moving anything
     `let el = <figure><a href="/x"><img src="a.png" /><figcaption>Caption</figcaption></a></figure>;`,
     `let el = <figure><div><figcaption>Caption</figcaption></div></figure>;`,
@@ -133,6 +135,14 @@ export const cases = run("validate-jsx-nesting", rule, {
     // so do HTML tags that make the parser leave foreign content
     {
       code: `let el = <svg><g><p><a href="/one"><a href="/two" /></a></p></g></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    {
+      code: `let el = <svg><font color="red"><a href="/one"><a href="/two" /></a></font></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    {
+      code: `let el = <math><annotation-xml encoding="text/html"><a href="/one"><a href="/two" /></a></annotation-xml></math>;`,
       errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
     },
     {

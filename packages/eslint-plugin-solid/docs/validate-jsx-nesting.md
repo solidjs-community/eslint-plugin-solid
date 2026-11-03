@@ -49,6 +49,9 @@ keeps `<svg><a href="/"><a href="/" /></a></svg>` and
 HTML tags that make the parser leave foreign content, like `<p>`, `<div>` or
 `<span>`: the inner `<a>` in
 `<svg><g><p><a href="/"><a href="/" /></a></p></g></svg>` is reported.
+`<font>` leaves foreign content only with a `color`, `face` or `size`
+attribute, and MathML's `<annotation-xml>` hands its children back to HTML only
+with `encoding="text/html"` or `encoding="application/xhtml+xml"`.
 
 The namespace is read from the nearest `<svg>` or `<math>` in the JSX, even
 across an expression or a component. The compiler builds that part as a
@@ -192,6 +195,26 @@ let el = (
       </p>
     </g>
   </svg>
+);
+
+let el = (
+  <svg>
+    <font color="red">
+      <a href="/one">
+        <a href="/two" />
+      </a>
+    </font>
+  </svg>
+);
+
+let el = (
+  <math>
+    <annotation-xml encoding="text/html">
+      <a href="/one">
+        <a href="/two" />
+      </a>
+    </annotation-xml>
+  </math>
 );
 
 let el = (
@@ -528,6 +551,26 @@ let el = (
       <b>Hello world!</b>
     </title>
   </svg>
+);
+
+let el = (
+  <svg>
+    <font>
+      <a href="/one">
+        <a href="/two" />
+      </a>
+    </font>
+  </svg>
+);
+
+let el = (
+  <math>
+    <annotation-xml>
+      <a href="/one">
+        <a href="/two" />
+      </a>
+    </annotation-xml>
+  </math>
 );
 
 let el = (
