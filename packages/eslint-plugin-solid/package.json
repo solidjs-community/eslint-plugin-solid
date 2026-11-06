@@ -60,7 +60,8 @@
   "files": [
     "src",
     "dist",
-    "README.md"
+    "README.md",
+    "THIRD_PARTY_LICENSES.md"
   ],
   "scripts": {
     "build": "tsup",
@@ -75,7 +76,7 @@
     "turbo:tsc": "tsc -p test/types"
   },
   "dependencies": {
-    "@eslint-community/eslint-utils": "^4.8.0",
+    "eslint-visitor-keys": "^3.4.3",
     "estraverse": "^5.3.0",
     "is-html": "^2.0.0",
     "kebab-case": "^1.0.2",
@@ -85,6 +86,7 @@
   "devDependencies": {
     "@babel/core": "^8.0.0",
     "@babel/eslint-parser": "^8.0.1",
+    "@eslint-community/eslint-utils": "^4.8.0",
     "@microsoft/api-extractor": "^7.47.6",
     "@types/estraverse": "^5.1.7",
     "@types/is-html": "^2.0.2",
@@ -100,6 +102,11 @@
   },
   "peerDependencies": {
     "eslint": "^9.0.0 || ^10.0.0"
+  },
+  "peerDependenciesMeta": {
+    "eslint": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=22.0.0"

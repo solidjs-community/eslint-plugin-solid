@@ -1,6 +1,5 @@
 import type { ASTUtils, ESLintUtils, TSESLint, TSESTree } from "@typescript-eslint/utils";
 import * as eslintUtils from "@eslint-community/eslint-utils";
-import type { Rule } from "eslint";
 
 // Typed via typescript-eslint (types only): its runtime package requires TypeScript <6.1.
 export const getStaticValue = eslintUtils.getStaticValue as typeof ASTUtils.getStaticValue;
@@ -11,7 +10,8 @@ export const getFunctionHeadLocation =
   eslintUtils.getFunctionHeadLocation as unknown as typeof ASTUtils.getFunctionHeadLocation;
 export const findVariableInScope = eslintUtils.findVariable as typeof ASTUtils.findVariable;
 
-export type SolidRule = Rule.RuleModule & { meta: Rule.RuleMetaData };
+// Structural so the published types don't import `eslint`, an optional peer.
+export type SolidRule = { meta: any; create(context: any): any };
 
 const isObjectNotArray = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value != null && !Array.isArray(value);
