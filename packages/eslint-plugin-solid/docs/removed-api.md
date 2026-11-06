@@ -49,9 +49,13 @@ om(() => {});
 
 import { createResource } from "solid-js";
 
+import { createDeferred, createResource, from, observable } from "solid-js";
+
 import { on, useTransition } from "solid-js";
 
 import { Index, Suspense, ErrorBoundary } from "solid-js";
+
+import { onError, catchError, ErrorBoundary, SuspenseList } from "solid-js";
 
 import { renderToStringAsync } from "@solidjs/web";
 
@@ -102,6 +106,10 @@ import { createStore, reconcile } from "solid-js";
 import { render, Portal, Dynamic } from "@solidjs/web";
 
 import { something } from "somewhere/else";
+
+import { createDeferred, from } from "solid-js";
+
+import { createDeferred as defer, from as fromSource } from "solid-js";
 
 let el = <div class={{ active: true }} />;
 

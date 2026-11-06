@@ -577,7 +577,10 @@ export default createRule<Options, MessageIds>({
           return (
             parent === boundary &&
             parent.type === "ArrowFunctionExpression" &&
-            parent.body === child
+            parent.body === child &&
+            // only an expression body is an implicit return; a closure declared as a
+            // statement in a block body is not returned (#250)
+            child.type !== "BlockStatement"
           );
         }
         child = parent;
@@ -973,6 +976,19 @@ export default createRule<Options, MessageIds>({
           // These common array methods (or likely array methods) take synchronous callbacks
           scopeStack.syncCallbacks.add(node.arguments[0]);
         }
+      }
+      if (
+        // Array.from(iterable, mapFn) calls mapFn synchronously (#250)
+        node.callee.type === "MemberExpression" &&
+        !node.callee.computed &&
+        node.callee.object.type === "Identifier" &&
+        node.callee.object.name === "Array" &&
+        node.callee.property.type === "Identifier" &&
+        node.callee.property.name === "from" &&
+        isFunctionNode(node.arguments[1]) &&
+        !node.arguments[1].async
+      ) {
+        scopeStack.syncCallbacks.add(node.arguments[1]);
       }
       if (node.callee.type === "Identifier") {
         if (
