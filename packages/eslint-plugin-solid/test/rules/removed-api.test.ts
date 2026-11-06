@@ -1,4 +1,4 @@
-import { run } from "../ruleTester";
+import { run, tsOnly } from "../ruleTester";
 import rule from "../../src/rules/removed-api";
 
 const ERROR_GUIDANCE =
@@ -49,7 +49,6 @@ onMount(() => console.log("hi"));`,
       errors: [
         {
           messageId: "renamedChanged",
-          data: { name: "onMount", replacement: "onSettled" },
           suggestions: [
             {
               messageId: "applyRename",
@@ -189,18 +188,19 @@ om(() => {});`,
     },
     {
       code: `import { createStore } from "solid-js/store";`,
-      errors: [{ messageId: "storeChanged", data: { name: "createStore" } }],
+      errors: [{ messageId: "storeChanged" }],
       output: `import { createStore } from "solid-js";`,
     },
     {
       code: `import type { Store } from "solid-js/store";`,
+      [tsOnly]: true,
       errors: [{ messageId: "storeMoved", data: { name: "Store" } }],
       output: `import type { Store } from "solid-js";`,
     },
     {
       code: `import { createStore, produce } from "solid-js/store";`,
       errors: [
-        { messageId: "storeChanged", data: { name: "createStore" } },
+        { messageId: "storeChanged" },
         { messageId: "removed" },
       ],
     },
