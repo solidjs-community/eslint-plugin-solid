@@ -108,6 +108,14 @@ let Component = (props) => (
   </ol>
 );
 
+let Component = (props) => (
+  <ol>
+    {props.data.map((item, i) => (
+      <li>{i}</li>
+    ))}
+  </ol>
+);
+
 ```
 
 ### Valid Examples
