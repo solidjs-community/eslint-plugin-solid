@@ -6,9 +6,9 @@ This rule is **off** by default.
 [View source](../src/rules/removed-api.ts) · [View tests](../test/rules/removed-api.test.ts)
 <!-- end-doc-gen -->
 
-This rule flags Solid 1.x APIs that were removed or renamed in Solid 2.0. Mechanical renames (`onMount` → `onSettled`, `batch` → `flush`, `mergeProps` → `merge`, `unwrap` → `snapshot`, `equalFn` → `isEqual`, `getListener` → `getObserver`) are auto-fixed, including all references. APIs whose replacement requires a structural rewrite (`createResource`, `on`, `Suspense`, `produce`, etc.) get a prescriptive message describing the 2.0 way instead.
+This rule flags Solid 1.x APIs that were removed or renamed in Solid 2.0. Mechanical renames (`equalFn` → `isEqual`, `getListener` → `getObserver`) are auto-fixed, including all references. Renames whose replacement behaves differently (`onMount` → `onSettled`, `batch` → `flush`, `mergeProps` → `merge`, `unwrap` → `snapshot`) are not auto-fixed: the message names the difference, and the rename is offered as an editor suggestion to apply after checking each call site. APIs whose replacement requires a structural rewrite (`createResource`, `on`, `Suspense`, `produce`, etc.) get a prescriptive message describing the 2.0 way instead.
 
-It also handles the module moves: `"solid-js/store"` exports now live in core `"solid-js"`, `"solid-js/web"` became the `"@solidjs/web"` package, and the `classList` prop was removed in favor of `class`, which accepts the same object form natively.
+It also handles the module moves: `"solid-js/store"` exports now live in core `"solid-js"` (the message for `createStore` and `reconcile` also notes that the store setter and `reconcile`'s signature changed), `"solid-js/web"` became the `"@solidjs/web"` package, and the `classList` prop was removed in favor of `class`, which accepts the same object form natively.
 
 This rule is enabled as an error in the `v2` and `v2-strict` configs. It is not intended for Solid 1.x projects.
 
