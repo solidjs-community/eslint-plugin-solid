@@ -8,12 +8,42 @@ const createRule = ESLintUtils.RuleCreator.withoutDocs;
 // Mechanical renames: same semantics, new name. Verified against the Solid 2.0
 // RC source (packages/solid/src/index.ts).
 const RENAMED = new Map<string, string>([
-  ["batch", "flush"],
   ["equalFn", "isEqual"],
   ["getListener", "getObserver"],
-  ["onMount", "onSettled"],
-  ["mergeProps", "merge"],
-  ["unwrap", "snapshot"],
+]);
+
+// Renames whose replacement behaves differently. `eslint --fix` must not apply
+// them unattended (#249), so the rename is offered as a suggestion and the
+// message names the difference.
+const RENAMED_CHANGED = new Map<string, [replacement: string, difference: string]>([
+  [
+    "batch",
+    [
+      "flush",
+      "`flush(fn)` runs `fn` and then drains synchronously; it throws in dev inside an action body and warns inside effect callbacks",
+    ],
+  ],
+  [
+    "onMount",
+    [
+      "onSettled",
+      "`onSettled` runs after the tree settles, and its return value is treated as a cleanup, so a callback that returns a non-function value is an error in dev",
+    ],
+  ],
+  [
+    "mergeProps",
+    [
+      "merge",
+      "an explicit `undefined` in a later source now overrides an earlier value instead of falling through",
+    ],
+  ],
+  [
+    "unwrap",
+    [
+      "snapshot",
+      "`snapshot` returns a copy, not the live underlying object, so identity checks and later store writes are not reflected",
+    ],
+  ],
 ]);
 
 // Removed APIs whose replacement requires a structural rewrite; the message is
@@ -83,14 +113,31 @@ const REMOVED = new Map<string, string>([
   ],
 ]);
 
-// Exports that moved from "solid-js/store" into core "solid-js" unchanged.
+// Exports that moved from "solid-js/store" into core "solid-js". The import
+// fix is safe, but `createStore`'s setter and `reconcile` changed shape, so
+// their message says so (#249).
 const STORE_MOVED = new Set(["createStore", "reconcile", "Store", "StoreNode"]);
+const STORE_CHANGED = new Map<string, string>([
+  [
+    "createStore",
+    "The setter now takes a single function that mutates a draft (`setStore(s => { s.user.name = v })`); 1.x path and object-merge setter calls no longer work",
+  ],
+  ["reconcile", "Its signature is now `reconcile(value, key)`; the 1.x options object is gone"],
+]);
 
 // Includes "@solidjs/web" so 1.x APIs that survived a mechanical source
 // rewrite (e.g. renderToStringAsync) are still reported as removed.
 const SOLID_SOURCE_REGEX = /^(?:solid-js(?:\/web|\/store)?|@solidjs\/web)$/;
 
-type MessageIds = "renamed" | "removed" | "webMoved" | "storeMoved" | "classList";
+type MessageIds =
+  | "renamed"
+  | "renamedChanged"
+  | "applyRename"
+  | "removed"
+  | "webMoved"
+  | "storeMoved"
+  | "storeChanged"
+  | "classList";
 type Options = [];
 
 export default createRule<Options, MessageIds>({
@@ -102,13 +149,19 @@ export default createRule<Options, MessageIds>({
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/removed-api.md",
     },
     fixable: "code",
+    hasSuggestions: true,
     schema: [],
     messages: {
       renamed: "'{{name}}' was renamed to '{{replacement}}' in Solid 2.0.",
+      renamedChanged:
+        "'{{name}}' was replaced by '{{replacement}}' in Solid 2.0, which behaves differently: {{difference}}. Check each call site before renaming.",
+      applyRename: "Rename '{{name}}' to '{{replacement}}'.",
       removed: "'{{name}}' was removed in Solid 2.0. {{guidance}}.",
       webMoved: 'The "solid-js/web" module is now the "@solidjs/web" package in Solid 2.0.',
       storeMoved:
         'The "solid-js/store" module no longer exists in Solid 2.0; \'{{name}}\' is exported from "solid-js".',
+      storeChanged:
+        'The "solid-js/store" module no longer exists in Solid 2.0; \'{{name}}\' is exported from "solid-js". {{guidance}}.',
       classList:
         "The `classList` prop was removed in Solid 2.0; `class` accepts the same object form directly.",
     },
@@ -172,6 +225,25 @@ export default createRule<Options, MessageIds>({
             continue;
           }
 
+          const changed = RENAMED_CHANGED.get(importedName);
+          if (changed) {
+            const [changedReplacement, difference] = changed;
+            const data = { name: importedName, replacement: changedReplacement, difference };
+            context.report({
+              node: specifier,
+              messageId: "renamedChanged",
+              data,
+              suggest: [
+                {
+                  messageId: "applyRename",
+                  data,
+                  fix: (fixer) => renameFix(fixer, specifier, changedReplacement),
+                },
+              ],
+            });
+            continue;
+          }
+
           const guidance = REMOVED.get(importedName);
           if (guidance) {
             context.report({
@@ -183,10 +255,11 @@ export default createRule<Options, MessageIds>({
           }
 
           if (source === "solid-js/store" && STORE_MOVED.has(importedName)) {
+            const storeGuidance = STORE_CHANGED.get(importedName);
             context.report({
               node: specifier,
-              messageId: "storeMoved",
-              data: { name: importedName },
+              messageId: storeGuidance ? "storeChanged" : "storeMoved",
+              data: { name: importedName, guidance: storeGuidance },
               // Only offer the source rewrite when every specifier in this
               // declaration survives the move; otherwise the fix would create
               // a broken import of a removed API from "solid-js".
