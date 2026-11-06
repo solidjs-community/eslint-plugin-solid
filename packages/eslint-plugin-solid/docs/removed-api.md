@@ -23,28 +23,37 @@ This rule is enabled as an error in the `v2` and `v2-strict` configs. It is not 
 These snippets cause lint errors, and some can be auto-fixed.
 
 ```js
+import { equalFn } from "solid-js";
+const same = equalFn(a, b);
+// after eslint --fix:
+import { isEqual } from "solid-js";
+const same = isEqual(a, b);
+
+import { getListener } from "solid-js";
+getListener();
+// after eslint --fix:
+import { getObserver } from "solid-js";
+getObserver();
+
+import { equalFn as eq } from "solid-js";
+eq(a, b);
+// after eslint --fix:
+import { isEqual as eq } from "solid-js";
+eq(a, b);
+
 import { onMount } from "solid-js";
 onMount(() => console.log("hi"));
-// after eslint --fix:
-import { onSettled } from "solid-js";
-onSettled(() => console.log("hi"));
 
 import { batch } from "solid-js";
 batch(() => update());
-// after eslint --fix:
-import { flush } from "solid-js";
-flush(() => update());
 
 import { mergeProps } from "solid-js";
 const props2 = mergeProps({ a: 1 }, props);
-// after eslint --fix:
-import { merge } from "solid-js";
-const props2 = merge({ a: 1 }, props);
+
+import { unwrap } from "solid-js/store";
+const raw = unwrap(state);
 
 import { onMount as om } from "solid-js";
-om(() => {});
-// after eslint --fix:
-import { onSettled as om } from "solid-js";
 om(() => {});
 
 import { createResource } from "solid-js";
@@ -70,6 +79,10 @@ import { render } from "@solidjs/web";
 import { createStore } from "solid-js/store";
 // after eslint --fix:
 import { createStore } from "solid-js";
+
+import type { Store } from "solid-js/store";
+// after eslint --fix:
+import type { Store } from "solid-js";
 
 import { createStore, produce } from "solid-js/store";
 
