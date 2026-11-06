@@ -640,6 +640,12 @@ function Component() {
 }
 
 const [count, setCount] = createSignal(0);
+const useStale = () => {
+  const value = count();
+  return () => value + 1;
+};
+
+const [count, setCount] = createSignal(0);
 function useStale() {
   const value = count();
   return () => value + 1;
@@ -1452,6 +1458,20 @@ function useLabel() {
   const value = count();
   return (() => "count: " + value)();
 }
+
+import { createMemo, createSignal } from "solid-js";
+const [n] = createSignal(1);
+const block = createMemo(() => {
+  const total = n();
+  const share = (v) => v / total;
+  return share(2);
+});
+
+import { createMemo, createSignal } from "solid-js";
+const [n] = createSignal(1);
+const fromLength = createMemo(() =>
+  Array.from({ length: 3 }, (_, i) => i * n())
+);
 
 ```
 <!-- end-doc-gen -->
