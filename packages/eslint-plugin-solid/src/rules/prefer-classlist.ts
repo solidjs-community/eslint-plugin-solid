@@ -6,10 +6,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
+import type { TSESTree as T } from "@typescript-eslint/utils";
+import { createRule } from "../compat";
 import { jsxHasProp, jsxPropName } from "../utils";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 type MessageIds = "preferClasslist";
 type Options = [{ classnames?: Array<string> }?];

@@ -1,7 +1,6 @@
-import { TSESLint, ESLintUtils } from "@typescript-eslint/utils";
+import type { TSESLint } from "@typescript-eslint/utils";
+import { createRule } from "../compat";
 import { isDOMElementName, jsxGetProp, jsxHasProp } from "../utils";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 const reactSpecificProps = [
   { from: "className", to: "class" },

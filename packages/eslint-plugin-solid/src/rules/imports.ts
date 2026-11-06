@@ -1,8 +1,6 @@
-import { TSESTree as T, TSESLint, ESLintUtils } from "@typescript-eslint/utils";
+import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
 import { appendImports, insertImports, isSolidV2, removeSpecifier } from "../utils";
-import { getSourceCode } from "../compat";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
+import { createRule, getSourceCode } from "../compat";
 
 // Below: create maps of imports and types to designated import source.
 // We could mess with `Object.keys(require("solid-js"))` to generate this, but requiring it from

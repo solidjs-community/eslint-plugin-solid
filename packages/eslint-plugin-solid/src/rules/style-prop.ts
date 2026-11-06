@@ -6,15 +6,12 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import type { TSESTree as T } from "@typescript-eslint/utils";
 import kebabCase from "kebab-case";
 import { all as allCssProperties } from "known-css-properties";
 import parse from "style-to-object";
 import { jsxPropName } from "../utils";
-import { getScope } from "../compat";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
-const { getPropertyName, getStaticValue } = ASTUtils;
+import { createRule, getPropertyName, getStaticValue, getScope } from "../compat";
 
 const lengthPercentageRegex = /\b(?:width|height|margin|padding|border-width|font-size)\b/i;
 

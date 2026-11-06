@@ -6,11 +6,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import type { TSESTree as T } from "@typescript-eslint/utils";
 import { getSolidSourceRegex, trackImports } from "../utils";
-import { getScope } from "../compat";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
+import { createRule, findVariableInScope, getScope } from "../compat";
 
 type MessageIds = "restatedDefault";
 type Options = [];
@@ -60,7 +58,7 @@ export default createRule<Options, MessageIds>({
         if (
           !componentName &&
           element.name.name in JSX_PROP_DEFAULTS &&
-          ASTUtils.findVariable(getScope(context, element), element.name.name) == null
+          findVariableInScope(getScope(context, element), element.name.name) == null
         ) {
           componentName = element.name.name;
         }

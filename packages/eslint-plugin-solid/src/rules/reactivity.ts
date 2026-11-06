@@ -3,7 +3,7 @@
  * @link https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md
  */
 
-import { TSESTree as T, TSESLint, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
 import { traverse } from "estraverse";
 import {
   findParent,
@@ -23,10 +23,15 @@ import {
   trace,
   createNameMatcher,
 } from "../utils";
-import { findVariable, getScope, CompatContext, getSourceCode } from "../compat";
-
-const { getFunctionHeadLocation } = ASTUtils;
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
+import {
+  createRule,
+  getFunctionHeadLocation,
+  findVariableInScope,
+  findVariable,
+  getScope,
+  CompatContext,
+  getSourceCode,
+} from "../compat";
 
 type Variable = TSESLint.Scope.Variable;
 type Reference = TSESLint.Scope.Reference;
@@ -341,7 +346,7 @@ export default createRule<Options, MessageIds>({
 
     /** Returns whether a name resolves to the result of a `createContext()` call in scope. */
     const isCreatedContext = (name: string, refNode: T.Node): boolean => {
-      const variable = ASTUtils.findVariable(getScope(context, refNode), name);
+      const variable = findVariableInScope(getScope(context, refNode), name);
       const def = variable?.defs[0];
       return Boolean(
         def &&

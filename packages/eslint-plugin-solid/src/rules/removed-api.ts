@@ -1,9 +1,7 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { findVariable } from "../compat";
+import type { TSESTree as T } from "@typescript-eslint/utils";
+import { createRule, findVariable } from "../compat";
 import { jsxGetProp } from "../utils";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 // Mechanical renames: same semantics, new name. Verified against the Solid 2.0
 // RC source (packages/solid/src/index.ts).
