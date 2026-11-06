@@ -709,6 +709,18 @@ export const cases = run("reactivity", rule, {
       const value = count();
       return (() => "count: " + value)();
     }`,
+    // A helper declared as a statement in a block-bodied memo is not returned (#250)
+    `import { createMemo, createSignal } from "solid-js";
+    const [n] = createSignal(1);
+    const block = createMemo(() => {
+      const total = n();
+      const share = (v) => v / total;
+      return share(2);
+    });`,
+    // Array.from's map function runs synchronously (#250)
+    `import { createMemo, createSignal } from "solid-js";
+    const [n] = createSignal(1);
+    const fromLength = createMemo(() => Array.from({ length: 3 }, (_, i) => i * n()));`,
   ],
   invalid: [
     // Untracked signals
@@ -1379,6 +1391,16 @@ export const cases = run("reactivity", rule, {
         const current = theme();
         return <button onClick={() => console.log(current)}>theme</button>;
       }`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    // A closure returned from a block-bodied arrow still escapes (#250)
+    {
+      code: `
+      const [count, setCount] = createSignal(0);
+      const useStale = () => {
+        const value = count();
+        return () => value + 1;
+      };`,
       errors: [{ messageId: "staleCapture", line: 4 }],
     },
     // Implicit arrow return escapes too
