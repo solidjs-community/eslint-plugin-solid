@@ -5,6 +5,7 @@ import { markdownMagic } from "markdown-magic";
 import prettier from "prettier";
 import type { TSESLint } from "@typescript-eslint/utils";
 import plugin from "../src/index.ts";
+import { allRules } from "../src/plugin.ts";
 import type {
   JSONSchema4,
   JSONSchema4ArraySchema,
@@ -13,7 +14,10 @@ import type {
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const { rules, configs } = plugin;
+// The plugin's public `rules` are deliberately loosely typed (#233); use the
+// precisely-typed internal rule map for doc generation.
+const rules = allRules;
+const { configs } = plugin;
 
 const recommendedRules: Record<string, unknown> = configs.recommended.rules;
 

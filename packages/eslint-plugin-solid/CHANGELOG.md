@@ -1,5 +1,51 @@
 # Changelog
 
+## 0.18.1
+
+Bug fixes only. Thanks to @thedanchez for the detailed #233/#234/#235 reports, @brenelz for the
+`dynamic()` fix (#230), and @milomg for the standalone linter fix (#228). (@dex157's region-aware
+`style-prop` work from #231/#232 is slated for 0.19.0, not this patch.)
+
+### Fixes
+
+- **`solid/reactivity`: `dynamic()` sources are tracked scopes** (#230 by @brenelz, fixes item 1
+  of #235). Solid 2.0's `dynamic(source)` from `@solidjs/web` wraps its source in a `createMemo`,
+  so accessors and inline arrows passed to it are no longer reported (`untrackedReactive` /
+  `badUnnamedDerivedSignal`). Async sources are supported like async `createMemo`: reads after
+  the first `await` still get the targeted `readAfterAwait` report. `@solidjs/web` joined the
+  default module sources.
+- **`solid/reactivity`: conditionally-set callback properties** (#235 item 2). The usual way to
+  set an optional listener property only when one exists —
+  `{ onDrag: props.onDrag ? (e) => props.onDrag(e) : undefined }` or
+  `props.onDragEnd && ((e) => props.onDragEnd(e))` — was reported as `badUnnamedDerivedSignal`
+  while the unconditional property form was accepted. Conditional/logical wrappers that only
+  decide *whether* the function is used are now looked through, so both forms classify the same
+  way. Functions in a conditional's *test* position are still analyzed as before.
+- **`solid/reactivity`: promise callbacks** (#235 item 3). `.then()`/`.catch()`/`.finally()`
+  callbacks reading reactive state were reported as `badUnnamedDerivedSignal`, while the same
+  code in a `setTimeout` callback or after an `await` was not. Promise callbacks run later and
+  poll current values, so they're now treated as called functions, exactly like timer callbacks.
+- **`solid/no-unused-signal`: function-form derived primitives** (#234). `createSignal(fn)` /
+  `createStore(fn, seed)` change through their source function, so the "never written" report was
+  wrong for them. The check is skipped when the first argument is a function (or an identifier
+  that provably resolves to one); "never read" still applies.
+- **`solid/no-unused-signal`: signals inside exported functions** (#234). The export exemption
+  walked all ancestors, so every tuple inside `export function Component() {}` went unchecked.
+  It now applies only when the variable declaration itself is the exported declaration —
+  `export const [a, setA] = createSignal(0)` stays exempt, signals inside exported functions are
+  analyzed again.
+- **Published types work with ESLint's `defineConfig()`** (#233). The public `.d.ts` typed
+  `plugin.rules` as `TSESLint.RuleModule`, which ESLint's `Plugin`/`RuleDefinition` types reject
+  (typescript-eslint#11543), so every exported config failed to type-check in a type-checked
+  `eslint.config.ts`. The plugin's public rules are now declared with a loose structural type at
+  the export boundary — mirroring typescript-eslint's own workaround (typescript-eslint#11475) —
+  and the configs validate against ESLint's own `Linter.Config`. Runtime is unchanged; rule
+  implementations keep the precise types internally. A type-level test
+  (`test/types/defineConfig.test-d.ts`, run via `tsc` in CI) now passes every exported config and
+  the root plugin export to `defineConfig()`.
+- **`eslint-solid-standalone`: linter `cwd`** (#228 by @milomg). The standalone `Linter` instance
+  now sets `cwd: "/"`, needed by solid-playground.
+
 ## 0.18.0
 
 Four new correctness rules (from #219, thanks @brenelz), a revived community rule, extensions to

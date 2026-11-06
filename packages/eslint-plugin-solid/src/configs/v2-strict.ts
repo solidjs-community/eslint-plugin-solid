@@ -1,4 +1,4 @@
-import type { TSESLint } from "@typescript-eslint/utils";
+import type { Linter } from "eslint";
 
 import v2 from "./v2";
 
@@ -23,6 +23,8 @@ const v2Strict = {
     // graduate the half-unused signal check to an error
     "solid/no-unused-signal": 2,
   },
-} satisfies TSESLint.FlatConfig.Config;
+  // Validate against ESLint's own config type so the export stays assignable
+  // to `defineConfig()` (#233); `satisfies` keeps the precise literal type.
+} satisfies Linter.Config;
 
 export = v2Strict;

@@ -34,6 +34,25 @@ setStore((draft) => draft.n++);`,
 const [likes, setLikes] = createOptimistic(0);
 console.log(likes());
 setLikes(1);`,
+    // function-form derived primitives change through their source function,
+    // so a missing setter reference is not "never written" (#234)
+    `import { createStore } from "solid-js";
+const [data] = createStore(() => api.load(), { items: [] });
+console.log(data.items.length);`,
+    `import { createSignal } from "solid-js";
+const [count, setCount] = createSignal(0);
+const [doubled] = createSignal(() => count() * 2);
+console.log(doubled());
+setCount(1);`,
+    // the source function may arrive through a const binding
+    `import { createSignal } from "solid-js";
+const compute = () => 2;
+const [doubled] = createSignal(compute);
+console.log(doubled());`,
+    `import { createSignal } from "solid-js";
+function compute() { return 2; }
+const [doubled] = createSignal(compute);
+console.log(doubled());`,
   ],
   invalid: [
     {
@@ -114,6 +133,45 @@ console.log(likes());`,
           messageId: "neverWritten",
         },
       ],
+    },
+    // the export exemption covers only the exported declaration itself; a
+    // tuple inside an exported function is unreachable from other modules
+    // and stays conclusively analyzable (#234)
+    {
+      code: `import { createSignal } from "solid-js";
+export function Exported() {
+  const [unused] = createSignal(0);
+  return <p>{unused()}</p>;
+}`,
+      errors: [
+        {
+          messageId: "neverWritten",
+          suggestions: [
+            {
+              messageId: "replaceWithAccessor",
+              output: `import { createSignal } from "solid-js";
+export function Exported() {
+  const unused = () => 0;
+  return <p>{unused()}</p>;
+}`,
+            },
+          ],
+        },
+      ],
+    },
+    // neverRead still applies to function-form derived primitives: an unread
+    // derived value is dead state no matter how it updates
+    {
+      code: `import { createStore } from "solid-js";
+const [data] = createStore(() => api.load(), { items: [] });`,
+      errors: [{ messageId: "neverRead" }],
+    },
+    // an identifier that can't be proven to be a function keeps the check
+    {
+      code: `import { createSignal } from "solid-js";
+const [count] = createSignal(someValue);
+console.log(count());`,
+      errors: [{ messageId: "neverWritten" }],
     },
     // settings.solid.moduleSources registers custom renderers/re-export
     // wrappers as Solid primitive sources (#183)

@@ -5,7 +5,7 @@ import { version as pluginVersion } from "eslint-plugin-solid/package.json";
 import memoizeOne from "memoize-one";
 
 // Create linter instance
-const linter = new Linter({ configType: "flat" });
+const linter = new Linter({ configType: "flat", cwd: "/" });
 
 const getConfig = memoizeOne((ruleSeverityOverrides) => {
   const config = [

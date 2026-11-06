@@ -17,7 +17,9 @@ const RENAMED = new Map<string, string>([
 ]);
 
 // Removed APIs whose replacement requires a structural rewrite; the message is
-// prescriptive but no autofix is offered.
+// prescriptive but no autofix is offered. `createDeferred` (restored in rc.16)
+// and `from` (restored in solidjs/solid#4218) still exist in 2.0, so they are
+// deliberately absent.
 const REMOVED = new Map<string, string>([
   [
     "createResource",
@@ -27,14 +29,19 @@ const REMOVED = new Map<string, string>([
     "createComputed",
     "Use `createMemo` for derived values or the two-argument `createEffect(compute, effect)` for side effects",
   ],
-  ["createDeferred", "There is no direct replacement; move the deferral out of the reactive graph"],
   ["createSelector", "Use `createProjection` to derive per-key reactive state"],
   [
     "on",
     "Explicit dependencies are built in: use the two-argument `createEffect(compute, effect)` form, where `compute` reads the dependencies",
   ],
-  ["onError", "Use `createErrorBoundary` (or the `<Errored>` component) to handle errors"],
-  ["catchError", "Use `createErrorBoundary` (or the `<Errored>` component) to handle errors"],
+  [
+    "onError",
+    "Use `<Errored>` for error UI, or the `error` option of `createEffect(compute, { effect, error })` to handle errors programmatically",
+  ],
+  [
+    "catchError",
+    "Use `<Errored>` for error UI, or the `error` option of `createEffect(compute, { effect, error })` to handle errors programmatically",
+  ],
   [
     "resetErrorBoundaries",
     "Error boundaries heal automatically in Solid 2.0 when their sources update",
@@ -47,8 +54,10 @@ const REMOVED = new Map<string, string>([
     "useTransition",
     "Transitions are built in. Read pending state with `isPending(...)` and previous values with `latest(...)`",
   ],
-  ["from", "Signals interop with async iterables directly in Solid 2.0"],
-  ["observable", "Signals interop with async iterables directly in Solid 2.0"],
+  [
+    "observable",
+    "To consume an Observable or async iterable, adapt it with `from`; to publish a signal, push values out from a `createEffect`",
+  ],
   ["indexArray", "Use `mapArray`, which handles index-mode mapping in Solid 2.0"],
   [
     "splitProps",
@@ -66,9 +75,12 @@ const REMOVED = new Map<string, string>([
   ],
   // Components
   ["Index", "Use `<For keyed={false}>`, which passes item accessors like `<Index>` did"],
-  ["ErrorBoundary", "Use `<Errored>` (or `createErrorBoundary`)"],
+  ["ErrorBoundary", "Use `<Errored>` to render a fallback when a child throws"],
   ["Suspense", "Use `<Loading>` to render a fallback while content is pending"],
-  ["SuspenseList", "Use `<Reveal>` with `createRevealOrder` to coordinate reveal order"],
+  [
+    "SuspenseList",
+    "Use `<Reveal>` to coordinate the reveal order of sibling `<Loading>` boundaries",
+  ],
 ]);
 
 // Exports that moved from "solid-js/store" into core "solid-js" unchanged.

@@ -1,4 +1,3 @@
-import type { TSESLint } from "@typescript-eslint/utils";
 import type { Linter } from "eslint";
 
 import recommended from "./recommended";
@@ -16,6 +15,8 @@ const typescript = {
     // namespaces taken care of by TS
     "solid/no-unknown-namespaces": 0,
   },
-} satisfies TSESLint.FlatConfig.Config;
+  // Validate against ESLint's own config type so the export stays assignable
+  // to `defineConfig()` (#233); `satisfies` keeps the precise literal type.
+} satisfies Linter.Config;
 
 export = typescript;

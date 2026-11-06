@@ -18,6 +18,9 @@
     "//#turbo:lint": {
       "dependsOn": ["//#transit"]
     },
+    "turbo:tsc": {
+      "dependsOn": ["turbo:build"]
+    },
     "//#turbo:tsc": {
       "dependsOn": [
         "eslint-plugin-solid#turbo:build",
