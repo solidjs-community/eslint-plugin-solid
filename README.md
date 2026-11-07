@@ -253,6 +253,7 @@ version-aware rule behavior, and enable the 2.0 rules (`solid/removed-api`,
 | ✔ | 🔧 | [solid/self-closing-comp](/packages/eslint-plugin-solid/docs/self-closing-comp.md) | Disallow extra closing tags for components without children. |
 | ✔ | 🔧 | [solid/style-prop](/packages/eslint-plugin-solid/docs/style-prop.md) | Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values with dimensions are strings, not numbers with implicit 'px' units. |
 |  |  | [solid/valid-use-server](/packages/eslint-plugin-solid/docs/valid-use-server.md) | Enforce that "use server" directives are placed where the compiler honors them, and that module-level directive files export working server functions. |
+| ✔ |  | [solid/validate-jsx-nesting](/packages/eslint-plugin-solid/docs/validate-jsx-nesting.md) | Disallow HTML nesting the browser refuses to keep, like `<p><div /></p>`, which silently renders a different DOM than the JSX describes. |
 <!-- end-doc-gen -->
 
 ## Troubleshooting

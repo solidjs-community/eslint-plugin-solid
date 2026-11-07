@@ -1,0 +1,268 @@
+import { run } from "../ruleTester";
+import rule from "../../src/rules/validate-jsx-nesting";
+
+export const cases = run("validate-jsx-nesting", rule, {
+  valid: [
+    `let el = <div><p>Hello world!</p></div>;`,
+    `let el = <p><span>Hello world!</span></p>;`,
+    `let el = <p>Hello <em>world</em>!</p>;`,
+    `let el = <p>one<br />two</p>;`,
+    `let el = <table><tbody><tr><td>1</td></tr></tbody></table>;`,
+    `let el = <ul><li>one</li><li>two</li></ul>;`,
+    `let el = <select><option>one</option></select>;`,
+    // the parser keeps these, so they are not this rule's business even though
+    // the spec's content model disallows them
+    `let el = <h1><div>Hello world!</div></h1>;`,
+    `let el = <div><figcaption>Hello world!</figcaption></div>;`,
+    `let el = <ul><figcaption>Hello world!</figcaption></ul>;`,
+    `let el = <div><summary>Hello world!</summary></div>;`,
+    `let el = <html><body><figcaption>Caption</figcaption></body></html>;`,
+    `let el = <body><dd>Definition</dd></body>;`,
+    `let el = <body><dt>Term</dt></body>;`,
+    `let el = <body><summary>More</summary></body>;`,
+    `let el = <body><area shape="rect" coords="0,0,1,1" href="/" /></body>;`,
+    `let el = <html><head><basefont /></head></html>;`,
+    `let el = <table><script>{"1"}</script></table>;`,
+    `let el = <table><style>{"td{}"}</style></table>;`,
+    `let el = <table><tbody><tr><td><figcaption>Caption</figcaption></td></tr></tbody></table>;`,
+    `let el = <table><tbody><tr><th><dd>Definition</dd></th></tr></tbody></table>;`,
+    `let el = <table><tbody><tr><template /></tr></tbody></table>;`,
+    `let el = <table><tbody><script>{"1"}</script></tbody></table>;`,
+    `let el = <table><thead><template /></thead></table>;`,
+    `let el = <table><tfoot><template /></tfoot></table>;`,
+    `let el = <table><colgroup><template /></colgroup></table>;`,
+    `let el = <table><caption><figcaption>Caption</figcaption></caption></table>;`,
+    // MathML and SVG are not HTML content models
+    `let el = <math><mi>x</mi><mo>=</mo><mn>1</mn></math>;`,
+    `let el = <math><mfrac><mi>a</mi><mi>b</mi></mfrac></math>;`,
+    `let el = <math><semantics><mi>x</mi></semantics></math>;`,
+    `let el = <svg><a href="/"><path d="" /></a></svg>;`,
+    `let el = <svg><tr /></svg>;`,
+    // the parser keeps these inside <svg>, even though it rewrites them in HTML
+    `let el = <svg><a href="/one"><a href="/two" /></a></svg>;`,
+    `let el = <svg><title><b>Hello world!</b></title></svg>;`,
+    `let el = <svg><font><a href="/one"><a href="/two" /></a></font></svg>;`,
+    `let el = <math><annotation-xml><a href="/one"><a href="/two" /></a></annotation-xml></math>;`,
+    // void tags have no end tag; `</br>` would be parsed as a second <br>
+    `let el = <svg><title>one<br />two</title></svg>;`,
+    `let el = <optgroup label="Group"><br /></optgroup>;`,
+    // outside <svg> the parser lowercases tags like foreignObject, which is still the same tag
+    `let el = <foreignObject><figcaption>Caption</figcaption></foreignObject>;`,
+    `let el = <math><clipPath /></math>;`,
+    // <title> hands its children back to HTML only in SVG, and <mi> only in MathML
+    `let el = <math><title><a href="/one"><a href="/two" /></a></title></math>;`,
+    `let el = <svg><mi><a href="/one"><a href="/two" /></a></mi></svg>;`,
+    // nested in foreign content, <svg> and <math> are plain elements of the namespace around them
+    `let el = <svg><math><mi><a href="/one"><a href="/two" /></a></mi></math></svg>;`,
+    `let el = <svg><g><math><title><b>Hello world!</b></title></math></g></svg>;`,
+    `let el = <math><svg><title><a href="/one"><a href="/two" /></a></title></svg></math>;`,
+    // behind an expression they are the root of a separate template and start their own namespace
+    `let el = <math>{ok && <svg><title><b>Hello world!</b></title></svg>}</math>;`,
+    // <mglyph> and <malignmark> right inside <mi> and the like stay MathML, children included
+    `let el = <math><mi><mglyph><caption /></mglyph></mi></math>;`,
+    `let el = <math><mtext><malignmark><caption /></malignmark></mtext></math>;`,
+    // content-model restrictions the parser doesn't enforce by moving anything
+    `let el = <figure><a href="/x"><img src="a.png" /><figcaption>Caption</figcaption></a></figure>;`,
+    `let el = <figure><div><figcaption>Caption</figcaption></div></figure>;`,
+    `let el = <details><div><summary>More</summary></div></details>;`,
+    `let el = <div><area shape="rect" coords="0,0,1,1" href="/" /></div>;`,
+    `let el = <dl><div><dt>term</dt><dd>definition</dd></div></dl>;`,
+    `let el = <my-figure><img src="a.png" /><figcaption>Caption</figcaption></my-figure>;`,
+    `let el = <p><my-widget>Hello world!</my-widget></p>;`,
+    // headings close the current node, never an ancestor
+    `let el = <h1><span><h2>Hello world!</h2></span></h1>;`,
+    `let el = <math><mi>x</mi></math>;`,
+    `let el = <math><msqrt><mn>2</mn></msqrt></math>;`,
+    `let el = <svg><text>Hello world!</text></svg>;`,
+    `let el = <svg><foreignObject><div>Hello world!</div></foreignObject></svg>;`,
+    // custom elements can define any content model
+    `let el = <my-widget><div>Hello world!</div></my-widget>;`,
+    // components can render anything, including a wrapper that makes this legal
+    `let el = <p><Foo /></p>;`,
+    `let el = <Foo><hr /></Foo>;`,
+    `let el = <p><Foo.Bar /></p>;`,
+    `let el = <Dynamic component={tag}><hr /></Dynamic>;`,
+    // control flow hides what actually wraps the child at runtime
+    `let el = <p><Show when={condition}><hr /></Show></p>;`,
+    `let el = <table>{items.map((item) => <div>{item}</div>)}</table>;`,
+    // a prop that isn't `children` is data, not a child position
+    `let el = <p fallback={<hr />}>Hello world!</p>;`,
+    // sibling, not nested
+    `let el = <><p>Hello world!</p><hr /></>;`,
+    // no JSX parent at all
+    `let el = <hr />;`,
+  ],
+  invalid: [
+    {
+      code: `let el = <head><div /></head>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "head", child: "div" } }],
+    },
+    {
+      code: `let el = <body><tr /></body>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "body", child: "tr" } }],
+    },
+    {
+      code: `let el = <p><div>Hello world!</div></p>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "p", child: "div" } }],
+    },
+    {
+      code: `let el = <p><hr /></p>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "p", child: "hr" } }],
+    },
+    {
+      code: `let el = <p>Hello <p>world</p>!</p>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "p", child: "p" } }],
+    },
+    {
+      code: `let el = <table><div>Hello world!</div></table>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "table", child: "div" } }],
+    },
+    {
+      code: `let el = <tr><div>Hello world!</div></tr>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "tr", child: "div" } }],
+    },
+    {
+      code: `let el = <table><tbody><tr><td><tr /></td></tr></tbody></table>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "td", child: "tr" } }],
+    },
+    {
+      code: `let el = <a href="/one"><a href="/two">Hello world!</a></a>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    {
+      code: `let el = <button><button>Hello world!</button></button>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "button", child: "button" } }],
+    },
+    {
+      code: `let el = <form><form>Hello world!</form></form>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "form", child: "form" } }],
+    },
+    {
+      code: `let el = <svg><div>Hello world!</div></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "svg", child: "div" } }],
+    },
+    // integration points hand their children back to the HTML parser
+    {
+      code: `let el = <svg><foreignObject><p><div>Hello world!</div></p></foreignObject></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "p", child: "div" } }],
+    },
+    {
+      code: `let el = <math><mi><a href="/one"><a href="/two">x</a></a></mi></math>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    // the parser lowercases tag and attribute names first
+    {
+      code: `let el = <svg><foreignobject><a href="/one"><a href="/two" /></a></foreignobject></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    {
+      code: `let el = <math><annotation-xml Encoding="text/html"><a href="/one"><a href="/two" /></a></annotation-xml></math>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    // one level down, <mglyph> is HTML like the rest
+    {
+      code: `let el = <math><mi><span><mglyph><caption /></mglyph></span></mi></math>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "mglyph", child: "caption" } }],
+    },
+    // so do HTML tags that make the parser leave foreign content
+    {
+      code: `let el = <svg><g><p><a href="/one"><a href="/two" /></a></p></g></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    {
+      code: `let el = <svg><font color="red"><a href="/one"><a href="/two" /></a></font></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    {
+      code: `let el = <math><annotation-xml encoding="text/html"><a href="/one"><a href="/two" /></a></annotation-xml></math>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    // below a nested <svg> or <math>, integration points are those of the namespace around it
+    {
+      code: `let el = <math><svg><title><b>Hello world!</b></title></svg></math>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "title", child: "b" } }],
+    },
+    {
+      code: `let el = <svg><math><title><a href="/one"><a href="/two" /></a></title></math></svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    {
+      code: `let el = <svg>{ok && <math><mi><a href="/one"><a href="/two" /></a></mi></math>}</svg>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    // only <svg> right inside <annotation-xml> starts SVG within MathML
+    {
+      code: `let el = <math><annotation-xml><svg><title><a href="/one"><a href="/two" /></a></title></svg></annotation-xml></math>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "a", child: "a" } }],
+    },
+    {
+      code: `let el = <table><thead><th>1</th></thead></table>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "thead", child: "th" } }],
+    },
+    {
+      code: `let el = <table><col /></table>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "table", child: "col" } }],
+    },
+    {
+      code: `let el = <div><tr><td>1</td></tr></div>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "div", child: "tr" } }],
+    },
+    {
+      code: `let el = <ul><li>one<li>two</li></li></ul>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "li", child: "li" } }],
+    },
+    {
+      code: `let el = <h1><h2>Hello world!</h2></h1>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "h1", child: "h2" } }],
+    },
+    {
+      code: `let el = <textarea><div>Hello world!</div></textarea>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "textarea", child: "div" } }],
+    },
+    // a custom element doesn't make table markup legal
+    {
+      code: `let el = <x-row><td>1</td></x-row>;`,
+      errors: [{ messageId: "invalidNesting", data: { parent: "x-row", child: "td" } }],
+    },
+    // these all compile to the same insert() into the same parent, which only
+    // server-rendered HTML sends back through the parser
+    {
+      code: `let el = <p>{<hr />}</p>;`,
+      errors: [{ messageId: "invalidNestingInserted", data: { parent: "p", child: "hr" } }],
+    },
+    {
+      code: `let el = <p>{condition && <hr />}</p>;`,
+      errors: [{ messageId: "invalidNestingInserted", data: { parent: "p", child: "hr" } }],
+    },
+    {
+      code: `let el = <p>{condition ? <hr /> : <div />}</p>;`,
+      errors: [
+        { messageId: "invalidNestingInserted", data: { parent: "p", child: "hr" } },
+        { messageId: "invalidNestingInserted", data: { parent: "p", child: "div" } },
+      ],
+    },
+    {
+      code: `let el = <p>{[<hr />]}</p>;`,
+      errors: [{ messageId: "invalidNestingInserted", data: { parent: "p", child: "hr" } }],
+    },
+    {
+      code: `let el = <p children={<hr />} />;`,
+      errors: [{ messageId: "invalidNestingInserted", data: { parent: "p", child: "hr" } }],
+    },
+    // each level is reported on its own
+    {
+      code: `let el = <p><div><p><hr /></p></div></p>;`,
+      errors: [
+        { messageId: "invalidNesting", data: { parent: "p", child: "div" } },
+        { messageId: "invalidNesting", data: { parent: "p", child: "hr" } },
+      ],
+    },
+    {
+      code: `let el = <p><div /><div /></p>;`,
+      errors: [
+        { messageId: "invalidNesting", data: { parent: "p", child: "div" } },
+        { messageId: "invalidNesting", data: { parent: "p", child: "div" } },
+      ],
+    },
+  ],
+});
