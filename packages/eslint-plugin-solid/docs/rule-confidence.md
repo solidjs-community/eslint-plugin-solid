@@ -121,6 +121,7 @@ constraint). Off is the correct level for anti-advice and narrow preferences.
 | `no-write-in-pure-computation`          | error | Certain    | Local-conclusive setters only; honors the `ownedWrite` opt-in (assumed present when options aren't statically readable, so the rule can only under-report). Extended in 0.18.0 to component bodies, matching core's dev throw; `onSettled`/`createTrackedEffect`/handlers are exempt by function boundary. |
 | `no-unused-signal`                      | warn  | Certain    | Conclusive scope analysis, but "unused" is often work-in-progress code, so warn is friendlier. Extended in 0.18.0 to `createStore`/`createOptimistic` tuples.                                                                                                                                              |
 | `no-boolean-enumerated-attribute`       | error | Certain    | Only provably-misbehaving values are flagged: boolean literals in a broken direction, bare `draggable`, boolean-by-construction expressions. Dynamic values and working boolean forms (empty-string-means-true attributes, default-false ARIA) are left alone.                                             |
+| `no-unnecessary-memo`                   | warn  | Certain    | Only reported when the memo provably returns a fresh object/array/JSX and its single read runs once per update of one computation (native-element JSX expression, or a `createMemo`/compute half created in the same scope). Warn because it is a performance hint, not a bug. |
 
 ## Maintenance
 

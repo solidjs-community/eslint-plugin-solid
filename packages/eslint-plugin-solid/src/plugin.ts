@@ -27,6 +27,7 @@ import noRestatedDefaultOptions from "./rules/no-restated-default-options";
 import noSingleArgCreateEffect from "./rules/no-single-arg-create-effect";
 import noStoreMutationOutsideSetter from "./rules/no-store-mutation-outside-setter";
 import noUnknownNamespaces from "./rules/no-unknown-namespaces";
+import noUnnecessaryMemo from "./rules/no-unnecessary-memo";
 import noUnusedSignal from "./rules/no-unused-signal";
 import noWriteInPureComputation from "./rules/no-write-in-pure-computation";
 import preferClasslist from "./rules/prefer-classlist";
@@ -70,6 +71,7 @@ export const allRules = {
   "no-single-arg-create-effect": noSingleArgCreateEffect,
   "no-store-mutation-outside-setter": noStoreMutationOutsideSetter,
   "no-unknown-namespaces": noUnknownNamespaces,
+  "no-unnecessary-memo": noUnnecessaryMemo,
   "no-unused-signal": noUnusedSignal,
   "no-write-in-pure-computation": noWriteInPureComputation,
   "prefer-classlist": preferClasslist,

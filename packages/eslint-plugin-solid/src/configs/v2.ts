@@ -35,6 +35,8 @@ const v2 = {
     "solid/no-write-in-pure-computation": 2,
     // signals that are never written (or never read) aren't being used as signals
     "solid/no-unused-signal": 1,
+    // a memo of a fresh object/array/JSX read in one place caches nothing
+    "solid/no-unnecessary-memo": 1,
     // uncalled accessors as DOM attributes render stringified functions
     "solid/no-accessor-as-prop": 2,
     // enumerated attributes (draggable, tristate aria-*) want string tokens;
