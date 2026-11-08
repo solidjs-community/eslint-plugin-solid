@@ -6,8 +6,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { findVariable } from "../compat";
+import type { TSESTree as T } from "@typescript-eslint/utils";
+import { createRule, findVariable } from "../compat";
 import {
   FunctionNode,
   findParent,
@@ -16,8 +16,6 @@ import {
   getSolidSourceRegex,
   trackImports,
 } from "../utils";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 type MessageIds = "writeInMemo" | "writeInCompute" | "writeInComponent";
 type Options = [];

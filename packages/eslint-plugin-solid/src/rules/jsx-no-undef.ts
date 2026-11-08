@@ -6,11 +6,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+import type { TSESTree as T } from "@typescript-eslint/utils";
 import { isDOMElementName, formatList, appendImports, insertImports, isSolidV2 } from "../utils";
-import { getScope, getSourceCode } from "../compat";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
+import { createRule, getScope, getSourceCode } from "../compat";
 
 // Currently all of the control flow components are from 'solid-js'.
 const AUTO_COMPONENTS = ["Show", "For", "Index", "Switch", "Match"];

@@ -6,10 +6,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
+import type { TSESTree as T } from "@typescript-eslint/utils";
+import { createRule } from "../compat";
 import { isDOMElementName, isSolidV2 } from "../utils";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 const knownNamespaces = ["on", "oncapture", "use", "prop", "attr", "bool"];
 const styleNamespaces = ["style", "class"];
