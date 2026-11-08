@@ -23,6 +23,8 @@ const recommended = {
     "no-unassigned-vars": 0,
     "solid/no-unassigned-vars": 2,
     "solid/no-unknown-namespaces": 2,
+    // markup the HTML parser silently restructures
+    "solid/validate-jsx-nesting": 2,
     // security problems
     "solid/no-innerhtml": 2,
     "solid/jsx-no-script-url": 2,
