@@ -6,13 +6,12 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+import type { TSESTree as T } from "@typescript-eslint/utils";
 import { parse, parseFragment } from "parse5";
 import type { DefaultTreeAdapterMap } from "parse5";
 import { isValidHTMLNesting } from "validate-html-nesting";
+import { createRule } from "../compat";
 import { isDOMElementName, jsxPropName } from "../utils";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 type MessageIds = "invalidNesting" | "invalidNestingInserted";
 type Options = [];
