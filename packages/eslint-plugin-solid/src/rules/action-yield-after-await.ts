@@ -1,5 +1,5 @@
-import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
-import { findVariable } from "../compat";
+import type { TSESTree as T } from "@typescript-eslint/utils";
+import { createRule, findVariable } from "../compat";
 import {
   findParent,
   getSolidSourceRegex,
@@ -7,7 +7,7 @@ import {
   isFunctionNode,
 } from "../utils";
 
-export default ESLintUtils.RuleCreator.withoutDocs({
+export default createRule({
   meta: {
     type: "problem",
     docs: {
