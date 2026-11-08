@@ -1,5 +1,68 @@
 # Changelog
 
+## 0.19.0
+
+Two new rules, a lighter install, and fixes so `--fix` stops writing 1.x code or changing behavior
+under the Solid 2.0 configs. Thanks to @everton-dgn (#227, #236, #238), @dex157 (#232),
+@devagrawal09 (#246, #239 report), @brenelz (#248), @ethan-huo (#250 report), and the #249
+reporter.
+
+### New Rules
+
+- **`solid/validate-jsx-nesting`** (error in `recommended`, so also `typescript`, `v2` and
+  `v2-strict`) (#227 by @everton-dgn, fixes #226). Reports JSX whose nesting the HTML parser
+  restructures, like `<p><div /></p>`. `validate-html-nesting` filters candidates and `parse5`
+  confirms that the parser really moves the pair, which is the same check the 2.0 compiler uses.
+  SVG and MathML are parsed in their own namespace. Children inserted through an expression
+  (`<p>{ok && <div />}</p>`) get their own message, because the client inserts them as written and
+  only server-rendered HTML and hydration break. Only the direct parent is checked. No autofix.
+- **`solid/action-yield-after-await`** (off in every preset; opt in) (#236 by @everton-dgn, fixes
+  #229). Requires a bare `yield` after each `await` in an async generator passed to `action()`,
+  so later writes resume inside the action's transaction. `yield until(await x)` is reported,
+  because its operand runs before the generator re-enters. Simple statements autofix by inserting
+  `yield;`.
+- **`solid/no-unassigned-vars`** (#232 by @dex157, fixes #231). ESLint 10's `no-unassigned-vars`,
+  except that `ref={el}` counts as an assignment, since the compiler assigns `el`.
+  `recommended` turns the core rule off in its favour. `ref={[el]}` is still reported, because
+  arrays are not assigned.
+
+### Fixes
+
+- **`solid/removed-api`: `createDeferred` and `from` are no longer reported** (#246 by
+  @devagrawal09). Both exist in Solid 2.0. The guidance for `onError`, `catchError`,
+  `ErrorBoundary` and `SuspenseList` now points to `<Errored>`, `<Reveal>` and the error option of
+  `createEffect` instead of the internal `createErrorBoundary` and `createRevealOrder`.
+- **`solid/removed-api`: no unattended rewrites that change behavior** (#252, fixes #249).
+  `onMount` → `onSettled`, `batch` → `flush`, `mergeProps` → `merge` and `unwrap` → `snapshot`
+  are still reported, but `--fix` no longer applies them. The message names the behavior
+  difference, and the rename is offered as an editor suggestion. `equalFn` → `isEqual` and
+  `getListener` → `getObserver` are still auto-fixed. The `solid-js/store` move message for
+  `createStore` and `reconcile` now notes that the setter and `reconcile`'s signature changed.
+- **`solid/no-destructure`: 2.0 helpers and imports** (#253, fixes #239). Under
+  `settings.solid.version: 2`, the autofix writes `merge(...)` for defaults and
+  `omit(props, ...keys)` for rest instead of the removed `mergeProps`/`splitProps`. It now adds
+  the helpers to the file's `solid-js` import, or adds the import, in both modes. The defaults +
+  rest line ends with a newline again. Note that `merge` lets an explicit `undefined` override a
+  default, which destructuring defaults did not.
+- **`solid/prefer-for`** (#253). Under 2.0 the index-list message suggests `<For keyed={false}>`
+  instead of the removed `<Index>`.
+- **`solid/reactivity`: `dynamicComponent` sources are tracked scopes** (#238 by @everton-dgn,
+  fixes #237), like `dynamic`. Reads after the first `await` are still reported.
+- **`solid/reactivity`: two false positives** (#251, fixes #250). A helper closure declared as a
+  statement in a block-bodied memo no longer counts as returned (`staleCapture`), and the map
+  function of `Array.from(iterable, mapFn)` is treated as a synchronous callback.
+
+### Packaging
+
+- **No runtime dependency on `@typescript-eslint/utils`** (#248 by @brenelz, landed via #255,
+  fixes #247). TypeScript 7 installs no longer report an unmet peer, and the `typescript` peer
+  dependency is removed. The rules use a local `createRule` with the same option merging.
+- **ESLint is an optional peer** (#248). Oxlint users can install the plugin without ESLint.
+  `@eslint-community/eslint-utils` is bundled into `dist`, and its license ships in
+  `THIRD_PARTY_LICENSES.md`.
+- New runtime dependencies: `parse5` and `validate-html-nesting` for `validate-jsx-nesting`, and
+  `eslint-visitor-keys` (#248).
+
 ## 0.18.1
 
 Bug fixes only. Thanks to @thedanchez for the detailed #233/#234/#235 reports, @brenelz for the
