@@ -219,6 +219,7 @@ version-aware rule behavior, and enable the 2.0 rules (`solid/removed-api`,
 <!-- doc-gen RULES -->
 | ✔ | 🔧 | Rule | Description |
 | :---: | :---: | :--- | :--- |
+|  | 🔧 | [solid/action-yield-after-await](/packages/eslint-plugin-solid/docs/action-yield-after-await.md) | Require a bare yield after await in Solid action generators. |
 | ✔ | 🔧 | [solid/components-return-once](/packages/eslint-plugin-solid/docs/components-return-once.md) | Disallow early returns in components. Solid components only run once, and so conditionals should be inside JSX. |
 | ✔ | 🔧 | [solid/event-handlers](/packages/eslint-plugin-solid/docs/event-handlers.md) | Enforce naming DOM element event handlers consistently and prevent Solid's analysis from misunderstanding whether a prop should be an event handler. |
 | ✔ | 🔧 | [solid/imports](/packages/eslint-plugin-solid/docs/imports.md) | Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store". |
@@ -240,6 +241,7 @@ version-aware rule behavior, and enable the 2.0 rules (`solid/removed-api`,
 |  | 🔧 | [solid/no-restated-default-options](/packages/eslint-plugin-solid/docs/no-restated-default-options.md) | Disallow restating a prop or option value that is already the default. |
 |  |  | [solid/no-single-arg-create-effect](/packages/eslint-plugin-solid/docs/no-single-arg-create-effect.md) | Require the two-argument `createEffect(compute, effect)` form used by Solid 2.0. |
 |  |  | [solid/no-store-mutation-outside-setter](/packages/eslint-plugin-solid/docs/no-store-mutation-outside-setter.md) | Disallow mutating a store's read proxy; store state changes only through the setter's mutable draft. |
+| ✔ |  | [solid/no-unassigned-vars](/packages/eslint-plugin-solid/docs/no-unassigned-vars.md) | Disallow `let` and `var` variables that are read but never assigned, counting `ref={el}` as an assignment. Replaces ESLint's `no-unassigned-vars`. |
 | ✔ |  | [solid/no-unknown-namespaces](/packages/eslint-plugin-solid/docs/no-unknown-namespaces.md) | Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`). |
 |  |  | [solid/no-unused-signal](/packages/eslint-plugin-solid/docs/no-unused-signal.md) | Disallow signals that are never written (use a plain value) or never read (dead state). |
 |  |  | [solid/no-write-in-pure-computation](/packages/eslint-plugin-solid/docs/no-write-in-pure-computation.md) | Disallow writing signals or stores inside `createMemo`, the compute half of `createEffect`, or a component body, which are pure owned scopes. |

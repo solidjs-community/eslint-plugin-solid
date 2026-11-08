@@ -582,7 +582,10 @@ export default createRule<Options, MessageIds>({
           return (
             parent === boundary &&
             parent.type === "ArrowFunctionExpression" &&
-            parent.body === child
+            parent.body === child &&
+            // only an expression body is an implicit return; a closure declared as a
+            // statement in a block body is not returned (#250)
+            child.type !== "BlockStatement"
           );
         }
         child = parent;
@@ -979,6 +982,19 @@ export default createRule<Options, MessageIds>({
           scopeStack.syncCallbacks.add(node.arguments[0]);
         }
       }
+      if (
+        // Array.from(iterable, mapFn) calls mapFn synchronously (#250)
+        node.callee.type === "MemberExpression" &&
+        !node.callee.computed &&
+        node.callee.object.type === "Identifier" &&
+        node.callee.object.name === "Array" &&
+        node.callee.property.type === "Identifier" &&
+        node.callee.property.name === "from" &&
+        isFunctionNode(node.arguments[1]) &&
+        !node.arguments[1].async
+      ) {
+        scopeStack.syncCallbacks.add(node.arguments[1]);
+      }
       if (node.callee.type === "Identifier") {
         if (
           matchImport(
@@ -1312,16 +1328,17 @@ export default createRule<Options, MessageIds>({
                 "createLoadingBoundary",
                 "createRevealOrder",
                 "dynamic",
+                "dynamicComponent",
               ],
               callee.name
             )
           ) {
-            // createEffect, createMemo, etc. fn arg. createMemo and dynamic may take an
-            // async function in Solid 2.0; only reads before its first `await` are tracked.
+            // createEffect, createMemo, etc. fn arg. createMemo, dynamic, and dynamicComponent
+            // may take an async function in Solid 2.0; only reads before its first `await` are tracked.
             pushTrackedScope(
               arg0,
               "function",
-              Boolean(matchImport(["createMemo", "dynamic"], callee.name))
+              Boolean(matchImport(["createMemo", "dynamic", "dynamicComponent"], callee.name))
             );
             if (
               matchImport(["createErrorBoundary", "createLoadingBoundary"], callee.name) &&

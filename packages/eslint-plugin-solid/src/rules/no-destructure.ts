@@ -1,5 +1,5 @@
 import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
-import { getFunctionName, type FunctionNode } from "../utils";
+import { getFunctionName, isSolidV2, type FunctionNode } from "../utils";
 import { createRule, getStringIfConstant, getSourceCode } from "../compat";
 
 const getName = (node: T.Node): string | null => {
@@ -100,6 +100,49 @@ export default createRule({
       functionStack.pop();
     };
 
+    /** Import the props helpers the fix uses from "solid-js", extending an existing import. */
+    function* importHelpers(
+      fixer: TSESLint.RuleFixer,
+      names: Array<string>
+    ): Generator<TSESLint.RuleFix> {
+      const program = getSourceCode(context).ast;
+      const solidImport = program.body.find(
+        (node): node is T.ImportDeclaration =>
+          node.type === "ImportDeclaration" &&
+          node.source.value === "solid-js" &&
+          node.importKind !== "type" &&
+          !node.specifiers.some((s) => s.type === "ImportNamespaceSpecifier")
+      );
+      const imported = new Set(
+        solidImport?.specifiers.map((s) =>
+          s.type === "ImportSpecifier"
+            ? s.imported.type === "Identifier"
+              ? s.imported.name
+              : s.imported.value
+            : ""
+        )
+      );
+      const missing = names.filter((name) => !imported.has(name));
+      if (!missing.length) return;
+      const named = solidImport?.specifiers.filter(
+        (s): s is T.ImportSpecifier => s.type === "ImportSpecifier"
+      );
+      if (solidImport && named?.length) {
+        yield fixer.insertTextAfter(named[named.length - 1], `, ${missing.join(", ")}`);
+      } else if (solidImport && solidImport.specifiers.length) {
+        // only a default import
+        yield fixer.insertTextAfter(solidImport.specifiers[0], `, { ${missing.join(", ")} }`);
+      } else {
+        const imports = program.body.filter((node) => node.type === "ImportDeclaration");
+        const text = `import { ${missing.join(", ")} } from "solid-js";`;
+        if (imports.length) {
+          yield fixer.insertTextAfter(imports[imports.length - 1], `\n${text}`);
+        } else {
+          yield fixer.insertTextBeforeRange([program.range[0], program.range[0]], `${text}\n`);
+        }
+      }
+    }
+
     function* fixDestructure(
       func: FunctionNode,
       props: T.ObjectPattern,
@@ -124,9 +167,18 @@ export default createRule({
       }
 
       const hasDefaults = propertyInfo.some((info) => info.init);
+      // Solid 2.0 replaced `mergeProps`/`splitProps` with `merge`/`omit` (#239)
+      const v2 = isSolidV2(context);
+      const mergeName = v2 ? "merge" : "mergeProps";
+      const splitName = v2 ? "omit" : "splitProps";
+      const helpers = [
+        ...(hasDefaults ? [mergeName] : []),
+        ...(rest ? [splitName] : []),
+      ];
 
-      // Replace destructured props with a `props` identifier (`_props` in case of rest params/defaults)
-      const origProps = !(hasDefaults || rest) ? propsName : "_" + propsName;
+      // Replace destructured props with a `props` identifier (`_props` in case of rest
+      // params/defaults). `omit` returns only the rest, so 2.0 keeps `props` for rest alone.
+      const origProps = !(hasDefaults || (rest && !v2)) ? propsName : "_" + propsName;
       if (props.typeAnnotation) {
         // in `{ prop1, prop2 }: Props`, leave `: Props` alone
         const range = [props.range[0], props.typeAnnotation.range[0]] as const;
@@ -156,12 +208,31 @@ export default createRule({
           )
           .join(", ")}]`;
 
+      const restName = (rest?.argument.type === "Identifier" && rest.argument.name) || "rest";
+      const omitKeys = () =>
+        propertyInfo
+          .map((info) =>
+            info.real.type === "Identifier"
+              ? JSON.stringify(info.real.name)
+              : sourceCode.getText(info.real)
+          )
+          .join(", ");
+
       let lineToInsert = "";
-      if (hasDefaults && rest) {
+      if (v2) {
+        if (hasDefaults) {
+          lineToInsert += `  const ${propsName} = merge({ ${defaultsObjectString()} }, ${origProps});\n`;
+        }
+        if (rest) {
+          lineToInsert += `  const ${restName} = omit(${propsName}${
+            propertyInfo.length ? ", " + omitKeys() : ""
+          });\n`;
+        }
+      } else if (hasDefaults && rest) {
         // Insert a line that assigns _props
         lineToInsert = `  const [${propsName}, ${
           (rest.argument.type === "Identifier" && rest.argument.name) || "rest"
-        }] = splitProps(mergeProps({ ${defaultsObjectString()} }, ${origProps}), ${splitPropsArray()});`;
+        }] = splitProps(mergeProps({ ${defaultsObjectString()} }, ${origProps}), ${splitPropsArray()});\n`;
       } else if (hasDefaults) {
         // Insert a line that assigns _props merged with defaults to props
         lineToInsert = `  const ${propsName} = mergeProps({ ${defaultsObjectString()} }, ${origProps});\n`;
@@ -173,6 +244,7 @@ export default createRule({
       }
 
       if (lineToInsert) {
+        yield* importHelpers(fixer, helpers);
         const body = func.body;
         if (body.type === "BlockStatement") {
           if (body.body.length > 0) {

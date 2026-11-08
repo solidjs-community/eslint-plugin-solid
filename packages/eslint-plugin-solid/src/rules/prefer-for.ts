@@ -8,7 +8,7 @@ import type { TSESLint } from "@typescript-eslint/utils";
 
 import type { TSESTree as T } from "@typescript-eslint/utils";
 import { createRule, getPropertyName } from "../compat";
-import { isFunctionNode, isJSXElementOrFragment } from "../utils";
+import { isFunctionNode, isJSXElementOrFragment, isSolidV2 } from "../utils";
 
 export default createRule({
   meta: {
@@ -25,6 +25,8 @@ export default createRule({
         "Use Solid's `<For />` component for efficiently rendering lists. Array#map causes DOM elements to be recreated.",
       preferForOrIndex:
         "Use Solid's `<For />` component or `<Index />` component for rendering lists. Array#map causes DOM elements to be recreated.",
+      preferForOrForUnkeyed:
+        "Use Solid's `<For />` component, or `<For keyed={false} />` for index-keyed lists, for rendering lists. Array#map causes DOM elements to be recreated.",
     },
   },
   defaultOptions: [],
@@ -80,7 +82,8 @@ export default createRule({
               // Too many possible solutions to make a suggestion or fix
               context.report({
                 node,
-                messageId: "preferForOrIndex",
+                // <Index> was removed in 2.0; `<For keyed={false}>` replaces it (#239)
+                messageId: isSolidV2(context) ? "preferForOrForUnkeyed" : "preferForOrIndex",
               });
             }
           }
