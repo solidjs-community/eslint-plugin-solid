@@ -102,8 +102,8 @@ export const allRules = {
  * (typescript-eslint#11475), tightened so it is accepted by both ESLint's
  * `RuleDefinition` and TSESLint's rule types. Rule implementations keep the
  * precise TSESLint types internally; only the declared type of this export
- * changes (#233). `allRules` stays exported with precise types for internal
- * tooling (e.g. docs generation).
+ * changes (#233). `allRules` stays exported for internal tooling (e.g. docs
+ * generation).
  */
 export interface PublicRuleDefinition {
   create: (context: any) => Record<string, ((...args: any[]) => void) | undefined>;

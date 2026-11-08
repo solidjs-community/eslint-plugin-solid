@@ -6,10 +6,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+import type { TSESTree as T } from "@typescript-eslint/utils";
+import { createRule } from "../compat";
 import { isFunctionNode, getSolidSourceRegex, trackImports, isPropsByName, trace } from "../utils";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 export default createRule({
   meta: {

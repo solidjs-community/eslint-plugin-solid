@@ -6,12 +6,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import type { TSESTree as T } from "@typescript-eslint/utils";
 import { isDOMElementName, isSolidV2 } from "../utils";
-import { getScope, getSourceCode } from "../compat";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
-const { getStaticValue } = ASTUtils;
+import { createRule, getStaticValue, getScope, getSourceCode } from "../compat";
 
 const COMMON_EVENTS = [
   "onAnimationEnd",

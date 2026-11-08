@@ -187,8 +187,9 @@ export default [
 ### Oxlint
 
 The plugin's rules are AST-based, so they run under [Oxlint's JS
-plugin support](https://oxc.rs/docs/guide/usage/linter/js-plugins.html) without modification. Add
-the plugin to `jsPlugins` in your `.oxlintrc.json` and enable the rules you want:
+plugin support](https://oxc.rs/docs/guide/usage/linter/js-plugins.html) without modification, and
+ESLint doesn't need to be installed. Add the plugin to `jsPlugins` in your `.oxlintrc.json` and
+enable the rules you want:
 
 ```json
 {

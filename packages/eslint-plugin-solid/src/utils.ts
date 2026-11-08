@@ -1,4 +1,4 @@
-import { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
+import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
 import { CompatContext, findVariable } from "./compat";
 
 const domElementRegex = /^[a-z]/;

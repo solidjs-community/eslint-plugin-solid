@@ -1,8 +1,6 @@
 import type { TSESLint } from "@typescript-eslint/utils";
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { getSourceCode } from "../compat";
-
-const createRule = ESLintUtils.RuleCreator.withoutDocs;
+import type { TSESTree as T } from "@typescript-eslint/utils";
+import { createRule, getSourceCode } from "../compat";
 
 type MessageIds = "manualClassString" | "useStructuredForm";
 type Options = [];
