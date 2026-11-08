@@ -182,7 +182,7 @@ Options shown here are the defaults. Manually configuring an array will *replace
 
 ## Solid 2.0 Support
 
-As of v0.15.0, this rule understands both the Solid 1.x and Solid 2.0 API surfaces, including
+This rule understands both the Solid 1.x and Solid 2.0 API surfaces, including
 imports from `@solidjs/signals` and `@solidjs/web`. The Solid 2.0 additions recognized are:
 
 - **Reactive values:** `createProjection` (readonly derived store), `createOptimistic` (signal
@@ -190,8 +190,9 @@ imports from `@solidjs/signals` and `@solidjs/web`. The Solid 2.0 additions reco
   `mergeProps`/`splitProps`).
 - **Tracked scopes:** function arguments to `createTrackedEffect`, `isPending`, `latest`,
   `resolve`, `deep`, `repeat`, `createErrorBoundary`, `createLoadingBoundary`,
-  `createRevealOrder`, `dynamic`, and the function-form derived primitives `createSignal(fn)` /
-  `createStore(fn)` / `createProjection(fn)` / `createOptimistic(fn)` / `createOptimisticStore(fn)`.
+  `createRevealOrder`, `dynamic`, `dynamicComponent`, and the function-form derived primitives
+  `createSignal(fn)` / `createStore(fn)` / `createProjection(fn)` / `createOptimistic(fn)` /
+  `createOptimisticStore(fn)`.
 - **Split effects:** in `createEffect(compute, effect)`, the second function runs untracked with
   the computed value and may read reactive values freely.
 - **Called functions:** `onSettled` (replacing `onMount`) and `action` callbacks.
@@ -208,9 +209,10 @@ missed 1.x mistakes for zero new false positives.
 
 ### Reads after `await`/`yield` in async computations
 
-Async computations (`createMemo(async () => ...)`, `dynamic(async () => ...)`, and the function-form
-derived primitives) only track reactive reads that happen synchronously, before the computation
-first suspends at an `await` or `yield`. A read placed after the first suspension point is not
+Async computations (`createMemo(async () => ...)`, `dynamic(async () => ...)`,
+`dynamicComponent(async () => ...)`, and the function-form derived primitives) only track reactive
+reads that happen synchronously, before the computation first suspends at an `await` or `yield`.
+A read placed after the first suspension point is not
 tracked—in Solid 1.x it behaves like a read in an event handler, and in Solid 2.0 it can observe
 unpredictable, mid-transition state. The rule reports these reads specifically:
 
@@ -498,6 +500,14 @@ function Component() {
   return <Test />;
 }
 
+import { createSignal } from "solid-js";
+import { dynamicComponent } from "some-lib";
+function Component() {
+  const [count, setCount] = createSignal(0);
+  const Test = dynamicComponent(() => test(count()));
+  return <Test />;
+}
+
 const [count, setCount] = createSignal(0);
 createEffect(async () => {
   await Promise.resolve();
@@ -605,6 +615,23 @@ const Test = dynamic(async () => {
   return test(count());
 });
 
+import { createSignal } from "solid-js";
+import { dynamicComponent } from "@solidjs/web";
+const [count, setCount] = createSignal(1);
+const Test = dynamicComponent(async () => {
+  await tick();
+  return test(count());
+});
+
+import { dynamicComponent as choose } from "@solidjs/web";
+function Component(props) {
+  const Test = choose(async () => {
+    await tick();
+    return props.view;
+  });
+  return <Test />;
+}
+
 const [count, setCount] = createSignal(1);
 const [derived, setDerived] = createSignal(async () => {
   await tick();
@@ -638,6 +665,12 @@ function Component() {
   const current = theme();
   return <button onClick={() => console.log(current)}>theme</button>;
 }
+
+const [count, setCount] = createSignal(0);
+const useStale = () => {
+  const value = count();
+  return () => value + 1;
+};
 
 const [count, setCount] = createSignal(0);
 function useStale() {
@@ -1362,6 +1395,44 @@ function Component() {
   return <Test />;
 }
 
+import { createSignal } from "solid-js";
+import { dynamicComponent } from "@solidjs/web";
+function Component(props) {
+  const [count, setCount] = createSignal(0);
+  const Test = dynamicComponent(() => test(count(), props.view));
+  return <Test />;
+}
+
+import { createSignal } from "solid-js";
+import { dynamicComponent as choose } from "@solidjs/web";
+function Component() {
+  const [count, setCount] = createSignal(0);
+  const Test = choose(() => test(count()));
+  return <Test />;
+}
+
+import { createSignal } from "solid-js";
+import { dynamicComponent } from "@solidjs/web";
+function Component(props) {
+  const [count, setCount] = createSignal(0);
+  const Test = dynamicComponent(async () => {
+    const value = count();
+    const view = props.view;
+    await tick();
+    return test(value, view);
+  });
+  return <Test />;
+}
+
+// Requires settings.solid.moduleSources: ["my-solid-renderer"].
+import { createSignal } from "solid-js";
+import { dynamicComponent } from "my-solid-renderer";
+function Component() {
+  const [count, setCount] = createSignal(0);
+  const Test = dynamicComponent(() => test(count()));
+  return <Test />;
+}
+
 const [count, setCount] = createSignal(5);
 const items = repeat(
   () => count(),
@@ -1452,6 +1523,20 @@ function useLabel() {
   const value = count();
   return (() => "count: " + value)();
 }
+
+import { createMemo, createSignal } from "solid-js";
+const [n] = createSignal(1);
+const block = createMemo(() => {
+  const total = n();
+  const share = (v) => v / total;
+  return share(2);
+});
+
+import { createMemo, createSignal } from "solid-js";
+const [n] = createSignal(1);
+const fromLength = createMemo(() =>
+  Array.from({ length: 3 }, (_, i) => i * n())
+);
 
 ```
 <!-- end-doc-gen -->

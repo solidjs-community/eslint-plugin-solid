@@ -55,6 +55,7 @@ let Component = (props) => <div a={props["a" + ""]} b={props.b} />;
 
 let Component = ({ a = 5 }) => <div a={a} />;
 // after eslint --fix:
+import { mergeProps } from "solid-js";
 let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
@@ -62,6 +63,7 @@ let Component = (_props) => {
 
 let Component = ({ a = 5 }) => <div a={a} />;
 // after eslint --fix:
+import { mergeProps } from "solid-js";
 let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
@@ -69,6 +71,7 @@ let Component = (_props) => {
 
 let Component = ({ a: A = 5 }) => <div a={A} />;
 // after eslint --fix:
+import { mergeProps } from "solid-js";
 let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
@@ -76,6 +79,7 @@ let Component = (_props) => {
 
 let Component = ({ a: A = 5 }) => <div a={A} />;
 // after eslint --fix:
+import { mergeProps } from "solid-js";
 let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return <div a={props["a"]} />;
@@ -83,6 +87,7 @@ let Component = (_props) => {
 
 let Component = ({ ["a" + ""]: a = 5 }) => <div a={a} />;
 // after eslint --fix:
+import { mergeProps } from "solid-js";
 let Component = (_props) => {
   const props = mergeProps({ ["a" + ""]: 5 }, _props);
   return <div a={props["a" + ""]} />;
@@ -90,6 +95,7 @@ let Component = (_props) => {
 
 let Component = ({ ["a" + ""]: a = 5, b = 10, c }) => <div a={a} b={b} c={c} />;
 // after eslint --fix:
+import { mergeProps } from "solid-js";
 let Component = (_props) => {
   const props = mergeProps({ ["a" + ""]: 5, b: 10 }, _props);
   return <div a={props["a" + ""]} b={props.b} c={props.c} />;
@@ -99,6 +105,7 @@ let Component = ({ a = 5 }) => {
   return <div a={a} />;
 };
 // after eslint --fix:
+import { mergeProps } from "solid-js";
 let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return <div a={props.a} />;
@@ -110,6 +117,7 @@ let Component = ({ a = 5 }) => {
   return <div a={a} />;
 };
 // after eslint --fix:
+import { mergeProps } from "solid-js";
 let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   various();
@@ -119,6 +127,7 @@ let Component = (_props) => {
 
 let Component = ({ ...rest }) => <div a={rest.a} />;
 // after eslint --fix:
+import { splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, []);
   return <div a={rest.a} />;
@@ -126,6 +135,7 @@ let Component = (_props) => {
 
 let Component = ({ a, ...rest }) => <div a={a} />;
 // after eslint --fix:
+import { splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return <div a={props.a} />;
@@ -133,6 +143,7 @@ let Component = (_props) => {
 
 let Component = ({ a, ...rest }) => <div a={a} />;
 // after eslint --fix:
+import { splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return <div a={props.a} />;
@@ -140,6 +151,7 @@ let Component = (_props) => {
 
 let Component = ({ a, ...other }) => <div a={a} />;
 // after eslint --fix:
+import { splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, other] = splitProps(_props, ["a"]);
   return <div a={props.a} />;
@@ -147,6 +159,7 @@ let Component = (_props) => {
 
 let Component = ({ a, ...rest }) => <div a={a} b={rest.b} />;
 // after eslint --fix:
+import { splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return <div a={props.a} b={rest.b} />;
@@ -154,6 +167,7 @@ let Component = (_props) => {
 
 let Component = ({ a: A, ...rest }) => <div a={A} />;
 // after eslint --fix:
+import { splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return <div a={props.a} />;
@@ -161,6 +175,7 @@ let Component = (_props) => {
 
 let Component = ({ a: A, ...rest }) => <div a={A} />;
 // after eslint --fix:
+import { splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return <div a={props["a"]} />;
@@ -168,6 +183,7 @@ let Component = (_props) => {
 
 let Component = ({ ["a" + ""]: A, ...rest }) => <div a={A} />;
 // after eslint --fix:
+import { splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a" + ""]);
   return <div a={props["a" + ""]} />;
@@ -175,6 +191,7 @@ let Component = (_props) => {
 
 let Component = ({ ["a" + ""]: A, ...rest }) => <div a={A} b={rest.b} />;
 // after eslint --fix:
+import { splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a" + ""]);
   return <div a={props["a" + ""]} b={rest.b} />;
@@ -184,6 +201,7 @@ let Component = ({ a = 5, ...rest }) => {
   return <div a={a} b={rest.b} />;
 };
 // after eslint --fix:
+import { mergeProps, splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, rest] = splitProps(mergeProps({ a: 5 }, _props), ["a"]);
   return <div a={props.a} b={rest.b} />;
@@ -191,6 +209,7 @@ let Component = (_props) => {
 
 let Component = ({ a = 5, ...rest }) => <div a={a} b={rest.b} />;
 // after eslint --fix:
+import { mergeProps, splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, rest] = splitProps(mergeProps({ a: 5 }, _props), ["a"]);
   return <div a={props.a} b={rest.b} />;
@@ -198,6 +217,7 @@ let Component = (_props) => {
 
 let Component = ({ ["a" + ""]: A = 5, ...rest }) => <div a={A} b={rest.b} />;
 // after eslint --fix:
+import { mergeProps, splitProps } from "solid-js";
 let Component = (_props) => {
   const [props, rest] = splitProps(mergeProps({ ["a" + ""]: 5 }, _props), [
     "a" + "",
@@ -212,6 +232,53 @@ let Component = (props: Props) => <div p1={props.prop1} p2={props.prop2} />;
 let Component = Memoize(({ a }) => <div a={a} />);
 // after eslint --fix:
 let Component = Memoize((props) => <div a={props.a} />);
+
+export const Btn = ({ size = "md", ...rest }) => (
+  <button class={size} {...rest} />
+);
+// after eslint --fix:
+import { merge, omit } from "solid-js";
+export const Btn = (_props) => {
+  const props = merge({ size: "md" }, _props);
+  const rest = omit(props, "size");
+  return <button class={props.size} {...rest} />;
+};
+
+export const Btn = ({ size = "md" }) => <button class={size} />;
+// after eslint --fix:
+import { merge } from "solid-js";
+export const Btn = (_props) => {
+  const props = merge({ size: "md" }, _props);
+  return <button class={props.size} />;
+};
+
+import { createSignal } from "solid-js";
+export const Btn = ({ size, ...rest }) => <button class={size} {...rest} />;
+// after eslint --fix:
+import { createSignal, omit } from "solid-js";
+export const Btn = (props) => {
+  const rest = omit(props, "size");
+  return <button class={props.size} {...rest} />;
+};
+
+import { omit } from "solid-js";
+export const Btn = ({ ...others }) => <button {...others} />;
+// after eslint --fix:
+import { omit } from "solid-js";
+export const Btn = (props) => {
+  const others = omit(props);
+  return <button {...others} />;
+};
+
+import "./styles.css";
+export const Btn = ({ size = "md" }) => <button class={size} />;
+// after eslint --fix:
+import "./styles.css";
+import { merge } from "solid-js";
+export const Btn = (_props) => {
+  const props = merge({ size: "md" }, _props);
+  return <button class={props.size} />;
+};
 
 ```
 

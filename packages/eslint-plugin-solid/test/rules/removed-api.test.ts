@@ -1,5 +1,8 @@
-import { run } from "../ruleTester";
+import { run, tsOnly } from "../ruleTester";
 import rule from "../../src/rules/removed-api";
+
+const ERROR_GUIDANCE =
+  "Use `<Errored>` for error UI, or the `error` option of `createEffect(compute, { effect, error })` to handle errors programmatically";
 
 export const cases = run("removed-api", rule, {
   valid: [
@@ -9,44 +12,130 @@ export const cases = run("removed-api", rule, {
     `import { createStore, reconcile } from "solid-js";`,
     `import { render, Portal, Dynamic } from "@solidjs/web";`,
     `import { something } from "somewhere/else";`,
+    // restored in Solid 2.0 (createDeferred in rc.16, from in solidjs/solid#4218)
+    `import { createDeferred, from } from "solid-js";`,
+    `import { createDeferred as defer, from as fromSource } from "solid-js";`,
     `let el = <div class={{ active: true }} />;`,
     `let el = <div class="btn" />;`,
   ],
   invalid: [
     // mechanical renames with reference rewriting
     {
+      code: `import { equalFn } from "solid-js";
+const same = equalFn(a, b);`,
+      errors: [{ messageId: "renamed", data: { name: "equalFn", replacement: "isEqual" } }],
+      output: `import { isEqual } from "solid-js";
+const same = isEqual(a, b);`,
+    },
+    {
+      code: `import { getListener } from "solid-js";
+getListener();`,
+      errors: [{ messageId: "renamed", data: { name: "getListener", replacement: "getObserver" } }],
+      output: `import { getObserver } from "solid-js";
+getObserver();`,
+    },
+    // aliased import: only the imported name changes
+    {
+      code: `import { equalFn as eq } from "solid-js";
+eq(a, b);`,
+      errors: [{ messageId: "renamed", data: { name: "equalFn", replacement: "isEqual" } }],
+      output: `import { isEqual as eq } from "solid-js";
+eq(a, b);`,
+    },
+    // renames that change behavior: no autofix, the rename is a suggestion (#249)
+    {
       code: `import { onMount } from "solid-js";
 onMount(() => console.log("hi"));`,
-      errors: [{ messageId: "renamed", data: { name: "onMount", replacement: "onSettled" } }],
-      output: `import { onSettled } from "solid-js";
+      errors: [
+        {
+          messageId: "renamedChanged",
+          suggestions: [
+            {
+              messageId: "applyRename",
+              data: { name: "onMount", replacement: "onSettled" },
+              output: `import { onSettled } from "solid-js";
 onSettled(() => console.log("hi"));`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `import { batch } from "solid-js";
 batch(() => update());`,
-      errors: [{ messageId: "renamed", data: { name: "batch", replacement: "flush" } }],
-      output: `import { flush } from "solid-js";
+      errors: [
+        {
+          messageId: "renamedChanged",
+          suggestions: [
+            {
+              messageId: "applyRename",
+              output: `import { flush } from "solid-js";
 flush(() => update());`,
+            },
+          ],
+        },
+      ],
     },
     {
       code: `import { mergeProps } from "solid-js";
 const props2 = mergeProps({ a: 1 }, props);`,
-      errors: [{ messageId: "renamed", data: { name: "mergeProps", replacement: "merge" } }],
-      output: `import { merge } from "solid-js";
+      errors: [
+        {
+          messageId: "renamedChanged",
+          suggestions: [
+            {
+              messageId: "applyRename",
+              output: `import { merge } from "solid-js";
 const props2 = merge({ a: 1 }, props);`,
+            },
+          ],
+        },
+      ],
     },
-    // aliased import: only the imported name changes
+    {
+      code: `import { unwrap } from "solid-js/store";
+const raw = unwrap(state);`,
+      errors: [
+        {
+          messageId: "renamedChanged",
+          suggestions: [
+            {
+              messageId: "applyRename",
+              output: `import { snapshot } from "solid-js/store";
+const raw = snapshot(state);`,
+            },
+          ],
+        },
+      ],
+    },
     {
       code: `import { onMount as om } from "solid-js";
 om(() => {});`,
-      errors: [{ messageId: "renamed", data: { name: "onMount", replacement: "onSettled" } }],
-      output: `import { onSettled as om } from "solid-js";
+      errors: [
+        {
+          messageId: "renamedChanged",
+          suggestions: [
+            {
+              messageId: "applyRename",
+              output: `import { onSettled as om } from "solid-js";
 om(() => {});`,
+            },
+          ],
+        },
+      ],
     },
     // removed APIs: prescriptive message, no fix
     {
       code: `import { createResource } from "solid-js";`,
       errors: [{ messageId: "removed" }],
+    },
+    {
+      // a restored API in the same declaration doesn't mask a removed one
+      code: `import { createDeferred, createResource, from, observable } from "solid-js";`,
+      errors: [
+        { messageId: "removed", column: 26 }, // createResource
+        { messageId: "removed", column: 48 }, // observable
+      ],
     },
     {
       code: `import { on, useTransition } from "solid-js";`,
@@ -55,6 +144,30 @@ om(() => {});`,
     {
       code: `import { Index, Suspense, ErrorBoundary } from "solid-js";`,
       errors: [{ messageId: "removed" }, { messageId: "removed" }, { messageId: "removed" }],
+    },
+    // error/reveal guidance points to the public components, not the
+    // @internal createErrorBoundary/createRevealOrder primitives
+    {
+      code: `import { onError, catchError, ErrorBoundary, SuspenseList } from "solid-js";`,
+      errors: [
+        { messageId: "removed", data: { name: "onError", guidance: ERROR_GUIDANCE } },
+        { messageId: "removed", data: { name: "catchError", guidance: ERROR_GUIDANCE } },
+        {
+          messageId: "removed",
+          data: {
+            name: "ErrorBoundary",
+            guidance: "Use `<Errored>` to render a fallback when a child throws",
+          },
+        },
+        {
+          messageId: "removed",
+          data: {
+            name: "SuspenseList",
+            guidance:
+              "Use `<Reveal>` to coordinate the reveal order of sibling `<Loading>` boundaries",
+          },
+        },
+      ],
     },
     // removed APIs are reported from "@solidjs/web" too, so a mechanical
     // source rewrite doesn't hide them (#222)
@@ -75,13 +188,19 @@ om(() => {});`,
     },
     {
       code: `import { createStore } from "solid-js/store";`,
-      errors: [{ messageId: "storeMoved", data: { name: "createStore" } }],
+      errors: [{ messageId: "storeChanged" }],
       output: `import { createStore } from "solid-js";`,
+    },
+    {
+      code: `import type { Store } from "solid-js/store";`,
+      [tsOnly]: true,
+      errors: [{ messageId: "storeMoved", data: { name: "Store" } }],
+      output: `import type { Store } from "solid-js";`,
     },
     {
       code: `import { createStore, produce } from "solid-js/store";`,
       errors: [
-        { messageId: "storeMoved", data: { name: "createStore" } },
+        { messageId: "storeChanged" },
         { messageId: "removed" },
       ],
     },

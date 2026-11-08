@@ -6,6 +6,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
+import actionYieldAfterAwait from "./rules/action-yield-after-await";
 import componentsReturnOnce from "./rules/components-return-once";
 import eventHandlers from "./rules/event-handlers";
 import imports from "./rules/imports";
@@ -26,6 +27,7 @@ import noReactSpecificProps from "./rules/no-react-specific-props";
 import noRestatedDefaultOptions from "./rules/no-restated-default-options";
 import noSingleArgCreateEffect from "./rules/no-single-arg-create-effect";
 import noStoreMutationOutsideSetter from "./rules/no-store-mutation-outside-setter";
+import noUnassignedVars from "./rules/no-unassigned-vars";
 import noUnknownNamespaces from "./rules/no-unknown-namespaces";
 import noUnusedSignal from "./rules/no-unused-signal";
 import noWriteInPureComputation from "./rules/no-write-in-pure-computation";
@@ -49,6 +51,7 @@ const { name, version } = require("../package.json");
 const meta = { name, version };
 
 export const allRules = {
+  "action-yield-after-await": actionYieldAfterAwait,
   "components-return-once": componentsReturnOnce,
   "event-handlers": eventHandlers,
   imports,
@@ -69,6 +72,7 @@ export const allRules = {
   "no-restated-default-options": noRestatedDefaultOptions,
   "no-single-arg-create-effect": noSingleArgCreateEffect,
   "no-store-mutation-outside-setter": noStoreMutationOutsideSetter,
+  "no-unassigned-vars": noUnassignedVars,
   "no-unknown-namespaces": noUnknownNamespaces,
   "no-unused-signal": noUnusedSignal,
   "no-write-in-pure-computation": noWriteInPureComputation,

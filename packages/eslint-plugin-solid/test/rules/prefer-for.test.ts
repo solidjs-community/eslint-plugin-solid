@@ -59,5 +59,11 @@ export const cases = run("prefer-for", rule, {
       code: `let Component = (props) => <ol>{props.data.map((...args) => <li>{args[0].text}</li>)}</ol>;`,
       errors: [{ messageId: "preferForOrIndex" }],
     },
+    // Solid 2.0 has no <Index>; point to <For keyed={false}> (#239)
+    {
+      code: `let Component = (props) => <ol>{props.data.map((item, i) => <li>{i}</li>)}</ol>;`,
+      errors: [{ messageId: "preferForOrForUnkeyed" }],
+      settings: { solid: { version: 2 } },
+    },
   ],
 });
