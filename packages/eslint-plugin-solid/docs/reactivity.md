@@ -672,6 +672,36 @@ const useStale = () => {
   return () => value + 1;
 };
 
+const [n] = createSignal(1);
+const Component = () => {
+  const current = n();
+  const onClick = () => console.log(current);
+  return <button onClick={onClick}>x</button>;
+};
+
+const [n] = createSignal(1);
+const Component = () => {
+  const current = n();
+  function onClick() {
+    console.log(current);
+  }
+  return <button onClick={onClick}>x</button>;
+};
+
+const [n] = createSignal(1);
+function Component() {
+  const current = n();
+  const onClick = () => console.log(current);
+  return <button onClick={onClick}>x</button>;
+}
+
+const [n] = createSignal(1);
+const total = createMemo(() => {
+  const value = n();
+  const read = () => value;
+  return read;
+});
+
 const [count, setCount] = createSignal(0);
 function useStale() {
   const value = count();
@@ -1537,6 +1567,15 @@ const [n] = createSignal(1);
 const fromLength = createMemo(() =>
   Array.from({ length: 3 }, (_, i) => i * n())
 );
+
+import { createMemo, createSignal } from "solid-js";
+const [n] = createSignal(1);
+const items = [1, 2, 3];
+const scaled = createMemo(() => {
+  const total = n();
+  const scale = (v) => v * total;
+  return items.map(scale);
+});
 
 ```
 <!-- end-doc-gen -->
