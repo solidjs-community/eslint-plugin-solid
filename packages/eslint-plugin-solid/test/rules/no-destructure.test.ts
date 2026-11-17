@@ -49,6 +49,56 @@ export const cases = run("no-destructure", rule, {
     },
   ],
   invalid: [
+    // reported without an autofix when the fix can't be faithful (#261)
+    {
+      // nested pattern: the inner bindings have no props.x equivalent
+      code: `export const A = ({ user: { name } }) => <div>{name}</div>;`,
+      errors: [{ messageId: "noDestructure" }],
+    },
+    {
+      code: `export const A = ({ items: [first] }) => <div>{first}</div>;`,
+      errors: [{ messageId: "noDestructure" }],
+    },
+    {
+      // an enclosing component's props would be shadowed
+      code: `export const Outer = (props) => {
+  const Inner = ({ label }) => <div>{label}: {props.title}</div>;
+  return <Inner label="hi" />;
+};`,
+      errors: [{ messageId: "noDestructure" }],
+    },
+    {
+      // a local props would be declared twice
+      code: `export const C = ({ a }) => {
+  const props = { b: 1 };
+  return <div>{a}{props.b}</div>;
+};`,
+      errors: [{ messageId: "noDestructure" }],
+    },
+    {
+      // a nested function's props would capture the rewritten access
+      code: `export const C = ({ a }) => {
+  const f = (props) => props.x + a;
+  return <div>{f({ x: 1 })}</div>;
+};`,
+      errors: [{ messageId: "noDestructure" }],
+    },
+    {
+      // a default that reads another destructured prop used to crash ESLint with
+      // overlapping fixes
+      code: `export const D = ({ a, b = a }) => <div>{b}</div>;`,
+      errors: [{ messageId: "noDestructure" }],
+    },
+    {
+      code: `export const D = ({ a: x, b = x }) => <div>{b}</div>;`,
+      errors: [{ messageId: "noDestructure" }],
+    },
+    {
+      // a destructured prop named props is fine: the binding goes away with the fix
+      code: `export const P = ({ props }) => <div>{props}</div>;`,
+      errors: [{ messageId: "noDestructure" }],
+      output: `export const P = (props) => <div>{props.props}</div>;`,
+    },
     {
       code: `let Component = ({}) => <div />`,
       errors: [{ messageId: "noDestructure" }],

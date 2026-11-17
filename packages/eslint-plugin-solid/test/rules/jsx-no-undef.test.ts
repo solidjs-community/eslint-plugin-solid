@@ -57,6 +57,15 @@ export const cases = run("jsx-no-undef", rule, {
     },
     // auto imports
     {
+      // a namespace import can't take named specifiers; add a separate import (#261)
+      code: `import * as Solid from "solid-js";
+let el = <For each={items}>{item => item.name}</For>`,
+      errors: [{ messageId: "autoImport", data: { imports: "'For'", source: "solid-js" } }],
+      output: `import * as Solid from "solid-js";
+import { For } from "solid-js";
+let el = <For each={items}>{item => item.name}</For>`,
+    },
+    {
       code: `let el = <For each={items}>{item => item.name}</For>`,
       errors: [{ messageId: "autoImport", data: { imports: "'For'", source: "solid-js" } }],
       output: `import { For } from "solid-js";\nlet el = <For each={items}>{item => item.name}</For>`,
