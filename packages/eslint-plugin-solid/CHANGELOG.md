@@ -1,5 +1,53 @@
 # Changelog
 
+## 0.20.0
+
+A pass against the stable Solid 2.0.0 API, plus autofix and false-positive fixes. No new rules,
+but `removed-api` reports more 1.x APIs under the `v2` configs, so this is a minor release.
+Thanks to @anubhavlal07 (#260), @Deniffer001 (#258 report), @ethan-huo (#259 report) and
+@trackoor (#261 report).
+
+### Rule changes
+
+- **`solid/removed-api` covers more of the 2.0 migration** (#262). It now reports
+  `createDynamic` (use the `dynamic()` factory from `@solidjs/web`), `pipeToWritable` and
+  `pipeToNodeWritable` (use `renderToStream(...).pipeTo/pipe`, or `.readable`), and
+  `enableScheduling`. Imports from `solid-js/h`, `solid-js/html` and `solid-js/universal` are
+  rewritten to `@solidjs/h`, `@solidjs/html` and `@solidjs/universal`, like `solid-js/web`.
+  `<Ctx.Provider>` on a local Solid `createContext()` is reported and fixed to `<Ctx value>`,
+  since 2.0 contexts are the provider and have no `.Provider`.
+- **`solid/no-write-in-pure-computation` and `solid/no-module-scope-reactive-primitive` cover
+  `createDeferred`** (#262), which is an async memo in 2.0.
+- **`solid/imports` (v2) knows more 2.0 exports** (#262): `createDeferred`,
+  `createTrackedEffect`, `onFlush`, `until`, `from`, `Hydration`, `NoHydration`,
+  `dynamicComponent` and `isHydrating` from `solid-js`; `dynamic`, `clientOnly`, `useHead`,
+  `getRequestEvent`, `redirect`, `reload`, `respond`, `httpStatus` and `httpHeader` from
+  `@solidjs/web`. `storePath`, which is not a public `solid-js` export, is dropped.
+- **`solid/no-unknown-namespaces`**: the `use:` message points at ref directive factories
+  (`ref={tooltip(options)}`), as in the 2.0 migration guide (#262).
+
+### Fixes
+
+- **`solid/reactivity`: 2.0 false positives** (#262, fixes #259). `createDeferred(async () => ...)`
+  is allowed, `until(fn)` tracks its predicate, and `onFlush(fn)` is treated like `onSettled`.
+- **`solid/reactivity`: stale captures in handlers declared as statements are reported again**
+  (#260 by @anubhavlal07, fixes #258). A regression from #251: `const onClick = () => ...` or
+  `function onClick() {}` in a component, passed into the returned JSX, is checked like an inline
+  handler. Helpers that are only called (`return share(2)`, `items.map(scale)`) stay valid.
+- **`solid/no-destructure`: no broken autofixes** (#263, fixes #261). The rule still reports, but
+  skips the fix for nested patterns, a default that reads another destructured prop (which used to
+  crash ESLint with overlapping fixes), and functions where `props` or `_props` is already declared
+  or read from an enclosing scope.
+- **Auto-imports and namespace imports** (#263, fixes #261). `jsx-no-undef` and `imports` add a
+  separate `import { ... }` next to `import * as Solid from "solid-js"` instead of writing invalid
+  syntax.
+
+### Maintenance
+
+- Dev dependencies refreshed and dev-only audit alerts fixed with overrides; none affected the
+  published packages (#264).
+- The fixture integration tests get a 30s timeout, fixing a CI flake since #227 (#264).
+
 ## 0.19.0
 
 Two new rules, a lighter install, and fixes so `--fix` stops writing 1.x code or changing behavior
