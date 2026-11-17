@@ -134,7 +134,7 @@ const alternateSourceMap = new Map<string, Source>([
 // Solid 2.0: "solid-js/store" no longer exists (store exports live in core),
 // and "solid-js/web" became the "@solidjs/web" package. When `settings.solid.
 // version` is 2, the rule *requires* the 2.0 locations. Lists verified against
-// the RC source (packages/solid/src/index.ts, packages/solid-web/src/index.ts).
+// the 2.0.0 source (packages/solid/src/index.ts, packages/solid-web/src/index.ts).
 type SourceV2 = "solid-js" | "@solidjs/web";
 
 const primitiveMapV2 = new Map<string, SourceV2>();
@@ -142,9 +142,11 @@ for (const primitive of [
   // reactive primitives
   "createSignal",
   "createMemo",
+  "createDeferred",
   "createStore",
   "createEffect",
   "createRenderEffect",
+  "createTrackedEffect",
   "createProjection",
   "createOptimistic",
   "createOptimisticStore",
@@ -162,7 +164,10 @@ for (const primitive of [
   // lifecycle and utilities
   "onCleanup",
   "onSettled",
+  "onFlush",
   "untrack",
+  "until",
+  "from",
   "flush",
   "merge",
   "omit",
@@ -182,7 +187,8 @@ for (const primitive of [
   "flatten",
   "deep",
   "affects",
-  "storePath",
+  "dynamicComponent",
+  "isHydrating",
   "DEV",
   // control flow components
   "For",
@@ -193,6 +199,8 @@ for (const primitive of [
   "Errored",
   "Loading",
   "Reveal",
+  "Hydration",
+  "NoHydration",
 ]) {
   primitiveMapV2.set(primitive, "solid-js");
 }
@@ -207,6 +215,15 @@ for (const primitive of [
   // renderToStringAsync no longer exists in 2.0 (removed-api reports it)
   "generateHydrationScript",
   "HydrationScript",
+  "dynamic",
+  "clientOnly",
+  "useHead",
+  "getRequestEvent",
+  "redirect",
+  "reload",
+  "respond",
+  "httpStatus",
+  "httpHeader",
 ]) {
   primitiveMapV2.set(primitive, "@solidjs/web");
 }

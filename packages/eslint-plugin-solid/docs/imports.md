@@ -54,6 +54,16 @@ import { render, createEffect } from "solid-js";
 import { render } from "solid-js/web";
 import { createEffect } from "solid-js";
 
+import { createSignal, useHead } from "solid-js";
+// after eslint --fix:
+import { useHead } from "@solidjs/web";
+import { createSignal } from "solid-js";
+
+import { render, onFlush } from "@solidjs/web";
+// after eslint --fix:
+import { onFlush } from "solid-js";
+import { render } from "@solidjs/web";
+
 import { type JSX } from "solid-js";
 // after eslint --fix:
 import { type JSX } from "@solidjs/web";
@@ -104,6 +114,24 @@ import type { Store } from "solid-js/store";
 import { createSignal, createStore, reconcile, merge } from "solid-js";
 
 import { render, Portal, Dynamic, isServer } from "@solidjs/web";
+
+import {
+  createDeferred,
+  createTrackedEffect,
+  onFlush,
+  until,
+  from,
+  Hydration,
+  NoHydration,
+} from "solid-js";
+import {
+  dynamic,
+  clientOnly,
+  useHead,
+  getRequestEvent,
+  redirect,
+  respond,
+} from "@solidjs/web";
 
 import type { JSX, ValidComponent, ComponentProps } from "@solidjs/web";
 

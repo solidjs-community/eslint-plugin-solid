@@ -86,6 +86,48 @@ import type { Store } from "solid-js";
 
 import { createStore, produce } from "solid-js/store";
 
+import { createDynamic } from "@solidjs/web";
+
+import { pipeToWritable, pipeToNodeWritable } from "@solidjs/web";
+
+import { enableScheduling } from "solid-js";
+
+import h from "solid-js/h";
+// after eslint --fix:
+import h from "@solidjs/h";
+
+import html from "solid-js/html";
+// after eslint --fix:
+import html from "@solidjs/html";
+
+import { createRenderer } from "solid-js/universal";
+// after eslint --fix:
+import { createRenderer } from "@solidjs/universal";
+
+import { createContext } from "solid-js";
+const Theme = createContext("light");
+let el = (
+  <Theme.Provider value="dark">
+    <App />
+  </Theme.Provider>
+);
+// after eslint --fix:
+import { createContext } from "solid-js";
+const Theme = createContext("light");
+let el = (
+  <Theme value="dark">
+    <App />
+  </Theme>
+);
+
+import { createContext as cc } from "solid-js";
+const Theme = cc();
+let el = <Theme.Provider value="dark" />;
+// after eslint --fix:
+import { createContext as cc } from "solid-js";
+const Theme = cc();
+let el = <Theme value="dark" />;
+
 let el = <div classList={{ active: isActive() }} />;
 // after eslint --fix:
 let el = <div class={{ active: isActive() }} />;
@@ -127,6 +169,31 @@ import { createDeferred as defer, from as fromSource } from "solid-js";
 let el = <div class={{ active: true }} />;
 
 let el = <div class="btn" />;
+
+import { dynamic, renderToStream } from "@solidjs/web";
+
+import { createContext } from "solid-js";
+const Theme = createContext("light");
+let el = (
+  <Theme value="dark">
+    <App />
+  </Theme>
+);
+
+import { createContext } from "react";
+const Theme = createContext("light");
+let el = (
+  <Theme.Provider value="dark">
+    <App />
+  </Theme.Provider>
+);
+
+import { Theme } from "./theme";
+let el = (
+  <Theme.Provider value="dark">
+    <App />
+  </Theme.Provider>
+);
 
 ```
 <!-- end-doc-gen -->

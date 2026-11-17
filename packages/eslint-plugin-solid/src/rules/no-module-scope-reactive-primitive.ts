@@ -15,6 +15,7 @@ type Options = [];
 const REACTIVE_PRIMITIVES = [
   "createSignal",
   "createMemo",
+  "createDeferred",
   "createStore",
   "createEffect",
   "createRenderEffect",

@@ -28,6 +28,11 @@ import type { Store } from "solid-js/store";`,
       settings: { solid: { version: 2 } },
     },
     {
+      code: `import { createDeferred, createTrackedEffect, onFlush, until, from, Hydration, NoHydration } from "solid-js";
+import { dynamic, clientOnly, useHead, getRequestEvent, redirect, respond } from "@solidjs/web";`,
+      settings: { solid: { version: 2 } },
+    },
+    {
       code: `import type { JSX, ValidComponent, ComponentProps } from "@solidjs/web";`,
       settings: { solid: { version: 2 } },
       [tsOnly]: true,
@@ -139,6 +144,30 @@ import { render } from "solid-js/web";
 import {  createEffect } from "solid-js";`,
     },
     // Solid 2.0: web exports live in "@solidjs/web", not core
+    {
+      code: `import { createSignal, useHead } from "solid-js";`,
+      settings: { solid: { version: 2 } },
+      errors: [
+        {
+          messageId: "prefer-source",
+          data: { name: "useHead", source: "@solidjs/web" },
+        },
+      ],
+      output: `import { useHead } from "@solidjs/web";
+import { createSignal,  } from "solid-js";`,
+    },
+    {
+      code: `import { render, onFlush } from "@solidjs/web";`,
+      settings: { solid: { version: 2 } },
+      errors: [
+        {
+          messageId: "prefer-source",
+          data: { name: "onFlush", source: "solid-js" },
+        },
+      ],
+      output: `import { onFlush } from "solid-js";
+import { render,  } from "@solidjs/web";`,
+    },
     {
       code: `import { type JSX } from "solid-js";`,
       settings: { solid: { version: 2 } },

@@ -1371,16 +1371,23 @@ export default createRule<Options, MessageIds>({
                 "createRevealOrder",
                 "dynamic",
                 "dynamicComponent",
+                "until",
               ],
               callee.name
             )
           ) {
-            // createEffect, createMemo, etc. fn arg. createMemo, dynamic, and dynamicComponent
-            // may take an async function in Solid 2.0; only reads before its first `await` are tracked.
+            // createEffect, createMemo, etc. fn arg. createMemo, createDeferred, dynamic, and
+            // dynamicComponent may take an async function in Solid 2.0; only reads before its
+            // first `await` are tracked. until(fn) tracks its predicate until it is truthy.
             pushTrackedScope(
               arg0,
               "function",
-              Boolean(matchImport(["createMemo", "dynamic", "dynamicComponent"], callee.name))
+              Boolean(
+                matchImport(
+                  ["createMemo", "createDeferred", "dynamic", "dynamicComponent"],
+                  callee.name
+                )
+              )
             );
             if (
               matchImport(["createErrorBoundary", "createLoadingBoundary"], callee.name) &&
@@ -1445,7 +1452,10 @@ export default createRule<Options, MessageIds>({
             // is permissive under both semantics.
             pushTrackedScope(arg0, "function", true);
           } else if (
-            matchImport(["onMount", "onCleanup", "onError", "onSettled", "action"], callee.name) ||
+            matchImport(
+              ["onMount", "onCleanup", "onError", "onSettled", "onFlush", "action"],
+              callee.name
+            ) ||
             [
               // Timers
               "setInterval",
