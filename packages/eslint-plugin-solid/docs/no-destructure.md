@@ -22,9 +22,45 @@ components, even when they return JSX. Functions passed to PascalCase wrappers
 
 ### Invalid Examples
 
-These snippets cause lint errors, and all of them can be auto-fixed.
+These snippets cause lint errors, and some can be auto-fixed.
 
 ```js
+export const A = ({ user: { name } }) => <div>{name}</div>;
+
+export const A = ({ items: [first] }) => <div>{first}</div>;
+
+export const Outer = (props) => {
+  const Inner = ({ label }) => (
+    <div>
+      {label}: {props.title}
+    </div>
+  );
+  return <Inner label="hi" />;
+};
+
+export const C = ({ a }) => {
+  const props = { b: 1 };
+  return (
+    <div>
+      {a}
+      {props.b}
+    </div>
+  );
+};
+
+export const C = ({ a }) => {
+  const f = (props) => props.x + a;
+  return <div>{f({ x: 1 })}</div>;
+};
+
+export const D = ({ a, b = a }) => <div>{b}</div>;
+
+export const D = ({ a: x, b = x }) => <div>{b}</div>;
+
+export const P = ({ props }) => <div>{props}</div>;
+// after eslint --fix:
+export const P = (props) => <div>{props.props}</div>;
+
 let Component = ({}) => <div />;
 // after eslint --fix:
 let Component = (props) => <div />;

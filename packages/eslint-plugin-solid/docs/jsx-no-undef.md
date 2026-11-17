@@ -45,6 +45,13 @@ let el = <div use:X={{}} />;
 /* eslint solid/jsx-no-undef: ["error", { "allowGlobals": true }] */
 let el = <div use:X />;
 
+import * as Solid from "solid-js";
+let el = <For each={items}>{(item) => item.name}</For>;
+// after eslint --fix:
+import * as Solid from "solid-js";
+import { For } from "solid-js";
+let el = <For each={items}>{(item) => item.name}</For>;
+
 let el = <For each={items}>{(item) => item.name}</For>;
 // after eslint --fix:
 import { For } from "solid-js";
