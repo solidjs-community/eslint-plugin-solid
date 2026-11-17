@@ -1,5 +1,5 @@
 <p>
-  <img width="100%" src="https://assets.solidjs.com/banner?type=ESLint%20Plugin&background=tiles&project=%20" alt="Solid ESLint Extension">
+  <img width="100%" src="https://assets.solidjs.com/banner?type=ESLint%20Plugin&background=tiles&project=%20&version=2.0" alt="Solid ESLint Extension">
 </p>
 
 # Solid ESLint Plugin
