@@ -21,6 +21,11 @@ const counter = createRoot(() => createSignal(0));`,
   ],
   invalid: [
     {
+      code: `import { createDeferred } from "solid-js";
+export const results = createDeferred(async () => fetchResults());`,
+      errors: [{ messageId: "moduleScopePrimitive", data: { name: "createDeferred" } }],
+    },
+    {
       code: `import { createSignal } from "solid-js";
 const [count, setCount] = createSignal(0);`,
       errors: [{ messageId: "moduleScopePrimitive", data: { name: "createSignal" } }],

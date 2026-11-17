@@ -1,10 +1,10 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import type { TSESTree as T } from "@typescript-eslint/utils";
 import { createRule, findVariable } from "../compat";
-import { jsxGetProp } from "../utils";
+import { getSolidSourceRegex, jsxGetProp, trackImports } from "../utils";
 
-// Mechanical renames: same semantics, new name. Verified against the Solid 2.0
-// RC source (packages/solid/src/index.ts).
+// Mechanical renames: same semantics, new name. Verified against the Solid 2.0.0
+// source (packages/solid/src/index.ts) and its migration guide.
 const RENAMED = new Map<string, string>([
   ["equalFn", "isEqual"],
   ["getListener", "getObserver"],
@@ -46,7 +46,7 @@ const RENAMED_CHANGED = new Map<string, [replacement: string, difference: string
 
 // Removed APIs whose replacement requires a structural rewrite; the message is
 // prescriptive but no autofix is offered. `createDeferred` (restored in rc.16)
-// and `from` (restored in solidjs/solid#4218) still exist in 2.0, so they are
+// and `from` (restored in solidjs/solid#4218) still exist in 2.0.0, so they are
 // deliberately absent.
 const REMOVED = new Map<string, string>([
   [
@@ -87,6 +87,16 @@ const REMOVED = new Map<string, string>([
     "To consume an Observable or async iterable, adapt it with `from`; to publish a signal, push values out from a `createEffect`",
   ],
   ["indexArray", "Use `mapArray`, which handles index-mode mapping in Solid 2.0"],
+  ["enableScheduling", "Scheduling is built into Solid 2.0; there is nothing to enable"],
+  [
+    "createDynamic",
+    'Use the `dynamic(source)` factory from "@solidjs/web", which returns a stable component: `const View = dynamic(() => tag())`, then render `<View {...props} />`',
+  ],
+  [
+    "pipeToWritable",
+    "Use `renderToStream(fn).pipeTo(writable)`, or its `readable` stream for a `Response` body",
+  ],
+  ["pipeToNodeWritable", "Use `renderToStream(fn).pipe(writable)`"],
   [
     "splitProps",
     'Use `omit` from "solid-js" to exclude props, and pass the original props object along',
@@ -125,7 +135,16 @@ const STORE_CHANGED = new Map<string, string>([
 
 // Includes "@solidjs/web" so 1.x APIs that survived a mechanical source
 // rewrite (e.g. renderToStringAsync) are still reported as removed.
-const SOLID_SOURCE_REGEX = /^(?:solid-js(?:\/web|\/store)?|@solidjs\/web)$/;
+const SOLID_SOURCE_REGEX = /^(?:solid-js(?:\/web|\/store|\/h|\/html|\/universal)?|@solidjs\/web)$/;
+
+// 1.x subpath modules that became their own packages in Solid 2.0. Same
+// exports under the new name, so the import rewrite is safe.
+const MOVED_MODULES = new Map<string, string>([
+  ["solid-js/web", "@solidjs/web"],
+  ["solid-js/h", "@solidjs/h"],
+  ["solid-js/html", "@solidjs/html"],
+  ["solid-js/universal", "@solidjs/universal"],
+]);
 
 type MessageIds =
   | "renamed"
@@ -133,6 +152,8 @@ type MessageIds =
   | "applyRename"
   | "removed"
   | "webMoved"
+  | "moduleMoved"
+  | "contextProvider"
   | "storeMoved"
   | "storeChanged"
   | "classList";
@@ -156,6 +177,9 @@ export default createRule<Options, MessageIds>({
       applyRename: "Rename '{{name}}' to '{{replacement}}'.",
       removed: "'{{name}}' was removed in Solid 2.0. {{guidance}}.",
       webMoved: 'The "solid-js/web" module is now the "@solidjs/web" package in Solid 2.0.',
+      moduleMoved: 'The "{{source}}" module is now the "{{replacement}}" package in Solid 2.0.',
+      contextProvider:
+        "Context objects have no `.Provider` in Solid 2.0; the context is the provider component: `<{{name}} value={...}>`.",
       storeMoved:
         'The "solid-js/store" module no longer exists in Solid 2.0; \'{{name}}\' is exported from "solid-js".',
       storeChanged:
@@ -166,6 +190,21 @@ export default createRule<Options, MessageIds>({
   },
   defaultOptions: [],
   create(context) {
+    const { matchImport, handleImportDeclaration } = trackImports(getSolidSourceRegex(context));
+
+    /** Is `name` a local variable initialized with Solid's `createContext(...)`? */
+    const isSolidContext = (name: T.JSXIdentifier): boolean => {
+      const variable = findVariable(context, name as unknown as T.Identifier);
+      const def = variable?.defs[0];
+      if (!def || def.node.type !== "VariableDeclarator") return false;
+      const init = def.node.init;
+      return Boolean(
+        init?.type === "CallExpression" &&
+          init.callee.type === "Identifier" &&
+          matchImport("createContext", init.callee.name)
+      );
+    };
+
     /** Rename the import specifier and, when it isn't aliased, all its references. */
     const renameFix = (
       fixer: TSESLint.RuleFixer,
@@ -190,18 +229,18 @@ export default createRule<Options, MessageIds>({
 
     return {
       ImportDeclaration(node) {
+        handleImportDeclaration(node);
         const source = node.source.value;
         if (!SOLID_SOURCE_REGEX.test(source)) return;
 
-        if (source === "solid-js/web") {
+        const movedTo = MOVED_MODULES.get(source);
+        if (movedTo) {
           context.report({
             node: node.source,
-            messageId: "webMoved",
+            messageId: source === "solid-js/web" ? "webMoved" : "moduleMoved",
+            data: { source, replacement: movedTo },
             fix: (fixer) =>
-              fixer.replaceText(
-                node.source,
-                node.source.raw.replace("solid-js/web", "@solidjs/web")
-              ),
+              fixer.replaceText(node.source, node.source.raw.replace(source, movedTo)),
           });
         }
 
@@ -277,6 +316,29 @@ export default createRule<Options, MessageIds>({
             });
           }
         }
+      },
+      JSXOpeningElement(node) {
+        const name = node.name;
+        if (
+          name.type !== "JSXMemberExpression" ||
+          name.property.name !== "Provider" ||
+          name.object.type !== "JSXIdentifier" ||
+          !isSolidContext(name.object)
+        ) {
+          return;
+        }
+        const contextName = name.object.name;
+        const closing = (node.parent as T.JSXElement).closingElement;
+        context.report({
+          node: name,
+          messageId: "contextProvider",
+          data: { name: contextName },
+          fix: (fixer) => {
+            const fixes = [fixer.replaceText(name, contextName)];
+            if (closing) fixes.push(fixer.replaceText(closing.name, contextName));
+            return fixes;
+          },
+        });
       },
       JSXAttribute(node) {
         if (node.name.type === "JSXIdentifier" && node.name.name === "classList") {

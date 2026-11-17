@@ -41,7 +41,7 @@ export default createRule<Options, MessageIds>({
     schema: [],
     messages: {
       writeInMemo:
-        "Calling the setter '{{name}}' inside createMemo makes the computation impure and creates an update cycle. Derive the value instead of storing it, or move the write to an effect.",
+        "Calling the setter '{{name}}' inside {{api}} makes the computation impure and creates an update cycle. Derive the value instead of storing it, or move the write to an effect.",
       writeInCompute:
         "Calling the setter '{{name}}' in the compute half of {{api}} — the compute function is tracked and must be pure. Move the write into the effect half (the second argument).",
       writeInComponent:
@@ -189,10 +189,11 @@ export default createRule<Options, MessageIds>({
 
         // Register pure computation callbacks. Ancestors are visited before
         // descendants, so these are known before their setter calls are seen.
-        if (matchImport("createMemo", node.callee.name)) {
+        const memoName = matchImport(["createMemo", "createDeferred"], node.callee.name);
+        if (memoName) {
           const fn = node.arguments[0];
           if (isFunctionNode(fn)) {
-            computations.set(fn, { messageId: "writeInMemo", api: "createMemo" });
+            computations.set(fn, { messageId: "writeInMemo", api: memoName });
           }
           return;
         }

@@ -652,6 +652,30 @@ export const cases = run("reactivity", rule, {
       });
       return <Test />;
     }`,
+    // createDeferred is an async memo in Solid 2.0 (#259)
+    `import { createDeferred, createSignal } from "solid-js";
+    function Component() {
+      const [id] = createSignal(1);
+      const deferred = createDeferred(async () => (await fetch(\`/x/\${id()}\`)).text());
+      return <p>{deferred()}</p>;
+    }`,
+    // until(fn) tracks its predicate
+    `import { createSignal, until } from "solid-js";
+    function Component() {
+      const [count] = createSignal(0);
+      const ready = until(() => count() > 3);
+      ready.then(() => console.log("ready"));
+      return <p>{count()}</p>;
+    }`,
+    // onFlush runs its callback once after the pending flush; reading current values is fine
+    `import { createSignal, onFlush } from "solid-js";
+    function Component() {
+      const [count] = createSignal(0);
+      onFlush(() => {
+        document.title = String(count());
+      });
+      return <p>{count()}</p>;
+    }`,
     // custom renderer sources use the same import matching
     {
       code: `// Requires settings.solid.moduleSources: ["my-solid-renderer"].

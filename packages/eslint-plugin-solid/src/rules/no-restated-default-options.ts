@@ -13,7 +13,7 @@ import { createRule, findVariableInScope, getScope } from "../compat";
 type MessageIds = "restatedDefault";
 type Options = [];
 
-// Defaults verified against the Solid 2.0 RC source (client/flow.ts):
+// Defaults verified against the Solid 2.0.0 source (client/flow.ts):
 // <For> is keyed by default; <Show> and <Match> are non-keyed by default.
 const JSX_PROP_DEFAULTS: Record<string, Record<string, boolean>> = {
   For: { keyed: true },

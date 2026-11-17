@@ -23,7 +23,7 @@ const v2MigrationGuidance: Record<string, string> = {
   on: "For an event handler, use the camelCase form instead: `onClick`",
   oncapture:
     "There is no capture-phase prefix in Solid 2.0; add a capture listener with `addEventListener` in a `ref` if needed",
-  use: "Directives were removed in Solid 2.0; call the function in `ref` instead: `ref={(el) => myDirective(el)}`",
+  use: "Directives were removed in Solid 2.0; pass a directive factory to `ref` instead: `ref={myDirective(options)}`, with owned setup in the factory and element work in the callback it returns",
   attr: "Use the plain attribute name; attributes are the default in Solid 2.0",
   bool: "Use the plain attribute with a boolean or conditional value",
 };

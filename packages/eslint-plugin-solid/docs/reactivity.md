@@ -1424,6 +1424,32 @@ function Component(props) {
   return <Test />;
 }
 
+import { createDeferred, createSignal } from "solid-js";
+function Component() {
+  const [id] = createSignal(1);
+  const deferred = createDeferred(async () =>
+    (await fetch(`/x/${id()}`)).text()
+  );
+  return <p>{deferred()}</p>;
+}
+
+import { createSignal, until } from "solid-js";
+function Component() {
+  const [count] = createSignal(0);
+  const ready = until(() => count() > 3);
+  ready.then(() => console.log("ready"));
+  return <p>{count()}</p>;
+}
+
+import { createSignal, onFlush } from "solid-js";
+function Component() {
+  const [count] = createSignal(0);
+  onFlush(() => {
+    document.title = String(count());
+  });
+  return <p>{count()}</p>;
+}
+
 // Requires settings.solid.moduleSources: ["my-solid-renderer"].
 import { createSignal } from "solid-js";
 import { dynamicComponent } from "my-solid-renderer";

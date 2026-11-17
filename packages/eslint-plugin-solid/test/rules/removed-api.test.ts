@@ -17,6 +17,18 @@ export const cases = run("removed-api", rule, {
     `import { createDeferred as defer, from as fromSource } from "solid-js";`,
     `let el = <div class={{ active: true }} />;`,
     `let el = <div class="btn" />;`,
+    // the 2.0 dynamic factory and stream API
+    `import { dynamic, renderToStream } from "@solidjs/web";`,
+    // the context itself is the provider in 2.0
+    `import { createContext } from "solid-js";
+const Theme = createContext("light");
+let el = <Theme value="dark"><App /></Theme>;`,
+    // .Provider on something that is not a Solid context is left alone
+    `import { createContext } from "react";
+const Theme = createContext("light");
+let el = <Theme.Provider value="dark"><App /></Theme.Provider>;`,
+    `import { Theme } from "./theme";
+let el = <Theme.Provider value="dark"><App /></Theme.Provider>;`,
   ],
   invalid: [
     // mechanical renames with reference rewriting
@@ -199,10 +211,60 @@ om(() => {});`,
     },
     {
       code: `import { createStore, produce } from "solid-js/store";`,
+      errors: [{ messageId: "storeChanged" }, { messageId: "removed" }],
+    },
+    // removed in 2.0.0
+    {
+      code: `import { createDynamic } from "@solidjs/web";`,
+      errors: [{ messageId: "removed" }],
+    },
+    {
+      code: `import { pipeToWritable, pipeToNodeWritable } from "@solidjs/web";`,
+      errors: [{ messageId: "removed" }, { messageId: "removed" }],
+    },
+    {
+      code: `import { enableScheduling } from "solid-js";`,
+      errors: [{ messageId: "removed" }],
+    },
+    // other 1.x subpath modules that became packages
+    {
+      code: `import h from "solid-js/h";`,
       errors: [
-        { messageId: "storeChanged" },
-        { messageId: "removed" },
+        {
+          messageId: "moduleMoved",
+          data: { source: "solid-js/h", replacement: "@solidjs/h" },
+        },
       ],
+      output: `import h from "@solidjs/h";`,
+    },
+    {
+      code: `import html from "solid-js/html";`,
+      errors: [{ messageId: "moduleMoved" }],
+      output: `import html from "@solidjs/html";`,
+    },
+    {
+      code: `import { createRenderer } from "solid-js/universal";`,
+      errors: [{ messageId: "moduleMoved" }],
+      output: `import { createRenderer } from "@solidjs/universal";`,
+    },
+    // Context.Provider -> the context itself
+    {
+      code: `import { createContext } from "solid-js";
+const Theme = createContext("light");
+let el = <Theme.Provider value="dark"><App /></Theme.Provider>;`,
+      errors: [{ messageId: "contextProvider", data: { name: "Theme" } }],
+      output: `import { createContext } from "solid-js";
+const Theme = createContext("light");
+let el = <Theme value="dark"><App /></Theme>;`,
+    },
+    {
+      code: `import { createContext as cc } from "solid-js";
+const Theme = cc();
+let el = <Theme.Provider value="dark" />;`,
+      errors: [{ messageId: "contextProvider" }],
+      output: `import { createContext as cc } from "solid-js";
+const Theme = cc();
+let el = <Theme value="dark" />;`,
     },
     // classList -> class
     {

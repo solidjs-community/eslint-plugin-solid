@@ -115,6 +115,15 @@ function useCounter() {
   ],
   invalid: [
     {
+      code: `import { createSignal, createDeferred } from "solid-js";
+const [count, setCount] = createSignal(0);
+const bad = createDeferred(() => {
+  setCount(count() + 1);
+  return count();
+});`,
+      errors: [{ messageId: "writeInMemo", data: { name: "setCount", api: "createDeferred" } }],
+    },
+    {
       code: `import { createSignal, createMemo } from "solid-js";
 const [count, setCount] = createSignal(0);
 const bad = createMemo(() => {

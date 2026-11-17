@@ -23,6 +23,9 @@ This rule is enabled as an error in the `v2-strict` config only.
 These snippets cause lint errors.
 
 ```js
+import { createDeferred } from "solid-js";
+export const results = createDeferred(async () => fetchResults());
+
 import { createSignal } from "solid-js";
 const [count, setCount] = createSignal(0);
 

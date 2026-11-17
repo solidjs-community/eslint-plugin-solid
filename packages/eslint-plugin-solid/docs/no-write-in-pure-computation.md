@@ -62,6 +62,13 @@ This rule is enabled as an error in the `v2` and `v2-strict` configs.
 These snippets cause lint errors.
 
 ```js
+import { createSignal, createDeferred } from "solid-js";
+const [count, setCount] = createSignal(0);
+const bad = createDeferred(() => {
+  setCount(count() + 1);
+  return count();
+});
+
 import { createSignal, createMemo } from "solid-js";
 const [count, setCount] = createSignal(0);
 const bad = createMemo(() => {
