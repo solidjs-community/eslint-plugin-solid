@@ -24,7 +24,6 @@ export default createRule({
       url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-uses-vars.md",
     },
     schema: [],
-    // eslint-disable-next-line eslint-plugin/prefer-message-ids
     messages: {},
   },
   defaultOptions: [],

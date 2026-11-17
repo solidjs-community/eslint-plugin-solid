@@ -336,9 +336,19 @@ export function appendImports(
     // import { B } from 'source' => import { B, C, D } from 'source'
     return fixer.insertTextAfter(lastSpecifier, `, ${identifiersString}`);
   }
-  const otherSpecifier = importNode.specifiers.find(
-    (s) => s.type === "ImportDefaultSpecifier" || s.type === "ImportNamespaceSpecifier"
+  const namespaceSpecifier = importNode.specifiers.find(
+    (s) => s.type === "ImportNamespaceSpecifier"
   );
+  if (namespaceSpecifier) {
+    // A namespace import can't take named specifiers (#261):
+    // import * as A from 'source' => import * as A from 'source';\nimport { B, C, D } from 'source';
+    const typePrefix = importNode.importKind === "type" ? "type " : "";
+    return fixer.insertTextAfter(
+      importNode,
+      `\nimport ${typePrefix}{ ${identifiersString} } from ${importNode.source.raw};`
+    );
+  }
+  const otherSpecifier = importNode.specifiers.find((s) => s.type === "ImportDefaultSpecifier");
   if (otherSpecifier) {
     // import A from 'source' => import A, { B, C, D } from 'source'
     return fixer.insertTextAfter(otherSpecifier, `, { ${identifiersString} }`);

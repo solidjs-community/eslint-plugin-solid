@@ -786,6 +786,14 @@ export const cases = run("reactivity", rule, {
     `import { createMemo, createSignal } from "solid-js";
     const [n] = createSignal(1);
     const fromLength = createMemo(() => Array.from({ length: 3 }, (_, i) => i * n()));`,
+    `import { createMemo, createSignal } from "solid-js";
+    const [n] = createSignal(1);
+    const items = [1, 2, 3];
+    const scaled = createMemo(() => {
+      const total = n();
+      const scale = (v) => v * total;
+      return items.map(scale);
+    });`,
   ],
   invalid: [
     // Untracked signals
@@ -1503,6 +1511,48 @@ export const cases = run("reactivity", rule, {
         const value = count();
         return () => value + 1;
       };`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    {
+      code: `
+      const [n] = createSignal(1);
+      const Component = () => {
+        const current = n();
+        const onClick = () => console.log(current);
+        return <button onClick={onClick}>x</button>;
+      };`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    {
+      code: `
+      const [n] = createSignal(1);
+      const Component = () => {
+        const current = n();
+        function onClick() {
+          console.log(current);
+        }
+        return <button onClick={onClick}>x</button>;
+      };`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    {
+      code: `
+      const [n] = createSignal(1);
+      function Component() {
+        const current = n();
+        const onClick = () => console.log(current);
+        return <button onClick={onClick}>x</button>;
+      }`,
+      errors: [{ messageId: "staleCapture", line: 4 }],
+    },
+    {
+      code: `
+      const [n] = createSignal(1);
+      const total = createMemo(() => {
+        const value = n();
+        const read = () => value;
+        return read;
+      });`,
       errors: [{ messageId: "staleCapture", line: 4 }],
     },
     // Implicit arrow return escapes too

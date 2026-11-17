@@ -579,6 +579,13 @@ export default createRule<Options, MessageIds>({
         // same goes for a called function itself (IIFEs).
         if (parent.type === "CallExpression" || parent.type === "NewExpression") return false;
         if (isFunctionNode(parent)) {
+          if (
+            parent === boundary &&
+            child.type === "BlockStatement" &&
+            isDeclaredClosureReturned(outermost, boundary)
+          ) {
+            return true;
+          }
           return (
             parent === boundary &&
             parent.type === "ArrowFunctionExpression" &&
@@ -590,6 +597,41 @@ export default createRule<Options, MessageIds>({
         }
         child = parent;
         parent = parent.parent ?? null;
+      }
+      return false;
+    };
+
+    const isDeclaredClosureReturned = (
+      closure: FunctionNode,
+      boundary: ProgramOrFunctionNode
+    ): boolean => {
+      const declaration =
+        closure.type === "FunctionDeclaration"
+          ? closure
+          : closure.parent?.type === "VariableDeclarator" && closure.parent.init === closure
+          ? closure.parent
+          : null;
+      if (!declaration) return false;
+      const variables = sourceCode.scopeManager?.getDeclaredVariables(declaration) ?? [];
+      return variables.some((variable) =>
+        variable.references.some(
+          (reference) => !reference.init && isReferenceReturned(reference.identifier, boundary)
+        )
+      );
+    };
+
+    const isReferenceReturned = (node: T.Node, boundary: ProgramOrFunctionNode): boolean => {
+      let cursor: T.Node | null = node.parent ?? null;
+      while (cursor && cursor !== boundary) {
+        if (cursor.type === "ReturnStatement") return true;
+        if (
+          cursor.type === "CallExpression" ||
+          cursor.type === "NewExpression" ||
+          isFunctionNode(cursor)
+        ) {
+          return false;
+        }
+        cursor = cursor.parent ?? null;
       }
       return false;
     };

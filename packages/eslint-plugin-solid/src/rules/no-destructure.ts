@@ -91,13 +91,81 @@ export default createRule({
           context.report({
             node: props,
             messageId: "noDestructure",
-            fix: (fixer) => fixDestructure(node, props, fixer),
+            fix: canFixDestructure(node, props)
+              ? (fixer) => fixDestructure(node, props, fixer)
+              : undefined,
           });
         }
       }
 
       // Pop on exit
       functionStack.pop();
+    };
+
+    /**
+     * The fix rewrites every destructured binding to a `props.x` access and may
+     * declare `props`, `_props` and the rest name. Skip it (report only) when
+     * that can't be done faithfully (#261):
+     * - a property the fix can't represent, such as a nested pattern
+     *   (`{ user: { name } }`), or a rest that isn't a plain identifier;
+     * - a default that reads another destructured prop (`{ a, b = a }`): the
+     *   default moves into a `merge`/`mergeProps` call where `a` is unbound,
+     *   and rewriting it inside the parameter overlaps the parameter fix;
+     * - a name the fix introduces (`props`, `_props`) that is already declared
+     *   anywhere in the function, or read from an enclosing scope, since the
+     *   new binding would collide with or shadow it.
+     */
+    const canFixDestructure = (func: FunctionNode, props: T.ObjectPattern): boolean => {
+      const destructured = new Set<string>();
+      for (const property of props.properties) {
+        if (property.type === "RestElement") {
+          if (property.argument.type !== "Identifier") return false;
+          destructured.add(property.argument.name);
+          continue;
+        }
+        const info = getPropertyInfo(property);
+        if (info === null) return false;
+        destructured.add(info.var);
+      }
+
+      const scope = getSourceCode(context).scopeManager?.acquire(func);
+      if (!scope) return false;
+
+      for (const name of destructured) {
+        const variable = scope.set.get(name);
+        if (
+          variable?.references.some(
+            (reference) =>
+              reference.identifier.range[0] >= props.range[0] &&
+              reference.identifier.range[1] <= props.range[1] &&
+              !reference.init
+          )
+        ) {
+          return false;
+        }
+      }
+
+      const introduced = ["props", "_props"];
+      const conflicts = (name: string): boolean => {
+        // Read from an enclosing scope (e.g. an outer component's `props`)
+        if (scope.through.some((reference) => reference.identifier.name === name)) return true;
+        // Declared in the function or any scope nested in it
+        const stack = [scope];
+        while (stack.length) {
+          const current = stack.pop()!;
+          for (const variable of current.variables) {
+            if (variable.name !== name) continue;
+            // the destructured binding itself goes away with the fix
+            if (current === scope && destructured.has(name)) continue;
+            // `arguments` and similar implicit variables have no definitions
+            if (variable.defs.length === 0) continue;
+            return true;
+          }
+          stack.push(...current.childScopes);
+        }
+        return false;
+      };
+      return !introduced.some(conflicts);
     };
 
     /** Import the props helpers the fix uses from "solid-js", extending an existing import. */
@@ -171,10 +239,7 @@ export default createRule({
       const v2 = isSolidV2(context);
       const mergeName = v2 ? "merge" : "mergeProps";
       const splitName = v2 ? "omit" : "splitProps";
-      const helpers = [
-        ...(hasDefaults ? [mergeName] : []),
-        ...(rest ? [splitName] : []),
-      ];
+      const helpers = [...(hasDefaults ? [mergeName] : []), ...(rest ? [splitName] : [])];
 
       // Replace destructured props with a `props` identifier (`_props` in case of rest
       // params/defaults). `omit` returns only the rest, so 2.0 keeps `props` for rest alone.
