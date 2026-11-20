@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.20.1
+
+No rule changes. The repository moved to the `solidjs` GitHub organization, so this release
+updates the package `repository` field, the rule documentation links and the README links to
+`https://github.com/solidjs/eslint-plugin-solid` (#266). It is also the first release published
+from the new repository through npm trusted publishing.
+
 ## 0.20.0
 
 A pass against the stable Solid 2.0.0 API, plus autofix and false-positive fixes. No new rules,
