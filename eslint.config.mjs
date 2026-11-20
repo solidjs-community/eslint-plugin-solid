@@ -66,7 +66,7 @@ export default tseslint.config(
         "error",
         {
           pattern:
-            "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/{{name}}.md",
+            "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/{{name}}.md",
         },
       ],
     },

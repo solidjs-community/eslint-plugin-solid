@@ -6,7 +6,7 @@ This rule is **a warning** by default.
 [View source](../src/rules/event-handlers.ts) · [View tests](../test/rules/event-handlers.test.ts)
 <!-- end-doc-gen -->
 
-See [this issue](https://github.com/solidjs-community/eslint-plugin-solid/issues/23) for rationale.
+See [this issue](https://github.com/solidjs/eslint-plugin-solid/issues/23) for rationale.
 
 <!-- doc-gen OPTIONS -->
 ## Rule Options

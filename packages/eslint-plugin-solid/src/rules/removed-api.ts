@@ -165,7 +165,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Disallow Solid 1.x APIs that were removed or renamed in Solid 2.0, with migration guidance.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/removed-api.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/removed-api.md",
     },
     fixable: "code",
     hasSuggestions: true,

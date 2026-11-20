@@ -21,7 +21,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Disallow signals that are never written (use a plain value) or never read (dead state).",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-unused-signal.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-unused-signal.md",
     },
     hasSuggestions: true,
     schema: [],

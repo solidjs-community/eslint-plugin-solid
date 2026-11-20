@@ -6,7 +6,7 @@ This rule is **an error** by default.
 [View source](../src/rules/jsx-no-script-url.ts) · [View tests](../test/rules/jsx-no-script-url.test.ts)
 <!-- end-doc-gen -->
 
-See [this issue](https://github.com/solidjs-community/eslint-plugin-solid/issues/24) for rationale.
+See [this issue](https://github.com/solidjs/eslint-plugin-solid/issues/24) for rationale.
 
 <!-- doc-gen OPTIONS -->
 

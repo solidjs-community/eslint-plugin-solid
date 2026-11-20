@@ -266,7 +266,7 @@ export default createRule({
     docs: {
       description:
         'Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store".',
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/imports.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/imports.md",
     },
     fixable: "code",
     schema: [],

@@ -33,7 +33,7 @@ export default createRule<Options, MessageIds>({
     type: "problem",
     docs: {
       description: "Require server functions to be async, matching their client-side contract.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/require-async-server-function.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/require-async-server-function.md",
     },
     fixable: "code",
     schema: [],

@@ -1,6 +1,6 @@
 /**
  * File overview here, scroll to bottom.
- * @link https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md
+ * @link https://github.com/solidjs/eslint-plugin-solid/blob/main/docs/reactivity.md
  */
 
 import type { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
@@ -261,7 +261,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/reactivity.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/reactivity.md",
     },
     schema: [
       {

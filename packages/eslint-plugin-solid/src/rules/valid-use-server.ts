@@ -57,7 +57,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         'Enforce that "use server" directives are placed where the compiler honors them, and that module-level directive files export working server functions.',
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/valid-use-server.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/valid-use-server.md",
     },
     schema: [
       {

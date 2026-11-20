@@ -42,7 +42,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Disallow mutating a store's read proxy; store state changes only through the setter's mutable draft.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-store-mutation-outside-setter.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-store-mutation-outside-setter.md",
     },
     schema: [],
     messages: {

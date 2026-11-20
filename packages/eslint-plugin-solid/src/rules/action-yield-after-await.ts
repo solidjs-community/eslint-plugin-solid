@@ -12,7 +12,7 @@ export default createRule({
     type: "problem",
     docs: {
       description: "Require a bare yield after await in Solid action generators.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/action-yield-after-await.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/action-yield-after-await.md",
     },
     fixable: "code",
     schema: [],

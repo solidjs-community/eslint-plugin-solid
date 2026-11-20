@@ -1,13 +1,13 @@
 <p>
-  <img width="100%" src="https://assets.solidjs.com/banner?type=ESLint%20Plugin&background=tiles&project=%20&version=2.0" alt="Solid ESLint Extension">
+  <img width="100%" src="https://assets.solidjs.com/banner?type=ESLint%20Plugin&background=tiles&project=%20" alt="Solid ESLint Extension">
 </p>
 
 # Solid ESLint Plugin
 
 [![npm version](https://img.shields.io/npm/v/eslint-plugin-solid?style=for-the-badge)](https://npmjs.com/package/eslint-plugin-solid)
-[![GitHub package version](https://img.shields.io/github/package-json/v/solidjs-community/eslint-plugin-solid/main?filename=packages%2Feslint-plugin-solid%2Fpackage.json&style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid)
+[![GitHub package version](https://img.shields.io/github/package-json/v/solidjs/eslint-plugin-solid/main?filename=packages%2Feslint-plugin-solid%2Fpackage.json&style=for-the-badge)](https://github.com/solidjs/eslint-plugin-solid)
 ![ESLint peer dependency](https://img.shields.io/badge/eslint-9.x--10.x-blue?style=for-the-badge)
-[![CI](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg?style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml)
+[![CI](https://github.com/solidjs/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg?style=for-the-badge)](https://github.com/solidjs/eslint-plugin-solid/actions/workflows/ci.yml)
 
 This package contains [Solid](https://www.solidjs.com/)-specific linting rules for ESLint. It can
 ease Solid's learning curve by finding and fixing problems around Solid's reactivity system, and can
@@ -273,10 +273,10 @@ const [editedValue, setEditedValue] = createSignal(props.value);
 
 _Please note_: there may also be times where a rule correctly warns about a subtle problem,
 even if it looks like a false positive at first. With `solid/reactivity`, please look at the
-[reactivity docs](https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/reactivity.md#troubleshooting) before deciding to disable the rule.
+[reactivity docs](https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/reactivity.md#troubleshooting) before deciding to disable the rule.
 
 When in doubt, feel free to [file an
-issue](https://github.com/solidjs-community/eslint-plugin-solid/issues/new/choose).
+issue](https://github.com/solidjs/eslint-plugin-solid/issues/new/choose).
 
 ## Versioning
 

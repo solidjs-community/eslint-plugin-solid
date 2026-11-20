@@ -48,7 +48,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Disallow browser-only globals inside server functions, which run exclusively on the server.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-browser-globals-in-server-function.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-browser-globals-in-server-function.md",
     },
     schema: [],
     messages: {

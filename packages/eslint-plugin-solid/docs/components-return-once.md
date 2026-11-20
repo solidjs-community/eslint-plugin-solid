@@ -6,7 +6,7 @@ This rule is **a warning** by default.
 [View source](../src/rules/components-return-once.ts) · [View tests](../test/rules/components-return-once.test.ts)
 <!-- end-doc-gen -->
 
-See [this issue](https://github.com/solidjs-community/eslint-plugin-solid/issues/24) for rationale.
+See [this issue](https://github.com/solidjs/eslint-plugin-solid/issues/24) for rationale.
 
 <!-- doc-gen OPTIONS -->
 

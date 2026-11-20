@@ -59,7 +59,7 @@ bodies or initializers are still checked. Handling implicit suspension requires 
 contract and analysis.
 
 See the [Solid action contract](https://github.com/solidjs/solid/blob/next/packages/signals/src/core/action.ts)
-and [issue #229](https://github.com/solidjs-community/eslint-plugin-solid/issues/229).
+and [issue #229](https://github.com/solidjs/eslint-plugin-solid/issues/229).
 
 <!-- doc-gen OPTIONS -->
 <!-- end-doc-gen -->
