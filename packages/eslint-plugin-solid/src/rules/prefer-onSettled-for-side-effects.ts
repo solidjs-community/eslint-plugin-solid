@@ -56,7 +56,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Enforce running side-effectful setup (timers, global listeners, observers) inside `onSettled` instead of the component body.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/prefer-onSettled-for-side-effects.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/prefer-onSettled-for-side-effects.md",
     },
     schema: [],
     messages: {

@@ -119,7 +119,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         'Disallow boolean values on enumerated attributes like draggable and tristate aria-*, which take string tokens — a boolean false removes the attribute instead of writing "false".',
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-boolean-enumerated-attribute.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-boolean-enumerated-attribute.md",
     },
     fixable: "code",
     hasSuggestions: true,

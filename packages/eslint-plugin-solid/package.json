@@ -9,7 +9,7 @@
     "solidjs",
     "reactivity"
   ],
-  "repository": "https://github.com/solidjs-community/eslint-plugin-solid",
+  "repository": "https://github.com/solidjs/eslint-plugin-solid",
   "license": "MIT",
   "author": "Josh Wilson <joshwilsonvu@gmail.com>",
   "exports": {

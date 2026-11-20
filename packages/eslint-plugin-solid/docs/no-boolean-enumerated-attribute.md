@@ -28,7 +28,7 @@ Boolean literals are autofixed to the matching token. Provably-boolean expressio
 
 This rule applies to Solid 1.x as well as 2.0 — the attribute behavior is the same — but is only enabled by default (as an error) in the `v2` and `v2-strict` configs.
 
-Credit to [#145](https://github.com/solidjs-community/eslint-plugin-solid/pull/145) by @SarguelUnda, which proposed this rule for `draggable`.
+Credit to [#145](https://github.com/solidjs/eslint-plugin-solid/pull/145) by @SarguelUnda, which proposed this rule for `draggable`.
 
 <!-- doc-gen OPTIONS -->
 <!-- end-doc-gen -->

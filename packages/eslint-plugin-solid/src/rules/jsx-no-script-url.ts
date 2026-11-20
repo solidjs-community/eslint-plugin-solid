@@ -28,7 +28,7 @@ export default createRule({
     type: "problem",
     docs: {
       description: "Disallow javascript: URLs.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-no-script-url.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-no-script-url.md",
     },
     schema: [],
     messages: {

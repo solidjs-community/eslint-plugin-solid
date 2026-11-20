@@ -42,7 +42,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Enforce using the structured array/object forms of the `class` prop over manually-built class strings.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/prefer-structured-class.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/prefer-structured-class.md",
     },
     hasSuggestions: true,
     schema: [],

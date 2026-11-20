@@ -40,7 +40,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Disallow server functions from capturing variables in enclosing non-module scopes, mirroring the compiler's build-time validation.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-invalid-server-capture.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-invalid-server-capture.md",
     },
     schema: [],
     messages: {

@@ -13,7 +13,7 @@ export default createRule({
     docs: {
       description:
         "Disallow usage of React-specific `className`/`htmlFor` props, which were deprecated in v1.4.0.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-react-specific-props.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-react-specific-props.md",
     },
     fixable: "code",
     schema: [],

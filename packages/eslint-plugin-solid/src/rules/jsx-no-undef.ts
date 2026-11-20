@@ -43,7 +43,7 @@ export default createRule<Options, MessageIds>({
     type: "problem",
     docs: {
       description: "Disallow references to undefined variables in JSX. Handles custom directives.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-no-undef.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-no-undef.md",
     },
     fixable: "code",
     schema: [

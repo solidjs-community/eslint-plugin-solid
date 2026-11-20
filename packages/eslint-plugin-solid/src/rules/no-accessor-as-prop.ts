@@ -35,7 +35,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Disallow passing uncalled signal accessors or other functions as value-typed DOM element attributes.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-accessor-as-prop.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-accessor-as-prop.md",
     },
     hasSuggestions: true,
     schema: [],

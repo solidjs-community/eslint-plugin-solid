@@ -25,7 +25,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Require the two-argument `createEffect(compute, effect)` form used by Solid 2.0.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-single-arg-create-effect.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-single-arg-create-effect.md",
     },
     schema: [],
     messages: {

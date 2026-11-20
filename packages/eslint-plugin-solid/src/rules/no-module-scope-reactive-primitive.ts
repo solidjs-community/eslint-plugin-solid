@@ -37,7 +37,7 @@ export default createRule<Options, MessageIds>({
     docs: {
       description:
         "Disallow reactive primitives at module scope, where state is shared across SSR requests.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-module-scope-reactive-primitive.md",
+      url: "https://github.com/solidjs/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-module-scope-reactive-primitive.md",
     },
     schema: [],
     messages: {
